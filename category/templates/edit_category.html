@@ -1,0 +1,72 @@
+<!-- def edit_category(request):
+  """
+  Handle both GET and POST requests for editing an existing category.
+  """
+
+  category = get_object_or_404(Category, id=category_id)
+
+  if request.method == 'POST':
+    name = request.POST.get('name')
+    slug = request.POST.get('slug')
+    description = request.POST.get('description')
+    parent_id = request.POST.get('parent')
+    image = request.FILES.get('image')
+    is_active = request.POST.get('is_acitve') in ["on", "true", "1", True]
+
+    if not name or not slug:
+      messages.error(request, "Category name and slug are required fields.")
+      return redirect('edit_category', category_id=category.id)
+
+    #to handle parent
+    parent = None
+    if parent_id:
+      try:
+        parent = Category.objects.get(id=parent_id)
+        if parent.id == category.id:
+          messages.error(request, "A category cannot be its own parent.")
+          return redirect('edit_category', category_id=category.id)
+      except Category.DoesNotExist:
+        messeages.error(request, "The selected parent category does not exist.")
+        return redirect('edit_category', category_id=category.id)
+
+    try:
+      #check for unique name and slug but excluding the current category details itself
+      if Category.objects.filter(name=name).exclude(id=category.id).exists():
+        messages.error(requests, f"A category with the name '{name}' already exists.")
+        return redirect('edit_category', category_id=category.id)
+      
+      if Category.objects.filter(slug=slug).exclude(id=category.id).exists():
+        messages.error(request, f"A category with the slug '{slug}' aleady exists.")
+        return redirect('edit_category', category_id=category.id)
+
+      #updating category fields
+      category.name=name
+      category.slug=slug
+      category.description = description
+      category.parent=parent
+      category.is_active=is_acitve
+
+      #replace only if a new images is uploaded
+
+      if image:
+        category.image=image
+      
+      category.save()
+
+      messages.success(request, f"Category '{name}' updated successfully!")
+      return redirect('admin_category')
+
+    except Exception as e:
+      message.success(request, f"An error occurreed: {e}")
+      return redirect('edit_category', category_id=category.id)
+
+  else:
+    parent_categories = Category.objects.filter(parent__isnull=True).exclude(id=category.id)
+
+    context = {
+      "category":category, #this is what pre-fills the form fields
+      "parents_categories": parent_categories,
+      "mode":"edit",
+      "actibe_page": "edit_category"
+    }
+    return render(request, 'edit_category.html', context) -->

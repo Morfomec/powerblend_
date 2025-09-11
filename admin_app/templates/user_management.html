@@ -1,0 +1,408 @@
+{% extends "admin_base.html" %}
+{% load custom_tags %}
+
+{% block extra_css %}
+<style>
+    html, body {
+        margin: 0;
+        padding: 0;
+        
+    }
+    body {
+        background-color: #f8f9fa;
+        color: #333;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .page-header {
+        background: white;
+        border-radius: 10px;
+        padding: 2rem;
+        margin-top: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .page-title {
+        color: #1a5f7a;
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+    .page-subtitle {
+        color: #6c757d;
+        font-size: 1rem;
+        margin-bottom: 0;
+    }
+    .content-card {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+    .content-card .card-header {
+        background: white;
+        border-bottom: 1px solid #eee;
+        padding: 1.5rem;
+        font-weight: 600;
+        color: #333;
+        border-radius: 10px 10px 0 0;
+    }
+    .content-card .card-body {
+        padding: 1.5rem;
+    }
+    .table th {
+        background-color: #f8f9fa;
+        border: none;
+        font-weight: 600;
+        color: #555;
+        padding: 1rem;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .table td {
+        padding: 1rem;
+        border-top: 1px solid #eee;
+        color: #333;
+        vertical-align: middle;
+    }
+    .table tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        /* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 0.9rem;
+    }
+    .status-badge {
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .status-active {
+        background: rgba(40, 167, 69, 0.1);
+        color: #28a745;
+    }
+    .status-blocked {
+        background: rgba(220, 53, 69, 0.1);
+        color: #dc3545;
+    }
+    .btn-action {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+        border-radius: 6px;
+        font-weight: 500;
+        margin: 0 0.2rem;
+        border: none;
+    }
+    .btn-block {
+        background: #dc3545;
+        color: white;
+    }
+    .btn-block:hover {
+        background: #c82333;
+        color: white;
+    }
+    .btn-unblock {
+        background: #28a745;
+        color: white;
+    }
+    .btn-unblock:hover {
+        background: #218838;
+        color: white;
+    }
+    .search-box {
+        position: relative;
+        margin-bottom: 1rem;
+    }
+    .search-box input {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 0.75rem 1rem 0.75rem 2.5rem;
+        width: 300px;
+    }
+    .search-box i {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #999;
+    }
+    .pagination-info {
+        color: #155a75;
+        font-size: 0.9rem;
+    }
+    .add-user-btn {
+        background: #1a5f7a;
+        border-color: #1a5f7a;
+        color: white;
+        padding: 0.5rem 1.5rem;
+        border-radius: 6px;
+        font-weight: 500;
+    }
+    .add-user-btn:hover {
+        background: #155a75;
+        border-color: #155a75;
+        color: white;
+    }
+    .table-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    .form-select {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+    }
+
+    /* New styles for search buttons */
+    .btn-search,
+    .btn-clear {
+        width: 100px; /* Set a consistent width for both buttons */
+        text-align: center;
+        padding: 0.75rem 1rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: background-color 0.2s;
+    }
+
+    .btn-search {
+        background-color: #1a5f7a;
+        color: white;
+        margin-bottom: 15px;
+        margin-left: 8px;
+    }
+
+    .btn-search:hover {
+        background-color: #155a75;
+    }
+
+    .btn-clear {
+        background-color: #e9ecef;
+        color: #333;
+        margin-bottom: 15px;
+        /* margin-left: 5px; */
+    }
+
+    .btn-clear:hover {
+        background-color: #dee2e6;
+    }
+
+    @media (max-width: 768px) {
+        .search-box input {
+            width: 100%;
+        }
+        .table-actions {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        body {
+            padding: 1rem;
+        }
+        .page-header {
+            padding: 1.5rem;
+        }
+    }
+</style>
+{% endblock extra_css %}
+{% block body %} 
+
+
+    <div class="container-fluid">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">User Management</h1>
+            <p class="page-subtitle">Manage and monitor all registered users on your platform</p>
+        </div>
+
+        <!-- Users Table -->
+        <div class="content-card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>All Users</span>
+                <button class="btn add-user-btn">
+                    <i class="fas fa-plus me-1"></i> Add New User
+                </button>
+            </div>
+
+
+            
+            <div class="card-body">
+                <div class="table-actions">
+                    <form method="get" id="user-filter-form" class="d-flex gap-2 w-100">
+                        <div class="d-flex align-items-center gap-2">
+                             <div class="search-box">
+                                <i class="fas fa-search"></i>
+                                <input type="text" class="form-control" placeholder="Search users..." name="search"
+                                        value="{{ request.GET.search }}">
+                            </div>
+                            <button type="submit" class="btn btn-search">
+                                <!-- <i class="fas fa-search"></i> -->
+                                Search
+                            </button>
+                            <button type="submit" class="btn btn-clear" name="clear">
+                                <!-- <i class="fas fa-times"></i> -->
+                                Clear
+                            </button>
+                        </div>
+
+                        <div class="filter-options ms-auto">
+                            <select class="form-select" name="filter" style="width: auto;">
+                                <option value="" {% if request.GET.filter == "" %}selected{% endif %}>All Users</option>
+                                <option value="active"  {% if request.GET.filter == "active" %}selected{% endif %}>Active Users</option>
+                                <option value="blocked"  {% if request.GET.filter == "blocked" %}selected{% endif %}>Blocked Users</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Users Table -->
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>SI NO</th>
+                                <th>FULL NAME</th>
+                                <th>EMAIL</th>
+                                <th>STATUS</th>
+                                <th>JOINED DATE</th>
+                                <th>ACTIONS</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+
+                            {% for user in page_obj %}
+
+                            <tr>
+                                <td>{{ forloop.counter|add:page_obj.start_index|add:"-1" }}</td>
+                                <!-- <td>{{user.id}}</td> -->
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="user-avatar me-3" style="background: {{ user.full_name|avatar_color }}">
+                                            {{ user.full_name|initials }}
+                                        </div>
+                                        <span>{{ user.full_name }}</span>
+                                    </div>
+                                </td>
+
+                                <td>{{user.email}}</td>
+
+                                <!-- status badge -->
+                               <td>
+                                    <span class="status-badge {% if user.is_active %}status-active{% else %}status-blocked{% endif %}">
+                                        {% if user.is_active %}Active{% else %}Blocked{% endif %}
+                                    </span>
+                                </td>
+
+                                <!-- Date Joined -->
+                                <td>{{ user.date_joined|date:"d M Y H:i" }}</td>
+
+                                <!-- Actions -->
+                                <td>
+                                    <form action="{% url 'toggle_user_status' user.id %}" method="post" style="display: inline;" class="user-status-form">
+                                        {% csrf_token %}                                
+                                            <button class="btn btn-action {% if user.is_active %}btn-block{% else %}btn-unblock{% endif %}" type="submit">
+                                                {% if user.is_active %}
+                                                    <i class="fas fa-ban me-1"></i>Block
+                                                {% else %}
+                                                    <i class="fas fa-check me-1"></i>Unblock
+                                                {% endif %}
+                                            </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6"> No users found.</td>
+                            </tr>
+                            {% endfor %}
+
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                {% include "includes/pagination.html" %}
+
+
+                <!-- Confirmation Modal -->
+                 <div class="modal fade" id="confirmModal" tabindex="-1">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Confirm Action</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p id="confirmMessage">Are you sure?</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-danger" id="confirmYes">Yes</button>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock body %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("user-filter-form");
+    const filterSelect = form.querySelector("select[name=filter]");
+
+    // Auto-submit when filter dropdown changes
+    filterSelect.addEventListener("change", function () {
+        form.submit();
+    });
+});
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    let formToSubmit = null;
+
+    // Intercept all status forms
+    document.querySelectorAll(".user-status-form").forEach(function (form) {
+        form.addEventListener("submit", function (event) {
+            event.preventDefault(); // stop normal submit
+            formToSubmit = form;
+
+            // Get action type (block or unblock)
+            let button = form.querySelector("button");
+            let isBlock = button.classList.contains("btn-block");
+            document.getElementById("confirmMessage").innerText =
+                `Are you sure you want to ${isBlock ? "block" : "unblock"} this user?`;
+
+            // Show modal
+            let modal = new bootstrap.Modal(document.getElementById("confirmModal"));
+            modal.show();
+        });
+    });
+
+    // If "Yes" is clicked in modal, submit the stored form
+    document.getElementById("confirmYes").addEventListener("click", function () {
+        if (formToSubmit) formToSubmit.submit();
+    });
+});
+</script>
+
+{% endblock extra_js %}

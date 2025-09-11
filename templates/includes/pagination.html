@@ -1,0 +1,42 @@
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <div class="pagination-info">Showing {{ page_obj.start_index }}-{{ page_obj.end_index }} of {{page_obj.paginator.count }} users</div>
+                     <nav>
+                        <ul class="pagination pagination-sm mb-0">
+                            {# Previous page #}
+                            {% if page_obj.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}&search={{ request.GET.search }}&filter={{ request.GET.filter }}">Previous</a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <a class="page-link" tabindex="-1">Previous</a>
+                                </li>
+                            {% endif %}
+
+                            {# Page numbers #}
+                            {% for num in page_obj.paginator.page_range %}
+                                {% if num >= page_obj.number|add:"-2" and num <= page_obj.number|add:"2" %}
+                                    <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                                        <a class="page-link" href="?page={{ num }}&search={{ request.GET.search }}&filter={{ request.GET.filter }}">{{ num }}</a>
+                                    </li>
+                                {% elif num == 1 or num == page_obj.paginator.num_pages %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ num }}&search={{ request.GET.search }}&filter={{ request.GET.filter }}">{{ num }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+
+
+                            {# Next page #}
+                            {% if page_obj.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.next_page_number }}&search={{ request.GET.search }}&filter={{ request.GET.filter }}">Next</a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <a class="page-link">Next</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                </div>

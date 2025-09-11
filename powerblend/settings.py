@@ -16,14 +16,24 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+
+from dotenv import load_dotenv
+import os
+
+# Load environment variables from .env file
+load_dotenv()
+
+
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-qb-z3oo(3qzs(63zo5nlc6+2c!x93yoku)denzxp&oqw_5p^il"
+SECRET_KEY = os.getenv('SECRET_KEY', 'default-secret-key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
+
 
 ALLOWED_HOSTS = []
 
@@ -37,24 +47,85 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+
+    #my apps
+    "accounts.apps.AccountsConfig", #important to load the signals from apps.py
+    "admin_app",
+    "category",
+    "home",
+
+     # Django Allauth
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
 ]
 
+
+# User model
+AUTH_USER_MODEL = "accounts.CustomUser"
+
+
+
+# New allauth settings (Django 5.2+)
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_SIGNUP_FIELDS = ["email*"]   # * = required field
+ACCOUNT_LOGIN_METHODS = {"email"}
+ACCOUNT_EMAIL_VERIFICATION = "none"
+
+# Auto-signup for social accounts
+SOCIALACCOUNT_AUTO_SIGNUP = True
+SOCIALACCOUNT_QUERY_EMAIL = True
+SOCIALACCOUNT_STORE_TOKENS = True
+SOCIALACCOUNT_LOGIN_ON_GET = True
+
+# Redirects
+LOGIN_URL = '/accounts/login/'
+LOGOUT_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = '/'
+ACCOUNT_LOGOUT_REDIRECT_URL = '/'
+
+
+
+
+
 MIDDLEWARE = [
+    "powerblend.middleware.DynamicLoginRedirectMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
+    'allauth.account.middleware.AccountMiddleware',
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+SITE_ID = 1
+
+
+# Google OAuth keys
+# Provider specific settings
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'APP': {
+            'client_id': '1015922401709-icn4a641ark3ofqb4tfvtisar17o0hm7.apps.googleusercontent.com',
+            'secret': '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',
+            'key': ''
+        },
+        'SCOPE': ['profile', 'email',],
+        'AUTH_PARAMS': {'access_type': 'online', "prompt":"select_account",},
+        'VERIFIED_EMAIL': True, 
+    }
+}
+
 
 ROOT_URLCONF = "powerblend.urls"
 
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -66,6 +137,20 @@ TEMPLATES = [
     },
 ]
 
+
+
+AUTHENTICATION_BACKENDS = [
+
+    # Needed to login by username in Django admin, regardless of `allauth`
+    'django.contrib.auth.backends.ModelBackend',
+
+    # `allauth` specific authentication methods, such as login by email
+    'allauth.account.auth_backends.AuthenticationBackend',
+
+    # 'social_core.backends.google.GoogleOAuth2',
+
+]
+
 WSGI_APPLICATION = "powerblend.wsgi.application"
 
 
@@ -74,8 +159,12 @@ WSGI_APPLICATION = "powerblend.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.getenv('DATABASE_NAME'),
+        "USER": os.getenv('DATABASE_USER'),
+        "PASSWORD": os.getenv('DATABASE_PASSWORD'),
+        "HOST": os.getenv('DATABASE_HOST'),
+        "PORT": os.getenv('DATABASE_PORT', 5432), # Default is 5432, cast to it
     }
 }
 
@@ -114,9 +203,42 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = "static/"
+# STATIC_URL = "static/"
+# STATICFILES_DIRS = [
+#     os.path.join(BASE_DIR, 'static')
+#     # BASE_DIR / "static",
+# ]
+
+STATIC_URL = 'static/'
+
+#this is where django will collect all static files for production
+STATIC_ROOT = BASE_DIR/ 'staticfiles'
+
+#this is where will be the custom static files durig development
+STATICFILES_DIRS=[BASE_DIR / 'static']
+
+#for user-uploaded files (product images, profile pics, etc.)
+#media file configuration
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR /'media'
+
+
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+ACCOUNT_ADAPTER = "accounts.adapters.CustomAccountAdapter"
+
+#Simple Mail Transfer Protocol - SMTP Configuration
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'muhammedshifil@gmail.com'
+EMAIL_HOST_PASSWORD = 'jerdbaluuebjrmzv'
+
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
