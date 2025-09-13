@@ -1,0 +1,90 @@
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm pt-5">
+    <div class="container-fluid">
+        <div class="row align-items-center w-100">
+            <div class="col-md-2">
+                <a class="navbar-brand d-flex align-items-center px-5" href="{% url 'home' %}">
+                    <div style="background: var(--primary-teal); width: 30px; height: 30px; margin-right: 10px; display: flex; align-items: center; justify-content: center; border-radius: 3px;">
+                        <span style="color: white; font-weight: bold; font-size: 28px;">M</span>
+                    </div>
+                    <span style="color: var(--primary-teal); font-weight: bold; font-size: 28px;">POWERBLEND</span>
+                </a>
+            </div>
+            <div class="col-md-6">
+                <div class="search-container position-relative">
+                    <input type="text" class="form-control search-input" placeholder="Search" style="padding-left: 40px; border-radius: 25px; background: #f8f9fa; border: 1px solid #e9ecef;">
+                    <i class="fas fa-search position-absolute" style="left: 15px; top: 50%; transform: translateY(-50%); color: #ff6b35;"></i>
+                </div>
+            </div>
+            
+            <div class="d-flex justify-content-end align-items-center">
+                <div class="dropdown">
+                <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userMenu" role="button" 
+                data-bs-toggle="dropdown" aria-expanded="false" style="color: #666; font-size: 18px; cursor: pointer;">
+                                <i class="fas fa-user me-2"></i>
+                        {% if user.is_authenticated %}
+                            {{ user.full_name }}
+                        
+                        {% endif %}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+                        {% if user.is_authenticated %}
+                            <li><a class="dropdown-item" href="#">My Account</a></li>
+                            <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
+                            <li><a class="dropdown-item" href="{% url 'admin_login' %}">Admin</a></li>
+
+                        {% else %}
+                            <li><a class="dropdown-item" href="{% url 'login' %}">Login</a></li>
+                            <li><a class="dropdown-item" href="{% url 'register' %}">Register</a></li>
+                            <li><a class="dropdown-item" href="{% url 'admin_login' %}">Admin</a></li>
+                        {% endif %}
+                        </ul>
+                </div>
+                <i class="fas fa-shopping-cart ms-3" style="color: #666; font-size: 18px; cursor: pointer;"></i>
+            </div>
+
+
+            <!-- <div class="col-md-4">
+                <div class="d-flex justify-content-end align-items-center">
+                    <i class="fas fa-user me-3" style="color: #666; font-size: 18px; cursor: pointer;"></i>
+                    <i class="fas fa-shopping-cart" style="color: #666; font-size: 18px; cursor: pointer;"></i>
+                </div>
+            </div> -->
+        </div>
+    </div>
+</nav>
+
+<!-- Secondary Navigation -->
+<nav class="navbar navbar-expand-lg" style="background: #f8f9fa; padding: 0.5rem 0;">
+    <div class="container-fluid">
+        <div class="collapse navbar-collapse justify-content-center">
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link fw-bold" href="#" style="color: var(--primary-teal);">Bestsellers</a></li>
+                <li class="nav-item"><a class="nav-link fw-bold" href="#" style="color: var(--primary-teal);">Protein</a></li>
+                <li class="nav-item"><a class="nav-link fw-bold" href="#" style="color: var(--primary-teal);">Creatine</a></li>
+                <li class="nav-item"><a class="nav-link fw-bold" href="#" style="color: var(--primary-teal);">Vitamins</a></li>
+                <li class="nav-item"><a class="nav-link fw-bold" href="#" style="color: var(--primary-teal);">Track My Order</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Promotional Banner -->
+<div class="container-fluid" style="background: #fff3e0; padding: 0.5rem 0; border-bottom: 1px solid #e0e0e0;">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-md-3">
+                <span style="font-size: 0.85rem; color: #666;"><i class="fas fa-truck" style="color: var(--orange); margin-right: 5px;"></i>Free delivery above ₹5,000</span>
+            </div>
+            <div class="col-md-3">
+                <span style="font-size: 0.85rem; color: #666;"><i class="fas fa-users" style="color: var(--orange); margin-right: 5px;"></i>Empowering over 20 million customers worldwide</span>
+            </div>
+            <div class="col-md-3">
+                <span style="font-size: 0.85rem; color: #666;"><i class="fas fa-mobile-alt" style="color: var(--orange); margin-right: 5px;"></i>Extra 5% off on APP</span>
+            </div>
+            <div class="col-md-3">
+                <span style="font-size: 0.85rem; color: #666;"><i class="fas fa-bell" style="color: var(--orange); margin-right: 5px;"></i>Sign up to avail our latest deals</span>
+            </div>
+        </div>
+    </div>
+</div>

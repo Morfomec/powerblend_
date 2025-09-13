@@ -522,9 +522,30 @@
                                     </ul>
                                 </li>
 
-                                <li class="{% if active_page == 'admin_category' %}active{% endif %}"><a href="{% url 'admin_category' %}"><i class="fas fa-tags"></i> Category</a></li>
+                                <li class="{% if active_page == 'admin_category' %}active{% endif %}">
+                                    <a href="{% url 'admin_category' %}">
+                                        <i class="fas fa-tags"></i> Category
+                                        <!-- <i class="fas fa-chevron-down dropdown-icon"></i> -->
+
+                                    </a>
+                                    <!-- <ul class="submenu" id="banners">
+                                        <li><a href="#"><i class="fas fa-list"></i> All Banners</a></li>
+                                        <li><a href="#"><i class="fas fa-plus"></i> Add Category</a></li>
+                                        <li><a href="#"><i class="fas fa-mobile-alt"></i> Mobile Banners</a></li>
+                                        <li><a href="#"><i class="fas fa-desktop"></i> Desktop Banners</a></li>
+                                    </ul> -->
+                                </li>
+
+            
+                                <li class="{% if active_page == 'admin_category' %}active{% endif %}">
+                                    <a href="{% url 'admin_products' %}">
+                                        <i class="fas fa-tags"></i> Product
+                                        <!-- <i class="fas fa-chevron-down dropdown-icon"></i> -->
+
+                                    </a>
+                                </li>
                                 
-                                <li>
+                                <!-- <li>
                                     <a href="#" class="dropdown-toggle" data-dropdown="products">
                                         <i class="fas fa-box"></i> Products
                                         <i class="fas fa-chevron-down dropdown-icon"></i>
@@ -535,7 +556,7 @@
                                         <li><a href="#"><i class="fas fa-warehouse"></i> Inventory</a></li>
                                         <li><a href="#"><i class="fas fa-star"></i> Featured Products</a></li>
                                     </ul>
-                                </li>
+                                </li> -->
 
                                 <li class="{% if active_page == 'users' %}active{% endif %}">
                                     <a href="{% url 'admin_user' %}"><i class="fas fa-users"></i> Users</a>

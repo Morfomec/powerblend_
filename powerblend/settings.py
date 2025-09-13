@@ -50,9 +50,10 @@ INSTALLED_APPS = [
 
     #my apps
     "accounts.apps.AccountsConfig", #important to load the signals from apps.py
+    "home",
     "admin_app",
     "category",
-    "home",
+    "products",
 
      # Django Allauth
     'allauth',

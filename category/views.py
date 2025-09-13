@@ -46,7 +46,7 @@ def admin_category(request):
     # "categories":categories,
     "page_obj":page_obj,
     }       
-  return render(request, 'admin_category.html', context)
+  return render(request, 'category_management.html', context)
 
 
 

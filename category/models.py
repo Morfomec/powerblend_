@@ -20,7 +20,7 @@ class Category(models.Model):
     #changes how it display in the admin side-bar
     class Meta:
         verbose_name_plural = "Categories"
-        db_table = 'admin_categories'
+        db_table = 'categories'
 
     #change how it displayed in the shell (to get more precise  name)
     def __str__(self):

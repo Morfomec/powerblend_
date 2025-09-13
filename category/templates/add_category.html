@@ -337,111 +337,111 @@ document.addEventListener("DOMContentLoaded", function () {
     const imagePreview = document.getElementById('imagePreview');
 
     // Auto-generate slug from name
-    nameInput.addEventListener('input', function() {
-        const name = this.value;
-        const slug = name.toLowerCase()
-                        .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
-                        .replace(/\s+/g, '-') // Replace spaces with hyphens
-                        .replace(/-+/g, '-') // Replace multiple hyphens with single
-                        .trim('-'); // Remove leading/trailing hyphens
-        slugInput.value = slug;
-    });
+//     nameInput.addEventListener('input', function() {
+//         const name = this.value;
+//         const slug = name.toLowerCase()
+//                         .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+//                         .replace(/\s+/g, '-') // Replace spaces with hyphens
+//                         .replace(/-+/g, '-') // Replace multiple hyphens with single
+//                         .trim('-'); // Remove leading/trailing hyphens
+//         slugInput.value = slug;
+//     });
 
-    // Image upload functionality
-    imageUploadArea.addEventListener('click', function() {
-        imageInput.click();
-    });
+//     // Image upload functionality
+//     imageUploadArea.addEventListener('click', function() {
+//         imageInput.click();
+//     });
 
-    // Drag and drop functionality
-    imageUploadArea.addEventListener('dragover', function(e) {
-        e.preventDefault();
-        this.classList.add('dragover');
-    });
+//     // Drag and drop functionality
+//     imageUploadArea.addEventListener('dragover', function(e) {
+//         e.preventDefault();
+//         this.classList.add('dragover');
+//     });
 
-    imageUploadArea.addEventListener('dragleave', function(e) {
-        e.preventDefault();
-        this.classList.remove('dragover');
-    });
+//     imageUploadArea.addEventListener('dragleave', function(e) {
+//         e.preventDefault();
+//         this.classList.remove('dragover');
+//     });
 
-    imageUploadArea.addEventListener('drop', function(e) {
-        e.preventDefault();
-        this.classList.remove('dragover');
+//     imageUploadArea.addEventListener('drop', function(e) {
+//         e.preventDefault();
+//         this.classList.remove('dragover');
         
-        const files = e.dataTransfer.files;
-        if (files.length > 0) {
-            handleImageFile(files[0]);
-        }
-    });
+//         const files = e.dataTransfer.files;
+//         if (files.length > 0) {
+//             handleImageFile(files[0]);
+//         }
+//     });
 
-    imageInput.addEventListener('change', function(e) {
-        if (this.files.length > 0) {
-            handleImageFile(this.files[0]);
-        }
-    });
+//     imageInput.addEventListener('change', function(e) {
+//         if (this.files.length > 0) {
+//             handleImageFile(this.files[0]);
+//         }
+//     });
 
-    function handleImageFile(file) {
-        // Validate file type
-        if (!file.type.startsWith('image/')) {
-            alert('Please select a valid image file.');
-            return;
-        }
+//     function handleImageFile(file) {
+//         // Validate file type
+//         if (!file.type.startsWith('image/')) {
+//             alert('Please select a valid image file.');
+//             return;
+//         }
 
-        // Validate file size (5MB limit)
-        if (file.size > 5 * 1024 * 1024) {
-            alert('File size must be less than 5MB.');
-            return;
-        }
+//         // Validate file size (5MB limit)
+//         if (file.size > 5 * 1024 * 1024) {
+//             alert('File size must be less than 5MB.');
+//             return;
+//         }
 
-        // Show preview
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            imagePreview.innerHTML = `
-                <div class="mt-3">
-                    <img src="${e.target.result}" class="image-preview" alt="Preview">
-                    <div class="mt-2">
-                        <button type="button" class="btn btn-sm btn-secondary" onclick="removeImage()">
-                            <i class="fas fa-times"></i> Remove Image
-                        </button>
-                    </div>
-                </div>
-            `;
-        };
-        reader.readAsDataURL(file);
-    }
+//         // Show preview
+//         const reader = new FileReader();
+//         reader.onload = function(e) {
+//             imagePreview.innerHTML = `
+//                 <div class="mt-3">
+//                     <img src="${e.target.result}" class="image-preview" alt="Preview">
+//                     <div class="mt-2">
+//                         <button type="button" class="btn btn-sm btn-secondary" onclick="removeImage()">
+//                             <i class="fas fa-times"></i> Remove Image
+//                         </button>
+//                     </div>
+//                 </div>
+//             `;
+//         };
+//         reader.readAsDataURL(file);
+//     }
 
-    // Form validation
-    document.getElementById('categoryForm').addEventListener('submit', function(e) {
-        const name = nameInput.value.trim();
-        const slug = slugInput.value.trim();
+//     // Form validation
+//     document.getElementById('categoryForm').addEventListener('submit', function(e) {
+//         const name = nameInput.value.trim();
+//         const slug = slugInput.value.trim();
 
-        if (!name) {
-            e.preventDefault();
-            alert('Category name is required.');
-            nameInput.focus();
-            return;
-        }
+//         if (!name) {
+//             e.preventDefault();
+//             alert('Category name is required.');
+//             nameInput.focus();
+//             return;
+//         }
 
-        if (!slug) {
-            e.preventDefault();
-            alert('URL slug is required.');
-            slugInput.focus();
-            return;
-        }
-    });
-});
+//         if (!slug) {
+//             e.preventDefault();
+//             alert('URL slug is required.');
+//             slugInput.focus();
+//             return;
+//         }
+//     });
+// });
 
-// Remove image preview
-function removeImage() {
-    document.getElementById('imagePreview').innerHTML = '';
-    document.getElementById('image').value = '';
-}
+// // Remove image preview
+// function removeImage() {
+//     document.getElementById('imagePreview').innerHTML = '';
+//     document.getElementById('image').value = '';
+// }
 
-// Reset form function
-function resetForm() {
-    if (confirm('Are you sure you want to reset the form? All entered data will be lost.')) {
-        document.getElementById('categoryForm').reset();
-        document.getElementById('imagePreview').innerHTML = '';
-    }
-}
+// // Reset form function
+// function resetForm() {
+//     if (confirm('Are you sure you want to reset the form? All entered data will be lost.')) {
+//         document.getElementById('categoryForm').reset();
+//         document.getElementById('imagePreview').innerHTML = '';
+//     }
+// }
 </script>
 {% endblock extra_js %}

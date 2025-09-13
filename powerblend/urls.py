@@ -30,6 +30,7 @@ urlpatterns = [
     path("admin/", include("admin_app.urls")),
     path("accounts/", include("allauth.urls")),
     path("category/", include("category.urls")),
+    path("products/", include("products.urls")),
 ]
 
 

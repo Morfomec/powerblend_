@@ -2,12 +2,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>POWERBLEND</title>
+    <title>{% block title %}POWERBLEND{% endblock %}</title>
+
+    <!-- bootstrap font_awesome and toastr_css -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    
+    
     <style>
         a {
             text-decoration: none;
@@ -135,7 +140,7 @@
             color: white;
             padding: 10px 20px;
             border-radius: 25px;
-            margin: 5px;6
+            margin: 5px;
             display: inline-block;
             text-decoration: none;
             font-weight: 500;
@@ -195,228 +200,106 @@
             margin-bottom: 2rem;
             text-transform: uppercase;
         }
+        
+        /* For messages - Container floats at top */
+        .messages-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        /* Fade-out effect for Bootstrap alerts */
+        .fade-message {
+            opacity: 1;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            position: relative;
+            padding-right: 30px; /* space for close button */
+        }
+
+        /* Close button */
+        .close-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* Automatically fade out after 3s */
+        .fade-message {
+            animation: fadeOut 0.5s ease forwards;
+            animation-delay: 3s;
+        }
     </style>
+
+    {% block extra_css %}{% endblock %}
+
 </head>
 <body>
 
-    {% if messages %}
+<!-- {% if messages %}
+    <div class="messages-container">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} text-uppercase text-center fade-message">
+            {{ message }}
+            <span class="close-btn" onclick="this.parentElement.style.display='none';">&times;</span>
+        </div>
+        {% endfor %}
+    </div>
+{% endif %} -->
+
+    <!-- {% if messages %}
         {% for message in messages %}
             <div class="text-uppercase text-center mb-5 alert {% if message.tags %}alert-{{ message.tags }}{% endif %}" id="alert">
                 {{ message }}
             </div>
         {% endfor %}
-    {% endif %}
+    {% endif %} -->
     
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm pt-5">
-        <div class="container-fluid">
-            <div class="row align-items-center w-100">
-                <div class="col-md-2">
-                    <a class="navbar-brand d-flex align-items-center px-5" href="{% url 'home' %}">
-                        <div style="background: var(--primary-teal); width: 30px; height: 30px; margin-right: 10px; display: flex; align-items: center; justify-content: center; border-radius: 3px;">
-                            <span style="color: white; font-weight: bold; font-size: 28px;">M</span>
-                        </div>
-                        <span style="color: var(--primary-teal); font-weight: bold; font-size: 28px;">POWERBLEND</span>
-                    </a>
-                </div>
-                <div class="col-md-6">
-                    <div class="search-container position-relative">
-                        <input type="text" class="form-control search-input" placeholder="Search" style="padding-left: 40px; border-radius: 25px; background: #f8f9fa; border: 1px solid #e9ecef;">
-                        <i class="fas fa-search position-absolute" style="left: 15px; top: 50%; transform: translateY(-50%); color: #ff6b35;"></i>
-                    </div>
-                </div>
-                
-                <div class="d-flex justify-content-end align-items-center">
-                    <div class="dropdown">
-                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userMenu" role="button" 
-                    data-bs-toggle="dropdown" aria-expanded="false" style="color: #666; font-size: 18px; cursor: pointer;">
-                                    <i class="fas fa-user me-2"></i>
-                            {% if user.is_authenticated %}
-                                {{ user.full_name }}
-                           
-                            {% endif %}
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
-                            {% if user.is_authenticated %}
-                                <li><a class="dropdown-item" href="#">My Account</a></li>
-                                <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
-                                <li><a class="dropdown-item" href="{% url 'admin_login' %}">Admin</a></li>
 
-                            {% else %}
-                                <li><a class="dropdown-item" href="{% url 'login' %}">Login</a></li>
-                                <li><a class="dropdown-item" href="{% url 'register' %}">Register</a></li>
-                                <li><a class="dropdown-item" href="{% url 'admin_login' %}">Admin</a></li>
-                            {% endif %}
-                            </ul>
-                    </div>
-                    <i class="fas fa-shopping-cart ms-3" style="color: #666; font-size: 18px; cursor: pointer;"></i>
-                </div>
+{% include 'includes/header_layout.html' %}
 
+{% block body %} {% endblock %}
 
-                <!-- <div class="col-md-4">
-                    <div class="d-flex justify-content-end align-items-center">
-                        <i class="fas fa-user me-3" style="color: #666; font-size: 18px; cursor: pointer;"></i>
-                        <i class="fas fa-shopping-cart" style="color: #666; font-size: 18px; cursor: pointer;"></i>
-                    </div>
-                </div> -->
-            </div>
-        </div>
-    </nav>
-
-    <!-- Secondary Navigation -->
-    <nav class="navbar navbar-expand-lg" style="background: #f8f9fa; padding: 0.5rem 0;">
-        <div class="container-fluid">
-            <div class="collapse navbar-collapse justify-content-center">
-                <ul class="navbar-nav">
-                    <li class="nav-item"><a class="nav-link fw-bold" href="#" style="color: var(--primary-teal);">Bestsellers</a></li>
-                    <li class="nav-item"><a class="nav-link fw-bold" href="#" style="color: var(--primary-teal);">Protein</a></li>
-                    <li class="nav-item"><a class="nav-link fw-bold" href="#" style="color: var(--primary-teal);">Creatine</a></li>
-                    <li class="nav-item"><a class="nav-link fw-bold" href="#" style="color: var(--primary-teal);">Vitamins</a></li>
-                    <li class="nav-item"><a class="nav-link fw-bold" href="#" style="color: var(--primary-teal);">Track My Order</a></li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Promotional Banner -->
-    <div class="container-fluid" style="background: #fff3e0; padding: 0.5rem 0; border-bottom: 1px solid #e0e0e0;">
-        <div class="container">
-            <div class="row text-center">
-                <div class="col-md-3">
-                    <span style="font-size: 0.85rem; color: #666;"><i class="fas fa-truck" style="color: var(--orange); margin-right: 5px;"></i>Free delivery above ₹5,000</span>
-                </div>
-                <div class="col-md-3">
-                    <span style="font-size: 0.85rem; color: #666;"><i class="fas fa-users" style="color: var(--orange); margin-right: 5px;"></i>Empowering over 20 million customers worldwide</span>
-                </div>
-                <div class="col-md-3">
-                    <span style="font-size: 0.85rem; color: #666;"><i class="fas fa-mobile-alt" style="color: var(--orange); margin-right: 5px;"></i>Extra 5% off on APP</span>
-                </div>
-                <div class="col-md-3">
-                    <span style="font-size: 0.85rem; color: #666;"><i class="fas fa-bell" style="color: var(--orange); margin-right: 5px;"></i>Sign up to avail our latest deals</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
-    {% block body %} {% endblock %}
+{% include 'includes/footer_layout.html' %}
 
 
 
 
 
+<!-- jQuery (required for Toastr) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
+<!-- Bootstrap 5 (does NOT require jQuery) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 
-    <!-- App Download Section -->
-    <section class="app-download">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-8">
-                    <h3>EXTRA 5% OFF IN THE APP</h3>
-                    <h2 style="color: white; margin-bottom: 1rem;">Download our app for exclusive offers</h2>
-                    <p>Use code: MYAPP</p>
-                    <div class="d-flex gap-3">
-                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjQ0IiB2aWV3Qm94PSIwIDAgMTUwIDQ0IiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxNTAiIGhlaWdodD0iNDQiIHJ4PSI4IiBmaWxsPSJibGFjayIvPjx0ZXh0IHg9IjUwIiB5PSIyOCIgZmlsbD0id2hpdGUiIGZvbnQtc2l6ZT0iMTQiPkFwcCBTdG9yZTwvdGV4dD48L3N2Zz4=" alt="Download on App Store" class="img-fluid" style="max-height: 50px;">
-                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjQ0IiB2aWV3Qm94PSIwIDAgMTUwIDQ0IiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxNTAiIGhlaWdodD0iNDQiIHJ4PSI4IiBmaWxsPSJibGFjayIvPjx0ZXh0IHg9IjQwIiB5PSIyOCIgZmlsbD0id2hpdGUiIGZvbnQtc2l6ZT0iMTQiPkdvb2dsZSBQbGF5PC90ZXh0Pjwvc3ZnPg==" alt="Get it on Google Play" class="img-fluid" style="max-height: 50px;">
-                    </div>
-                </div>
-                <div class="col-lg-4 text-center">
-                    <div style="background: white; border-radius: 20px; padding: 2rem; max-width: 200px; margin: 0 auto;">
-                        <i class="fas fa-mobile-alt" style="font-size: 4rem; color: var(--primary-teal);"></i>
-                        <p style="color: var(--dark-gray); margin-top: 1rem;">Mobile App Preview</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-a
-    <!-- Footer -->
-    <footer class="footer-section">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-3 col-md-6 mb-4">
-                    <h5>OUR COMPANY</h5>
-                    <div class="footer-links">
-                        <a href="#">About Us</a>
-                        <a href="#">Careers</a>
-                        <a href="#">Press</a>
-                        <a href="#">Blog</a>
-                        <a href="#">Contact</a>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6 mb-4">
-                    <h5>HELP & SUPPORT</h5>
-                    <div class="footer-links">
-                        <a href="#">Customer Service</a>
-                        <a href="#">Delivery Information</a>
-                        <a href="#">Returns Policy</a>
-                        <a href="#">Track Your Order</a>
-                        <a href="#">FAQs</a>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6 mb-4">
-                    <h5>PRODUCTS</h5>
-                    <div class="footer-links">
-                        <a href="#">Protein</a>
-                        <a href="#">Vitamins</a>
-                        <a href="#">Pre-Workout</a>
-                        <a href="#">Creatine</a>
-                        <a href="#">Weight Loss</a>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6 mb-4">
-                    <h5>FOLLOW US</h5>
-                    <div class="social-icons mb-3">
-                        <a href="#"><i class="fab fa-facebook"></i></a>
-                        <a href="#"><i class="fab fa-instagram"></i></a>
-                        <a href="#"><i class="fab fa-twitter"></i></a>
-                        <a href="#"><i class="fab fa-youtube"></i></a>
-                    </div>
-                    <p>Stay connected for updates and offers</p>
-                </div>
-            </div>
-            <hr style="border-color: rgba(255,255,255,0.2);">
-            <div class="row">
-                <div class="col-12 text-center">
-                    <p>&copy; 2025 LR NUTRITION. All rights reserved.</p>
-                </div>
-            </div>
-        </div>
-    </footer>
+<!-- Toastr JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-        <!-- jQuery (required for Toastr) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<!-- Toastr Config -->
+<script>
+    toastr.options = {
+        "closeButton": true,
+        "progressBar": true,
+        "positionClass": "toast-bottom-right",
+        "timeOut": "3000"
+    };
+</script>
 
-    <!-- Toastr JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+<!-- Django Messages -->
+{% if messages %}
+<script>
+    {% for message in messages %}
+        toastr["{{ message.tags|default:'info' }}"]("{{ message|escapejs }}");
+    {% endfor %}
+</script>
+{% endif %}
 
-    <!-- Toastr Config + Django Messages -->
-    <script>
-        toastr.options = {
-            "closeButton": true,
-            "progressBar": true,
-            "positionClass": "toast-bottom-right",
-            "timeOut": "3000"
-        };
-
-    //     {% if messages %}
-    //         {% for message in messages %}
-    //             toastr["{{ message.tags }}"]("{{ message }}");
-    //         {% endfor %}
-    //     {% endif %}
-    </script>
-
-    {% if messages %}
-    <script>
-        {% for message in messages %}
-            toastr["{{ message.tags|default:'info' }}"]("{{ message|escapejs }}");
-        {% endfor %}
-    </script>
-    {% endif %}
-
-    {% block scripts %}{% endblock %}
-    
-    <script>
+{% block scripts %}{% endblock scripts %}
 </body>
 </html>
