@@ -199,7 +199,7 @@ def edit_category(request, category_id):
         "name":{"value":category.name},
         "slug":{"value":category.slug},
         "description":{"value":category.description},
-        "parent":{"vlaues":category.parent.id if category.parent else ''},
+        "parent":{"value":category.parent.id if category.parent else ''},
         "is_active":{"value":category.is_active},
         "image":{"value":None},
       },

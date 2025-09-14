@@ -270,6 +270,22 @@
         margin-top: 2rem;
         padding-top: 2rem;
         border-top: 1px solid #eee;
+        
+    }
+
+    .btn-group-actions .btn {
+        height: 42px; /* or whatever height fits your design */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        min-width: 214px;
+    }
+
+ 
+    .btn-group-actions {
+        display: flex;
+        gap: 10px; /* equal spacing between buttons */
     }
 
     @media (max-width: 768px) {
@@ -309,7 +325,7 @@
     <div class="content-card">
         <div class="card-header d-flex justify-content-between align-items-center">
             <span>{% if mode == 'edit' %}Edit Product{% else %}Add New Product{% endif %}</span>
-            <a href="{% url 'admin_products' %}" class="btn btn-secondary">
+            <a href="{% url 'admin_products' %}?page={{ page_obj.number }}" class="btn btn-secondary">
                 <i class="fas fa-arrow-left me-1"></i> Back to Products
             </a>
         </div>
@@ -335,19 +351,21 @@
                     </div>
                     <div class="form-col">
                         <div class="form-group">
-                            <label for="categoryId" class="form-label">Category <span class="required">*</span></label>
-                            <select class="form-select" id="categoryId" name="categoryId" required>
+                            <label for="Category" class="form-label">Category <span class="required">*</span></label>
+                            <select class="form-select" id="category" name="category" required>
                                 <option value="">Select Category</option>
                                 {% for category in categories %}
                                     <option value="{{ category.id }}" 
-                                            {% if form.categoryId.value == category.id|stringformat:"s" %}selected{% endif %}>
+                                            {% if product.category and product.category.id == category.id %}
+                                            selected
+                                            {% endif %}>
                                         {{ category.name }}
                                     </option>
                                 {% endfor %}
                             </select>
                             <div class="form-text">Choose the category this product belongs to</div>
-                            {% if form.categoryId.errors %}
-                                <div class="text-danger mt-1">{{ form.categoryId.errors.0 }}</div>
+                            {% if form.category.errors %}
+                                <div class="text-danger mt-1">{{ form.category.errors.0 }}</div>
                             {% endif %}
                         </div>
                     </div>
@@ -359,7 +377,7 @@
                         <div class="form-group">
                             <label for="price" class="form-label">Price <span class="required">*</span></label>
                             <div class="input-group">
-                                <span class="input-group-text">$</span>
+                                <span class="input-group-text">Amount</span>
                                 <input type="number" class="form-control" id="price" name="price" 
                                        value="{{ form.price.value|default:'' }}" required step="0.01" min="0" max="99999.99"
                                        placeholder="0.00">
@@ -408,7 +426,7 @@
                         <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
                         <p class="text-muted mb-2">Click to select images or drag and drop</p>
                         <p class="text-muted small">Supported formats: JPG, PNG, GIF (Max: 5MB per image)</p>
-                        <input type="file" class="form-control d-none" id="productImages" name="images" 
+                        <input type="file" multiple class="form-control d-none" id="productImages" name="images" 
                                accept="image/*" multiple>
                         <button type="button" class="btn btn-secondary mt-2" onclick="document.getElementById('productImages').click()">
                             <i class="fas fa-plus me-1"></i> Add Images
@@ -439,8 +457,17 @@
                 <!-- Form Actions -->
                 <div class="btn-group-actions">
                     {% if mode == 'edit' %}
-                        <button type="submit" class="btn btn-primary me-2">
+                        <button type="submit" class="btn btn-primary btn md me-2">
                             <i class="fas fa-save me-1"></i> Update Product
+                        </button>
+
+                        <button type="button" class="btn btn-danger btn-md" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#dynamicConfirmModal"
+                                data-type="product"
+                                data-id="{{ product.id }}"
+                                data-name="{{ product.name }}">
+                            <i class="fas fa-trash me-1"></i> Delete Product
                         </button>
                     {% else %}
                         <button type="submit" class="btn btn-primary me-2" id="submitBtn">
@@ -451,6 +478,10 @@
                         </button>
                     {% endif %}
                 </div>
+
+                {% include "includes/confirm_modal.html" %}
+
+
             </form>
         </div>
     </div>
@@ -610,7 +641,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Form validation
     document.getElementById('productForm').addEventListener('submit', function(e) {
         const name = document.getElementById('name').value.trim();
-        const category = document.getElementById('categoryId').value;
+        const category = document.getElementById('Category').value;
         const price = document.getElementById('price').value;
         const description = document.getElementById('description').value.trim();
 
@@ -624,7 +655,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!category) {
             e.preventDefault();
             alert('Please select a category.');
-            document.getElementById('categoryId').focus();
+            document.getElementById('Category').focus();
             return;
         }
 

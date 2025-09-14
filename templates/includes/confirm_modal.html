@@ -1,0 +1,54 @@
+<div class="modal fade" id="dynamicConfirmModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="dynamicModalTitle">Confirm Action</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p id="dynamicModalMessage">Are you sure?</p>
+            </div>
+            <div class="modal-footer">
+                <form method="post" id="dynamicModalForm">
+                    {% csrf_token %}
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger" id="dynamicModalConfirmBtn">Yes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+var dynamicModal = document.getElementById('dynamicConfirmModal');
+
+dynamicModal.addEventListener('show.bs.modal', function (event) {
+    var button = event.relatedTarget; // button that triggered the modal
+    var type = button.getAttribute('data-type'); // 'product' or 'user'
+    var id = button.getAttribute('data-id');
+    var name = button.getAttribute('data-name');
+    var action = button.getAttribute('data-action'); // optional for users
+
+    // Modal elements
+    var title = document.getElementById('dynamicModalTitle');
+    var message = document.getElementById('dynamicModalMessage');
+    var form = document.getElementById('dynamicModalForm');
+
+    // Set default title
+    title.textContent = 'Confirm Action';
+
+    if (type === 'product') {
+        message.textContent = 'Are you sure you want to delete "' + name + '"?';
+        form.action = '/products/' + id + '/delete/'; // matches your URLconf
+    } else if (type === 'user') {
+        message.textContent = 'Are you sure you want to change status of "' + name + '"?';
+        form.action = '/users/' + id + '/toggle-status/'; // matches your user view
+    }
+});
+</script>
+
+
+
+

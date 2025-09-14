@@ -1,495 +1,27 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
+
+    <!-- External CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <!-- External JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-    <style>
 
-        html, body {
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            background-color: #f8f9fa;
-            color: #333;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        .sidebar {
-            background: white;
-            min-height: 100vh;
-            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
-            padding: 0;
-            /* New: Fixed position */
-            position: fixed;
-            top: 0;
-            left: 0;
-            bottom: 0;
-            width: inherit; /* Inherit width from parent to fill col-md-2 */
-            overflow-y: auto; /* Enable scrolling for long content */
-        }
-
-        .sidebar-header {
-            background: #1a5f7a;
-            color: white;
-            padding: 2.5rem;
-            text-align: center;
-            font-weight: bold;
-        }
-
-        .sidebar-menu {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .sidebar-menu li {
-            border-bottom: 1px solid #eee;
-        }
-
-        .sidebar-menu a, .sidebar-logout-btn {
-            display: flex;
-            align-items: center;
-            padding: 1rem;
-            color: #333;
-            text-decoration: none;
-            transition: all 0.3s;
-            position: relative;
-        }
-        
-        /* New: Spacing for icons */
-        .sidebar-menu a i, .sidebar-logout-btn i {
-            margin-right: 15px;
-        }.sidebar-lo
-
-
-        .sidebar-menu a:hover, .sidebar-logout-btn:hover {
-            background-color: #f8f9fa;
-            color: #1a5f7a;
-        }
-
-        .sidebar-menu a.active {
-            background-color: #1a5f7a;
-            color: white;
-        }
-        .sidebar-menu a.active i {
-            color: white;
-        }
-
-        .dropdown-icon {
-            margin-left: auto;
-            transition: transform 0.3s;
-        }
-
-        .dropdown-icon.rotated {
-            transform: rotate(180deg);
-        }
-
-        .submenu {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease-out;
-            background-color: #f8f9fa;
-        }
-
-        .submenu.open {
-            max-height: 200px;
-        }
-
-        .submenu a {
-            padding-left: 3.5rem; /* Adjusted padding for submenu items */
-            color: #666;
-            font-size: 0.9rem;
-        }
-
-        .submenu a:hover {
-            background-color: #e9ecef;
-            color: #1a5f7a;
-        }
-        
-        .main-content {
-            padding: 0;
-            /* New: Add left margin to main content to account for fixed sidebar */
-            margin-left: 16.66667%; /* This is the width of col-md-2 */
-            width: 83.33333%; /* This is the width of col-md-10 */
-        }
-
-        .welcome-banner {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            padding: 3rem 2rem;
-            margin-bottom: 2rem;
-            border-radius: 0 0 20px 20px;
-        }
-
-        .welcome-title {
-            color: #1a5f7a;
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-            line-height: 1.2;
-        }
-
-        .welcome-subtitle {
-            color: #6c757d;
-            font-size: 1.1rem;
-            margin-bottom: 2rem;
-            line-height: 1.5;
-        }
-
-        .btn-add-product {
-            background: #1a5f7a;
-            color: white;
-            border: none;
-            padding: 0.875rem 2rem;
-            font-size: 1rem;
-            font-weight: 600;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(26, 95, 122, 0.3);
-        }
-
-        .btn-add-product:hover {
-            background: #155a75;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(26, 95, 122, 0.4);
-            color: white;
-        }
-
-        .welcome-illustration img {
-            border-radius: 15px;
-            opacity: 0.9;
-        }
-
-        .stats-section {
-            padding: 0 2rem;
-        }
-
-        .top-navbar {
-            background: linear-gradient( 135deg, #428b8b 0%, #064a4a 100%);  
-            padding: 2.5rem 2rem;
-            margin: 0;
-            color: white;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        .welcome-section h5 {
-            color: white;
-            font-weight: 600;
-        }
-
-        .nav-actions .btn-success {
-            background: rgba(255,255,255,0.2);
-            border: 1px solid rgba(255,255,255,0.3);
-            color: white;
-            font-weight: 500;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            transition: all 0.3s;
-        }
-
-        .nav-actions .btn-success:hover {
-            background: rgba(255,255,255,0.3);
-            border-color: rgba(255,255,255,0.4);
-            transform: translateY(-1px);
-            color: white;
-        }
-
-        .notification-icon {
-            position: relative;
-            cursor: pointer;
-            padding: 0.5rem;
-            transition: all 0.3s;
-        }
-
-        .notification-icon:hover {
-            transform: scale(1.1);
-        }
-
-        .notification-icon i {
-            font-size: 1.2rem;
-            color: white;
-        }
-
-        .notification-badge {
-            position: absolute;
-            top: 0;
-            right: 0;
-            background: #dc3545;
-            color: white;
-            border-radius: 50%;
-            width: 18px;
-            height: 18px;
-            font-size: 0.7rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-        }
-
-        .profile-pic {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border: 2px solid rgba(255,255,255,0.3);
-            object-fit: cover;
-        }
-
-        .profile-name {
-            color: white;
-            font-weight: 500;
-            font-size: 0.9rem;
-        }
-
-        .profile-section {
-            cursor: pointer;
-            padding: 0.25rem 0.5rem;
-            border-radius: 6px;
-            transition: all 0.3s;
-        }
-
-        .profile-section:hover {
-            background: rgba(255,255,255,0.1);
-        }
-
-        .stats-card {
-            border-radius: 10px;
-            padding: 1.5rem;
-            color: white;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .stats-card::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 100px;
-            height: 100px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 50%;
-            transform: translate(30px, -30px);
-        }
-
-        .stats-card .icon {
-            font-size: 2rem;
-            margin-bottom: 1rem;
-        }
-
-        .stats-card .number {
-            font-size: 2rem;
-            font-weight: bold;
-            margin-bottom: 0.5rem;
-        }
-
-        .stats-card .label {
-            font-size: 0.9rem;
-            opacity: 0.9;
-        }
-
-        .card-green { background: linear-gradient(135deg, #28a745, #20c997); }
-        .card-blue { background: linear-gradient(135deg, #007bff, #6610f2); }
-        .card-purple { background: linear-gradient(135deg, #6f42c1, #e83e8c); }
-        .card-red { background: linear-gradient(135deg, #dc3545, #fd7e14); }
-
-        .content-card {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-bottom: 2rem;
-        }
-
-        .content-card .card-header {
-            background: white;
-            border-bottom: 1px solid #eee;
-            padding: 1.5rem;
-            font-weight: 600;
-            color: #333;
-        }
-
-        .content-card .card-body {
-            padding: 1.5rem;
-        }
-
-        .table th {
-            background-color: #f8f9fa;
-            border: none;
-            font-weight: 600;
-            color: #555;
-            padding: 1rem;
-        }
-
-        .table td {
-            padding: 1rem;
-            border-top: 1px solid #eee;
-            color: #333;
-        }
-
-        .table {
-            --bs-table-bg: transparent;
-        }
-
-        .pagination-info {
-            color: #6c757d;
-            font-size: 0.9rem;
-        }
-
-        .chart-container {
-            position: relative;
-            height: 400px;
-        }
-
-        .dropdown-toggle::after {
-            margin-left: auto;
-        }
-
-        .form-select {
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            background-color: white;
-            color: #333;
-        }
-
-        .form-select:focus {
-            border-color: #1a5f7a;
-            box-shadow: 0 0 0 0.2rem rgba(26, 95, 122, 0.25);
-            background-color: white;
-            color: #333;
-        }
-
-        .btn-outline-secondary {
-            border-color: #ddd;
-            color: #333;
-            background-color: transparent;
-        }
-
-        .btn-outline-secondary:hover {
-            background-color: #f8f9fa;
-            border-color: #ddd;
-            color: #333;
-        }
-
-        .pagination .page-link {
-            background-color: white;
-            border-color: #dee2e6;
-            color: #0d6efd;
-        }
-
-        .pagination .page-item.active .page-link {
-            background-color: #0d6efd;
-            border-color: #0d6efd;
-        }
-
-        .pagination .page-link:hover {
-            background-color: #e9ecef;
-            border-color: #dee2e6;
-            color: #0a58ca;
-        }
-
-        .pagination .page-item.disabled .page-link {
-            background-color: white;
-            border-color: #dee2e6;
-            color: #6c757d;
-        }
-
-        .legend-item {
-            display: inline-flex;
-            align-items: center;
-            margin-right: 1rem;
-            font-size: 0.9rem;
-        }
-
-        .legend-color {
-            width: 12px;
-            height: 12px;
-            border-radius: 2px;
-            margin-right: 0.5rem;
-        }
-
-
-        .sidebar-logout-btn {
-            background: none;
-            border: none;
-            color: inherit;
-            font: inherit;
-            cursor: pointer;
-            padding: 0;
-            margin: 0;
-            display: flex;
-            align-items: center;
-            gap: 0;
-            width: 100%;
-            text-align: inherit;
-
-            padding: 1rem;
-            color: #333;
-            text-decoration: none;
-            transition: all 0.3s;
-        }
-
-        .sidebar-logout-btn:hover {
-            color: #2c5f5f; 
-        }
-
-        
-        /* For messages - Container floats at top */
-        .messages-container {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 9999;
-            width: 90%;
-            max-width: 500px;
-        }
-
-        /* Fade-out effect for Bootstrap alerts */
-        .fade-message {
-            opacity: 1;
-            transition: opacity 0.5s ease, transform 0.5s ease;
-            position: relative;
-            padding-right: 30px; /* space for close button */
-        }
-
-        /* Close button */
-        .close-btn {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        /* Automatically fade out after 3s */
-        .fade-message {
-            animation: fadeOut 0.5s ease forwards;
-            animation-delay: 3s;
-        }
-
-        @keyframes fadeOut {
-            to {
-                opacity: 0;
-                transform: translateY(-20px);
-                height: 0;
-                margin: 0;
-                padding: 0;
-            }
-        }
-
-    </style>
+    <!-- Static CSS -->
+    <link rel="stylesheet" href="{% static 'css/admin_base.css' %}">
     {% block extra_css %}{% endblock %}
 </head>
 <body>
     <div class="container-fluid">
         <div class="row">
 
-            
+            <!-- Messages -->
             {% if messages %}
             <div class="messages-container">
                 {% for message in messages %}
@@ -501,235 +33,125 @@
             </div>
             {% endif %}
 
+            <!-- Sidebar -->
             <div class="col-md-2 p-0">
                 <div class="sidebar">
-                    <div class="sidebar-header">
-                        ADMIN DASHBOARD
-                    </div>
-                                                <ul class="sidebar-menu">
+                    <div class="sidebar-header">ADMIN DASHBOARD</div>
+                    <ul class="sidebar-menu">
 
-                                    <li class="{% if active_page == 'dashboard' %}active{% endif %}"><a href="{% url 'admin_dashboard' %}"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-                                
-                                <li>
-                                    <a href="#" class="dropdown-toggle" data-dropdown="home-slides">
-                                        <i class="fas fa-home"></i> Home Slides
-                                        <i class="fas fa-chevron-down dropdown-icon"></i>
-                                    </a>
-                                    <ul class="submenu" id="home-slides">
-                                        <li><a href="#"><i class="fas fa-list"></i> All Slides</a></li>
-                                        <li><a href="#"><i class="fas fa-plus"></i> Add Slide</a></li>
-                                        <li><a href="#"><i class="fas fa-cog"></i> Slide Settings</a></li>
-                                    </ul>
-                                </li>
+                        <!-- Dashboard -->
+                        <li class="{% if active_page == 'dashboard' %}active{% endif %}">
+                            <a href="{% url 'admin_dashboard' %}">
+                                <i class="fas fa-tachometer-alt"></i> Dashboard
+                            </a>
+                        </li>
 
-                                <li class="{% if active_page == 'admin_category' %}active{% endif %}">
-                                    <a href="{% url 'admin_category' %}">
-                                        <i class="fas fa-tags"></i> Category
-                                        <!-- <i class="fas fa-chevron-down dropdown-icon"></i> -->
-
-                                    </a>
-                                    <!-- <ul class="submenu" id="banners">
-                                        <li><a href="#"><i class="fas fa-list"></i> All Banners</a></li>
-                                        <li><a href="#"><i class="fas fa-plus"></i> Add Category</a></li>
-                                        <li><a href="#"><i class="fas fa-mobile-alt"></i> Mobile Banners</a></li>
-                                        <li><a href="#"><i class="fas fa-desktop"></i> Desktop Banners</a></li>
-                                    </ul> -->
-                                </li>
-
-            
-                                <li class="{% if active_page == 'admin_category' %}active{% endif %}">
-                                    <a href="{% url 'admin_products' %}">
-                                        <i class="fas fa-tags"></i> Product
-                                        <!-- <i class="fas fa-chevron-down dropdown-icon"></i> -->
-
-                                    </a>
-                                </li>
-                                
-                                <!-- <li>
-                                    <a href="#" class="dropdown-toggle" data-dropdown="products">
-                                        <i class="fas fa-box"></i> Products
-                                        <i class="fas fa-chevron-down dropdown-icon"></i>
-                                    </a>
-                                    <ul class="submenu" id="products">
-                                        <li><a href="#"><i class="fas fa-list"></i> All Products</a></li>
-                                        <li><a href="#"><i class="fas fa-plus"></i> Add Product</a></li>
-                                        <li><a href="#"><i class="fas fa-warehouse"></i> Inventory</a></li>
-                                        <li><a href="#"><i class="fas fa-star"></i> Featured Products</a></li>
-                                    </ul>
-                                </li> -->
-
-                                <li class="{% if active_page == 'users' %}active{% endif %}">
-                                    <a href="{% url 'admin_user' %}"><i class="fas fa-users"></i> Users</a>
-                                </li>
-                                <li><a href="#"><i class="fas fa-shopping-cart"></i> Orders</a></li>
-                                
-                                <li>
-                                    <a href="#" class="dropdown-toggle" data-dropdown="banners">
-                                        <i class="fas fa-image"></i> Banners
-                                        <i class="fas fa-chevron-down dropdown-icon"></i>
-                                    </a>
-                                    <ul class="submenu" id="banners">
-                                        <li><a href="#"><i class="fas fa-list"></i> All Banners</a></li>
-                                        <li><a href="#"><i class="fas fa-plus"></i> Add Banner</a></li>
-                                        <li><a href="#"><i class="fas fa-mobile-alt"></i> Mobile Banners</a></li>
-                                        <li><a href="#"><i class="fas fa-desktop"></i> Desktop Banners</a></li>
-                                    </ul>
-                                </li>
-
-                                <li><a href="#"><i class="fas fa-percent"></i> Coupon</a></li>
-                                <li><a href="#"><i class="fas fa-chart-bar"></i> Reports</a></li>
-                                <li><a href="#"><i class="fas fa-cog"></i> Settings</a></li>
-
-
-
-
-
-
-
-
-
-                                <li>
-                                    <form id="logoutForm" method="POST" action="{% url 'admin_logout' %}" style="display:inline;">
-                                        {% csrf_token %}
-                                        <button type="submit" class="sidebar-logout-btn">
-                                            <i class="fas fa-sign-out-alt"></i> Logout
-                                        </button>
-                                    </form>
-                                </li>
+                        <!-- Home Slides -->
+                        <li>
+                            <a href="#" class="dropdown-toggle" data-dropdown="home-slides">
+                                <i class="fas fa-home"></i> Home Slides
+                                <i class="fas fa-chevron-down dropdown-icon"></i>
+                            </a>
+                            <ul class="submenu" id="home-slides">
+                                <li><a href="#"><i class="fas fa-list"></i> All Slides</a></li>
+                                <li><a href="#"><i class="fas fa-plus"></i> Add Slide</a></li>
+                                <li><a href="#"><i class="fas fa-cog"></i> Slide Settings</a></li>
                             </ul>
+                        </li>
+
+                        <!-- Category -->
+                        <li class="{% if active_page == 'admin_category' %}active{% endif %}">
+                            <a href="{% url 'admin_category' %}">
+                                <i class="fas fa-tags"></i> Category
+                            </a>
+                        </li>
+
+                        <!-- Product -->
+                        <li class="{% if active_page == 'admin_products' %}active{% endif %}">
+                            <a href="{% url 'admin_products' %}">
+                                <i class="fas fa-tags"></i> Product
+                            </a>
+                        </li>
+
+                        <!-- Users -->
+                        <li class="{% if active_page == 'users' %}active{% endif %}">
+                            <a href="{% url 'admin_user' %}">
+                                <i class="fas fa-users"></i> Users
+                            </a>
+                        </li>
+
+                        <!-- Orders -->
+                        <li><a href="#"><i class="fas fa-shopping-cart"></i> Orders</a></li>
+
+                        <!-- Banners -->
+                        <li>
+                            <a href="#" class="dropdown-toggle" data-dropdown="banners">
+                                <i class="fas fa-image"></i> Banners
+                                <i class="fas fa-chevron-down dropdown-icon"></i>
+                            </a>
+                            <ul class="submenu" id="banners">
+                                <li><a href="#"><i class="fas fa-list"></i> All Banners</a></li>
+                                <li><a href="#"><i class="fas fa-plus"></i> Add Banner</a></li>
+                                <li><a href="#"><i class="fas fa-mobile-alt"></i> Mobile Banners</a></li>
+                                <li><a href="#"><i class="fas fa-desktop"></i> Desktop Banners</a></li>
+                            </ul>
+                        </li>
+
+                        <!-- Coupon, Reports, Settings -->
+                        <li><a href="#"><i class="fas fa-percent"></i> Coupon</a></li>
+                        <li><a href="#"><i class="fas fa-chart-bar"></i> Reports</a></li>
+                        <li><a href="#"><i class="fas fa-cog"></i> Settings</a></li>
+
+                        <!-- Logout -->
+                        <li>
+                            <form id="logoutForm" method="POST" action="{% url 'admin_logout' %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="sidebar-logout-btn">
+                                    <i class="fas fa-sign-out-alt"></i> Logout
+                                </button>
+                            </form>
+                        </li>
+
+                    </ul>
                 </div>
             </div>
 
+            <!-- Main Content -->
             <div class="col-md-10 main-content">
+
+                <!-- Top Navbar -->
                 <div class="top-navbar">
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="welcome-section">
                             <h5 class="mb-0">POWER</h5>
                         </div>
                         <div class="nav-actions d-flex align-items-center">
+
+                            <!-- Notifications -->
                             <div class="notification-icon me-3">
                                 <i class="fas fa-bell"></i>
                                 <span class="notification-badge">3</span>
                             </div>
+
+                            <!-- Profile -->
                             <div class="profile-section d-flex align-items-center">
                                 <img src="https://via.placeholder.com/40x40/28a745/ffffff?text=U" alt="Profile" class="profile-pic me-2">
-                                <span class="profile-name">{{request.user}}</span>
+                                <span class="profile-name">{{ request.user }}</span>
                             </div>
+
                         </div>
                     </div>
                 </div>  
 
-                
+                <!-- Body Content -->
+                {% block body %}{% endblock %}
 
-                {% block body %} {% endblock %}
-            
             </div>
         </div>
     </div>
+
     {% block extra_js %}{% endblock %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Chart.js Configuration
-        const ctx = document.getElementById('salesChart').getContext('2d');
-        const salesChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ['JAN', 'FEB', 'MAR', 'APRIL', 'MAY', 'JUN', 'JULY', 'AUG', 'SEP', 'OCT', 'NOV'],
-                datasets: [{
-                    label: 'Total Users',
-                    data: [0, 0, 300000, 1400000, 1200000, 200000, 1800000, 0, 0, 0, 0],
-                    backgroundColor: '#28a745',
-                    borderRadius: 4,
-                    barThickness: 30
-                }, {
-                    label: 'Total Sales',
-                    data: [0, 0, 250000, 1300000, 1100000, 180000, 1700000, 0, 0, 0, 0],
-                    backgroundColor: '#20c997',
-                    borderRadius: 4,
-                    barThickness: 30
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 2000000,
-                        ticks: {
-                            callback: function(value) {
-                                return value.toLocaleString();
-                            }
-                        },
-                        grid: {
-                            display: true,
-                            color: '#f0f0f0'
-                        }
-                    },
-                    x: {
-                        grid: {
-                            display: false
-                        }
-                    }
-                },
-                interaction: {
-                    intersect: false,
-                    mode: 'index'
-                }
-            }
-        });
-
-        // Enhanced sidebar navigation with dropdown functionality
-        document.querySelectorAll('.sidebar-menu a').forEach(link => {
-            link.addEventListener('click', function(e) {
-                // Handle dropdown toggles
-                if (this.classList.contains('dropdown-toggle')) {
-                    e.preventDefault(); // Only prevent default for dropdowns
-                    const dropdownId = this.getAttribute('data-dropdown');
-                    const submenu = document.getElementById(dropdownId);
-                    const dropdownIcon = this.querySelector('.dropdown-icon');
-                    
-                    // Toggle submenu
-                    submenu.classList.toggle('open');
-                    dropdownIcon.classList.toggle('rotated');
-                    
-                    // Close other dropdowns
-                    document.querySelectorAll('.submenu').forEach(menu => {
-                        if (menu !== submenu) {
-                            menu.classList.remove('open');
-                        }
-                    });
-                    document.querySelectorAll('.dropdown-icon').forEach(icon => {
-                        if (icon !== dropdownIcon) {
-                            icon.classList.remove('rotated');
-                        }
-                    });
-                }
-                
-                // Add/remove active class for all links
-                document.querySelectorAll('.sidebar-menu a').forEach(l => l.classList.remove('active'));
-                this.classList.add('active');
-            });
-        });
-
-        // Handle submenu clicks
-        document.querySelectorAll('.submenu a').forEach(link => {
-            link.addEventListener('click', function(e) {
-                // Note: The click event is no longer prevented for submenu links
-                
-                // Remove active class from all main menu items
-                document.querySelectorAll('.sidebar-menu > li > a').forEach(l => l.classList.remove('active'));
-                // Remove active class from all submenu items
-                document.querySelectorAll('.submenu a').forEach(l => l.classList.remove('active'));
-                // Add active class to clicked submenu item
-                this.classList.add('active');
-            });
-        });
-    </script>
+    <script src="{% static 'js/admin_base.js' %}"></script>
 </body>
 </html>

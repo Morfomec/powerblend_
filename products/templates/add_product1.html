@@ -1,0 +1,94 @@
+{% extends "admin_base.html" %}
+{% block body %}
+
+<div class="container-fluid">
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1 class="page-title">
+      {% if mode == "add" %} Add Product {% else %} Edit Product {% endif %}
+    </h1>
+    <p class="page-subtitle">Manage product details and images</p>
+  </div>
+
+  <div class="content-card">
+    <div class="card-header">
+      {% if mode == "add" %} New Product {% else %} Update Product {% endif %}
+    </div>
+    <div class="card-body">
+      <form method="POST" enctype="multipart/form-data" class="needs-validation">
+        {% csrf_token %}
+
+        <!-- Product Name -->
+        <div class="mb-3">
+          <label class="form-label">Product Name</label>
+          {{ form.name }}
+          {% if form.name.errors %}
+            <div class="text-danger small">{{ form.name.errors }}</div>
+          {% endif %}
+        </div>
+
+        <!-- Category -->
+        <div class="mb-3">
+          <label class="form-label">Category</label>
+          {{ form.category }}
+        </div>
+
+        <!-- Price & Stock -->
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Price</label>
+            {{ form.price }}
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Stock</label>
+            {{ form.stock }}
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="mb-3">
+          <label class="form-label">Description</label>
+          {{ form.description }}
+        </div>
+
+        <!-- Active / Listed -->
+        <div class="form-check mb-4">
+          {{ form.is_listed }}
+          <label class="form-check-label">Listed / Active</label>
+        </div>
+
+        <!-- Product Images -->
+        <h4 class="mb-3">Product Images</h4>
+        {{ formset.management_form }}
+        {% for f in formset %}
+          <div class="card p-3 mb-3">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Image</label>
+                {{ f.image }}
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Caption</label>
+                {{ f.caption }}
+              </div>
+              <div class="col-md-2 mb-3 form-check">
+                {{ f.is_primary }}
+                <label class="form-check-label">Primary</label>
+              </div>
+            </div>
+            {% if f.errors %}
+              <div class="text-danger small">{{ f.errors }}</div>
+            {% endif %}
+          </div>
+        {% endfor %}
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn btn-primary">
+          {% if mode == "add" %} Add Product {% else %} Update Product {% endif %}
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock body %}
