@@ -10,16 +10,61 @@
     <!-- Product Categories -->
     <div class="container">
         <div class="row product-grid">
+            {% for product in products %}
             <div class="col-md-3 col-sm-6">
-                <div class="product-card">
-                    <div class="product-image" style="background: linear-gradient(45deg, #ff6b35, #ff8c69);"></div>
+                <div class="product-card"> 
+
+                    <!-- for images -->
+                    <div class="product-image text-center">   
+                        {% if product.images.all %}
+                        <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" class="img-fluid">
+                        {% else %}
+                        <img src="https://via.placeholder.com/300x300?text=No+Image" alt="No image available"  class="img-fluid w-100" style="object-fit: cover; height: 250px;">
+                        {% endif %}
+                    </div>
+
+                    <!-- for product info -->
                     <div class="product-info text-center">
-                        <h5 class="product-title">26g WHEY PROTEIN PER SERVING</h5>
-                        <button class="btn btn-shop">SHOP</button>
+                        <h5 class="product-title">{{ product.name }}</h5>
+
+                        <div class="rating">
+                        <span>★★★★★</span> <span>(30468)</span>
+                    </div>
+                    <div class="price-section">
+                        <span class="current-price">₹{{ product.price }}</span>
+                        <span class="original-price">Was ₹3699.00</span>
+                        <span class="save-price">Save ₹950.00</span>
+                    </div>
+                    <div class="discount-badge">EXTRA 10% OFF ABOVE ₹7,000</div>
+                    <div class="discount-badge">EXTRA 15% OFF ABOVE ₹15,000</div>
+
+                        <button class="quick-buy-btn">QUICK BUY</button>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6">
+            {% endfor %}
+        </div>
+
+        <div class="col-lg-3 col-md-6">
+                <div class="product-card">
+                    
+                    <i class="far fa-heart heart-icon"></i>
+                    <img src="#" alt="Impact Whey Isolate" class="product-image">
+                    <h5 class="product-title">Impact Whey Isolate</h5>
+                    <div class="rating">
+                        <span>★★★★★</span> <span>(30468)</span>
+                    </div>
+                    <div class="price-section">
+                        <span class="current-price">₹1649</span>
+                        <span class="original-price">Was ₹3699.00</span>
+                        <span class="save-price">Save ₹950.00</span>
+                    </div>
+                    <div class="discount-badge">EXTRA 10% OFF ABOVE ₹7,000</div>
+                    <div class="discount-badge">EXTRA 15% OFF ABOVE ₹15,000</div>
+                    <button class="quick-buy-btn">QUICK BUY</button>
+                </div>
+            </div>
+            <!-- <div class="col-md-3 col-sm-6">
                 <div class="product-card">
                     <div class="product-image" style="background: linear-gradient(45deg, #ff6b35, #ffa500);"></div>
                     <div class="product-info text-center">
@@ -45,21 +90,20 @@
                         <button class="btn btn-shop">SHOP</button>
                     </div>
                 </div>
-            </div>
-        </div>
+            </div> -->
+        <!-- </div> -->
 
         <!-- Category Pills -->
         <div class="category-pills text-center">
             <a href="#" class="pill">WHEY</a>
-            <a href="#" class="pill">PLANT</a>
+            <a href="#" class="pill">ISOLATE</a>
             <a href="#" class="pill">CLEAR</a>
             <a href="#" class="pill">VITAMINS</a>
             <a href="#" class="pill">CREATINE</a>
-            <a href="#" class="pill">PRE</a>
         </div>
 
         <!-- Trending Section -->
-        <section class="trending-section">
+        <!-- <section class="trending-section">
             <h2 class="section-title">Trending Vitamins</h2>
             <div class="row">
                 <div class="col-lg-3 col-md-6">
@@ -130,7 +174,8 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> -->
+            <button class="view-all-btn"><a href="{% url 'list_products' %}">VIEW ALL</a></button>
         </section>
     </div>
 

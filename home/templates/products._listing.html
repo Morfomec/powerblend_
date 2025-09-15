@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Physician Best Sellers</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2c5f5d;
+            --secondary-color: #4a7c7a;
+            --light-blue: #e8f4f8;
+            --text-dark: #333;
+            --border-color: #dee2e6;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        .navbar {
+            background-color: var(--primary-color);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .navbar-brand {
+            color: white !important;
+            font-weight: bold;
+        }
+
+        .nav-link {
+            color: white !important;
+            margin: 0 10px;
+        }
+
+        .nav-link:hover {
+            color: #e0e0e0 !important;
+        }
+
+        .hero-section {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 60px 0;
+            margin-bottom: 40px;
+        }
+
+        .filter-sidebar {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .filter-section {
+            margin-bottom: 25px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 20px;
+        }
+
+        .filter-section:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .filter-title {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-size: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .filter-option {
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+        }
+
+        .filter-option input[type="checkbox"] {
+            margin-right: 10px;
+            accent-color: var(--primary-color);
+        }
+
+        .filter-option label {
+            margin: 0;
+            color: var(--text-dark);
+            font-size: 14px;
+            cursor: pointer;
+            flex-grow: 1;
+        }
+
+        .clear-btn {
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-dark);
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .clear-btn:hover {
+            background-color: #f8f9fa;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            height: 100%;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+
+        .product-image {
+            height: 200px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .product-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: #dc3545;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .product-info {
+            padding: 20px;
+        }
+
+        .product-title {
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .product-description {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+
+        .product-price {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .current-price {
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .original-price {
+            font-size: 16px;
+            color: #999;
+            text-decoration: line-through;
+        }
+
+        .discount {
+            background: #28a745;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            width: 100%;
+            padding: 10px;
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+
+        .sort-controls {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .results-info {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .dropdown-toggle::after {
+            margin-left: 10px;
+        }
+
+        .page-title {
+            color: var(--primary-color);
+            font-weight: bold;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .filter-sidebar {
+                margin-bottom: 20px;
+            }
+            
+            .hero-section {
+                padding: 40px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-heartbeat me-2"></i>
+                MediCare
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="#">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Products</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">About</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Contact</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#"><i class="fas fa-shopping-cart"></i></a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <h1 class="display-4 fw-bold mb-3">Physician Best Sellers</h1>
+                    <p class="lead">Discover our most trusted medical products recommended by healthcare professionals worldwide</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <!-- Filters Sidebar -->
+            <div class="col-lg-3">
+                <div class="filter-sidebar">
+                    <!-- Sort Filter -->
+                    <div class="filter-section">
+                        <div class="filter-title">
+                            Sort
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="filter-options">
+                            <div class="filter-option">
+                                <input type="radio" id="default" name="sort" value="default" checked>
+                                <label for="default">Default</label>
+                            </div>
+                            <div class="filter-option">
+                                <input type="radio" id="price-low" name="sort" value="price-low">
+                                <label for="price-low">Price: Low to High</label>
+                            </div>
+                            <div class="filter-option">
+                                <input type="radio" id="price-high" name="sort" value="price-high">
+                                <label for="price-high">Price: High to Low</label>
+                            </div>
+                            <div class="filter-option">
+                                <input type="radio" id="alphabetical" name="sort" value="alphabetical">
+                                <label for="alphabetical">A - Z</label>
+                            </div>
+                            <div class="filter-option">
+                                <input type="radio" id="newest" name="sort" value="newest">
+                                <label for="newest">Newest arrivals</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Savings Filter -->
+                    <div class="filter-section">
+                        <div class="filter-title">
+                            Savings
+                            <button class="clear-btn">Clear</button>
+                        </div>
+                        <div class="filter-options">
+                            <div class="filter-option">
+                                <input type="checkbox" id="savings-25" value="25">
+                                <label for="savings-25">Up to 25% (11)</label>
+                            </div>
+                            <div class="filter-option">
+                                <input type="checkbox" id="savings-50" value="50">
+                                <label for="savings-50">25% - 50% (85)</label>
+                            </div>
+                            <div class="filter-option">
+                                <input type="checkbox" id="savings-75" value="75">
+                                <label for="savings-75">50% - 75% (17)</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Price Filter -->
+                    <div class="filter-section">
+                        <div class="filter-title">
+                            Price
+                            <button class="clear-btn">Clear</button>
+                        </div>
+                        <div class="filter-options">
+                            <div class="filter-option">
+                                <input type="checkbox" id="price-1000" value="0-1000">
+                                <label for="price-1000">Less than ₹1000.00 (40)</label>
+                            </div>
+                            <div class="filter-option">
+                                <input type="checkbox" id="price-2000" value="1000-2000">
+                                <label for="price-2000">₹1000.00 - ₹2000.00 (52)</label>
+                            </div>
+                            <div class="filter-option">
+                                <input type="checkbox" id="price-3000" value="2000-3000">
+                                <label for="price-3000">₹2000.00 - ₹3000.00 (17)</label>
+                            </div>
+                            <div class="filter-option">
+                                <input type="checkbox" id="price-4000" value="3000-4000">
+                                <label for="price-4000">₹3000.00 - ₹4000.00 (3)</label>
+                            </div>
+                            <div class="filter-option">
+                                <input type="checkbox" id="price-5000" value="4000-5000">
+                                <label for="price-5000">₹4000.00 - ₹5000.00 (1)</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Products Section -->
+            <div class="col-lg-9">
+                <!-- Sort Controls -->
+                <div class="sort-controls">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <h2 class="page-title mb-0">Our Products</h2>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="results-info text-end">
+                                Showing 112 products
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Products Grid -->
+                <div class="row g-4">
+                    <!-- Product 1 -->
+                    <div class="col-lg-4 col-md-6">
+                        <div class="product-card">
+                            <div class="product-image" style="background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjZjBmMGYwIi8+CjxyZWN0IHg9IjcwIiB5PSI2MCIgd2lkdGg9IjYwIiBoZWlnaHQ9IjgwIiByeD0iNCIgZmlsbD0iI2ZmZiIgc3Ryb2tlPSIjZGRkIiBzdHJva2Utd2lkdGg9IjIiLz4KPHN2ZyB4PSI4MCIgeT0iNzAiIHdpZHRoPSI0MCIgaGVpZ2h0PSI2MCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSIjMmM1ZjVkIj4KPHA+TWVkaWNpbmU8L3A+Cjwvc3ZnPgo8L3N2Zz4=');">
+                                <div class="product-badge">25% OFF</div>
+                            </div>
+                            <div class="product-info">
+                                <h3 class="product-title">Aspirin Tablets</h3>
+                                <p class="product-description">Pain relief and fever reduction tablets. Pack of 30 tablets.</p>
+                                <div class="product-price">
+                                    <span class="current-price">₹150</span>
+                                    <span class="original-price">₹200</span>
+                                    <span class="discount">25% OFF</span>
+                                </div>
+                                <button class="btn btn-primary">Add to Cart</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Product 2 -->
+                    <div class="col-lg-4 col-md-6">
+                        <div class="product-card">
+                            <div class="product-image" style="background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjZjBmMGYwIi8+CjxyZWN0IHg9IjYwIiB5PSI1MCIgd2lkdGg9IjgwIiBoZWlnaHQ9IjEwMCIgcng9IjgiIGZpbGw9IiNmZmYiIHN0cm9rZT0iI2RkZCIgc3Ryb2tlLXdpZHRoPSIyIi8+Cjx0ZXh0IHg9IjEwMCIgeT0iMTEwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjMmM1ZjVkIiBmb250LXNpemU9IjEyIj5TeXJ1cDwvdGV4dD4KPC9zdmc+');">
+                                <div class="product-badge">30% OFF</div>
+                            </div>
+                            <div class="product-info">
+                                <h3 class="product-title">Cough Syrup</h3>
+                                <p class="product-description">Effective cough syrup for dry and wet cough. 100ml bottle.</p>
+                                <div class="product-price">
+                                    <span class="current-price">₹280</span>
+                                    <span class="original-price">₹400</span>
+                                    <span class="discount">30% OFF</span>
+                                </div>
+                                <button class="btn btn-primary">Add to Cart</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Product 3 -->
+                    <div class="col-lg-4 col-md-6">
+                        <div class="product-card">
+                            <div class="product-image" style="background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjZjBmMGYwIi8+CjxjaXJjbGUgY3g9IjEwMCIgY3k9IjEwMCIgcj0iNDAiIGZpbGw9IiNmZmYiIHN0cm9rZT0iI2RkZCIgc3Ryb2tlLXdpZHRoPSIyIi8+Cjx0ZXh0IHg9IjEwMCIgeT0iMTA1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjMmM1ZjVkIiBmb250LXNpemU9IjEwIj5WaXRhbWluPC90ZXh0Pgo8L3N2Zz4=');">
+                                <div class="product-badge">20% OFF</div>
+                            </div>
+                            <div class="product-info">
+                                <h3 class="product-title">Vitamin D3 Capsules</h3>
+                                <p class="product-description">Essential vitamin D3 supplements. Pack of 60 capsules.</p>
+                                <div class="product-price">
+                                    <span class="current-price">₹480</span>
+                                    <span class="original-price">₹600</span>
+                                    <span class="discount">20% OFF</span>
+                                </div>
+                                <button class="btn btn-primary">Add to Cart</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Product 4 -->
+                    <div class="col-lg-4 col-md-6">
+                        <div class="product-card">
+                            <div class="product-image" style="background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjZjBmMGYwIi8+CjxyZWN0IHg9IjUwIiB5PSI3MCIgd2lkdGg9IjEwMCIgaGVpZ2h0PSI2MCIgcng9IjQiIGZpbGw9IiNmZmYiIHN0cm9rZT0iI2RkZCIgc3Ryb2tlLXdpZHRoPSIyIi8+Cjx0ZXh0IHg9IjEwMCIgeT0iMTA1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjMmM1ZjVkIiBmb250LXNpemU9IjEwIj5BbnRpYmlvdGljPC90ZXh0Pgo8L3N2Zz4=');">
+                                <div class="product-badge">15% OFF</div>
+                            </div>
+                            <div class="product-info">
+                                <h3 class="product-title">Antibiotic Cream</h3>
+                                <p class="product-description">Topical antibiotic cream for wound care. 20g tube.</p>
+                                <div class="product-price">
+                                    <span class="current-price">₹170</span>
+                                    <span class="original-price">₹200</span>
+                                    <span class="discount">15% OFF</span>
+                                </div>
+                                <button class="btn btn-primary">Add to Cart</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Product 5 -->
+                    <div class="col-lg-4 col-md-6">
+                        <div class="product-card">
+                            <div class="product-image" style="background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjZjBmMGYwIi8+CjxjaXJjbGUgY3g9IjEwMCIgY3k9IjEwMCIgcj0iMzAiIGZpbGw9IiNmZmYiIHN0cm9rZT0iIzJjNWY1ZCIgc3Ryb2tlLXdpZHRoPSI0Ii8+Cjx0ZXh0IHg9IjEwMCIgeT0iMTA1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjMmM1ZjVkIiBmb250LXNpemU9IjEwIj5JbnN1bGluPC90ZXh0Pgo8L3N2Zz4=');">
+                                <div class="product-badge">10% OFF</div>
+                            </div>
+                            <div class="product-info">
+                                <h3 class="product-title">Insulin Pen</h3>
+                                <p class="product-description">Disposable insulin pen for diabetes management. Single use.</p>
+                                <div class="product-price">
+                                    <span class="current-price">₹1350</span>
+                                    <span class="original-price">₹1500</span>
+                                    <span class="discount">10% OFF</span>
+                                </div>
+                                <button class="btn btn-primary">Add to Cart</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Product 6 -->
+                    <div class="col-lg-4 col-md-6">
+                        <div class="product-card">
+                            <div class="product-image" style="background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjZjBmMGYwIi8+CjxyZWN0IHg9IjYwIiB5PSI2MCIgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiByeD0iOCIgZmlsbD0iI2ZmZiIgc3Ryb2tlPSIjZGRkIiBzdHJva2Utd2lkdGg9IjIiLz4KPHN2ZyB4PSI5MCIgeT0iOTAiIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSIjMmM1ZjVkIj4KPHBhdGggZD0iTTEyIDJMMTMuMDkgOC4yNkwyMCA5TDEzLjA5IDE1Ljc0TDEyIDIyTDEwLjkxIDE1Ljc0TDQgOUwxMC45MSA4LjI2TDEyIDJaIi8+Cjwvc3ZnPgo8L3N2Zz4=');">
+                                <div class="product-badge">35% OFF</div>
+                            </div>
+                            <div class="product-info">
+                                <h3 class="product-title">Blood Pressure Monitor</h3>
+                                <p class="product-description">Digital blood pressure monitor with LCD display.</p>
+                                <div class="product-price">
+                                    <span class="current-price">₹1950</span>
+                                    <span class="original-price">₹3000</span>
+                                    <span class="discount">35% OFF</span>
+                                </div>
+                                <button class="btn btn-primary">Add to Cart</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <nav aria-label="Product pagination" class="mt-5">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item disabled">
+                            <span class="page-link">Previous</span>
+                        </li>
+                        <li class="page-item active">
+                            <span class="page-link">1</span>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="#">2</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="#">3</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="#">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="mt-5 py-4" style="background-color: var(--primary-color); color: white;">
+        <div class="container text-center">
+            <p>&copy; 2024 MediCare. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Simple filter toggle functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Clear buttons functionality
+            const clearButtons = document.querySelectorAll('.clear-btn');
+            clearButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const filterSection = this.closest('.filter-section');
+                    const checkboxes = filterSection.querySelectorAll('input[type="checkbox"]');
+                    checkboxes.forEach(checkbox => {
+                        checkbox.checked = false;
+                    });
+                });
+            });
+
+            // Filter section toggle functionality
+            const filterTitles = document.querySelectorAll('.filter-title');
+            filterTitles.forEach(title => {
+                title.addEventListener('click', function() {
+                    const filterSection = this.closest('.filter-section');
+                    const filterOptions = filterSection.querySelector('.filter-options');
+                    const icon = this.querySelector('i');
+                    
+                    if (filterOptions.style.display === 'none') {
+                        filterOptions.style.display = 'block';
+                        icon.classList.remove('fa-chevron-right');
+                        icon.classList.add('fa-chevron-down');
+                    } else {
+                        filterOptions.style.display = 'none';
+                        icon.classList.remove('fa-chevron-down');
+                        icon.classList.add('fa-chevron-right');
+                    }
+                });
+            });
+
+            // Product card hover effects (already handled by CSS)
+            
+            // Sort functionality (placeholder for Django integration)
+            const sortInputs = document.querySelectorAll('input[name="sort"]');
+            sortInputs.forEach(input => {
+                input.addEventListener('change', function() {
+                    // This is where you would integrate with Django
+                    console.log('Sort changed to:', this.value);
+                    // Example: window.location.search = '?sort=' + this.value;
+                });
+            });
+
+            // Filter checkboxes functionality (placeholder for Django integration)
+            const filterCheckboxes = document.querySelectorAll('.filter-options input[type="checkbox"]');
+            filterCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    // This is where you would integrate with Django
+                    console.log('Filter changed:', this.name, this.value, this.checked);
+                    // You can collect all checked filters and send to Django
+                });
+            });
+        });

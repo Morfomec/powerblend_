@@ -13,231 +13,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     
     
-    <style>
-        a {
-            text-decoration: none;
-            color: inherit; /* keeps your existing text color */
-        }
+    <link rel="stylesheet" href="{% static 'css/home_base.css' %}">
 
-        :root {
-            --primary-teal: rgb(0 57 66 / 1);
-            --light-teal: #4a9b96;
-            --orange: #ff6b35;
-            --dark-gray: #333;
-        }
 
-        body {
-            font-family: 'Arial', sans-serif;
-        }
-
-        .brand-name {
-            font-size: 50px;
-        }
-
-        .navbar-brand {
-            font-weight: bold;
-            color: var(--primary-teal) !important;
-        }
-
-        .hero-section {
-            background: linear-gradient(135deg, #e8f4f3 0%, #b8e6e1 100%);
-            min-height: 500px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .hero-content {
-            z-index: 2;
-            position: relative;
-        }
-
-        .hero-title {
-            font-size: 3.5rem;
-            font-weight: 900;
-            color: var(--primary-teal);
-            text-transform: uppercase;
-            line-height: 1.1;
-        }
-
-        .hero-subtitle {
-            font-size: 1.2rem;
-            color: var(--dark-gray);
-            margin-bottom: 2rem;
-        }
-
-        .btn-primary-custom {
-            background-color: var(--orange);
-            border: none;
-            padding: 12px 30px;
-            font-weight: bold;
-            border-radius: 25px;
-            text-transform: uppercase;
-        }
-
-        .btn-primary-custom:hover {
-            background-color: #e55a2b;
-        }
-
-        .product-grid {
-            margin: 4rem 0;
-        }
-
-        .product-card {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-            overflow: hidden;
-            transition: transform 0.3s ease;
-            margin-bottom: 2rem;
-        }
-
-        .product-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .product-image {
-            height: 200px;
-            background-size: cover;
-            background-position: center;
-        }
-
-        .product-info {
-            padding: 1.5rem;
-        }
-
-        .product-title {
-            font-weight: bold;
-            color: var(--primary-teal);
-            margin-bottom: 0.5rem;
-        }
-
-        .product-description {
-            color: #666;
-            font-size: 0.9rem;
-            margin-bottom: 1rem;
-        }
-
-        .btn-shop {
-            background-color: var(--primary-teal);
-            color: white;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-        }
-
-        .btn-shop:hover {
-            background-color: var(--light-teal);
-            color: white;
-        }
-
-        .category-pills {
-            margin: 3rem 0;
-        }
-
-        .pill {
-            background-color: var(--primary-teal);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 25px;
-            margin: 5px;
-            display: inline-block;
-            text-decoration: none;
-            font-weight: 500;
-            text-transform: uppercase;
-            font-size: 0.85rem;
-        }
-
-        .pill:hover {
-            background-color: var(--light-teal);
-            color: white;
-            text-decoration: none;
-        }
-
-        .app-download {
-            background-color: var(--primary-teal);
-            color: white;
-            padding: 3rem 0;
-            margin: 4rem 0 0 0;
-        }
-
-        .app-download h3 {
-            color: var(--orange);
-            font-weight: bold;
-        }
-
-        .footer-section {
-            background-color: var(--primary-teal);
-            color: white;
-            padding: 3rem 0;
-        }
-
-        .footer-links a {
-            color: #b8e6e1;
-            text-decoration: none;
-            display: block;
-            margin-bottom: 0.5rem;
-        }
-
-        .footer-links a:hover {
-            color: white;
-        }
-
-        .social-icons a {
-            color: white;
-            font-size: 1.5rem;
-            margin-right: 1rem;
-        }
-
-        .trending-section {
-            margin: 3rem 0;
-        }
-
-        .section-title {
-            font-size: 1.5rem;
-            color: var(--primary-teal);
-            font-weight: bold;
-            margin-bottom: 2rem;
-            text-transform: uppercase;
-        }
-        
-        /* For messages - Container floats at top */
-        .messages-container {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 9999;
-            width: 90%;
-            max-width: 500px;
-        }
-
-        /* Fade-out effect for Bootstrap alerts */
-        .fade-message {
-            opacity: 1;
-            transition: opacity 0.5s ease, transform 0.5s ease;
-            position: relative;
-            padding-right: 30px; /* space for close button */
-        }
-
-        /* Close button */
-        .close-btn {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        /* Automatically fade out after 3s */
-        .fade-message {
-            animation: fadeOut 0.5s ease forwards;
-            animation-delay: 3s;
-        }
-    </style>
-
-    {% block extra_css %}{% endblock %}
+    {% block extra_css %}{% endblock extra_css %}
 
 </head>
 <body>
@@ -264,7 +43,7 @@
 
 {% include 'includes/header_layout.html' %}
 
-{% block body %} {% endblock %}
+{% block body %} {% endblock body %}
 
 {% include 'includes/footer_layout.html' %}
 
@@ -300,6 +79,6 @@
 </script>
 {% endif %}
 
-{% block scripts %}{% endblock scripts %}
+{% block extra_js %}{% endblock extra_js %}
 </body>
 </html>

@@ -1,0 +1,528 @@
+{% extends 'home_base.html' %}
+{% block content %}
+<h1>Welcome, {{request.user.username }}!</h1>
+{% endblock content %}
+{% block extra_css %}
+<style>
+        :root {
+            --mp-teal: #1e4a52;
+            --mp-orange: #ff6b35;
+            --mp-light-gray: #f8f9fa;
+            --mp-dark-gray: #333;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            color: var(--mp-dark-gray);
+        }
+
+        .navbar-custom {
+            background-color: white;
+            border-bottom: 1px solid #e9ecef;
+            padding: 0.5rem 0;
+        }
+
+        .navbar-nav .nav-link {
+            color: var(--mp-dark-gray);
+            font-weight: 500;
+            margin: 0 1rem;
+        }
+
+        .breadcrumb {
+            background: none;
+            padding: 0;
+            margin: 1rem 0;
+        }
+
+        .breadcrumb-item a {
+            color: var(--mp-teal);
+            text-decoration: none;
+        }
+
+        .page-title {
+            color: var(--mp-teal);
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 1rem 0;
+        }
+
+        .promo-banner {
+            background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%);
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            text-align: center;
+        }
+
+        .filter-tabs {
+            border-bottom: 1px solid #dee2e6;
+            margin: 2rem 0 1rem 0;
+        }
+
+        .filter-tabs .nav-link {
+            color: var(--mp-dark-gray);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            background: none;
+        }
+
+        .filter-tabs .nav-link.active {
+            color: var(--mp-teal);
+            border-bottom: 2px solid var(--mp-teal);
+            background: none;
+        }
+
+        .filters-row {
+            background-color: var(--mp-light-gray);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 5px;
+        }
+
+        .impact-promo {
+            background: linear-gradient(135deg, var(--mp-teal) 0%, #2a5a63 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            text-align: center;
+            margin: 2rem 0;
+            position: relative;
+        }
+
+        .impact-promo h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .impact-promo .btn {
+            background-color: var(--mp-orange);
+            border: none;
+            padding: 0.75rem 2rem;
+            font-weight: bold;
+            border-radius: 5px;
+        }
+
+        .product-card {
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            background: white;
+            transition: box-shadow 0.3s ease;
+            position: relative;
+        }
+
+        .product-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 200px;
+            object-fit: contain;
+            margin-bottom: 1rem;
+        }
+
+        .product-title {
+            font-weight: bold;
+            color: var(--mp-dark-gray);
+            margin-bottom: 0.5rem;
+        }
+
+        .rating {
+            color: #ffc107;
+            margin-bottom: 0.5rem;
+        }
+
+        .price-section {
+            margin: 1rem 0;
+        }
+
+        .current-price {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: var(--mp-dark-gray);
+        }
+
+        .original-price {
+            text-decoration: line-through;
+            color: #6c757d;
+            margin-left: 0.5rem;
+        }
+
+        .save-price {
+            color: #28a745;
+            font-weight: bold;
+            margin-left: 0.5rem;
+        }
+
+        .discount-badge {
+            background-color: var(--mp-orange);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 3px;
+            font-size: 0.75rem;
+            margin-bottom: 0.5rem;
+            display: inline-block;
+        }
+
+        .quick-buy-btn {
+            background-color: var(--mp-teal);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            width: 100%;
+            border-radius: 5px;
+            font-weight: bold;
+            margin-top: 1rem;
+        }
+
+        .quick-buy-btn:hover {
+            background-color: #2a5a63;
+        }
+
+        .app-promo {
+            background: linear-gradient(135deg, var(--mp-teal) 0%, #1a3d44 100%);
+            color: white;
+            padding: 3rem 0;
+            margin: 3rem 0;
+        }
+
+        .app-promo h2 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .promo-code {
+            color: var(--mp-orange);
+            font-weight: bold;
+        }
+
+        .media-badges {
+            background-color: var(--mp-orange);
+            color: white;
+            padding: 1rem 0;
+            text-align: center;
+        }
+
+        .media-badges h5 {
+            margin-bottom: 1rem;
+        }
+
+        .media-logos {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+
+        .trust-badges {
+            background-color: var(--mp-light-gray);
+            padding: 2rem 0;
+        }
+
+        .trust-badge {
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .trust-badge i {
+            font-size: 2rem;
+            color: var(--mp-teal);
+            margin-bottom: 1rem;
+        }
+
+        .heart-icon {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            color: #ccc;
+            font-size: 1.25rem;
+        }
+
+        .view-all-btn {
+            background-color: var(--mp-teal);
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 5px;
+            margin: 2rem auto;
+            display: block;
+        }
+
+        .app-preview {
+            max-width: 300px;
+            margin: 0 auto;
+        }
+
+        .download-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .download-btn {
+            height: 60px;
+        }
+    </style>
+    {% endblock extra_css %}
+
+    {% block body %}
+
+
+
+    <div class="container">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="#">Home</a></li>
+                <li class="breadcrumb-item active">Nutrition</li>
+            </ol>
+        </nav>
+
+        <!-- Page Title & Promo -->
+        <div class="d-flex justify-content-between align-items-center">
+            <h1 class="page-title">Powerblend Best Sellers</h1>
+            <div class="nav-arrows">
+                <i class="fas fa-chevron-left"></i>
+                <i class="fas fa-chevron-right ms-3"></i>
+            </div>
+        </div>
+
+        <div class="promo-banner">
+            <strong>Up to 40% OFF Everything + Extra 10% OFF above ₹7,000 | Extra 15% OFF above ₹10,000 | Discount Auto - Applies at checkout</strong>
+        </div>
+
+        <!-- Filter Tabs -->
+        <ul class="nav nav-tabs filter-tabs">
+            <li class="nav-item">
+                <a class="nav-link" href="#">NEW: HYPBOX</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">NEW: Vitamins</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Bundles</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" href="#">Clear Protein</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Creatine</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">PRO</a>
+            </li>
+        </ul>
+
+        <!-- Filters Row
+        <div class="filters-row">
+            <div class="row align-items-center">
+                <div class="col-md-2">
+                    <select class="form-select">
+                        <option>Sort</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select">
+                        <option>Savings</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select">
+                        <option>Product Category</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select">
+                        <option>Diet</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select">
+                        <option>Price</option>
+                    </select>
+                </div>
+                <div class="col-md-2 text-end">
+                    <button class="btn btn-outline-secondary">More Filters +</button>
+                    <span class="ms-2">152 Results</span>
+                </div>
+            </div>
+        </div> -->
+
+        <form method="get" id="filterForm">
+            <div class="filters-row">
+                <div class="row align-items-center">
+
+                    <!-- Sort -->
+                    <div class="col-md-2">
+                        <select class="form-select" name="sort" onchange="this.form.submit()">
+                            <option value="">Sort</option>
+                            <option value="price_low" {% if request.GET.sort == "price_low" %}selected{% endif %}>Price: Low to High</option>
+                            <option value="price_high" {% if request.GET.sort == "price_high" %}selected{% endif %}>Price: High to Low</option>
+                            <option value="az" {% if request.GET.sort == "az" %}selected{% endif %}>A → Z</option>
+                            <option value="za" {% if request.GET.sort == "za" %}selected{% endif %}>Z → A</option>
+                            <option value="new" {% if request.GET.sort == "new" %}selected{% endif %}>New Arrivals</option>
+                            <option value="featured" {% if request.GET.sort == "featured" %}selected{% endif %}>Featured</option>
+                        </select>
+                    </div>
+
+                    <!-- Category -->
+                    <div class="col-md-2">
+                        <select class="form-select" name="category" onchange="this.form.submit()">
+                            <option value="">All Categories</option>
+                            {% for cat in categories %}
+                                <option value="{{ cat.id }}" {% if request.GET.category == cat.id|stringformat:"s" %}selected{% endif %}>
+                                    {{ cat.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Price Range -->
+                    <div class="col-md-2">
+                        <input type="number" class="form-control" name="min_price" placeholder="Min Price"
+                            value="{{ request.GET.min_price }}">
+                    </div>
+                    <div class="col-md-2">
+                        <input type="number" class="form-control" name="max_price" placeholder="Max Price"
+                            value="{{ request.GET.max_price }}">
+                    </div>
+
+                    <!-- Search -->
+                    <div class="col-md-2">
+                        <input type="text" class="form-control" name="search" placeholder="Search..."
+                            value="{{ request.GET.search }}">
+                    </div>
+
+                    <!-- Apply Button + Results -->
+                    <div class="col-md-2 text-end">
+                        <button type="submit" class="btn btn-outline-secondary">Apply</button>
+                        <a href="{% url 'list_products' %}" class="btn btn-outline-secondary ms-2">Clear</a>
+                        <!-- <span class="ms-2">{{ products.count }} Results</span> -->
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <!-- Impact Whey Promo -->
+        <div class="impact-promo">
+            <h3>OUR BEST SELLING IMPACT WHEY PROTEIN FOR <span style="color: #ff6b35;">FREE</span></h3>
+            <p>TRY FOR <span style="color: #ff6b35;">₹500</span> & GET A <span style="color: #ff6b35;">₹500</span> VOUCHER</p>
+            <button class="btn btn-primary">TRY NOW</button>
+            <div class="position-absolute top-0 end-0 p-3">
+                <i class="fas fa-heart text-white me-2"></i>
+                <i class="fas fa-share text-white"></i>
+            </div>
+        </div>
+
+        <!-- Products Section -->
+        <h2 class="mb-4">Our Products</h2>
+        
+        <div class="row">
+            <!-- Product 1 -->
+        {% for product in products %}
+            <div class="col-lg-3 col-md-6">
+                <div class="product-card">
+                    <i class="far fa-heart heart-icon"></i>
+
+                    <div class="product-image text-center">   
+                        {% if product.images.all %}
+                        <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" class="img-fluid">
+                        {% else %}
+                        <img src="https://via.placeholder.com/300x300?text=No+Image" alt="No image available"  class="img-fluid w-100" style="object-fit: cover; height: 250px;">
+                        {% endif %}
+                    </div>
+
+
+                    <!-- for product info -->
+                    <div class="product-info text-center">
+                        <h5 class="product-title">{{ product.name }}</h5>
+
+                        <div class="rating">
+                        <span>★★★★★</span> <span>(30468)</span>
+                    </div>
+                    <div class="price-section">
+                        <span class="current-price">₹{{ product.price }}</span>
+                        <span class="original-price">Was ₹3699.00</span>
+                        <span class="save-price">Save ₹950.00</span>
+                    </div>
+                    <div class="discount-badge">EXTRA 10% OFF ABOVE ₹7,000</div>
+                    <div class="discount-badge">EXTRA 15% OFF ABOVE ₹15,000</div>
+
+                        <!-- <button class="quick-buy-btn">QUICK BUY</button> -->
+                        <a href="{% url 'detail_product' product.id %}" class="quick-buy-btn">QUICK BUY</a>
+
+                    </div>
+
+
+                    <!-- <h5 class="product-title">Impact Whey Protein</h5>
+                    <div class="rating">
+                        <span>★★★★★</span> <span>(47341)</span>
+                    </div>
+                    <div class="price-section">
+                        <span class="current-price">₹1899</span>
+                        <span class="original-price">Was ₹3199.00</span>
+                        <span class="save-price">Save ₹700.00</span>
+                    </div>
+                    <div class="discount-badge">EXTRA 10% OFF ABOVE ₹7,000</div>
+                    <div class="discount-badge">EXTRA 15% OFF ABOVE ₹15,000</div>
+                    <button class="quick-buy-btn">QUICK BUY</button> -->
+                </div>
+                
+            </div>
+        {% endfor %}
+
+        </div>
+
+        <!-- View All Button -->
+        <button class="view-all-btn">VIEW ALL</button>
+    </div>
+
+    {% endblock body %}
+
+    {% block extra_js %}
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Add some interactivity
+        document.addEventListener('DOMContentLoaded', function() {
+            // Heart icon toggle
+            const heartIcons = document.querySelectorAll('.heart-icon');
+            heartIcons.forEach(icon => {
+                icon.addEventListener('click', function() {
+                    this.classList.toggle('fas');
+                    this.classList.toggle('far');
+                    this.style.color = this.classList.contains('fas') ? '#ff6b35' : '#ccc';
+                });
+            });
+
+            // Quick buy button hover effect
+            const quickBuyBtns = document.querySelectorAll('.quick-buy-btn');
+            quickBuyBtns.forEach(btn => {
+                btn.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px)';
+                    this.style.transition = 'transform 0.2s ease';
+                });
+                btn.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+
+            // Product card hover effect
+            const productCards = document.querySelectorAll('.product-card');
+            productCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-5px)';
+                    this.style.transition = 'transform 0.3s ease, box-shadow 0.3s ease';
+                });
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+        });
+    </script>
+{% endblock extra_js %}

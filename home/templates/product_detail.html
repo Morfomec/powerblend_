@@ -1,0 +1,1067 @@
+{% extends 'home_base.html' %}
+{% block content %}
+<h1>Welcome, {{request.user.username }}!</h1>
+{% endblock content %}
+{% block extra_css %}
+<style>
+        :root {
+            --primary-teal: rgb(0 57 66 / 1);
+            --light-teal: #4a9b96;
+            --orange: #ff6b35;
+            --dark-gray: #333;
+            --light-gray: #f8f9fa;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            color: var(--dark-gray);
+            margin: 0;
+            padding: 0;
+            background-color: #fff;
+        }
+
+        /* Header */
+        .top-bar {
+            background-color: var(--primary-teal);
+            color: white;
+            padding: 8px 0;
+            font-size: 12px;
+        }
+
+        .navbar-custom {
+            background-color: white;
+            border-bottom: 1px solid #e9ecef;
+            padding: 1rem 0;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary-teal);
+        }
+
+        .search-bar {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .search-input {
+            border: 2px solid var(--primary-teal);
+            border-radius: 25px;
+            padding: 10px 20px;
+            width: 100%;
+        }
+
+        /* Breadcrumb */
+        .breadcrumb-section {
+            background-color: var(--light-gray);
+            padding: 10px 0;
+        }
+
+        .breadcrumb {
+            background: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .breadcrumb-item a {
+            color: var(--primary-teal);
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        /* Product Section */
+        .product-container {
+            background-color: white;
+            padding: 30px;
+        }
+
+        .product-image {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .product-thumbnails {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .thumbnail {
+            width: 60px;
+            height: 60px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            object-fit: cover;
+        }
+
+        .thumbnail.active {
+            border-color: var(--primary-teal);
+            border-width: 2px;
+        }
+
+        .rating-stars {
+            color: var(--primary-teal);
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .rating-count {
+            color: var(--primary-teal);
+            text-decoration: underline;
+            font-size: 14px;
+            margin-left: 10px;
+        }
+
+        .product-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--primary-teal);
+            margin-bottom: 10px;
+        }
+
+        .product-subtitle {
+            color: #666;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .price-section {
+            margin-bottom: 20px;
+        }
+
+        .current-price {
+            font-size: 32px;
+            font-weight: bold;
+            color: var(--dark-gray);
+        }
+
+        .original-price {
+            background-color: #dc3545;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 14px;
+            text-decoration: line-through;
+            margin-left: 15px;
+        }
+
+        .savings {
+            background-color: #28a745;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 14px;
+            margin-left: 10px;
+        }
+
+        .price-per-kg {
+            color: #666;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .section-label {
+            font-weight: 600;
+            color: var(--dark-gray);
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .flavor-selector, .amount-selector {
+            margin-bottom: 20px;
+        }
+
+        .selector-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .selector-btn {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            background-color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .selector-btn.active {
+            background-color: var(--primary-teal);
+            color: white;
+            border-color: var(--primary-teal);
+        }
+
+        .dropdown-select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .promo-banner {
+            background-color: #d4f4dd;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 14px;
+            color: #155724;
+        }
+
+        .quantity-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .qty-controls {
+            display: flex;
+            align-items: center;
+        }
+
+        .qty-btn {
+            background-color: white;
+            border: 1px solid #ddd;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .qty-input {
+            border: 1px solid #ddd;
+            padding: 8px 12px;
+            text-align: center;
+            width: 60px;
+            border-left: none;
+            border-right: none;
+        }
+
+        .add-to-basket {
+            background-color: var(--primary-teal);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            width: 100%;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            cursor: pointer;
+        }
+
+        .add-to-basket:hover {
+            background-color: rgba(0, 57, 66, 0.8);
+        }
+
+        .wishlist-btn {
+            border: 1px solid #ddd;
+            background-color: white;
+            padding: 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            color: var(--primary-teal);
+        }
+
+        .stock-info {
+            background-color: var(--light-gray);
+            padding: 15px;
+            border-radius: 6px;
+            font-size: 14px;
+            color: #28a745;
+        }
+
+        /* Product Details Sections */
+        .product-details {
+            background-color: white;
+            margin-top: 30px;
+        }
+
+        .details-tabs {
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 15px 20px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #666;
+            white-space: nowrap;
+        }
+
+        .tab-btn.active {
+            color: var(--primary-teal);
+            border-bottom: 2px solid var(--primary-teal);
+        }
+
+        .tab-content {
+            padding: 20px;
+        }
+
+        .nutritional-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .nutrition-table {
+            background-color: var(--light-gray);
+            padding: 15px;
+            border-radius: 6px;
+        }
+
+        .nutrition-table h5 {
+            color: var(--primary-teal);
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .nutrition-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        /* Promotion Section */
+        .promo-section {
+            background: linear-gradient(135deg, #fff2e6 0%, #ffe6cc 100%);
+            padding: 40px;
+            margin: 30px 0;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .promo-title {
+            font-size: 32px;
+            font-weight: bold;
+            color: var(--primary-teal);
+            margin-bottom: 10px;
+        }
+
+        .promo-subtitle {
+            font-size: 18px;
+            color: var(--orange);
+            margin-bottom: 20px;
+        }
+
+        /* Related Products */
+        .related-products {
+            margin: 40px 0;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary-teal);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .product-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            background: white;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .product-card-image {
+            width: 100%;
+            height: 150px;
+            object-fit: contain;
+            margin-bottom: 15px;
+        }
+
+        .product-card-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--primary-teal);
+            margin-bottom: 10px;
+        }
+
+        .product-card-price {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--dark-gray);
+            margin-bottom: 15px;
+        }
+
+        .card-btn {
+            background-color: var(--primary-teal);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        /* Reviews Section */
+        .reviews-section {
+            background-color: var(--light-gray);
+            padding: 30px;
+            margin: 30px 0;
+            border-radius: 8px;
+        }
+
+        .review-summary {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .review-score {
+            font-size: 48px;
+            font-weight: bold;
+            color: var(--primary-teal);
+        }
+
+        .review-item {
+            background-color: white;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--orange);
+        }
+
+        .reviewer-name {
+            font-weight: bold;
+            color: var(--primary-teal);
+            margin-bottom: 5px;
+        }
+
+        .review-date {
+            color: #666;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+
+        .review-text {
+            color: var(--dark-gray);
+            line-height: 1.5;
+        }
+
+        /* Personalized Section */
+        .personalized-section {
+            background: linear-gradient(135deg, var(--primary-teal) 0%, rgba(0, 57, 66, 0.8) 100%);
+            color: white;
+            padding: 40px;
+            margin: 30px 0;
+            border-radius: 10px;
+        }
+
+        .personalized-title {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .personalized-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .personalized-item {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        .modal {
+        display: none;
+        position: fixed;
+        z-index: 9999;
+        padding-top: 60px;
+        left: 0; top: 0; width: 100%; height: 100%;
+        background-color: rgba(0,0,0,0.8);
+        }
+        .modal-content {
+        margin: auto;
+        display: block;
+        max-width: 80%;
+        max-height: 80%;
+        }
+        .close {
+        position: absolute;
+        top: 15px; right: 35px;
+        color: white; font-size: 40px; cursor: pointer;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .selector-buttons {
+                flex-direction: column;
+            }
+            
+            .quantity-section {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .product-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .current-price {
+                font-size: 24px;
+            }
+            
+            .product-title {
+                font-size: 20px;
+            }
+        }
+    </style>
+    {% endblock extra_css %}
+
+    {% block body %}
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb-section">
+        <div class="container">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="#">Home</a></li>
+                    <li class="breadcrumb-item"><a href="#">Sports Nutrition</a></li>
+                    <li class="breadcrumb-item"><a href="#">Creatine</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Complete Creatine Monohydrate</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Main Product Section -->
+    <div class="container">
+        <div class="product-container">
+            <div class="row">
+                <!-- Product Images -->
+                <div class="col-lg-6 col-md-12">
+                    <div class="text-end mb-3">
+                        
+                    </div>
+                    
+                    <div class="product-image-container">
+                        {% if product.images.all %}
+                            <img id="main-product-image" src="{{ product.images.first.image.url }}" alt="{{ product.name }}" class="product-image" style="cursor: zoom-in;">>
+                        {% else %}
+                            <img id="main-product-image" src="https://via.placeholder.com/400x400?text=No+Image" alt="No image available" class="product-image">
+                        {% endif %}
+                    </div>
+
+                <!-- #for thumbnail -->
+                    <div class="product-thumbnails">
+                        {% for img in product.images.all %}
+                            <img src="{{ img.image.url }}" class="thumbnail {% if forloop.first %}active{% endif %}" alt="{{ product.name }} image {{ forloop.counter}}">
+                        {% endfor %}
+                    </div>
+
+                    <div id="imageModal" class="modal" style="display:none;">
+                        <span class="close">&times;</span>
+                        <img class="modal-content" id="enlarged-image">
+                    </div>
+                </div>
+
+                <!-- Product Details -->
+                <div class="col-lg-6 col-md-12">
+                    <div class="rating-stars">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star-half-alt"></i>
+                        <span class="rating-count">4,267</span>
+                    </div>
+                    
+                    <h1 class="product-title">{{ product.name }}</h1>
+                    <p class="product-subtitle">{{ product.description }}</p>
+                    
+                    <div class="price-section">
+                        <span class="current-price">₹{{ product.price }}</span>
+<!--                         
+                        <span class="original-price">Was ₹1,699</span>
+                        <span class="savings">Save ₹400</span>
+                        <div class="price-per-kg">₹2,598.00/kg</div> -->
+                        <div class="text-muted small">Inclusive of all taxes</div>
+                    </div>
+                    
+                    <div class="flavor-selector">
+                        <div class="section-label">Flavour:</div>
+                        <div class="selector-buttons">
+                            <button class="selector-btn active">Unflavoured</button>
+                            <button class="selector-btn">Berry Burst</button>
+                            <button class="selector-btn">Tropical</button>
+                        </div>
+                    </div>
+                    
+                    <!-- <div class="amount-selector">
+                        <div class="section-label">Amount:</div>
+                        <div class="selector-buttons">
+                            <button class="selector-btn">250G</button>
+                            <button class="selector-btn active">500G</button>
+                            <button class="selector-btn">1KG</button>
+                        </div>
+                    </div> -->
+                    
+                    <div class="promo-banner">
+                        <strong>PROTEIN SALE</strong> | GET EXTRA 15% OFF ON CREATINE | Use code: <strong>CREATINE15</strong>
+                    </div>
+                    
+                    <div class="quantity-section">
+                        <div class="section-label">Quantity:</div>
+                        <div class="qty-controls">
+                            <button class="qty-btn">−</button>
+                            <input type="number" value="1" class="qty-input">
+                            <button class="qty-btn">+</button>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-10">
+                            <button class="add-to-basket">
+                                <i class="fas fa-shopping-basket me-2"></i>
+                                ADD TO BASKET
+                            </button>
+                        </div>
+                        <div class="col-2">
+                            <button class="wishlist-btn w-100">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="stock-info">
+                        <i class="fas fa-check me-2"></i>
+                        {% if product.stock and product.stock > 0 %}
+                            In stock | Usually dispatched within 24 hours
+                        {% else %}
+                            Out of stock
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Promotion Section -->
+        <div class="promo-section">
+            <div class="promo-title">OUR BEST SELLING</div>
+            <div class="promo-subtitle">PROTEIN</div>
+            <p>Discover our most popular protein supplements trusted by millions worldwide</p>
+        </div>
+
+        <!-- Product Details Tabs -->
+        <div class="product-details">
+            <div class="details-tabs">
+                <button class="tab-btn active" data-tab="overview">Overview</button>
+                <button class="tab-btn" data-tab="nutrition">Nutritional Information</button>
+                <button class="tab-btn" data-tab="ingredients">Ingredients</button>
+                <button class="tab-btn" data-tab="directions">Directions</button>
+                <button class="tab-btn" data-tab="allergens">Allergens</button>
+            </div>
+            
+            <div class="tab-content" id="overview">
+                <h3>Product Overview</h3>
+                <p>Our Complete Creatine Monohydrate is one of the most researched sports supplements available. Creatine monohydrate has been shown to increase physical performance in successive bursts of short-term, high intensity exercise.</p>
+                
+                <h4>Key Benefits:</h4>
+                <ul>
+                    <li>Increases physical performance in successive bursts of short-term, high intensity exercise</li>
+                    <li>Helps increase power output during training</li>
+                    <li>Supports muscle growth and strength gains</li>
+                    <li>Enhances recovery between sets</li>
+                </ul>
+                
+                <h4>When to Take:</h4>
+                <p>Mix 1 scoop (5g) with 250ml of water or juice and consume 30-60 minutes before training. On non-training days, consume anytime throughout the day.</p>
+            </div>
+        </div>
+
+        <!-- Nutritional Information -->
+        <div class="nutritional-info">
+            <div class="nutrition-table">
+                <h5>Per Serving (5g)</h5>
+                <div class="nutrition-row">
+                    <span>Energy</span>
+                    <span>0 kcal</span>
+                </div>
+                <div class="nutrition-row">
+                    <span>Protein</span>
+                    <span>0g</span>
+                </div>
+                <div class="nutrition-row">
+                    <span>Carbohydrates</span>
+                    <span>0g</span>
+                </div>
+                <div class="nutrition-row">
+                    <span>Fat</span>
+                    <span>0g</span>
+                </div>
+                <div class="nutrition-row">
+                    <span><strong>Creatine Monohydrate</strong></span>
+                    <span><strong>5g</strong></span>
+                </div>
+            </div>
+            
+            <div class="nutrition-table">
+                <h5>Per 100g</h5>
+                <div class="nutrition-row">
+                    <span>Energy</span>
+                    <span>0 kcal</span>
+                </div>
+                <div class="nutrition-row">
+                    <span>Protein</span>
+                    <span>0g</span>
+                </div>
+                <div class="nutrition-row">
+                    <span>Carbohydrates</span>
+                    <span>0g</span>
+                </div>
+                <div class="nutrition-row">
+                    <span>Fat</span>
+                    <span>0g</span>
+                </div>
+                <div class="nutrition-row">
+                    <span><strong>Creatine Monohydrate</strong></span>
+                    <span><strong>100g</strong></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Related Products -->
+        <div class="related-products">
+            <h2 class="section-title">Related Products</h2>
+            <div class="product-grid">
+                <div class="product-card">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE1MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZmY2YjM1Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCI+SW1wYWN0IFdoZXk8L3RleHQ+PC9zdmc+" alt="Impact Whey Protein" class="product-card-image">
+                    <h3 class="product-card-title">Impact Whey Protein</h3>
+                    <div class="product-card-price">₹1,999</div>
+                    <button class="card-btn">Quick Buy</button>
+                </div>
+                
+                <div class="product-card">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE1MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMDA5NDJmIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCI+QkNBQSAyOjE6MTwvdGV4dD48L3N2Zz4=" alt="BCAA 2:1:1" class="product-card-image">
+                    <h3 class="product-card-title">BCAA 2:1:1</h3>
+                    <div class="product-card-price">₹1,499</div>
+                    <button class="card-btn">Quick Buy</button>
+                </div>
+                
+                <div class="product-card">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE1MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjNjY2Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCI+VGhlIFdoZXk8L3RleHQ+PC9zdmc+" alt="The Whey" class="product-card-image">
+                    <h3 class="product-card-title">The Whey</h3>
+                    <div class="product-card-price">₹3,999</div>
+                    <button class="card-btn">Quick Buy</button>
+                </div>
+                
+                <div class="product-card">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE1MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZmZkNzAwIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiMzMzMiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJjZW50cmFsIj5HbHV0YW1pbmU8L3RleHQ+PC9zdmc+" alt="L-Glutamine" class="product-card-image">
+                    <h3 class="product-card-title">L-Glutamine</h3>
+                    <div class="product-card-price">₹1,799</div>
+                    <button class="card-btn">Quick Buy</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Personalized Section -->
+        <div class="personalized-section">
+            <h2 class="personalized-title">MADE for YOU</h2>
+            <div class="personalized-grid">
+                <div class="personalized-item">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJyZ2JhKDI1NSwgMjU1LCAyNTUsIDAuMikiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSIxMiIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJjZW50cmFsIj5Qcm9kdWN0IDE8L3RleHQ+PC9zdmc+" alt="Product 1" style="width: 80px; height: 80px; margin-bottom: 10px;">
+                    <h4>Impact Whey Protein</h4>
+                    <p>₹1,999</p>
+                    <button class="card-btn" style="background: rgba(255,255,255,0.2); border: 1px solid white;">Quick Buy</button>
+                </div>
+                
+                <div class="personalized-item">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJyZ2JhKDI1NSwgMjU1LCAyNTUsIDAuMikiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSIxMiIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJjZW50cmFsIj5Qcm9kdWN0IDI8L3RleHQ+PC9zdmc+" alt="Product 2" style="width: 80px; height: 80px; margin-bottom: 10px;">
+                    <h4>Clear Whey Isolate</h4>
+                    <p>₹2,499</p>
+                    <button class="card-btn" style="background: rgba(255,255,255,0.2); border: 1px solid white;">Quick Buy</button>
+                </div>
+                
+                <div class="personalized-item">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJyZ2JhKDI1NSwgMjU1LCAyNTUsIDAuMikiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSIxMiIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJjZW50cmFsIj5Qcm9kdWN0IDM8L3RleHQ+PC9zdmc+" alt="Product 3" style="width: 80px; height: 80px; margin-bottom: 10px;">
+                    <h4>Vegan Protein Blend</h4>
+                    <p>₹2,199</p>
+                    <button class="card-btn" style="background: rgba(255,255,255,0.2); border: 1px solid white;">Quick Buy</button>
+                </div>
+                
+                <div class="personalized-item">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJyZ2JhKDI1NSwgMjU1LCAyNTUsIDAuMikiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSIxMiIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJjZW50cmFsIj5Qcm9kdWN0IDQ8L3RleHQ+PC9zdmc+" alt="Product 4" style="width: 80px; height: 80px; margin-bottom: 10px;">
+                    <h4>Total War Pre-Workout</h4>
+                    <p>₹2,999</p>
+                    <button class="card-btn" style="background: rgba(255,255,255,0.2); border: 1px solid white;">Quick Buy</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reviews Section -->
+        <div class="reviews-section">
+            <h2 class="section-title" style="color: var(--primary-teal);">Customer Reviews</h2>
+            
+            <div class="review-summary">
+                <div class="review-score">4.5</div>
+                <div class="rating-stars mb-2">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star-half-alt"></i>
+                </div>
+                <p>Based on 4,267 reviews</p>
+            </div>
+            
+            <div class="review-item">
+                <div class="reviewer-name">Rajesh K.</div>
+                <div class="review-date">Verified Purchase • 2 weeks ago</div>
+                <div class="rating-stars mb-2">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="review-text">
+                    "Excellent quality creatine! I've been using this for 2 months now and have noticed significant improvements in my strength and endurance. Mixes well with water and has no taste. Highly recommended for anyone serious about their fitness goals."
+                </div>
+            </div>
+            
+            <div class="review-item">
+                <div class="reviewer-name">Priya S.</div>
+                <div class="review-date">Verified Purchase • 1 month ago</div>
+                <div class="rating-stars mb-2">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="review-text">
+                    "Great value for money! The unflavoured version is perfect as it doesn't interfere with my protein shake taste. Fast delivery and excellent packaging. Will definitely order again."
+                </div>
+            </div>
+            
+            <div class="review-item">
+                <div class="reviewer-name">Arjun M.</div>
+                <div class="review-date">Verified Purchase • 3 weeks ago</div>
+                <div class="rating-stars mb-2">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="far fa-star"></i>
+                </div>
+                <div class="review-text">
+                    "Good product overall. I've noticed improvements in my gym performance. Only minor complaint is that it takes a bit more stirring to dissolve completely, but that's not a big issue. Would recommend."
+                </div>
+            </div>
+            
+            <div class="text-center mt-4">
+                <button class="view-all-btn">View All Reviews</button>
+            </div>
+        </div>
+
+        <!-- Additional Information Tabs -->
+        <div class="product-details">
+            <div class="details-tabs">
+                <button class="tab-btn active" data-tab="faq">FAQ</button>
+                <button class="tab-btn" data-tab="delivery">Delivery Info</button>
+                <button class="tab-btn" data-tab="returns">Returns</button>
+                <button class="tab-btn" data-tab="about">About MyProtein</button>
+            </div>
+            
+            <div class="tab-content" id="faq">
+                <h3>Frequently Asked Questions</h3>
+                
+                <div class="faq-item mb-4">
+                    <h5>When should I take creatine?</h5>
+                    <p>For best results, take 5g of creatine monohydrate daily. You can take it pre-workout, post-workout, or anytime during the day. Consistency is more important than timing.</p>
+                </div>
+                
+                <div class="faq-item mb-4">
+                    <h5>Do I need to do a loading phase?</h5>
+                    <p>A loading phase isn't necessary. You can start with 5g daily and see results within 2-4 weeks. If you want faster results, you can take 20g daily for the first week, then reduce to 5g daily.</p>
+                </div>
+                
+                <div class="faq-item mb-4">
+                    <h5>Is this product vegetarian/vegan?</h5>
+                    <p>Yes, our Complete Creatine Monohydrate is suitable for both vegetarians and vegans. It's made from synthetically produced creatine monohydrate.</p>
+                </div>
+                
+                <div class="faq-item mb-4">
+                    <h5>Can I mix this with protein shakes?</h5>
+                    <p>Absolutely! Creatine mixes well with protein shakes, pre-workouts, or any other beverages. The unflavoured version won't affect the taste of your other supplements.</p>
+                </div>
+                
+                <div class="faq-item mb-4">
+                    <h5>What's the difference between this and other creatine forms?</h5>
+                    <p>Creatine monohydrate is the most researched and proven form of creatine. It's been shown to be safe and effective in hundreds of studies. Other forms may claim advantages, but monohydrate remains the gold standard.</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    {% endblock body %}
+
+    {% block extra_js %}
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Quantity selector functionality
+        const qtyInput = document.querySelector('.qty-input');
+        const qtyBtns = document.querySelectorAll('.qty-btn');
+        
+        qtyBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const isIncrement = btn.textContent === '+';
+                let currentValue = parseInt(qtyInput.value);
+                
+                if (isIncrement) {
+                    qtyInput.value = currentValue + 1;
+                } else if (currentValue > 1) {
+                    qtyInput.value = currentValue - 1;
+                }
+            });
+        });
+        
+        // Selector button functionality
+        const selectorBtns = document.querySelectorAll('.selector-btn');
+        selectorBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Remove active class from siblings
+                const siblings = btn.parentElement.querySelectorAll('.selector-btn');
+                siblings.forEach(sibling => sibling.classList.remove('active'));
+                
+                // Add active class to clicked button
+                btn.classList.add('active');
+            });
+        });
+        
+        // Tab functionality
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Remove active class from all tabs in the same group
+                const tabGroup = btn.closest('.details-tabs');
+                const tabsInGroup = tabGroup.querySelectorAll('.tab-btn');
+                tabsInGroup.forEach(tab => tab.classList.remove('active'));
+                
+                // Add active class to clicked tab
+                btn.classList.add('active');
+            });
+        });
+        
+        // Thumbnail functionality
+        const thumbnails = document.querySelectorAll('.thumbnail');
+        thumbnails.forEach(thumb => {
+            thumb.addEventListener('click', () => {
+                thumbnails.forEach(t => t.classList.remove('active'));
+                thumb.classList.add('active');
+            });
+        });
+
+        // Add to basket functionality
+        document.querySelector('.add-to-basket').addEventListener('click', function() {
+            // Add visual feedback
+            const originalText = this.innerHTML;
+            this.innerHTML = '<i class="fas fa-check me-2"></i>ADDED TO BASKET';
+            this.style.backgroundColor = '#28a745';
+            
+            setTimeout(() => {
+                this.innerHTML = originalText;
+                this.style.backgroundColor = 'var(--primary-teal)';
+            }, 2000);
+        });
+
+        // Wishlist functionality
+        document.querySelector('.wishlist-btn').addEventListener('click', function() {
+            const icon = this.querySelector('i');
+            if (icon.classList.contains('far')) {
+                icon.classList.remove('far');
+                icon.classList.add('fas');
+                this.style.color = '#dc3545';
+            } else {
+                icon.classList.remove('fas');
+                icon.classList.add('far');
+                this.style.color = 'var(--primary-teal)';
+            }
+        });
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const mainImage = document.getElementById("main-product-image");
+            const thumbnails = document.querySelectorAll(".product-thumbnails .thumbnail");
+
+            thumbnails.forEach(thumbnail => {
+                thumbnail.addEventListener("click", function () {
+                    // Change main image source
+                    mainImage.src = this.src;
+
+                    // Update active class
+                    thumbnails.forEach(t => t.classList.remove("active"));
+                    this.classList.add("active");
+                });
+            });
+        });
+    </script>
+    <script>
+document.addEventListener("DOMContentLoaded", function () {
+    const mainImage = document.getElementById("main-product-image");
+    const modal = document.getElementById("imageModal");
+    const modalImg = document.getElementById("enlarged-image");
+    const closeBtn = document.querySelector(".close");
+
+    mainImage.onclick = function() {
+        modal.style.display = "block";
+        modalImg.src = this.src;
+    }
+
+    closeBtn.onclick = function() {
+        modal.style.display = "none";
+    }
+});
+</script>
+{% endblock extra_js %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

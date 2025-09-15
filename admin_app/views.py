@@ -68,7 +68,7 @@ def admin_user(request):
         users = users.filter(is_active=False)
 
     #pagination
-    page_obj = get_pagination(request, users, per_page=1)
+    page_obj = get_pagination(request, users, per_page=5)
 
 
     context = {

@@ -1,0 +1,895 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Myprotein Best Sellers - POWERBLEND{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Additional styles for product page */
+    .page-banner {
+        background: linear-gradient(135deg, #e8f4f3 0%, #b8e6e1 100%);
+        padding: 60px 0;
+        margin-bottom: 40px;
+    }
+
+    .page-title {
+        color: var(--primary-teal);
+        font-weight: 900;
+        font-size: 2.5rem;
+        text-transform: uppercase;
+        margin-bottom: 15px;
+    }
+
+    .page-subtitle {
+        color: var(--dark-gray);
+        font-size: 1.1rem;
+        margin-bottom: 30px;
+    }
+
+    .filter-sidebar {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        padding: 25px;
+        margin-bottom: 30px;
+        position: sticky;
+        top: 20px;
+    }
+
+    .filter-section {
+        margin-bottom: 30px;
+        border-bottom: 1px solid #e8f4f3;
+        padding-bottom: 25px;
+    }
+
+    .filter-section:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .filter-title {
+        font-weight: 700;
+        color: var(--primary-teal);
+        margin-bottom: 20px;
+        font-size: 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        text-transform: uppercase;
+    }
+
+    .filter-title:hover {
+        color: var(--light-teal);
+    }
+
+    .filter-option {
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+    }
+
+    .filter-option input[type="checkbox"],
+    .filter-option input[type="radio"] {
+        margin-right: 12px;
+        accent-color: var(--primary-teal);
+        width: 16px;
+        height: 16px;
+    }
+
+    .filter-option label {
+        margin: 0;
+        color: var(--dark-gray);
+        font-size: 14px;
+        cursor: pointer;
+        flex-grow: 1;
+        font-weight: 500;
+    }
+
+    .filter-option label:hover {
+        color: var(--primary-teal);
+    }
+
+    .clear-btn {
+        background: var(--orange);
+        border: none;
+        color: white;
+        padding: 6px 12px;
+        border-radius: 15px;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        text-transform: uppercase;
+        transition: all 0.3s ease;
+    }
+
+    .clear-btn:hover {
+        background-color: #e55a2b;
+        transform: scale(1.05);
+    }
+
+    .products-header {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        padding: 25px;
+        margin-bottom: 30px;
+    }
+
+    .results-count {
+        color: var(--dark-gray);
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+    .sort-dropdown {
+        border: 2px solid var(--primary-teal);
+        border-radius: 25px;
+        padding: 8px 20px;
+        background: white;
+        color: var(--primary-teal);
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .sort-dropdown:focus {
+        border-color: var(--light-teal);
+        box-shadow: 0 0 0 0.2rem rgba(74, 155, 150, 0.25);
+    }
+
+    .product-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        overflow: hidden;
+        transition: all 0.3s ease;
+        height: 100%;
+        border: 2px solid transparent;
+    }
+
+    .product-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        border-color: var(--light-teal);
+    }
+
+    .product-image {
+        height: 220px;
+        background-size: cover;
+        background-position: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .product-badge {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        background: var(--orange);
+        color: white;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: bold;
+        text-transform: uppercase;
+        box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3);
+    }
+
+    .product-info {
+        padding: 25px;
+    }
+
+    .product-title {
+        font-weight: 700;
+        color: var(--primary-teal);
+        margin-bottom: 10px;
+        font-size: 16px;
+        text-transform: uppercase;
+        line-height: 1.3;
+    }
+
+    .product-description {
+        color: #666;
+        font-size: 14px;
+        margin-bottom: 20px;
+        line-height: 1.5;
+    }
+
+    .product-price {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+    }
+
+    .current-price {
+        font-size: 22px;
+        font-weight: 900;
+        color: var(--primary-teal);
+    }
+
+    .original-price {
+        font-size: 16px;
+        color: #999;
+        text-decoration: line-through;
+        font-weight: 500;
+    }
+
+    .discount {
+        background: #28a745;
+        color: white;
+        padding: 4px 10px;
+        border-radius: 15px;
+        font-size: 12px;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+
+    .btn-add-cart {
+        background-color: var(--primary-teal);
+        border: none;
+        color: white;
+        width: 100%;
+        padding: 12px;
+        border-radius: 25px;
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-add-cart:hover {
+        background-color: var(--light-teal);
+        color: white;
+        transform: scale(1.02);
+    }
+
+    .pagination {
+        margin-top: 50px;
+    }
+
+    .page-link {
+        color: var(--primary-teal);
+        border-color: var(--primary-teal);
+        font-weight: 600;
+        padding: 12px 18px;
+        margin: 0 5px;
+        border-radius: 25px !important;
+        border: 2px solid var(--primary-teal);
+    }
+
+    .page-link:hover {
+        background-color: var(--primary-teal);
+        border-color: var(--primary-teal);
+        color: white;
+    }
+
+    .page-item.active .page-link {
+        background-color: var(--primary-teal);
+        border-color: var(--primary-teal);
+        color: white;
+    }
+
+    .special-offer {
+        background: linear-gradient(135deg, var(--primary-teal), var(--light-teal));
+        color: white;
+        text-align: center;
+        padding: 30px;
+        margin: 40px 0;
+        border-radius: 15px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .special-offer h3 {
+        font-weight: 900;
+        text-transform: uppercase;
+        margin-bottom: 15px;
+        font-size: 1.8rem;
+    }
+
+    .special-offer p {
+        font-size: 1.1rem;
+        margin-bottom: 20px;
+    }
+
+    .offer-btn {
+        background-color: var(--orange);
+        border: none;
+        color: white;
+        padding: 15px 40px;
+        border-radius: 30px;
+        font-weight: bold;
+        text-transform: uppercase;
+        font-size: 16px;
+        transition: all 0.3s ease;
+    }
+
+    .offer-btn:hover {
+        background-color: #e55a2b;
+        transform: scale(1.05);
+        color: white;
+    }
+
+    @media (max-width: 768px) {
+        .filter-sidebar {
+            margin-bottom: 20px;
+            position: static;
+        }
+        
+        .page-title {
+            font-size: 2rem;
+        }
+
+        .product-card {
+            margin-bottom: 25px;
+        }
+
+        .special-offer {
+            margin: 30px 0;
+            padding: 25px 15px;
+        }
+
+        .special-offer h3 {
+            font-size: 1.5rem;
+        }
+    }
+
+    /* Loading animation for AJAX */
+    .loading {
+        opacity: 0.6;
+        pointer-events: none;
+    }
+
+    .loading::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 40px;
+        height: 40px;
+        margin: -20px 0 0 -20px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid var(--primary-teal);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<!-- Page Banner -->
+<div class="page-banner">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h1 class="page-title">Myprotein Best Sellers</h1>
+                <p class="page-subtitle">Discover our most popular and trusted protein supplements, chosen by fitness enthusiasts worldwide</p>
+                <div class="category-pills">
+                    <a href="#" class="pill">All Products</a>
+                    <a href="#" class="pill">Whey Protein</a>
+                    <a href="#" class="pill">Creatine</a>
+                    <a href="#" class="pill">BCAA</a>
+                    <a href="#" class="pill">Pre-Workout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Special Offer Banner -->
+    <div class="special-offer">
+        <h3>OUR BEST SELLING IMPACT WHEY PROTEIN FOR FREE</h3>
+        <p>TRY FOR FREE & GET A FREE VOUCHER</p>
+        <button class="btn offer-btn">GET FREE SAMPLE</button>
+    </div>
+
+    <div class="row">
+        <!-- Filters Sidebar -->
+        <div class="col-lg-3">
+            <div class="filter-sidebar">
+                <form id="filterForm">
+                    <!-- Sort Filter -->
+                    <div class="filter-section">
+                        <div class="filter-title">
+                            Sort
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="filter-options">
+                            <div class="filter-option">
+                                <input type="radio" id="default" name="sort" value="default" checked>
+                                <label for="default">Default</label>
+                            </div>
+                            <div class="filter-option">
+                                <input type="radio" id="price-low" name="sort" value="price_asc">
+                                <label for="price-low">Price: Low to High</label>
+                            </div>
+                            <div class="filter-option">
+                                <input type="radio" id="price-high" name="sort" value="price_desc">
+                                <label for="price-high">Price: High to Low</label>
+                            </div>
+                            <div class="filter-option">
+                                <input type="radio" id="alphabetical" name="sort" value="name_asc">
+                                <label for="alphabetical">A - Z</label>
+                            </div>
+                            <div class="filter-option">
+                                <input type="radio" id="newest" name="sort" value="newest">
+                                <label for="newest">Newest arrivals</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Savings Filter -->
+                    <div class="filter-section">
+                        <div class="filter-title">
+                            Savings
+                            <button type="button" class="clear-btn" data-filter="savings">Clear</button>
+                        </div>
+                        <div class="filter-options">
+                            <div class="filter-option">
+                                <input type="checkbox" id="savings-25" name="savings" value="0-25">
+                                <label for="savings-25">Up to 25% (11)</label>
+                            </div>
+                            <div class="filter-option">
+                                <input type="checkbox" id="savings-50" name="savings" value="25-50">
+                                <label for="savings-50">25% - 50% (85)</label>
+                            </div>
+                            <div class="filter-option">
+                                <input type="checkbox" id="savings-75" name="savings" value="50-75">
+                                <label for="savings-75">50% - 75% (17)</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Price Filter -->
+                    <div class="filter-section">
+                        <div class="filter-title">
+                            Price
+                            <button type="button" class="clear-btn" data-filter="price">Clear</button>
+                        </div>
+                        <div class="filter-options">
+                            <div class="filter-option">
+                                <input type="checkbox" id="price-1000" name="price_range" value="0-1000">
+                                <label for="price-1000">Less than ₹1000.00 (40)</label>
+                            </div>
+                            <div class="filter-option">
+                                <input type="checkbox" id="price-2000" name="price_range" value="1000-2000">
+                                <label for="price-2000">₹1000.00 - ₹2000.00 (52)</label>
+                            </div>
+                            <div class="filter-option">
+                                <input type="checkbox" id="price-3000" name="price_range" value="2000-3000">
+                                <label for="price-3000">₹2000.00 - ₹3000.00 (17)</label>
+                            </div>
+                            <div class="filter-option">
+                                <input type="checkbox" id="price-4000" name="price_range" value="3000-4000">
+                                <label for="price-4000">₹3000.00 - ₹4000.00 (3)</label>
+                            </div>
+                            <div class="filter-option">
+                                <input type="checkbox" id="price-5000" name="price_range" value="4000-5000">
+                                <label for="price-5000">₹4000.00 - ₹5000.00 (1)</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Product Category Filter -->
+                    <div class="filter-section">
+                        <div class="filter-title">
+                            Product Category
+                            <button type="button" class="clear-btn" data-filter="category">Clear</button>
+                        </div>
+                        <div class="filter-options">
+                            <div class="filter-option">
+                                <input type="checkbox" id="whey-protein" name="category" value="whey_protein">
+                                <label for="whey-protein">Whey Protein (25)</label>
+                            </div>
+                            <div class="filter-option">
+                                <input type="checkbox" id="creatine" name="category" value="creatine">
+                                <label for="creatine">Creatine (12)</label>
+                            </div>
+                            <div class="filter-option">
+                                <input type="checkbox" id="bcaa" name="category" value="bcaa">
+                                <label for="bcaa">BCAA (8)</label>
+                            </div>
+                            <div class="filter-option">
+                                <input type="checkbox" id="pre-workout" name="category" value="pre_workout">
+                                <label for="pre-workout">Pre-Workout (15)</label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Products Section -->
+        <div class="col-lg-9">
+            <!-- Products Header -->
+            <div class="products-header">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <h2 class="section-title mb-0">Our Products</h2>
+                        <p class="results-count mb-0">Showing <span id="product-count">112</span> products</p>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <select class="sort-dropdown" id="quickSort">
+                            <option value="default">Sort by Default</option>
+                            <option value="price_asc">Price: Low to High</option>
+                            <option value="price_desc">Price: High to Low</option>
+                            <option value="name_asc">Name: A to Z</option>
+                            <option value="newest">Newest First</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Products Grid -->
+            <div class="row g-4" id="products-grid">
+                <!-- Product 1 - Impact Whey Protein -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="product-card">
+                        <div class="product-image" style="background: linear-gradient(45deg, #ff6b35, #f7941d); display: flex; align-items: center; justify-content: center;">
+                            <div style="background: white; padding: 20px; border-radius: 10px; text-align: center; color: var(--primary-teal); font-weight: bold;">IMPACT<br>WHEY<br>PROTEIN</div>
+                            <div class="product-badge">25% OFF</div>
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-title">Impact Whey Protein</h3>
+                            <p class="product-description">Our bestselling whey protein powder with over 80% protein content. Available in 40+ flavors.</p>
+                            <div class="product-price">
+                                <span class="current-price">₹1,899</span>
+                                <span class="original-price">₹2,499</span>
+                                <span class="discount">25% OFF</span>
+                            </div>
+                            <button class="btn btn-add-cart">Add to Cart</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 2 - Creatine Monohydrate -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="product-card">
+                        <div class="product-image" style="background: linear-gradient(45deg, #2c5f5d, #4a9b96); display: flex; align-items: center; justify-content: center;">
+                            <div style="background: white; padding: 20px; border-radius: 10px; text-align: center; color: var(--primary-teal); font-weight: bold;">CREATINE<br>MONOHYDRATE</div>
+                            <div class="product-badge">30% OFF</div>
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-title">Creatine Monohydrate</h3>
+                            <p class="product-description">Pure creatine monohydrate powder for improved performance and muscle growth.</p>
+                            <div class="product-price">
+                                <span class="current-price">₹1,399</span>
+                                <span class="original-price">₹1,999</span>
+                                <span class="discount">30% OFF</span>
+                            </div>
+                            <button class="btn btn-add-cart">Add to Cart</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 3 - BCAA -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="product-card">
+                        <div class="product-image" style="background: linear-gradient(45deg, #ff6b35, #e55a2b); display: flex; align-items: center; justify-content: center;">
+                            <div style="background: white; padding: 20px; border-radius: 10px; text-align: center; color: var(--primary-teal); font-weight: bold;">BCAA<br>2:1:1</div>
+                            <div class="product-badge">20% OFF</div>
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-title">BCAA 2:1:1</h3>
+                            <p class="product-description">Essential amino acids in the optimal 2:1:1 ratio for muscle recovery and growth.</p>
+                            <div class="product-price">
+                                <span class="current-price">₹1,599</span>
+                                <span class="original-price">₹1,999</span>
+                                <span class="discount">20% OFF</span>
+                            </div>
+                            <button class="btn btn-add-cart">Add to Cart</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 4 - Clear Whey Isolate -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="product-card">
+                        <div class="product-image" style="background: linear-gradient(45deg, #4a9b96, #6bb6b1); display: flex; align-items: center; justify-content: center;">
+                            <div style="background: white; padding: 20px; border-radius: 10px; text-align: center; color: var(--primary-teal); font-weight: bold;">CLEAR<br>WHEY<br>ISOLATE</div>
+                            <div class="product-badge">15% OFF</div>
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-title">Clear Whey Isolate</h3>
+                            <p class="product-description">Light and refreshing whey protein isolate with a juice-like consistency.</p>
+                            <div class="product-price">
+                                <span class="current-price">₹2,549</span>
+                                <span class="original-price">₹2,999</span>
+                                <span class="discount">15% OFF</span>
+                            </div>
+                            <button class="btn btn-add-cart">Add to Cart</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 5 - Pre-Workout -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="product-card">
+                        <div class="product-image" style="background: linear-gradient(45deg, #333, #555); display: flex; align-items: center; justify-content: center;">
+                            <div style="background: white; padding: 20px; border-radius: 10px; text-align: center; color: var(--primary-teal); font-weight: bold;">PRE<br>WORKOUT<br>BLEND</div>
+                            <div class="product-badge">35% OFF</div>
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-title">Pre-Workout Blend</h3>
+                            <p class="product-description">High-energy pre-workout formula with caffeine, beta-alanine, and creatine.</p>
+                            <div class="product-price">
+                                <span class="current-price">₹1,949</span>
+                                <span class="original-price">₹2,999</span>
+                                <span class="discount">35% OFF</span>
+                            </div>
+                            <button class="btn btn-add-cart">Add to Cart</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 6 - Casein Protein -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="product-card">
+                        <div class="product-image" style="background: linear-gradient(45deg, #8b4513, #a0522d); display: flex; align-items: center; justify-content: center;">
+                            <div style="background: white; padding: 20px; border-radius: 10px; text-align: center; color: var(--primary-teal); font-weight: bold;">SLOW<br>RELEASE<br>CASEIN</div>
+                            <div class="product-badge">40% OFF</div>
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-title">Slow Release Casein</h3>
+                            <p class="product-description">Slow-digesting protein perfect for overnight muscle recovery and growth.</p>
+                            <div class="product-price">
+                                <span class="current-price">₹2,099</span>
+                                <span class="original-price">₹3,499</span>
+                                <span class="discount">40% OFF</span>
+                            </div>
+                            <button class="btn btn-add-cart">Add to Cart</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <nav aria-label="Product pagination" class="mt-5">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item disabled">
+                        <span class="page-link">Previous</span>
+                    </li>
+                    <li class="page-item active">
+                        <span class="page-link">1</span>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page=2">2</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page=3">3</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page=2">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Filter form handling
+    const filterForm = document.getElementById('filterForm');
+    const productsGrid = document.getElementById('products-grid');
+    
+    // Clear buttons functionality
+    document.querySelectorAll('.clear-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const filterType = this.dataset.filter;
+            const filterSection = this.closest('.filter-section');
+            
+            if (filterType === 'savings') {
+                filterSection.querySelectorAll('input[name="savings"]').forEach(cb => cb.checked = false);
+            } else if (filterType === 'price') {
+                filterSection.querySelectorAll('input[name="price_range"]').forEach(cb => cb.checked = false);
+            } else if (filterType === 'category') {
+                filterSection.querySelectorAll('input[name="category"]').forEach(cb => cb.checked = false);
+            }
+            
+            // Trigger filter update
+            updateFilters();
+        });
+    });
+
+    // Filter section toggle
+    document.querySelectorAll('.filter-title').forEach(title => {
+        title.addEventListener('click', function() {
+            const filterOptions = this.nextElementSibling;
+            const icon = this.querySelector('i');
+            
+            if (filterOptions.style.display === 'none') {
+                filterOptions.style.display = 'block';
+                icon.className = 'fas fa-chevron-down';
+            } else {
+                filterOptions.style.display = 'none';
+                icon.className = 'fas fa-chevron-right';
+            }
+        });
+    });
+
+    // Sort functionality
+    document.querySelectorAll('input[name="sort"]').forEach(input => {
+        input.addEventListener('change', updateFilters);
+    });
+
+    // Quick sort dropdown
+    document.getElementById('quickSort').addEventListener('change', function() {
+        // Update radio buttons to match
+        document.querySelector(`input[name="sort"][value="${this.value}"]`).checked = true;
+        updateFilters();
+    });
+
+    // Filter checkboxes
+    filterForm.addEventListener('change', updateFilters);
+
+    // Update filters function - replace with Django AJAX call
+    function updateFilters() {
+        // Show loading state
+        productsGrid.classList.add('loading');
+        
+        // Collect form data
+        const formData = new FormData(filterForm);
+        
+        // For Django integration, you would make an AJAX call here:
+        /*
+        fetch(window.location.pathname, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Update products grid with new data
+            productsGrid.innerHTML = data.products_html;
+            document.getElementById('product-count').textContent = data.product_count;
+            productsGrid.classList.remove('loading');
+        })
+        .catch(error => {
+            console.error('Filter update failed:', error);
+            productsGrid.classList.remove('loading');
+            toastr.error('Failed to update filters. Please try again.');
+        });
+        */
+        
+        // For demo purposes, simulate loading delay
+        setTimeout(() => {
+            productsGrid.classList.remove('loading');
+            console.log('Filters updated:', Object.fromEntries(formData));
+            
+            // Update product count for demo
+            const checkedFilters = formData.getAll('savings').length + 
+                                 formData.getAll('price_range').length + 
+                                 formData.getAll('category').length;
+            const baseCount = 112;
+            const newCount = Math.max(6, baseCount - (checkedFilters * 15));
+            document.getElementById('product-count').textContent = newCount;
+        }, 500);
+    }
+
+    // Add to cart functionality
+    document.querySelectorAll('.btn-add-cart').forEach(button => {
+        button.addEventListener('click', function() {
+            const productCard = this.closest('.product-card');
+            const productTitle = productCard.querySelector('.product-title').textContent;
+            
+            // Show loading state
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+            this.disabled = true;
+            
+            // Simulate AJAX call to Django
+            setTimeout(() => {
+                this.innerHTML = '<i class="fas fa-check"></i> Added!';
+                this.style.backgroundColor = '#28a745';
+                
+                // Show success message using your toastr
+                toastr.success(`${productTitle} added to cart!`);
+                
+                // Reset button after 2 seconds
+                setTimeout(() => {
+                    this.innerHTML = 'Add to Cart';
+                    this.disabled = false;
+                    this.style.backgroundColor = '';
+                }, 2000);
+            }, 1000);
+            
+            /*
+            // For Django integration:
+            fetch('/add-to-cart/', {
+                method: 'POST',
+                body: JSON.stringify({
+                    product_id: productCard.dataset.productId,
+                    quantity: 1
+                }),
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    toastr.success(data.message);
+                    // Update cart count in header if needed
+                    if (data.cart_count) {
+                        document.querySelector('.cart-count').textContent = data.cart_count;
+                    }
+                } else {
+                    toastr.error(data.message || 'Failed to add product to cart');
+                }
+            })
+            .catch(error => {
+                toastr.error('Something went wrong. Please try again.');
+            })
+            .finally(() => {
+                this.innerHTML = 'Add to Cart';
+                this.disabled = false;
+            });
+            */
+        });
+    });
+
+    // Free sample button
+    document.querySelector('.offer-btn').addEventListener('click', function() {
+        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+        this.disabled = true;
+        
+        setTimeout(() => {
+            toastr.success('Free sample request submitted! Check your email for details.');
+            this.innerHTML = 'Request Sent!';
+            this.style.backgroundColor = '#28a745';
+            
+            setTimeout(() => {
+                this.innerHTML = 'GET FREE SAMPLE';
+                this.disabled = false;
+                this.style.backgroundColor = '';
+            }, 3000);
+        }, 1500);
+    });
+
+    // Category pills functionality
+    document.querySelectorAll('.pill').forEach(pill => {
+        pill.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Remove active class from all pills
+            document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+            
+            // Add active class to clicked pill
+            this.classList.add('active');
+            
+            // Filter products by category (for demo)
+            const category = this.textContent.toLowerCase();
+            console.log('Filtering by category:', category);
+            
+            // You would implement actual filtering here
+            toastr.info(`Filtering products by: ${this.textContent}`);
+        });
+    });
+});
+
+// Add active state for category pills
+document.head.insertAdjacentHTML('beforeend', `
+    <style>
+        .pill.active {
+            background-color: var(--orange) !important;
+            transform: scale(1.05);
+        }
+    </style>
+`);
+</script>
+{% endblock %}

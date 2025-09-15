@@ -56,29 +56,32 @@ INSTALLED_APPS = [
     "products",
 
      # Django Allauth
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
 ]
 
 
 # User model
 AUTH_USER_MODEL = "accounts.CustomUser"
 
-
-
-# New allauth settings (Django 5.2+)
-ACCOUNT_USER_MODEL_USERNAME_FIELD = None
-ACCOUNT_SIGNUP_FIELDS = ["email*"]   # * = required field
-ACCOUNT_LOGIN_METHODS = {"email"}
-ACCOUNT_EMAIL_VERIFICATION = "none"
-
 # Auto-signup for social accounts
-SOCIALACCOUNT_AUTO_SIGNUP = True
+# SOCIALACCOUNT_AUTO_SIGNUP = True
 SOCIALACCOUNT_QUERY_EMAIL = True
-SOCIALACCOUNT_STORE_TOKENS = True
+# SOCIALACCOUNT_STORE_TOKENS = True
 SOCIALACCOUNT_LOGIN_ON_GET = True
+SOCIALACCOUNT_AUTO_SIGNUP = False
+
+
+
+# Django Allauth Settings for Username-less login
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_AUTHENTICATION_METHOD = "email"
+ACCOUNT_EMAIL_VERIFICATION = "none" # Use your custom OTP flow
+ACCOUNT_SIGNUP_FIELDS = ["email",]
 
 # Redirects
 LOGIN_URL = '/accounts/login/'
@@ -96,7 +99,7 @@ MIDDLEWARE = [
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
-    'allauth.account.middleware.AccountMiddleware',
+    "allauth.account.middleware.AccountMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
@@ -147,9 +150,6 @@ AUTHENTICATION_BACKENDS = [
 
     # `allauth` specific authentication methods, such as login by email
     'allauth.account.auth_backends.AuthenticationBackend',
-
-    # 'social_core.backends.google.GoogleOAuth2',
-
 ]
 
 WSGI_APPLICATION = "powerblend.wsgi.application"
@@ -233,6 +233,10 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
 ACCOUNT_ADAPTER = "accounts.adapters.CustomAccountAdapter"
+SOCIALACCOUNT_ADAPTER = "accounts.adapters.CustomSocialAccountAdapter"
+SOCIALACCOUNT_FORMS = {'signup': 'accounts.forms.CustomSocialSignupForm'}
+
+
 
 #Simple Mail Transfer Protocol - SMTP Configuration
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -243,3 +247,5 @@ EMAIL_HOST_USER = 'muhammedshifil@gmail.com'
 EMAIL_HOST_PASSWORD = 'jerdbaluuebjrmzv'
 
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+
