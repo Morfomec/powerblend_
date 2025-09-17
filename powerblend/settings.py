@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     "accounts.apps.AccountsConfig", #important to load the signals from apps.py
     "home",
     "admin_app",
+    "basket",
     "category",
     "products",
 
@@ -77,11 +78,10 @@ SOCIALACCOUNT_AUTO_SIGNUP = False
 
 # Django Allauth Settings for Username-less login
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_USERNAME_REQUIRED = False
-ACCOUNT_AUTHENTICATION_METHOD = "email"
+# ACCOUNT_AUTHENTICATION_METHOD = "email"
+ACCOUNT_LOGIN_METHODS = ["email"]
 ACCOUNT_EMAIL_VERIFICATION = "none" # Use your custom OTP flow
-ACCOUNT_SIGNUP_FIELDS = ["email",]
+ACCOUNT_SIGNUP_FIELDS = ["email"]
 
 # Redirects
 LOGIN_URL = '/accounts/login/'

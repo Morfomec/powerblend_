@@ -1,0 +1,544 @@
+{% extends 'home_base.html' %}
+
+{% block content %}
+
+<h1>Welcome, {{request.user.username }}!</h1>
+
+{% endblock content %}
+{% block extra_css %}
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .basket-header {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+
+        .basket-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: rgb(0 57 66 / 1);
+            margin-bottom: 15px;
+        }
+
+        .free-gift-banner {
+            background: rgb(0 57 66 / 0.1);
+            border: 1px solid rgb(0 57 66 / 1);
+            border-radius: 6px;
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            color: rgb(0 57 66 / 1);
+        }
+
+        .free-gift-banner::before {
+            content: "✓";
+            color: rgb(0 57 66 / 1);
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .basket-content {
+            display: flex;
+            gap: 30px;
+        }
+
+        .basket-items {
+            flex: 2;
+        }
+
+        .basket-item {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 20px;
+        }
+
+        .product-image {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+
+        .product-details {
+            flex: 1;
+        }
+
+        .product-brand {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .product-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .product-specs {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .product-options {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .supersize-btn, .save-offer {
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .supersize-btn {
+            background: rgb(0 57 66 / 1);
+            color: white;
+            border: none;
+        }
+
+        .save-offer {
+            background: rgb(0 57 66 / 0.1);
+            color: rgb(0 57 66 / 1);
+            border: 1px solid rgb(0 57 66 / 1);
+        }
+
+        .price-section {
+            margin-bottom: 15px;
+        }
+
+        .current-price {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .price-savings {
+            margin-top: 5px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .original-price {
+            background: #ff5722;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+
+        .savings {
+            background: rgb(0 57 66 / 1);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+
+        .quantity-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .quantity-label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .quantity-input {
+            width: 50px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .quantity-btn {
+            width: 30px;
+            height: 30px;
+            background: rgb(0 57 66 / 1);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .remove-link {
+            color: #999;
+            text-decoration: underline;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .basket-summary {
+            flex: 1;
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            height: fit-content;
+        }
+
+        .summary-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .summary-row.total {
+            font-weight: bold;
+            font-size: 16px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+            margin-top: 15px;
+        }
+
+        .price-red {
+            color: #e53e3e;
+            font-weight: bold;
+        }
+
+        .checkout-btn {
+            width: 100%;
+            background: rgb(0 57 66 / 1);
+            color: white;
+            padding: 15px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .checkout-btn:hover {
+            background: rgb(0 57 66 / 0.8);
+        }
+
+        .footer-section {
+            background: #c8432d;
+            color: white;
+            text-align: center;
+            padding: 15px 0;
+            margin-top: 40px;
+        }
+
+        .footer-labels {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .trust-badges {
+            background: white;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+
+        .trust-badge {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            max-width: 250px;
+        }
+
+        .badge-icon {
+            width: 50px;
+            height: 50px;
+            background: #f0f0f0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .badge-content h3 {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .badge-content p {
+            font-size: 12px;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .disclaimer {
+            text-align: center;
+            padding: 20px;
+            font-size: 10px;
+            color: #999;
+            background: #f5f5f5;
+        }
+
+        @media (max-width: 768px) {
+            .basket-content {
+                flex-direction: column;
+            }
+            
+            .basket-item {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .trust-badges {
+                flex-direction: column;
+            }
+            
+            .footer-labels {
+                flex-wrap: wrap;
+                gap: 15px;
+            }
+        }
+    </style>
+
+{% endblock extra_css %}
+{% block body %}
+
+    <div class="container">
+        <div class="basket-header">
+            <h1 class="basket-title">Your Shopping Basket</h1>
+            <div class="free-gift-banner">
+                <strong>ENJOY YOUR FREE GIFT</strong> - Don't forget to make your selection below
+            </div>
+        </div>
+
+        <div class="basket-content">
+            <div class="basket-items">
+                <!-- Product 1: Clear Whey Isolate -->
+                <div class="basket-item">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23f0f0f0'/%3E%3Ctext x='50' y='50' font-family='Arial' font-size='12' fill='%23666' text-anchor='middle' dy='.3em'%3EProduct%3C/text%3E%3C/svg%3E" alt="Clear Whey Isolate" class="product-image">
+                    
+                    <div class="product-details">
+                        <div class="product-brand">Myprotein</div>
+                        <div class="product-name">Clear Whey Isolate</div>
+                        <div class="product-specs">Flavour: Gold | Amount: 500g</div>
+                        
+                        <div class="product-options">
+                            <button class="supersize-btn">+ SUPERSIZE</button>
+                            <span class="save-offer">1KG • 2X500 G | SAVE ₹2315 PER 500G</span>
+                        </div>
+
+                        <div class="price-section">
+                            <div class="current-price">₹2499</div>
+                            <div class="price-savings">
+                                <span class="original-price">Was ₹4999</span>
+                                <span class="savings">Save ₹1500 (38%)</span>
+                            </div>
+                        </div>
+
+                        <div class="quantity-section">
+                            <span class="quantity-label">Quantity:</span>
+                            <div class="quantity-controls">
+                                <input type="number" value="1" class="quantity-input">
+                                <button class="quantity-btn">+</button>
+                            </div>
+                        </div>
+
+                        <div class="remove-link">Remove</div>
+                    </div>
+                </div>
+
+                <!-- Product 2: Impact Whey Isolate -->
+                <div class="basket-item">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23ff6b4a'/%3E%3Ctext x='50' y='40' font-family='Arial' font-size='14' fill='white' text-anchor='middle' font-weight='bold'%3EIMPACT%3C/text%3E%3Ctext x='50' y='60' font-family='Arial' font-size='10' fill='white' text-anchor='middle'%3EWHEY ISOLATE%3C/text%3E%3C/svg%3E" alt="Impact Whey Isolate" class="product-image">
+                    
+                    <div class="product-details">
+                        <div class="product-brand">Myprotein</div>
+                        <div class="product-name">Impact Whey Isolate</div>
+                        <div class="product-specs">Flavour: Chocolate Peanut Butter | Amount: 250g</div>
+                        
+                        <div class="product-options">
+                            <button class="supersize-btn">+ SUPERSIZE</button>
+                            <span class="save-offer">2.5 KG | SAVE ₹999 PER 250G</span>
+                        </div>
+
+                        <div class="price-section">
+                            <div class="current-price">₹1649</div>
+                            <div class="price-savings">
+                                <span class="original-price">Was ₹2599</span>
+                                <span class="savings">Save ₹950 (37%)</span>
+                            </div>
+                        </div>
+
+                        <div class="quantity-section">
+                            <span class="quantity-label">Quantity:</span>
+                            <div class="quantity-controls">
+                                <input type="number" value="1" class="quantity-input">
+                                <button class="quantity-btn">+</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="basket-summary">
+                <h2 class="summary-title">Basket Total</h2>
+                
+                <div class="summary-row">
+                    <span>Subtotal</span>
+                    <span class="price-red">₹2,921.00</span>
+                </div>
+                
+                <div class="summary-row">
+                    <span>Shipping</span>
+                    <span>Free</span>
+                </div>
+                
+                <div class="summary-row">
+                    <span>Estimate for</span>
+                    <span></span>
+                </div>
+                
+                <div class="summary-row total">
+                    <span>Total</span>
+                    <span class="price-red">₹2,921.00</span>
+                </div>
+
+                <button class="checkout-btn">🔒 CHECK OUT</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer-section">
+        <div class="footer-labels">
+            <span>AS FEATURED IN</span>
+        </div>
+        <div style="margin-top: 10px; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
+            <span>THE INDEPENDENT</span>
+            <span>MEN'S HEALTH</span>
+            <span>THE TELEGRAPH</span>
+            <span>GQ</span>
+            <span>EVENING STANDARD</span>
+            <span>WOMEN'S HEALTH</span>
+            <span>BBC GOOD FOOD</span>
+        </div>
+    </div>
+
+    <div class="trust-badges">
+        <div class="trust-badge">
+            <div class="badge-icon">🔬</div>
+            <div class="badge-content">
+                <h3>PROVEN BY SCIENCE</h3>
+                <p>Backed by rigorous research and testing, our formulations deliver results grounded in solid data.</p>
+            </div>
+        </div>
+
+        <div class="trust-badge">
+            <div class="badge-icon">👨‍🔬</div>
+            <div class="badge-content">
+                <h3>CRAFTED BY NUTRITIONISTS</h3>
+                <p>Our products are born from the expertise of nutritionists who obsess over every detail.</p>
+            </div>
+        </div>
+
+        <div class="trust-badge">
+            <div class="badge-icon">✓</div>
+            <div class="badge-content">
+                <h3>CERTIFIED BY THIRD PARTIES</h3>
+                <p>Trusted third-party certifications ensure quality, safety, and performance are never, ever compromised.</p>
+            </div>
+        </div>
+
+        <div class="trust-badge">
+            <div class="badge-icon">⭐</div>
+            <div class="badge-content">
+                <h3>QUALITY FROM START TO FINISH</h3>
+                <p>We control every step of production, from sourcing the best ingredients to manufacturing, ensuring pure quality.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="disclaimer">
+        *Source: Euromonitor International Limited; Consumer Health 2023 ed, Myprotein's retail value sales, World 2023 data.
+    </div>
+
+
+
+{% endblock body %}
+{% block extra_js %}
+
+<script>
+    // Add interactivity for quantity controls
+    document.querySelectorAll('.quantity-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const input = this.previousElementSibling;
+            let currentValue = parseInt(input.value);
+            if (this.textContent === '+') {
+                input.value = currentValue + 1;
+            } else if (currentValue > 1) {
+                input.value = currentValue - 1;
+            }
+        });
+    });
+
+    // Add functionality for remove links
+    document.querySelectorAll('.remove-link').forEach(link => {
+        link.addEventListener('click', function() {
+            if (confirm('Are you sure you want to remove this item?')) {
+                this.closest('.basket-item').remove();
+            }
+        });
+    });
+
+    // Checkout button functionality
+    document.querySelector('.checkout-btn').addEventListener('click', function() {
+        alert('Proceeding to checkout...');
+    });
+</script>
+
+
+
+{% endblock extra_js %}
