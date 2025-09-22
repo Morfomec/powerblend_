@@ -1,10 +1,12 @@
 from django.shortcuts import render, redirect,get_object_or_404
-from .models import Product, ProductImage
+from .models import Product, ProductImage, Flavor, Weight, ProductVariant
 from category.models import Category
 from utils.pagination import get_pagination
 from django.contrib import messages
-from .forms import ProductForm, ProductImageForm
+from .forms import ProductForm, ProductImageForm, ProductVariantForm, FlavorForm, WeightForm
 from django.urls import reverse
+from django.db.models import Sum
+
 
 # Create your views here.
 
@@ -13,14 +15,17 @@ def admin_products(request):
     Fetch all products from the db and rendder them in the product management page.
     """
 
+
     #to check if clear button is clicked or not
     if 'clear' in request.GET:
         return redirect('admin_products')
             
     products = Product.objects.all().order_by('name')
+    products = products.annotate(total_stock=Sum('variants__stock'))
 
     #to get query parameters
     search_query = request.GET.get("search", "").strip()
+
     #to get by searching name
     if search_query:
         products = products.filter(name__icontains=search_query)
@@ -32,9 +37,9 @@ def admin_products(request):
     elif filter_status == 'unlisted':
         products = products.filter(is_listed=False)
     elif filter_status == 'out-of-stock':
-        products = products.filter(stock=0)
+        products = products.filter(total_stock=0)
     elif filter_status == 'low-stock':
-        products = products.filter(stock__lte=5)
+        products = products.filter(total_stock__lte=5)
 
     
     #for pagination 
@@ -149,9 +154,48 @@ def add_product(request):
         return render(request, 'add_product.html', context)
 
 
-def add_variants(request):
-    l
-    return render(request, 'add_variants.html')
+def add_variants(request, product_id):
+    """
+    Add and list variants of a given product.
+    Variants are combinations of existing flavors and weights.
+    """
+
+    product = get_object_or_404(Product, id=product_id)
+    #fetching product variant
+    variants_queryset = product.variants.all().order_by("-id") 
+
+    
+    #pagination applied 
+    page_obj =get_pagination(request, variants_queryset, per_page=5)
+
+
+    if request.method == 'POST':
+        form = ProductVariantForm(request.POST)
+        if form.is_valid():
+            flavor = form.cleaned_data.get("flavor")
+            weight = form.cleaned_data.get("weight")
+
+            #check for duplicates
+            if ProductVariant.objects.filter(product=product, flavor=flavor, weight=weight).exists():
+                messages.error(request, "This variant already exists.")
+            else:
+                new_variant = form.save(commit=False)
+                new_variant.product = product
+                new_variant.save()
+                messages.success(request, "Variant added successfully.")
+                return redirect("add_variants", product_id=product_id)
+    else: 
+        form = ProductVariantForm()
+
+    context = {
+        "product": product,
+        "form" : form,
+        "page_obj" : page_obj,
+        "variants" : page_obj,
+        "product_id" : product.id,
+    }
+
+    return render(request, "add_variants.html", context)
 
 # def edit_product(request, product_id):
 #     """
@@ -262,7 +306,7 @@ def edit_product(request, product_id):
             messages.success(request, f"Product '{product.name}' updated successfully!")
             return redirect(f"{reverse('admin_products')}?page={current_page}")
         else:
-            message.error(request, "Please fix the error.")
+            messages.error(request, "Please fix the error.")
 
     else:
         form = ProductForm(instance=product)
@@ -322,6 +366,67 @@ def delete_product(request, product_id):
 #         "mode": "add"
 #     })
 
+
+
+def manage_attributes(request, product_id):
+    """
+    Manage variant attributes flavors and weights with forms and pagination.
+    """
+    product = get_object_or_404(Product, id=product_id)
+
+    flavor_form = FlavorForm()
+    weight_form = WeightForm()
+
+    #handling flavor form
+
+    if request.method == 'POST' and "flavor_submit" in request.POST:
+        flavor_form = FlavorForm(request.POST)
+        if flavor_form.is_valid():
+            flavor_form.save()
+            messages.success(request, "Flavor added successfully!")
+            return redirect('manage_attributes', product_id)
+        else:
+            messages.error(request, "Please fix the error in the flavor form.")
+        
+
+    
+    #handling weight form
+
+    elif request.method == 'POST' and "weight_submit" in request.POST:
+        weight_form = WeightForm(request.POST)
+        if weight_form.is_valid():
+            weight_form.save()
+            messages.success(request, "Weight added successfully!")
+            return redirect('manage_attributes',product_id)
+        else:
+            messages.error(request, "Please fix the errors in the weight form.")
+        
+    
+    # fetching existing datas of flavor and weight
+
+    flavors = Flavor.objects.all().order_by("-created_at")
+    weights = Weight.objects.all().order_by("-created_at")
+
+
+    #pagination
+    flavor_page_obj= get_pagination(request, flavors, per_page=5)
+    weight_page_obj= get_pagination(request, weights, per_page=5)
+
+    context = {
+        "flavor_form" : flavor_form,
+        "weight_form" : weight_form,
+        "flavors" : flavors,
+        "weights" : weights,
+        "flavor_page_obj" : flavor_page_obj,
+        "weight_page_obj" : weight_page_obj,
+        "flavor_count": flavors.count(),
+        "weight_count" : weights.count(),
+        "product_id" : product.id,
+    }
+
+    return render (request, "manage_variant_attributes.html", context)
+
+
 def toggle_product_listing(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     product.is_listed = not product.is_listed
@@ -331,3 +436,12 @@ def toggle_product_listing(request, product_id):
     messages.success(request, f"Product '{product.name}' is now {status}.")
 
     return redirect('admin_products')
+
+def toggle_variant_listing(request, productvariant_id):
+    variant = get_object_or_404(ProductVariant, id=productvariant_id)
+    variant.is_listed = not variant.is_listed
+    variant.save()
+
+    status = "listed" if variant.is_listed else "unlisted"
+    messages.success(request, f"Variant '{variant.flavor}'-'{variant.weight}' is now {status}.")
+    return redirect('add_variants', product_id=variant.product.id)

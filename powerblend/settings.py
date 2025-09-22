@@ -56,6 +56,8 @@ INSTALLED_APPS = [
     "category",
     "products",
 
+    "widget_tweaks",
+
      # Django Allauth
     "allauth",
     "allauth.account",

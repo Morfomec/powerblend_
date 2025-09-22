@@ -534,9 +534,9 @@
             }
         }
     </style>
-    {% endblock extra_css %}
+{% endblock extra_css %}
 
-    {% block body %}
+{% block body %}
 
     <!-- Breadcrumb -->
     <div class="breadcrumb-section">
@@ -564,7 +564,7 @@
                     
                     <div class="product-image-container">
                         {% if product.images.all %}
-                            <img id="main-product-image" src="{{ product.images.first.image.url }}" alt="{{ product.name }}" class="product-image" style="cursor: zoom-in;">>
+                            <img id="main-product-image" src="{{ product.images.first.image.url }}" alt="{{ product.name }}" class="product-image" style="cursor: zoom-in;">
                         {% else %}
                             <img id="main-product-image" src="https://via.placeholder.com/400x400?text=No+Image" alt="No image available" class="product-image">
                         {% endif %}
@@ -594,35 +594,51 @@
                         <span class="rating-count">4,267</span>
                     </div>
                     
+
                     <h1 class="product-title">{{ product.name }}</h1>
                     <p class="product-subtitle">{{ product.description }}</p>
                     
+                    <!-- price -->
+
+                    {% if default_variant %}
                     <div class="price-section">
-                        <span class="current-price">₹{{ product.price }}</span>
-<!--                         
-                        <span class="original-price">Was ₹1,699</span>
-                        <span class="savings">Save ₹400</span>
-                        <div class="price-per-kg">₹2,598.00/kg</div> -->
-                        <div class="text-muted small">Inclusive of all taxes</div>
+                        <span class="current-price">₹{{ default_variant.price }}</span>
+                        {% if default_variant.original_price %}
+                            <span class="original-price">Was ₹{{ default_variant.original_price }}</span>
+                        {% endif %}
+                        {% if default_variant.save_price %}
+                            <span class="savings">Save ₹{{ default_variant.save_price }}</span>
+                        {% endif %}
+                        <!-- <div class="price-per-kg">₹2,598.00/kg</div> -->
+                        <!-- <div class="text-muted small">Inclusive of all taxes</div> -->
                     </div>
+                    {% endif %}
                     
+                    <!-- Flavor Selector -->
                     <div class="flavor-selector">
                         <div class="section-label">Flavour:</div>
                         <div class="selector-buttons">
-                            <button class="selector-btn active">Unflavoured</button>
-                            <button class="selector-btn">Berry Burst</button>
-                            <button class="selector-btn">Tropical</button>
+                            {% for flavor, data in unique_flavors.items %}
+                                <button class="selector-btn data-variant-id="{{ data.variant_id }}" data-price="{{ data.price }}"{% if not data.available %}disabled{% endif %}">{{ flavor }}</button>
+    
+                            {% empty %}
+                                <p class="text-muted">No flavors available</p>
+                            {% endfor %}
                         </div>
                     </div>
                     
-                    <!-- <div class="amount-selector">
-                        <div class="section-label">Amount:</div>
+                    <!-- Size Selector -->
+                    <div class="amount-selector">
+                        <div class="section-label">Size:</div>
                         <div class="selector-buttons">
-                            <button class="selector-btn">250G</button>
-                            <button class="selector-btn active">500G</button>
-                            <button class="selector-btn">1KG</button>
+                            {% for weight, data in unique_weights.items %}
+                                    <button class="selector-btn data-variant-id="{{ data.variant_id }}" data-price="{{ data.price }}" {% if not data.available %}active{% endif %}">{{ weight|upper }}</button>
+                                
+                            {% empty %}
+                                <p class="text-muted">No sizes available</p>
+                            {% endfor %}
                         </div>
-                    </div> -->
+                    </div>
                     
                     <div class="promo-banner">
                         <strong>PROTEIN SALE</strong> | GET EXTRA 15% OFF ON CREATINE | Use code: <strong>CREATINE15</strong>

@@ -1,18 +1,22 @@
 {% extends "admin_base.html" %}
 {% block body %} 
+{% load static %}
   <!-- Welcome Section -->
                 <div class="welcome-banner">
                     <div class="row align-items-center">
                         <div class="col-md-8">
                             <h2 class="welcome-title">Welcome, {{request.user}}</h2>
                             <p class="welcome-subtitle">Here's What happening on your store today. See the statistics at once.</p>
-                            <button class="btn btn-add-product">
-                                <i class="fas fa-plus me-2"></i>Add Product
-                            </button>
+                            <!-- <button class="btn btn-add-product">
+                                <i class="fas fa-plus me-2"></i><a href="{% url 'add_product' %}">Add Product</a>
+                            </button> -->
+                            <a href="{% url 'add_product' %}" class="btn btn-add-product">
+                                <i class="fas fa-plus me-2"></i> Add Product
+                            </a>
                         </div>
                         <div class="col-md-4 text-end">
                             <div class="welcome-illustration">
-                                <img src="https://via.placeholder.com/250x200/4f46e5/ffffff?text=📊" alt="Dashboard Illustration" class="img-fluid">
+                                <img src="{% static 'images/dashboard.avif' %}" alt="Dashboard Illustration" class="img-fluid">
                             </div>
                         </div>
                     </div>

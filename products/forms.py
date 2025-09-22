@@ -1,10 +1,10 @@
 from django import forms
-from .models import Product, ProductImage
+from .models import Product, ProductImage, ProductVariant, Flavor, Weight
 
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
-        fields = ["name", "category", "price", "stock", "description", "is_listed"]
+        fields = ["name", "category", "description", "is_listed"]
         # widgets = {
         #     "name": forms.TextInput(attrs={"class": "form-control", "placeholder": "Enter product name"}),
         #     "category": forms.Select(attrs={"class": "form-select"}),
@@ -24,3 +24,32 @@ class ProductImageForm(forms.ModelForm):
             "caption": forms.TextInput(attrs={"class": "form-control", "placeholder": "Image caption"}),
             "is_primary": forms.CheckboxInput(attrs={"class": "form-check-input"}),
         }
+
+class ProductVariantForm(forms.ModelForm):
+    flavor = forms.ModelChoiceField(
+        queryset = Flavor.objects.all(),
+        required = False,
+        empty_label = "Select Flavor"
+    )
+
+    weight = forms.ModelChoiceField(
+        queryset = Weight.objects.all(),
+        required = False,
+        empty_label = "Select Weight/Size"
+    )
+
+    class Meta:
+        model = ProductVariant
+        fields = ["flavor", "weight", "price", "stock"]
+ 
+        
+class FlavorForm(forms.ModelForm):
+    class Meta:
+        model = Flavor
+        fields = ["flavor"]
+    
+class WeightForm(forms.ModelForm):
+    class Meta:
+        model = Weight
+        fields = ["weight"]
+

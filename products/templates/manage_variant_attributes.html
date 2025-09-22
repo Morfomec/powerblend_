@@ -1,0 +1,582 @@
+{% extends "admin_base.html" %}
+{% load widget_tweaks %}
+
+
+{% block extra_css %}
+
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            
+        }
+        .navbar, .header {
+        margin-top: 0;
+        padding-top: 0;
+        }
+        :root {
+            --primary-color: #1a5f7a;
+            --primary-light: rgba(26, 95, 122, 0.1);
+            --primary-hover: rgba(26, 95, 122, 0.8);
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--gray-100);
+            color: var(--gray-800);
+            margin: 0;
+            padding: 2rem;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 1.5rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+            border-top: 1px solid var(--gray-200);
+        }
+
+        .header-section {
+            padding: 1.5rem;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+        }
+
+        .header-section h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 0 0 0.5rem 0;
+        }
+
+        .header-section p {
+            font-size: 1rem;
+            color: var(--gray-500);
+            margin: 0;
+        }
+
+        /* Tabs */
+        .tab-buttons {
+            display: flex;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--gray-200);
+        }
+
+        .tab-button {
+            padding: 1rem 1.5rem;
+            font-weight: 600;
+            color: var(--gray-500);
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            position: relative;
+            transition: color 0.2s ease-in-out;
+        }
+
+        .tab-button.active {
+            color: var(--primary-color);
+            border-bottom: 3px solid var(--primary-color);
+            transform: translateY(1px);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Forms and Buttons */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: var(--gray-700);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--gray-300);
+            border-radius: 8px;
+            transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+        
+        .form-text {
+            font-size: 0.875rem;
+            color: var(--gray-500);
+            margin-top: 0.25rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.2s ease-in-out;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-secondary {
+            background-color: var(--gray-200);
+            color: var(--gray-700);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--gray-300);
+        }
+        
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        /* Tables */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th, .table td {
+            text-align: left;
+            padding: 1rem;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .table th {
+            background-color: var(--gray-100);
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: var(--gray-600);
+            text-transform: uppercase;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .btn-edit {
+            color: white;
+            background-color: var(--primary-color);
+        }
+        .btn-edit:hover {
+            background-color: var(--primary-hover);
+        }
+        .btn-delete {
+            color: white;
+            background-color: #dc3545;
+        }
+        .btn-delete:hover {
+            background-color: #c82333;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            max-width: 450px;
+            width: 90%;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+        
+        .modal-header h3 {
+            margin: 0 0 1rem 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .modal-body p {
+            margin: 0 0 1.5rem 0;
+            color: var(--gray-600);
+        }
+        
+        .modal-footer {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .required {
+            color: #dc3545;
+        }
+    </style>
+{% endblock extra_css %}
+{% block body %}
+
+    
+    <div>
+
+
+        {% if messages %}
+        <div class="mb-4">
+            {% for message in messages %}
+                <div class="alert 
+                    {% if message.tags == 'success' %} alert-success 
+                    {% elif message.tags == 'error' %} alert-danger 
+                    {% else %} alert-info {% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+
+        <!-- Page Header -->
+        <div class="header-section">
+            <h1>Product Attributes Management</h1>
+            <p>Manage flavors and weights for your product variants</p>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="tab-buttons d-flex">
+            <button class="tab-button active" onclick="showTab('flavors')">
+                <i class="fas fa-ice-cream me-2"></i> Flavors
+            </button>
+            <button class="tab-button" onclick="showTab('weights')">
+                <i class="fas fa-weight-hanging me-2"></i> Weights
+            </button>
+        </div>
+        
+
+        
+
+        
+
+        <!-- Tab Content -->
+        <div id="flavors" class="tab-content active">
+            <!-- Add Flavor Form -->
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span>Add New Flavor</span>
+                    <button class="btn btn-secondary btn-sm" onclick="toggleForm('flavorFormSection')">
+                        <i class="fas fa-chevron-down me-1"></i>Toggle Form
+                    </button>
+                    <!-- Back Button -->
+                    <div class="text-center mt-2" >
+                        <a href="{% url 'add_variants' product_id %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-4"></i> Back to Variants
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body" id="flavorFormSection">
+
+
+                    <form id="flavorForm" method="POST" action="{% url 'manage_attributes' product_id %}">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="flavor_name" class="form-label">Flavor Name <span class="required">*</span></label>
+                            <input type="text" class="form-control" id="flavor_name" name="flavor" required maxlength="50" placeholder="Enter the flavor" value="{{ flavor_form.flavor.value|default:'' }}">
+                            <div class="form-text">Enter a unique flavor name (max 50 characters)</div>
+                        </div>
+                        <div class="btn-group">
+                            <button type="submit" name="flavor_submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Add Flavor
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="confirmReset('flavorForm')">
+                                <i class="fas fa-undo"></i> Reset
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Existing Flavors -->
+            <div class="card">
+                <div class="card-header">
+                    <span>Existing Flavors ({{ flavor_count }})</span>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Flavor Name</th>
+                                    <th>Created</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for flavor in flavor_page_obj %}
+                                <tr>
+                                    <td>{{ forloop.counter|add:flavor_page_obj.start_index|add:"-1" }}</td>
+                                    <td>{{ flavor.flavor }}</td>
+                                    <td><small class="text-muted">{{ flavor.created_at|date:"M d, Y" }}</small></td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="btn btn-sm btn-edit" onclick="editItem('Vanilla', 'flavor')">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-delete" onclick="confirmDelete('Vanilla', 'flavor')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6"> No flavors have added.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        <!-- Flavor  Pagination -->
+        {% include "includes/pagination.html" with page_obj=flavor_page_obj %}        
+        </div>
+
+
+
+        <!-- Weights Tab -->
+        <div id="weights" class="tab-content">
+
+
+            <!-- Add Weight Form -->
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span>Add New Weight</span>
+                    <button class="btn btn-secondary btn-sm" onclick="toggleForm('flavorFormSection')">
+                        <i class="fas fa-chevron-down me-1"></i>Toggle Form
+                    </button>
+                    <!-- Back Button -->
+                    <div class="text-center mt-2" >
+                        <a href="{% url 'add_variants' product_id %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-4"></i> Back to Variants
+                        </a>
+                    </div>
+                </div>
+
+
+                <div class="card-body" id="weightFormSection">
+
+                    <form id="weightForm" method="POST" action="{% url 'manage_attributes' product_id %}">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="weight_name" class="form-label">Weight/Size <span class="required">*</span></label>
+                            <input type="text" class="form-control" id="weight_name" name="weight" required maxlength="50" placeholder="Enter weight or size" value="{{ weight_form.weight.value|default:'' }}">
+                            <div class="form-text">Enter a unique weight/size (max 50 characters)</div>
+                        </div>
+                        <div class="btn-group">
+                            <button type="submit" name="weight_submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Add Weight
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="confirmReset('weightForm')">
+                                <i class="fas fa-undo"></i> Reset
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Existing Weights -->
+            <div class="card">
+                <div class="card-header">
+                    <span>Existing Weights ({{ weight_count }})</span>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Weight/Size</th>
+                                    <th>Created</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for weight in weight_page_obj %}
+                                <tr>
+                                    <td>{{ forloop.counter|add:weight_page_obj.start_index|add:"-1" }}</td>
+                                    <td>{{ weight.weight }}</td>
+                                    <td><small class="text-muted">{{ weight.created_at|date:"M d, Y" }}</small></td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="btn btn-sm btn-edit" onclick="editItem('250g', 'weight')">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-delete" onclick="confirmDelete('250g', 'weight')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6"> No weights have added.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <!-- Weight Pagination -->
+            {% include "includes/pagination.html" with page_obj=weight_page_obj %}
+        </div>
+    </div>
+
+    <!-- Custom Modal -->
+    <div class="modal fade" id="confirmModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Action</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmMessage">Are you sure?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmYes">Yes</button>
+            </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock body %}
+{% block extra_js %}
+
+
+    <script>
+        const customModal = document.getElementById('customModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalMessage = document.getElementById('modalMessage');
+        const modalActions = document.getElementById('modalActions');
+
+        function showModal(title, message, actionsHtml) {
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+            modalActions.innerHTML = actionsHtml;
+            customModal.style.display = 'flex';
+        }
+
+        function closeModal() {
+            customModal.style.display = 'none';
+        }
+
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(tabName).classList.add('active');
+            document.querySelector(`[onclick="showTab('${tabName}')"]`).classList.add('active');
+        }
+
+        function toggleForm(formId) {
+            const formSection = document.getElementById(formId);
+            if (formSection.style.display === 'none') {
+                formSection.style.display = 'block';
+            } else {
+                formSection.style.display = 'none';
+            }
+        }
+
+        function confirmReset(formId) {
+            const actions = `
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="document.getElementById('${formId}').reset(); closeModal();">Reset</button>
+            `;
+            showModal('Confirm Reset', 'Are you sure you want to clear the form?', actions);
+        }
+
+        function editItem(name, type) {
+            showModal('Edit ' + type, `This would open an edit form for "${name}" in a real application.`, `<button class="btn btn-primary" onclick="closeModal()">OK</button>`);
+        }
+
+        function confirmDelete(name, type) {
+            const actions = `
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-danger" onclick="deleteItem('${name}', '${type}');">Delete</button>
+            `;
+            showModal('Confirm Delete', `Are you sure you want to delete "${name}" ${type}?`, actions);
+        }
+
+        function deleteItem(name, type) {
+            closeModal();
+            showModal('Success', `${type.charAt(0).toUpperCase() + type.slice(1)} "${name}" deleted successfully!`, `<button class="btn btn-primary" onclick="closeModal()">OK</button>`);
+        }
+    </script>
+    
+{% endblock extra_js %}

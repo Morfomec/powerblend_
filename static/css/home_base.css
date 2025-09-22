@@ -130,6 +130,22 @@
         margin-top: 1rem;
     }
 
+    .original-price{
+
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .save-price {
+        background-color: #28a745;
+        color: white;
+    }
+    .current-price {
+        font-size: 26px;
+        font-weight: bold;
+        color: #333;
+    }
+
     .quick-buy-btn:hover {
         background-color: #2a5a63;
     }
@@ -237,7 +253,7 @@
     .product-card {
         border: 1px solid #e9ecef;
         border-radius: 15px;
-        padding: 1rem;
+        padding: 0rem;
         margin-bottom: 2rem;
         background: white;
         box-shadow: 0 8px 25px rgba(0,0,0,0.1);
@@ -260,8 +276,10 @@
     }
 
     .product-info {
-        padding: 1.5rem;
+        padding: 0.5rem;
+        padding-top: 125px;
     }
+
 
     .product-title {
         font-weight: bold;

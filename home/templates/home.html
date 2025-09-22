@@ -1,7 +1,33 @@
 {% extends 'home_base.html' %}
+{% load static %}
 {% block content %}
 <h1>Welcome, {{request.user.username }}!</h1>
 {% endblock content %}
+{% block extra_css %}
+<style>
+    .original-price{
+
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .save-price {
+        background-color: #28a745;
+        color: white;
+    }
+    .current-price {
+        font-size: 26px;
+        font-weight: bold;
+        color: #333;
+    }
+
+    .quick-buy-btn:hover {
+        background-color: #2a5a63;
+    }
+
+</style>
+
+{% endblock extra_css %}
 
 {% block body %}
 
@@ -9,11 +35,21 @@
 
     <!-- Product Categories -->
     <div class="container">
+
+        <!-- Category Pills -->
+        <div class="category-pills text-center">
+            <a href="#" class="pill">WHEY</a>
+            <a href="#" class="pill">ISOLATE</a>
+            <a href="#" class="pill">CLEAR</a>
+            <a href="#" class="pill">VITAMINS</a>
+            <a href="#" class="pill">CREATINE</a>
+        </div>
+
         <div class="row product-grid">
             {% for product in products %}
-            <div class="col-md-3 col-sm-6">
+            <div class="col-lg-3 col-md-6">
                 <div class="product-card"> 
-
+                    <i class="far fa-heart heart-icon"></i>
                     <!-- for images -->
                     <div class="product-image text-center">   
                         {% if product.images.all %}
@@ -24,17 +60,25 @@
                     </div>
 
                     <!-- for product info -->
-                    <div class="product-info text-center">
+                    <div class="product-info ">
                         <h5 class="product-title">{{ product.name }}</h5>
 
                         <div class="rating">
                         <span>★★★★★</span> <span>(30468)</span>
                     </div>
-                    <div class="price-section">
-                        <span class="current-price">₹{{ product.price }}</span>
-                        <span class="original-price">Was ₹3699.00</span>
-                        <span class="save-price">Save ₹950.00</span>
-                    </div>
+                    {% with product.variants.first as variant %}
+                        {% if variant %}
+                        <div class="price-section">
+                            <span class="current-price">₹{{ variant.price }}</span>
+                            <span class="original-price">Was {{ variant.original_price }}</span>
+                            <span class="save-price">Save ₹{{ variant.save_price }}</span>
+                        </div>
+                        {% else %}
+                        <div class="price-section">
+                            <span class="current-price">No variants available</span>
+                        </div>
+                        {% endif %}
+                    {% endwith %}
                     <div class="discount-badge">EXTRA 10% OFF ABOVE ₹7,000</div>
                     <div class="discount-badge">EXTRA 15% OFF ABOVE ₹15,000</div>
 
@@ -44,54 +88,7 @@
             </div>
             {% endfor %}
         </div>
-
-        <div class="col-lg-3 col-md-6">
-                <div class="product-card">
-                    
-                    <i class="far fa-heart heart-icon"></i>
-                    <img src="#" alt="Impact Whey Isolate" class="product-image">
-                    <h5 class="product-title">Impact Whey Isolate</h5>
-                    <div class="rating">
-                        <span>★★★★★</span> <span>(30468)</span>
-                    </div>
-                    <div class="price-section">
-                        <span class="current-price">₹1649</span>
-                        <span class="original-price">Was ₹3699.00</span>
-                        <span class="save-price">Save ₹950.00</span>
-                    </div>
-                    <div class="discount-badge">EXTRA 10% OFF ABOVE ₹7,000</div>
-                    <div class="discount-badge">EXTRA 15% OFF ABOVE ₹15,000</div>
-                    <button class="quick-buy-btn">QUICK BUY</button>
-                </div>
-            </div>
-            <!-- <div class="col-md-3 col-sm-6">
-                <div class="product-card">
-                    <div class="product-image" style="background: linear-gradient(45deg, #ff6b35, #ffa500);"></div>
-                    <div class="product-info text-center">
-                        <h5 class="product-title">6.2g BCAA WHEY PROTEIN</h5>
-                        <button class="btn btn-shop">SHOP</button>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 col-sm-6">
-                <div class="product-card">
-                    <div class="product-image" style="background: linear-gradient(45deg, #ffa500, #ffd700);"></div>
-                    <div class="product-info text-center">
-                        <h5 class="product-title">ANY 2 FOR £15</h5>
-                        <button class="btn btn-shop">SHOP</button>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 col-sm-6">
-                <div class="product-card">
-                    <div class="product-image" style="background: linear-gradient(45deg, #ffd700, #ffff99);"></div>
-                    <div class="product-info text-center">
-                        <h5 class="product-title">5 PROTEIN STACK</h5>
-                        <button class="btn btn-shop">SHOP</button>
-                    </div>
-                </div>
-            </div> -->
-        <!-- </div> -->
+     
 
         <!-- Category Pills -->
         <div class="category-pills text-center">
@@ -175,7 +172,7 @@
                     </div>
                 </div>
             </div> -->
-            <button class="view-all-btn"><a href="{% url 'list_products' %}">VIEW ALL</a></button>
+            <button class="view-all-btn btn-lg"><a href="{% url 'list_products' %}">VIEW ALL</a></button>
         </section>
     </div>
 

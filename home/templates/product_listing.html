@@ -1,273 +1,41 @@
 {% extends 'home_base.html' %}
+{% load static %}
 {% block content %}
 <h1>Welcome, {{request.user.username }}!</h1>
 {% endblock content %}
 {% block extra_css %}
 <style>
-        :root {
-            --mp-teal: #1e4a52;
-            --mp-orange: #ff6b35;
-            --mp-light-gray: #f8f9fa;
-            --mp-dark-gray: #333;
-        }
+    /* New styles for specific pages or components */
+    
+    .app-promo h2 {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin-bottom: 1rem;
+    }
+    .btn-primary-custom:hover {
+        background-color: #e55a2b;
+    }
+    .original-price{
 
-        body {
-            font-family: 'Arial', sans-serif;
-            color: var(--mp-dark-gray);
-        }
+        background-color: #dc3545;
+        color: white;
+    }
 
-        .navbar-custom {
-            background-color: white;
-            border-bottom: 1px solid #e9ecef;
-            padding: 0.5rem 0;
-        }
+    .save-price {
+        background-color: #28a745;
+        color: white;
+    }
+    .current-price {
+        font-size: 26px;
+        font-weight: bold;
+        color: #333;
+    }
 
-        .navbar-nav .nav-link {
-            color: var(--mp-dark-gray);
-            font-weight: 500;
-            margin: 0 1rem;
-        }
+    .quick-buy-btn:hover {
+        background-color: #2a5a63;
+    }
 
-        .breadcrumb {
-            background: none;
-            padding: 0;
-            margin: 1rem 0;
-        }
-
-        .breadcrumb-item a {
-            color: var(--mp-teal);
-            text-decoration: none;
-        }
-
-        .page-title {
-            color: var(--mp-teal);
-            font-size: 2rem;
-            font-weight: bold;
-            margin: 1rem 0;
-        }
-
-        .promo-banner {
-            background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%);
-            color: white;
-            padding: 1rem;
-            border-radius: 8px;
-            margin: 1rem 0;
-            text-align: center;
-        }
-
-        .filter-tabs {
-            border-bottom: 1px solid #dee2e6;
-            margin: 2rem 0 1rem 0;
-        }
-
-        .filter-tabs .nav-link {
-            color: var(--mp-dark-gray);
-            border: none;
-            padding: 0.75rem 1.5rem;
-            background: none;
-        }
-
-        .filter-tabs .nav-link.active {
-            color: var(--mp-teal);
-            border-bottom: 2px solid var(--mp-teal);
-            background: none;
-        }
-
-        .filters-row {
-            background-color: var(--mp-light-gray);
-            padding: 1rem;
-            margin: 1rem 0;
-            border-radius: 5px;
-        }
-
-        .impact-promo {
-            background: linear-gradient(135deg, var(--mp-teal) 0%, #2a5a63 100%);
-            color: white;
-            padding: 2rem;
-            border-radius: 10px;
-            text-align: center;
-            margin: 2rem 0;
-            position: relative;
-        }
-
-        .impact-promo h3 {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .impact-promo .btn {
-            background-color: var(--mp-orange);
-            border: none;
-            padding: 0.75rem 2rem;
-            font-weight: bold;
-            border-radius: 5px;
-        }
-
-        .product-card {
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 2rem;
-            background: white;
-            transition: box-shadow 0.3s ease;
-            position: relative;
-        }
-
-        .product-card:hover {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-
-        .product-image {
-            width: 100%;
-            height: 200px;
-            object-fit: contain;
-            margin-bottom: 1rem;
-        }
-
-        .product-title {
-            font-weight: bold;
-            color: var(--mp-dark-gray);
-            margin-bottom: 0.5rem;
-        }
-
-        .rating {
-            color: #ffc107;
-            margin-bottom: 0.5rem;
-        }
-
-        .price-section {
-            margin: 1rem 0;
-        }
-
-        .current-price {
-            font-size: 1.25rem;
-            font-weight: bold;
-            color: var(--mp-dark-gray);
-        }
-
-        .original-price {
-            text-decoration: line-through;
-            color: #6c757d;
-            margin-left: 0.5rem;
-        }
-
-        .save-price {
-            color: #28a745;
-            font-weight: bold;
-            margin-left: 0.5rem;
-        }
-
-        .discount-badge {
-            background-color: var(--mp-orange);
-            color: white;
-            padding: 0.25rem 0.5rem;
-            border-radius: 3px;
-            font-size: 0.75rem;
-            margin-bottom: 0.5rem;
-            display: inline-block;
-        }
-
-        .quick-buy-btn {
-            background-color: var(--mp-teal);
-            color: white;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            width: 100%;
-            border-radius: 5px;
-            font-weight: bold;
-            margin-top: 1rem;
-        }
-
-        .quick-buy-btn:hover {
-            background-color: #2a5a63;
-        }
-
-        .app-promo {
-            background: linear-gradient(135deg, var(--mp-teal) 0%, #1a3d44 100%);
-            color: white;
-            padding: 3rem 0;
-            margin: 3rem 0;
-        }
-
-        .app-promo h2 {
-            font-size: 2.5rem;
-            font-weight: bold;
-            margin-bottom: 1rem;
-        }
-
-        .promo-code {
-            color: var(--mp-orange);
-            font-weight: bold;
-        }
-
-        .media-badges {
-            background-color: var(--mp-orange);
-            color: white;
-            padding: 1rem 0;
-            text-align: center;
-        }
-
-        .media-badges h5 {
-            margin-bottom: 1rem;
-        }
-
-        .media-logos {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 2rem;
-        }
-
-        .trust-badges {
-            background-color: var(--mp-light-gray);
-            padding: 2rem 0;
-        }
-
-        .trust-badge {
-            text-align: center;
-            padding: 1rem;
-        }
-
-        .trust-badge i {
-            font-size: 2rem;
-            color: var(--mp-teal);
-            margin-bottom: 1rem;
-        }
-
-        .heart-icon {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            color: #ccc;
-            font-size: 1.25rem;
-        }
-
-        .view-all-btn {
-            background-color: var(--mp-teal);
-            color: white;
-            border: none;
-            padding: 0.75rem 2rem;
-            border-radius: 5px;
-            margin: 2rem auto;
-            display: block;
-        }
-
-        .app-preview {
-            max-width: 300px;
-            margin: 0 auto;
-        }
-
-        .download-buttons {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            margin-top: 2rem;
-        }
-
-        .download-btn {
-            height: 60px;
-        }
-    </style>
+</style>
     {% endblock extra_css %}
 
     {% block body %}
@@ -318,40 +86,6 @@
             </li>
         </ul>
 
-        <!-- Filters Row
-        <div class="filters-row">
-            <div class="row align-items-center">
-                <div class="col-md-2">
-                    <select class="form-select">
-                        <option>Sort</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <select class="form-select">
-                        <option>Savings</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <select class="form-select">
-                        <option>Product Category</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <select class="form-select">
-                        <option>Diet</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <select class="form-select">
-                        <option>Price</option>
-                    </select>
-                </div>
-                <div class="col-md-2 text-end">
-                    <button class="btn btn-outline-secondary">More Filters +</button>
-                    <span class="ms-2">152 Results</span>
-                </div>
-            </div>
-        </div> -->
 
         <form method="get" id="filterForm">
             <div class="filters-row">
@@ -439,40 +173,35 @@
 
 
                     <!-- for product info -->
-                    <div class="product-info text-center">
+                    <div class="product-info">
                         <h5 class="product-title">{{ product.name }}</h5>
 
                         <div class="rating">
-                        <span>★★★★★</span> <span>(30468)</span>
-                    </div>
-                    <div class="price-section">
-                        <span class="current-price">₹{{ product.price }}</span>
-                        <span class="original-price">Was ₹3699.00</span>
-                        <span class="save-price">Save ₹950.00</span>
-                    </div>
-                    <div class="discount-badge">EXTRA 10% OFF ABOVE ₹7,000</div>
-                    <div class="discount-badge">EXTRA 15% OFF ABOVE ₹15,000</div>
+                            <span>★★★★★</span> <span>(30468)</span>
+                        </div>
+                        {% with product.variants.first as variant %}
+                            {% if variant %}
+                                <div class="price-section">
+                                    <span class="current-price">₹{{ variant.price }}</span>
+                                    <span class="original-price">Was ₹{{ variant.original_price }}</span>
+                                    <span class="save-price">Save ₹{{ variant.save_price }}</span>
+                                </div>
+                            {% else %}
+                                <div class="price-section">
+                                    <span class="current-price">No variants available</span>
+                                </div>
+                            {% endif %}
+                        {% endwith %}
+                        <div class="discount-badge">EXTRA 10% OFF ABOVE ₹7,000</div>
+                        <div class="discount-badge">EXTRA 15% OFF ABOVE ₹15,000</div>
+                        <div>
+                            <!-- <button class="quick-buy-btn">QUICK BUY</button> -->
+                            <a href="{% url 'detail_product' product.id %}" class="quick-buy-btn">QUICK BUY</a>
 
-                        <!-- <button class="quick-buy-btn">QUICK BUY</button> -->
-                        <a href="{% url 'detail_product' product.id %}" class="quick-buy-btn">QUICK BUY</a>
-
+                        </div>
+                        
                     </div>
-
-
-                    <!-- <h5 class="product-title">Impact Whey Protein</h5>
-                    <div class="rating">
-                        <span>★★★★★</span> <span>(47341)</span>
-                    </div>
-                    <div class="price-section">
-                        <span class="current-price">₹1899</span>
-                        <span class="original-price">Was ₹3199.00</span>
-                        <span class="save-price">Save ₹700.00</span>
-                    </div>
-                    <div class="discount-badge">EXTRA 10% OFF ABOVE ₹7,000</div>
-                    <div class="discount-badge">EXTRA 15% OFF ABOVE ₹15,000</div>
-                    <button class="quick-buy-btn">QUICK BUY</button> -->
                 </div>
-                
             </div>
         {% endfor %}
 
