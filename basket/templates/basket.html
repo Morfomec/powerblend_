@@ -1,4 +1,5 @@
 {% extends 'home_base.html' %}
+{% load static %}
 
 {% block content %}
 
@@ -136,7 +137,7 @@
         }
 
         .current-price {
-            font-size: 20px;
+            font-size: 26px;
             font-weight: bold;
             color: #333;
         }
@@ -240,6 +241,7 @@
         .price-red {
             color: #e53e3e;
             font-weight: bold;
+            font-size: 16px;
         }
 
         .checkout-btn {
@@ -259,13 +261,6 @@
             background: rgb(0 57 66 / 0.8);
         }
 
-        .footer-section {
-            background: #c8432d;
-            color: white;
-            text-align: center;
-            padding: 15px 0;
-            margin-top: 40px;
-        }
 
         .footer-labels {
             display: flex;
@@ -347,6 +342,8 @@
 {% endblock extra_css %}
 {% block body %}
 
+
+
     <div class="container">
         <div class="basket-header">
             <h1 class="basket-title">Your Shopping Basket</h1>
@@ -356,72 +353,69 @@
         </div>
 
         <div class="basket-content">
-            <div class="basket-items">
-                <!-- Product 1: Clear Whey Isolate -->
+
+            <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+
+            <div class="basket-items" id="basket">
+                <!-- Products -->
+                {% for item in items %}
                 <div class="basket-item">
-                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23f0f0f0'/%3E%3Ctext x='50' y='50' font-family='Arial' font-size='12' fill='%23666' text-anchor='middle' dy='.3em'%3EProduct%3C/text%3E%3C/svg%3E" alt="Clear Whey Isolate" class="product-image">
                     
+                    {% with item.variant.product.images.first as first_image %}
+                        {% if first_image %}
+
+                            <img src="{{ first_image.image.url }}" alt="{{ item.variant.product.name }}" class="product-image" style="width: 150px; height: 150px;">
+                        {% else %}
+                            <img src="{% static 'images/placeholder.png' %}" alt="No image" class="product-image">
+                        {% endif %}
+                    {% endwith %}
+
                     <div class="product-details">
-                        <div class="product-brand">Myprotein</div>
-                        <div class="product-name">Clear Whey Isolate</div>
-                        <div class="product-specs">Flavour: Gold | Amount: 500g</div>
+                        <div class="product-brand">{{ item.variant.product.category }}</div>
+                        <div class="product-name">{{ item.variant.product.name }}</div>
+                        <div class="product-specs">
+                            {% if item.variant.flavor %}Flavor: {{ item.variant.flavor }}{% endif %}|
+                            {% if item.variant.size %}Size: {{ item.variant.weights }}{% endif %}
+                         </div>
+      
                         
-                        <div class="product-options">
-                            <button class="supersize-btn">+ SUPERSIZE</button>
-                            <span class="save-offer">1KG • 2X500 G | SAVE ₹2315 PER 500G</span>
-                        </div>
-
-                        <div class="price-section">
-                            <div class="current-price">₹2499</div>
-                            <div class="price-savings">
-                                <span class="original-price">Was ₹4999</span>
-                                <span class="savings">Save ₹1500 (38%)</span>
-                            </div>
-                        </div>
-
                         <div class="quantity-section">
                             <span class="quantity-label">Quantity:</span>
-                            <div class="quantity-controls">
-                                <input type="number" value="1" class="quantity-input">
-                                <button class="quantity-btn">+</button>
-                            </div>
+
+                            <!-- Decrease -->
+                            <form method="get" action="{% url 'basket_update_item' item.id %}#basket" style="display:inline;">
+                                <input type="hidden" name="action" value="decrease">
+                                <button type="submit" class="quantity-btn">-</button>
+                            </form>
+
+                            <input type="number" value="{{ item.quantity }}" class="quantity-input" disabled>
+
+                            <!-- Increase -->
+                            <form method="get" action="{% url 'basket_update_item' item.id %}#basket" style="display:inline;">
+                                <input type="hidden" name="action" value="increase">
+                                <button type="submit" class="quantity-btn">+</button>
+                            </form>
                         </div>
-
-                        <div class="remove-link">Remove</div>
-                    </div>
-                </div>
-
-                <!-- Product 2: Impact Whey Isolate -->
-                <div class="basket-item">
-                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23ff6b4a'/%3E%3Ctext x='50' y='40' font-family='Arial' font-size='14' fill='white' text-anchor='middle' font-weight='bold'%3EIMPACT%3C/text%3E%3Ctext x='50' y='60' font-family='Arial' font-size='10' fill='white' text-anchor='middle'%3EWHEY ISOLATE%3C/text%3E%3C/svg%3E" alt="Impact Whey Isolate" class="product-image">
-                    
-                    <div class="product-details">
-                        <div class="product-brand">Myprotein</div>
-                        <div class="product-name">Impact Whey Isolate</div>
-                        <div class="product-specs">Flavour: Chocolate Peanut Butter | Amount: 250g</div>
                         
-                        <div class="product-options">
-                            <button class="supersize-btn">+ SUPERSIZE</button>
-                            <span class="save-offer">2.5 KG | SAVE ₹999 PER 250G</span>
-                        </div>
-
                         <div class="price-section">
-                            <div class="current-price">₹1649</div>
+                            <div class="current-price" id="subtotal-{{ item.id }}">₹{{ item.subtotal }}</div>
                             <div class="price-savings">
-                                <span class="original-price">Was ₹2599</span>
-                                <span class="savings">Save ₹950 (37%)</span>
+                                <span class="original-price">Was ₹{{ item.variant.save_price }}</span>
+                                <span class="savings">Save ₹{{ item.variant.save_price }} ({{ item.variant.discount_percentage }}%)</span>
                             </div>
                         </div>
 
-                        <div class="quantity-section">
-                            <span class="quantity-label">Quantity:</span>
-                            <div class="quantity-controls">
-                                <input type="number" value="1" class="quantity-input">
-                                <button class="quantity-btn">+</button>
-                            </div>
+                        <div class="remove-link">
+                            <form action="{% url 'basket_remove' item.id %}" method="post" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="remove-link">Remove</button>
+                            </form>
                         </div>
                     </div>
                 </div>
+                {% empty %}
+                    <p>Your basket is empty</p>
+                {% endfor %}
             </div>
 
             <div class="basket-summary">
@@ -429,7 +423,7 @@
                 
                 <div class="summary-row">
                     <span>Subtotal</span>
-                    <span class="price-red">₹2,921.00</span>
+                    <span class="price-red" id="basket-total">₹{{ basket.total_price }}</span>
                 </div>
                 
                 <div class="summary-row">
@@ -437,14 +431,14 @@
                     <span>Free</span>
                 </div>
                 
-                <div class="summary-row">
+                <!-- <div class="summary-row">
                     <span>Estimate for</span>
                     <span></span>
-                </div>
+                </div> -->
                 
                 <div class="summary-row total">
                     <span>Total</span>
-                    <span class="price-red">₹2,921.00</span>
+                    <span class="price-red" id="basket-total-final">₹{{ basket.total_price }}</span>
                 </div>
 
                 <button class="checkout-btn">🔒 CHECK OUT</button>
@@ -452,20 +446,7 @@
         </div>
     </div>
 
-    <div class="footer-section">
-        <div class="footer-labels">
-            <span>AS FEATURED IN</span>
-        </div>
-        <div style="margin-top: 10px; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
-            <span>THE INDEPENDENT</span>
-            <span>MEN'S HEALTH</span>
-            <span>THE TELEGRAPH</span>
-            <span>GQ</span>
-            <span>EVENING STANDARD</span>
-            <span>WOMEN'S HEALTH</span>
-            <span>BBC GOOD FOOD</span>
-        </div>
-    </div>
+
 
     <div class="trust-badges">
         <div class="trust-badge">
@@ -501,44 +482,19 @@
         </div>
     </div>
 
-    <div class="disclaimer">
-        *Source: Euromonitor International Limited; Consumer Health 2023 ed, Myprotein's retail value sales, World 2023 data.
-    </div>
+
 
 
 
 {% endblock body %}
 {% block extra_js %}
-
 <script>
-    // Add interactivity for quantity controls
     document.querySelectorAll('.quantity-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const input = this.previousElementSibling;
-            let currentValue = parseInt(input.value);
-            if (this.textContent === '+') {
-                input.value = currentValue + 1;
-            } else if (currentValue > 1) {
-                input.value = currentValue - 1;
-            }
-        });
+    btn.addEventListener('click', function(e){
+        e.preventDefault(); // prevent jumping
+        this.closest('form').submit();
     });
-
-    // Add functionality for remove links
-    document.querySelectorAll('.remove-link').forEach(link => {
-        link.addEventListener('click', function() {
-            if (confirm('Are you sure you want to remove this item?')) {
-                this.closest('.basket-item').remove();
-            }
-        });
-    });
-
-    // Checkout button functionality
-    document.querySelector('.checkout-btn').addEventListener('click', function() {
-        alert('Proceeding to checkout...');
-    });
+});
 </script>
-
-
 
 {% endblock extra_js %}

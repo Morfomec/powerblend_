@@ -114,7 +114,8 @@ def add_product(request):
             }
             return render(request, 'add_product.html', context)
 
-
+        # else:
+        #     r
         try:
             #save products now
             category = get_object_or_404(Category, id=category)
@@ -139,6 +140,7 @@ def add_product(request):
         
         except Exception as e:
             messages.error(request, f"An error occurred:{e}")
+            print
             return redirect('add_product')
 
     else:

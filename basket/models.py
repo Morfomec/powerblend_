@@ -11,16 +11,20 @@ class Basket(models.Model):
     def __str__(self):
         return  f"Basket of {self.user.full_name if self.user else "Guest"}"
 
-
+    @property
     def total_price(self):
-        return sum(item.subtotal() for item in self.items.all())
+        return sum(item.subtotal for item in self.items.all())
+
+    @property
+    def total_items(self):
+        return sum(item.quantity for item in self.items.all())
 
 class BasketItem(models.Model):
     basket = models.ForeignKey(Basket, on_delete=models.CASCADE, related_name="items")
     variant = models.ForeignKey(ProductVariant, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
 
-
+    @property
     def subtotal(self):
         return self.variant.price * self.quantity
     

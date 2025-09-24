@@ -24,6 +24,9 @@ def generate_otp():
 
 
 def register_view(request):
+    """
+    
+    """
     if request.method == "POST":
         form = RegistrationForm(request.POST)
 

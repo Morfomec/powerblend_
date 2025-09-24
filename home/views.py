@@ -129,6 +129,7 @@ def detail_product(request, id):
         "default_variant" : default_variant,
         "unique_flavors" : unique_flavors,
         "unique_weights" : unique_weights,
+        "current_url" : request.path,
 }
 
     return render(request, "product_detail.html", context)
