@@ -472,10 +472,29 @@
     }
 
     .form-control.search-input {
-        width: 150%;   
+        width: 185%;   
         border-radius: 25px;
         background: #f8f9fa;
         border: 1px solid #e9ecef;
+    }
+    .product-image-container {
+        /* Define a predictable width */
+        width: 100%;
+        /* 1. Use padding-top for a 1:1 square aspect ratio */
+        padding-top: 100%; 
+        position: relative;
+        overflow: hidden; /* Ensures nothing spills out */
+    }
+
+    .product-image-container img {
+        /* 2. Position the image absolutely to fill the padded box */
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        /* 3. Apply cover to the absolutely positioned image */
+        object-fit: cover; 
     }
 
     @keyframes fadeOut {

@@ -359,7 +359,7 @@
             <div class="basket-items" id="basket">
                 <!-- Products -->
                 {% for item in items %}
-                <div class="basket-item">
+                <div class="basket-item {% if item.variant.stock == 0 %}disabled{% endif %}">
                     
                     {% with item.variant.product.images.first as first_image %}
                         {% if first_image %}
@@ -384,18 +384,24 @@
 
                             <!-- Decrease -->
                             <form method="get" action="{% url 'basket_update_item' item.id %}#basket" style="display:inline;">
+                                {% csrf_token %}
                                 <input type="hidden" name="action" value="decrease">
-                                <button type="submit" class="quantity-btn">-</button>
+                                <button type="submit" class="quantity-btn" {% if item.quantity <= 1 or item.variant.stock == 0 %}disabled{% endif %}>-</button>
                             </form>
 
-                            <input type="number" value="{{ item.quantity }}" class="quantity-input" disabled>
+                            <input type="number" value="{{ item.quantity }}" class="quantity-input">
 
                             <!-- Increase -->
                             <form method="get" action="{% url 'basket_update_item' item.id %}#basket" style="display:inline;">
+                                {% csrf_token %}
                                 <input type="hidden" name="action" value="increase">
-                                <button type="submit" class="quantity-btn">+</button>
+                                <button type="submit" class="quantity-btn" {% if item.quantity >= item.variant.stock %}disabled{% endif %}>+</button>
                             </form>
                         </div>
+
+                        {% if item.variant.stock == 0 %}
+                            <div class="text-danger">Out of Stock</div>
+                        {% endif %}
                         
                         <div class="price-section">
                             <div class="current-price" id="subtotal-{{ item.id }}">₹{{ item.subtotal }}</div>

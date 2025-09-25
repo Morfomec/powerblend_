@@ -1,8 +1,7 @@
-<!-- Navigation -->
-<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm py-5 ">
-  <div class="container-fluid d-flex align-items-center justify-content-between">
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm py-5">
+  
+  <div class="container-fluid d-flex align-items-center">
     
-    <!-- Left: Logo -->
     <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
       <div style="background: var(--primary-teal); width: 50px; height: 40px; margin-right:10px;margin-left: 100px; display: flex; align-items: center; justify-content: center; border-radius: 3px;">
         <span style="color: white; font-weight: bold; font-size: 28px;">M</span>
@@ -10,51 +9,56 @@
       <span style="color: var(--primary-teal); font-weight: bold; font-size: 24px;">POWERBLEND</span>
     </a>
 
-    <!-- Middle: Search -->
-    <div class="search-container position-relative mx-4  flex-grow-1" style="max-width: 400px; margin-right:200%">
-      <input type="text" class="form-control search-input" placeholder="Search"
-             style="padding-left: 40px; border-radius: 25px; background: #f8f9fa; border: 1px solid #e9ecef;">
-      <i class="fas fa-search position-absolute"
-         style="left: 15px; top: 50%; transform: translateY(-50%); color: #ff6b35;"></i>
+    <div class="search-container position-relative ms-auto me-4 flex-grow-1" style="max-width: 400px;">
+        <input type="text" class="form-control search-input" placeholder="Search"
+               style="padding-left: 40px; border-radius: 25px; background: #f8f9fa; border: 1px solid #e9ecef;">
+        <i class="fas fa-search position-absolute"
+           style="left: 15px; top: 50%; transform: translateY(-50%); color: #ff6b35;"></i>
     </div>
 
-    <!-- Right: User + Cart -->
-    <div class="d-flex align-items-center" style="margin-right: 100px; gap: 10px;">
-      <div class="dropdown">
-        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userMenu" role="button" 
-           data-bs-toggle="dropdown" aria-expanded="false" style="color: #666; font-size: 18px; cursor: pointer;">
-          <i class="fas fa-user me-2"></i>
-          {% if user.is_authenticated %}
-            {{ user.full_name }}
-          {% endif %}
-        </a>
+    <div class="d-flex align-items-center ms-auto" style="margin-right: 100px; gap: 25px;">
+        {% if user.is_authenticated %}
+            
+            <div class="dropdown">
+                <a class="nav-link dropdown-toggle d-flex align-items-center p-0"
+                   href="#"
+                   id="userMenu"
+                   role="button"
+                   data-bs-toggle="dropdown"
+                   aria-expanded="false"
+                   style="color: #666; font-size: 16px; cursor: pointer;">
+                    
+                    <i class="fas fa-user me-2" style="font-size: 20px;"></i>
+                    <span class="d-none d-md-inline">{{ user.full_name|default:'My Account' }}</span>
+                </a>
+                
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+                    <li><a class="dropdown-item" href="#">My Account</a></li>
+                    <li><a class="dropdown-item" href="{% url 'wishlist_view' %}">Wishlist</a></li>
+                    <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
+                    <li><a class="dropdown-item" href="{% url 'admin_login' %}">Admin</a></li>
+                </ul>
+            </div>
+            
+            <a href="{% url 'wishlist_view' %}" style="color: #666; font-size: 20px; cursor: pointer;">
+                <i class="fa-regular fa-heart"></i>
+            </a>
 
-        <div>
-            {% if user.is_authenticated %}
-            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu"> 
-                <li><a class="dropdown-item" href="#">My Account</a></li>
-                <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
-                <li><a class="dropdown-item" href="{% url 'admin_login' %}">Admin</a></li>
-            </ul>
-            {% else %}
+        {% else %}
+            <div class="d-flex align-items-center">
                 <a href="{% url 'login' %}" class="btn btn-outline-secondary btn-sm me-2">Login</a>
                 <a href="{% url 'register' %}" class="btn btn-outline-success btn-sm me-2">Register</a>
-                <a href="{% url 'admin_login' %}" class="btn btn-outline-primary btn-sm me-2">Admin</a>
-            {% endif %}
-                
-        </div>
-    
+                <a href="{% url 'admin_login' %}" class="btn btn-outline-primary btn-sm">Admin</a>
+            </div>
+        {% endif %}
 
-      </div>
-      <a href="{% url 'basket_view' %}">
-        <i class="fa-solid fa-shopping-cart ms-3" style="color: #666; font-size: 18px; cursor: pointer;"></i>
-      </a>
-      
+        <a href="{% url 'basket_view' %}" style="color: #666; font-size: 20px; cursor: pointer;">
+            <i class="fas fa-shopping-basket"></i>
+        </a>
+    </div>
     
-
   </div>
 </nav>
-
 
 
             <!-- <div class="col-md-4">
@@ -68,7 +72,7 @@
 </nav>
 
 <!-- Secondary Navigation -->
-<nav class="navbar navbar-expand-lg" style="background: #f8f9fa; padding: 0.5rem 0;">
+<!-- <nav class="navbar navbar-expand-lg" style="background: #f8f9fa; padding: 0.5rem 0;">
     <div class="container-fluid">
         <div class="collapse navbar-collapse justify-content-center">
             <ul class="navbar-nav">
@@ -80,7 +84,7 @@
             </ul>
         </div>
     </div>
-</nav>
+</nav> -->
 
 <!-- Promotional Banner -->
 <div class="container-fluid" style="background: #fff3e0; padding: 0.5rem 0; border-bottom: 1px solid #e0e0e0;">

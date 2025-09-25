@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     "basket",
     "category",
     "products",
+    "wishlist",
 
     "widget_tweaks",
 

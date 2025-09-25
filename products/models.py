@@ -10,6 +10,7 @@ class Product(models.Model):
     description = models.TextField()
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     slug = models.SlugField(max_length=200, unique=True, blank=True)
+    max_quantity_per_order = models.PositiveIntegerField(default=5)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_listed = models.BooleanField(default=True)
@@ -77,7 +78,8 @@ class ProductVariant(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     stock = models.PositiveIntegerField(default=0)
     is_listed = models.BooleanField(default=True)
-
+    max_quantity_per_order = models.PositiveIntegerField(default=5)
+    
     @property
     def original_price(self):
         return self.price + 950

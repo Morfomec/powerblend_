@@ -7,6 +7,8 @@ from products.models import ProductVariant
 from django.views import View
 from django.http import JsonResponse
 
+from wishlist.models import WishlistItem
+
 
 # Create your views here.
 
@@ -14,6 +16,11 @@ from django.http import JsonResponse
 class BasketAddView(View):
     def post(self, request, *args, **kwargs):
         form = BasketAddForm(request.POST)
+
+        print("-" * 50)
+        print("Received POST Data:", request.POST) # Is variant_id here?
+        print("User Authenticated:", request.user.is_authenticated)
+        
 
         if not request.user.is_authenticated:
             return JsonResponse({"success": False, "error": "login_required"}, status=403)
@@ -23,6 +30,16 @@ class BasketAddView(View):
             quantity = form.cleaned_data['quantity']
 
             variant = get_object_or_404(ProductVariant, id=variant_id)
+            product = variant.product
+
+
+            # to prevent blocked/unlisted products
+            if not product.is_listed or not product.category.is_active:
+                return JsonResponse({
+                    "success":False,
+                    "error": "This product cannot be added to the cart."
+                }, status=403)
+
 
             # Get or create basket
             basket, _ = Basket.objects.get_or_create(user=request.user)
@@ -35,8 +52,24 @@ class BasketAddView(View):
             )
 
             if not created:
+
+                # to limit the maximum quantity to add
+                new_quantity = item.quantity + quantity
+                if  new_quantity > variant.stock:
+                    return JsonResponse({
+                        "success" : False,
+                        "error" :f"Only {variant.stock} items available in stock."
+                    }, status=400)
+                if new_quantity > variant.max_quantity_per_order:
+                    return JsonResponse({
+                        "success": False,
+                        "error" : f"Maximum {variant.max_quantity_per_order} allowed per order."
+                    }, status=400)
                 item.quantity += quantity
                 item.save()
+
+            # Remove from wishlist if exists
+            WishlistItem.objects.filter(wishlist__user=request.user, variant=variant).delete()
 
             image = variant.product.images.first()
             image_url = image.image.url if image else ""
@@ -50,17 +83,12 @@ class BasketAddView(View):
                 "subtotal": basket.total_price,       # total price
                 "image": image_url,
             })
-
-        return JsonResponse({"success": False}, status=400)
-        #     messages.success(request, f"Added {quantity} X {variant.product.name} ({variant.name}) to your basket!")
+        else:
+            
+            print("!!! FORM VALIDATION FAILED !!!")
+            print("Form Errors (as_json):", form.errors.as_json())
         
-        # else:
-
-        #     messages.error(request, "Failed to add item to basket..")
-
-        # # return redirect("basket:basket")
-        # return redirect(request.META.get('HTTP_REFERER', '/'))
-
+            return HttpResponseBadRequest(f"Form Validation Failed. Errors: {form.errors.as_text()}", content_type="text/plain")
 
 #removing item from basket
 
@@ -112,11 +140,17 @@ class BasketUpdateView(LoginRequiredMixin, View):
         action = request.GET.get('action')
 
         if action == 'increase':
-            item.quantity += 1
+
+            if item.quantity + 1 > item.variant.stock:
+                messages.error(request, "Not enough stock.")
+            elif item.quantity + 1 > item.variant.max_quantity_per_order:
+                messages.error(request, f"Max {item.variant.max_quantity_per_order} allowed.")
+            else:
+                item.quantity += 1
+                item.save()
         elif action == 'decrease' and item.quantity > 1:
             item.quantity -= 1
-
-        item.save()
+            item.save()
         
         data = {
             'quantity' : item.quantity,

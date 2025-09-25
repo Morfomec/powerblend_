@@ -1,0 +1,283 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}POWERBLEND - Wishlist{% endblock %}</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <link rel="stylesheet" href="{% static 'css/user_account_base.css' %}">
+
+    {% block extra_css %}{% endblock extra_css %}
+
+
+</head>
+<body>
+
+
+
+    <!-- Header -->
+<div class="header">
+    <div class="container-fluid">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+                <!-- Add text-decoration-none to the <a> tag -->
+                <a href="{% url 'home' %}" class="me-3 text-muted text-decoration-none" style="margin-left: 172px;">
+                    <i class="fas fa-arrow-left"></i> Return to store
+                </a>
+            </div>
+                <!-- <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
+                <div style="background: var(--primary-teal); width: 50px; height: 40px; margin-right:10px;margin-left: 100px; display: flex; align-items: center; justify-content: center; border-radius: 3px;">
+                </div>
+                <span style="color: var(--primary-teal); font-weight: bold; font-size: 24px;">POWERBLEND</span>
+                </a> -->
+            <div class="d-flex align-items-center" style="margin-right: 40px;"> 
+                <a href="{% url 'logout' %}" class="text-muted text-decoration-none" style="margin-right: 84px;">
+                    <i class="fas fa-sign-out-alt" ></i> Log out
+                </a>
+            </div>
+        </div>
+        <div class="d-flex justify-content-between align-items-center w-100">
+                <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
+                    <div style="background: var(--primary-teal); width: 50px; height: 40px; margin-right:10px;margin-left: 100px; display: flex; align-items: center; justify-content: center; border-radius: 3px;">
+                    </div>
+                    <span style="color: var(--primary-teal); font-weight: bold; font-size: 24px;">POWERBLEND</span>
+                </a>
+                <a href="{% url 'basket_view' %}" class="text-muted me-3 text-decoration-none" style="padding-right: 115px;">
+                    <i class="fas fa-shopping-basket"></i> Basket
+                </a>
+
+        </div>
+    </div>
+</div>
+
+    <div class="container-fluid py-4">
+        <div class="row">
+
+            <!-- Sidebar -->
+            <div class="col-lg-3 col-md-4">
+                <div class="sidebar">
+                    <div class="sidebar-section">
+                        <div class="sidebar-title px-3">Account Home</div>
+                        <a href="#" class="sidebar-item">
+                            <i class="fas fa-home"></i>Home
+                        </a>
+                    </div>
+                    
+                    <div class="sidebar-section">
+                        <div class="sidebar-title px-3">My Account</div>
+                        <a href="#" class="sidebar-item">
+                            <i class="fas fa-box"></i> My Orders
+                        </a>
+                        <a href="#" class="sidebar-item active">
+                            <i class="fas fa-heart"></i> Wishlist
+                        </a>
+                        <a href="#" class="sidebar-item">
+                            <i class="fas fa-credit-card"></i> Account Credit
+                        </a>
+                        <a href="#" class="sidebar-item">
+                            <i class="fas fa-sync-alt"></i> Subscriptions
+                        </a>
+                    </div>
+
+                    <div class="sidebar-section">
+                        <div class="sidebar-title px-3">Account Settings</div>
+                        <a href="#" class="sidebar-item">
+                            <i class="fas fa-user"></i> Account Details
+                        </a>
+                        <a href="#" class="sidebar-item">
+                            <i class="fas fa-address-book"></i> Address Book
+                        </a>
+                        <a href="#" class="sidebar-item">
+                            <i class="fas fa-credit-card"></i> Payment Cards
+                        </a>
+                    </div>
+
+                    <div class="sidebar-section">
+                        <div class="sidebar-title px-3">Customer Service</div>
+                        <a href="#" class="sidebar-item">
+                            <i class="fas fa-question-circle"></i> Help Centre
+                        </a>
+                        <a href="#" class="sidebar-item">
+                            <i class="fas fa-envelope"></i> Messages
+                        <!-- </a>
+                        <a href="#" class="sidebar-item">
+                            <i class="fab fa-facebook"></i> Facebook
+                        </a>
+                        <a href="#" class="sidebar-item">
+                            <i class="fab fa-twitter"></i> Twitter
+                        </a> -->
+                        <a href="#" class="sidebar-item">
+                            <i class="fab fa-instagram"></i> Instagram
+                        </a>
+                    </div>
+
+                    <div class="sidebar-section">
+                        <a href="{% url 'logout' %}" class="sidebar-item">
+                            <i class="fas fa-sign-out-alt"></i> Log out
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-lg-9 col-md-8">
+                {% block content %} {% endblock content %}
+                {% block body %} {% endblock body %}
+                
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <div class="container">
+            © POWERBLEND 2025
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const sampleProducts = [
+            {
+                id: 1,
+                title: "Impact Whey Protein",
+                description: "High-quality whey protein isolate with 21g protein per serving. Perfect for muscle growth and recovery.",
+                price: "$29.99",
+                image: "https://via.placeholder.com/280x200/003942/ffffff?text=Whey+Protein"
+            },
+            {
+                id: 2,
+                title: "Creatine Monohydrate",
+                description: "Pure creatine monohydrate powder to enhance strength, power, and muscle mass.",
+                price: "$19.99",
+                image: "https://via.placeholder.com/280x200/003942/ffffff?text=Creatine"
+            },
+            {
+                id: 3,
+                title: "BCAA Amino Acids",
+                description: "Essential amino acids to support muscle recovery and reduce fatigue during training.",
+                price: "$24.99",
+                image: "https://via.placeholder.com/280x200/003942/ffffff?text=BCAA"
+            }
+        ];
+
+        function createProductCard(product) {
+            return `
+                <div class="product-card" data-product-id="${product.id}">
+                    <div class="product-image">
+                        <img src="${product.image}" alt="${product.title}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div style="display: none; align-items: center; justify-content: center; height: 100%; color: var(--primary-solid); font-size: 3rem;">
+                            <i class="fas fa-dumbbell"></i>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title">${product.title}</h3>
+                        <p class="product-description">${product.description}</p>
+                        <div class="product-price">${product.price}</div>
+                        <div class="product-actions">
+                            <button class="btn-outline-primary-custom">
+                                <i class="fas fa-shopping-cart me-1"></i> Add to Cart
+                            </button>
+                            <button class="btn-remove" onclick="removeFromWishlist(${product.id})" title="Remove from wishlist">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function addSampleProducts() {
+            const emptyState = document.getElementById('empty-state');
+            const productsSection = document.getElementById('products-section');
+            const productGrid = document.getElementById('product-grid');
+            
+            // Hide empty state and show products
+            emptyState.style.display = 'none';
+            productsSection.style.display = 'block';
+            
+            // Add sample products
+            productGrid.innerHTML = sampleProducts.map(product => createProductCard(product)).join('');
+        }
+
+        function removeFromWishlist(productId) {
+            const productCard = document.querySelector(`[data-product-id="${productId}"]`);
+            if (productCard) {
+                productCard.remove();
+                
+                // Check if wishlist is empty
+                const remainingProducts = document.querySelectorAll('.product-card');
+                if (remainingProducts.length === 0) {
+                    clearWishlist();
+                } else {
+                    // Update item count
+                    const badge = document.querySelector('.badge');
+                    if (badge) {
+                        badge.textContent = `${remainingProducts.length} items`;
+                    }
+                }
+            }
+        }
+
+        function clearWishlist() {
+            const emptyState = document.getElementById('empty-state');
+            const productsSection = document.getElementById('products-section');
+            
+            // Show empty state and hide products
+            emptyState.style.display = 'block';
+            productsSection.style.display = 'none';
+        }
+
+        // Add some interactivity to cart buttons
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.btn-outline-primary-custom') && !e.target.closest('.btn-remove')) {
+                const button = e.target.closest('.btn-outline-primary-custom');
+                const originalText = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-check me-1"></i> Added!';
+                button.style.background = 'var(--primary-solid)';
+                button.style.color = 'white';
+                
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.style.background = 'transparent';
+                    button.style.color = 'var(--primary-solid)';
+                }, 1500);
+            }
+        });
+    </script>
+    <!-- jQuery (required for Toastr) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<!-- Bootstrap 5 (does NOT require jQuery) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+
+<!-- Toastr JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+<!-- Toastr Config -->
+<script>
+    toastr.options = {
+        "closeButton": true,
+        "progressBar": true,
+        "positionClass": "toast-bottom-right",
+        "timeOut": "3000"
+    };
+</script>
+
+<!-- Django Messages -->
+{% if messages %}
+<script>
+    {% for message in messages %}
+        toastr["{{ message.tags|default:'info' }}"]("{{ message|escapejs }}");
+    {% endfor %}
+</script>
+{% endif %}
+
+
+
+{% block extra_js %}{% endblock extra_js %}
+</body>
+</html>
