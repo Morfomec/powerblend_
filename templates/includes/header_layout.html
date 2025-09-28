@@ -3,13 +3,13 @@
   <div class="container-fluid d-flex align-items-center">
     
     <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
-      <div style="background: var(--primary-teal); width: 50px; height: 40px; margin-right:10px;margin-left: 100px; display: flex; align-items: center; justify-content: center; border-radius: 3px;">
+      <!-- <div style="background: var(--primary-teal); width: 50px; height: 40px; margin-right:10px;margin-left: 100px; display: flex; align-items: center; justify-content: center; border-radius: 3px;">
         <span style="color: white; font-weight: bold; font-size: 28px;">M</span>
-      </div>
-      <span style="color: var(--primary-teal); font-weight: bold; font-size: 24px;">POWERBLEND</span>
+      </div> -->
+      <span style="color: var(--primary-teal); font-weight: bold; font-size: 24px; margin-left: 150px;" class="logo">POWERBLEND</span>
     </a>
 
-    <div class="search-container position-relative ms-auto me-4 flex-grow-1" style="max-width: 400px;">
+    <div class="search-container position-relative me-4 flex-grow-1" style="max-width: 400px; margin-left: 280px; ">
         <input type="text" class="form-control search-input" placeholder="Search"
                style="padding-left: 40px; border-radius: 25px; background: #f8f9fa; border: 1px solid #e9ecef;">
         <i class="fas fa-search position-absolute"
@@ -33,7 +33,7 @@
                 </a>
                 
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
-                    <li><a class="dropdown-item" href="#">My Account</a></li>
+                    <li><a class="dropdown-item" href="{% url 'user_profile_view' %}">My Account</a></li>
                     <li><a class="dropdown-item" href="{% url 'wishlist_view' %}">Wishlist</a></li>
                     <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
                     <li><a class="dropdown-item" href="{% url 'admin_login' %}">Admin</a></li>

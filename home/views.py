@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import cache_control, never_cache
 from products.models import Product, ProductVariant
 from category.models import Category
+from wishlist.models import Wishlist, WishlistItem
 
 # Create your views here.
 
@@ -17,8 +18,16 @@ def home_view(request):
     products = Product.objects.filter(is_listed=True).prefetch_related("variants")
     # variant = ProductVariant.objects.all()
 
+    wishlist_variant_ids = []
+    if request.user.is_authenticated:
+        wishlist = Wishlist.objects.filter(user=request.user).first()
+        if wishlist:
+            wishlist_variant_ids = wishlist.items.values_list('variant_id', flat=True)
+
+
     context = {
         'products': products,
+        'wishlist_variant_ids': list(wishlist_variant_ids),
     }
     return render(request, "home.html", context)
 
@@ -73,8 +82,16 @@ def list_products(request):
     elif sort_option == "featured":
         products = products.filter(is_featured=True)
 
+
+    wishlist_variant_ids = []
+    if request.user.is_authenticated:
+        wishlist = getattr(request.user, 'wishlist', None)
+        if wishlist:
+            wishlist_variant_ids = list(wishlist.items.values_list('variant_id', flat=True))
+
     context = {
         'products': products,
+        'wishlist_variant_ids': list(wishlist_variant_ids),
     }
     return render(request, "product_listing.html", context)
 
@@ -122,7 +139,13 @@ def detail_product(request, id):
 
     except Exception as e:
         raise e
-        
+
+    wishlist_variant_ids = []
+    if request.user.is_authenticated:
+        wishlist = getattr(request.user, 'wishlist', None)
+        if wishlist:
+            wishlist_variant_ids = list(wishlist.items.values_list('variant_id', flat=True))
+            
     context = {
         "product" : single_product,
         "variants" : variants,
@@ -130,6 +153,7 @@ def detail_product(request, id):
         "unique_flavors" : unique_flavors,
         "unique_weights" : unique_weights,
         "current_url" : request.path,
+        'wishlist_variant_ids': list(wishlist_variant_ids),
 }
 
     return render(request, "product_detail.html", context)

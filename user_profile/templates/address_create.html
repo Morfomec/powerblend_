@@ -1,0 +1,797 @@
+{% extends 'user_profile_base.html' %}
+{% load static %}
+{% block title %}Address - POWERBLEND{% endblock %}
+{% block content %} {% endblock content %}
+{% block extra_css %}
+    <style>
+        :root {
+            --primary-color: rgba(0, 57, 66, 0.8);
+            --primary-solid: rgb(0, 57, 66);
+            --light-bg: #f8f9fa;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--light-bg);
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            border-bottom: 1px solid #e9ecef;
+            padding: 1rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .logo {
+            font-weight: bold;
+            color: var(--primary-solid);
+            font-size: 1.5rem;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo::before {
+            content: "M";
+            background: var(--primary-solid);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 8px;
+            font-weight: bold;
+        }
+
+        /* Main Container */
+        .add-address-container {
+            max-width: 1900px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        /* Form Card */
+        .form-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .form-card:hover {
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        }
+
+        .form-title {
+            color: var(--primary-solid);
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        /* Form Labels */
+        .form-label {
+            color: var(--primary-solid);
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Form Inputs */
+        .form-control, .form-select {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 1rem 1.2rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+            color: var(--primary-solid);
+            font-weight: 500;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-solid);
+            box-shadow: 0 0 0 0.2rem rgba(0, 57, 66, 0.25);
+            outline: none;
+        }
+
+        .form-control:valid {
+            border-color: var(--success-color);
+        }
+
+        .form-control::placeholder {
+            color: #6c757d;
+            font-weight: normal;
+        }
+
+        /* Form Groups */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        /* Address Type Selection */
+        .address-type-group {
+            margin-bottom: 2rem;
+        }
+
+        .address-type-options {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .address-type-option {
+            flex: 1;
+            position: relative;
+        }
+
+        .address-type-radio {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .address-type-label {
+            display: block;
+            background: var(--light-bg);
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 1.2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            color: var(--primary-solid);
+            height: 95px;
+        }
+
+        .address-type-label:hover {
+            border-color: var(--primary-color);
+            background: rgba(0, 57, 66, 0.05);
+        }
+
+        .address-type-radio:checked + .address-type-label {
+            border-color: var(--primary-solid);
+            background: var(--primary-solid);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 57, 66, 0.3);
+        }
+
+        .address-type-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        /* Set as Default */
+        .default-checkbox-group {
+            background: var(--light-bg);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border: 1px solid #e9ecef;
+        }
+
+        .default-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+        }
+
+        .checkbox-input {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--primary-solid);
+            border-radius: 4px;
+            appearance: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .checkbox-input:checked {
+            background: var(--primary-solid);
+        }
+
+        .checkbox-input:checked::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .checkbox-label {
+            color: var(--primary-solid);
+            font-weight: 600;
+            margin: 0;
+            cursor: pointer;
+        }
+
+        /* Buttons */
+        .btn-add-address {
+            background: var(--primary-solid);
+            color: white;
+            border: none;
+            padding: 1.2rem 3rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+
+        .btn-add-address:hover {
+            background: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 57, 66, 0.3);
+        }
+
+        .btn-cancel {
+            background: transparent;
+            color: var(--primary-solid);
+            border: 2px solid var(--primary-solid);
+            padding: 1.2rem 3rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            width: 100%;
+            text-decoration: none;
+        }
+
+        .btn-cancel:hover {
+            background: var(--primary-solid);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Validation Messages */
+        .invalid-feedback {
+            display: block;
+            width: 100%;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--danger-color);
+            font-weight: 500;
+        }
+
+        .valid-feedback {
+            display: block;
+            width: 100%;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--success-color);
+            font-weight: 500;
+        }
+
+        /* Loading States */
+        .btn-loading {
+            position: relative;
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        .btn-loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            margin: auto;
+            border: 2px solid transparent;
+            border-top-color: currentColor;
+            border-radius: 50%;
+            animation: button-loading-spinner 1s ease infinite;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        @keyframes button-loading-spinner {
+            from { transform: rotate(0turn); }
+            to { transform: rotate(1turn); }
+        }
+
+        /* Progress Indicator */
+        .progress-steps {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+            gap: 1rem;
+        }
+
+        .progress-step {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e9ecef;
+            color: #6c757d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            position: relative;
+        }
+
+        .progress-step.active {
+            background: var(--primary-solid);
+            color: white;
+        }
+
+        .progress-step.completed {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .progress-step::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 100%;
+            width: 20px;
+            height: 2px;
+            background: #e9ecef;
+            transform: translateY(-50%);
+        }
+
+        .progress-step:last-child::after {
+            display: none;
+        }
+
+        .progress-step.completed::after {
+            background: var(--success-color);
+        }
+
+        .form-card {
+            padding: 1.5rem; /* was 2.5rem */
+        }
+
+        .address-type-label {
+            padding: 0.8rem; /* was 1.2rem */
+            height: 80px; /* was 95px */
+        }
+
+        .btn-add-address, .btn-cancel {
+            padding: 1rem 2rem; /* was 1.2rem 3rem */
+            font-size: 1rem; /* reduce slightly */
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .add-address-container {
+                padding: 0 0.5rem;
+            }
+            
+            .form-card {
+                padding: 1.5rem;
+            
+            }
+            
+            .form-title {
+                font-size: 1.6rem;
+            }
+            
+            .address-type-options {
+                flex-direction: column;
+            }
+            
+            .address-type-label {
+                padding: 1rem;
+            }
+            
+            .btn-add-address, .btn-cancel {
+                padding: 1rem 2rem;
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .form-title {
+                font-size: 1.4rem;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .progress-steps {
+                gap: 0.5rem;
+            }
+            
+            .progress-step {
+                width: 35px;
+                height: 35px;
+                font-size: 0.9rem;
+            }
+            
+            .progress-step::after {
+                width: 15px;
+            }
+        }
+
+        /* Animation for form appearance */
+        .form-card {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+{% endblock extra_css %}
+{% block body %}
+
+    <div class="add-address-container">
+        <!-- Progress Steps
+        <div class="progress-steps">
+            <div class="progress-step completed">1</div>
+            <div class="progress-step active">2</div>
+            <div class="progress-step">3</div>
+        </div> -->
+
+        <!-- Form Card -->
+        <div class="form-card">
+            <h2 class="form-title">
+                <i class="fas fa-home"></i>
+                Add New Address
+            </h2>
+
+            <form id="addressForm" method="POST"
+                action="{% if is_update %}{% url 'address_update' address.id %}{% else %}{% url 'address_create' %}{% endif %}" novalidate>
+                {% csrf_token %}
+                <!-- Personal Information Row -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label" for="full_Name">Full Name</label>
+                            <input type="text" class="form-control" name="full_name" id="full_name" value="{{ form.full_name.value|default_if_none:''}}"  required>
+                            <div class="invalid-feedback">Please enter your full name</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label" for="mobile">Mobile</label>
+                            <input type="tel" class="form-control" name="mobile" value="{{ form.mobile.value|default_if_none:'' }}" required>
+                            <div class="invalid-feedback">Please enter a valid mobile number</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Second Number and Address Row -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label" for="second_mobile">Second Number</label>
+                            <input type="tel" class="form-control" name="second_mobile" value="{{ form.second_mobile.value|default_if_none:'' }}">
+                            <div class="invalid-feedback">Please enter a valid second number</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label" for="address">Address</label>
+                            <input type="text" class="form-control" name="address" value="{{ form.address.value|default_if_none:'' }}" required>
+                            <div class="invalid-feedback">Please enter your address</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Location Details Row -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label" for="city">City</label>
+                            <input type="text" class="form-control" name="city" value="{{ form.city.value|default_if_none:'' }}" required>
+                            <div class="invalid-feedback">Please enter your city</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label" for="state">State</label>
+                            <input type="text" class="form-control" name="state" value="{{ form.state.value|default_if_none:'' }}" required>
+                            <div class="invalid-feedback">Please enter your state</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Postal Code and Country Row -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label" for="postal_code">Postal Code</label>
+                            <input type="text" class="form-control" name="postal_code" value="{{ form.postal_code.value|default_if_none:'' }}" required>
+                            <div class="invalid-feedback">Please enter a valname postal code</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label" for="country">Country</label>
+                            <input type="text" class="form-control" name="country" value="{{ form.country.value|default_if_none:'India' }}" required>
+                            <div class="invalid-feedback">Please enter your country</div>
+                        </div>
+                    </div>
+               </div>
+    
+                <!-- Address Type Selection -->
+                <div class="address-type-group">
+                    <label class="form-label">Address Type</label>
+                    <div class="address-type-options">
+                        <div class="address-type-option">
+                            <input type="radio" class="address-type-radio" id="home" name="address_type" value="HOME"
+                            {% if form.address_type.value == 'HOME'  or not form.address_type.value %}checked{% endif %}>
+                            <label class="address-type-label" for="home">
+                                <i class="fas fa-home address-type-icon"></i>
+                                HOME
+                            </label>
+                        </div>
+                        <div class="address-type-option">
+                            <input type="radio" class="address-type-radio" id="office" name="address_type" value="OFFICE" 
+                            {% if form.address_type.value == 'OFFICE' %}checked{% endif %}>
+                            <label class="address-type-label" for="office">
+                                <i class="fas fa-building address-type-icon"></i>
+                                OFFICE
+                            </label>
+                        </div>
+                        <div class="address-type-option">
+                            <input type="radio" class="address-type-radio" id="other" name="address_type" value="OTHER"
+                            {% if form.address_type.value == 'OTHER' %}checked{% endif %}>
+                            <label class="address-type-label" for="other">
+                                <i class="fas fa-map-marker-alt address-type-icon"></i>
+                                OTHER
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Set as Default -->
+                <div class="default-checkbox-group">
+                    <div class="default-checkbox">
+                        <input type="checkbox" class="checkbox-input" name="setDefault" id="setDefault"
+                            {% if form.is_default.value %}checked{% endif %}>
+                        <label class="checkbox-label" for="is_default">Set as Default Address</label>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="row">
+                    <div class="col-md-6 mb-3 mb-md-0">
+                        <a href="{% url 'address_list' %}" class="btn-cancel d-inline-block text-center">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </a>
+                    </div>
+                    <div class="col-md-6">
+                        <button type="submit" class="btn-add-address">
+                            {% if is_update %}
+                                <i class="fas fa-edit me-2"></i>Update Address
+                            {% else %}
+                                <i class="fas fa-plus me-2"></i>Add Address
+                            {% endif %}
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock body %}
+{% block extra_js %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Form validation
+        const form = document.getElementById('addressForm');
+        
+        // Real-time validation
+        const inputs = form.querySelectorAll('input[required], select[required]');
+        inputs.forEach(input => {
+            input.addEventListener('blur', validateField);
+            input.addEventListener('input', validateField);
+        });
+
+        function validateField(event) {
+            const field = event.target;
+            const feedback = field.nextElementSibling;
+            
+            if (field.checkValidity()) {
+                field.classList.remove('is-invalid');
+                field.classList.add('is-valid');
+                if (feedback) {
+                    feedback.style.display = 'none';
+                }
+            } else {
+                field.classList.remove('is-valid');
+                field.classList.add('is-invalid');
+                if (feedback) {
+                    feedback.style.display = 'block';
+                }
+            }
+        }
+
+        // Phone number formatting
+        const phoneInputs = document.querySelectorAll('input[type="tel"]');
+        phoneInputs.forEach(input => {
+            input.addEventListener('input', function(e) {
+                // Remove non-digits
+                let value = e.target.value.replace(/\D/g, '');
+                // Limit to 10 digits
+                value = value.substring(0, 10);
+                e.target.value = value;
+            });
+        });
+
+        // Postal code validation
+        const postalCodeInput = document.getElementById('postalCode');
+        postalCodeInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            value = value.substring(0, 6);
+            e.target.value = value;
+        });
+
+        // Form submission
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Validate all fields
+            let isValid = true;
+            inputs.forEach(input => {
+                validateField({ target: input });
+                if (!input.checkValidity()) {
+                    isValid = false;
+                }
+            });
+
+            if (isValid) {
+                submitForm();
+            } else {
+                showMessage('Please fill in all required fields correctly', 'error');
+                // Focus on first invalid field
+                const firstInvalid = form.querySelector('.is-invalid');
+                if (firstInvalid) {
+                    firstInvalid.focus();
+                    firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        });
+
+        function submitForm() {
+            const submitButton = form.querySelector('.btn-add-address');
+            const originalText = submitButton.innerHTML;
+            
+            // Show loading state
+            submitButton.classList.add('btn-loading');
+            submitButton.innerHTML = 'Adding Address...';
+            
+            // Collect form data
+            const formData = new FormData(form);
+            const addressData = {
+                fullName: formData.get('fullName') || document.getElementById('fullName').value,
+                mobile: document.getElementById('mobile').value,
+                secondNumber: document.getElementById('secondNumber').value,
+                address: document.getElementById('address').value,
+                city: document.getElementById('city').value,
+                state: document.getElementById('state').value,
+                postalCode: document.getElementById('postalCode').value,
+                country: document.getElementById('country').value,
+                addressType: document.querySelector('input[name="addressType"]:checked').value,
+                setDefault: document.getElementById('setDefault').checked
+            };
+
+            // Simulate API call
+            setTimeout(() => {
+                submitButton.classList.remove('btn-loading');
+                submitButton.innerHTML = originalText;
+                
+                // Show success message
+                showMessage('Address added successfully!', 'success');
+                
+                // Simulate redirect back to checkout after success
+                setTimeout(() => {
+                    showMessage('Redirecting to checkout...', 'info');
+                }, 1500);
+                
+                console.log('Address Data:', addressData);
+            }, 2000);
+        }
+
+        function cancelForm() {
+            if (confirm('Are you sure you want to cancel? All entered data will be lost.')) {
+                showMessage('Returning to checkout...', 'info');
+                // Simulate going back
+                setTimeout(() => {
+                    window.history.back();
+                }, 1000);
+            }
+        }
+
+        function goBack() {
+            cancelForm();
+        }
+
+        // Show message function
+        function showMessage(message, type = 'success') {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+            alertDiv.style.top = '20px';
+            alertDiv.style.right = '20px';
+            alertDiv.style.zIndex = '9999';
+            alertDiv.style.minWidth = '300px';
+            alertDiv.innerHTML = `
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'info' ? 'fa-info-circle' : 'fa-exclamation-circle'} me-2"></i>
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            document.body.appendChild(alertDiv);
+            
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.remove();
+                }
+            }, 4000);
+        }
+
+        // Enhanced interactions
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add smooth focus transitions
+            const formControls = document.querySelectorAll('.form-control, .form-select');
+            formControls.forEach(control => {
+                control.addEventListener('focus', function() {
+                    this.parentElement.style.transform = 'scale(1.02)';
+                    this.parentElement.style.transition = 'transform 0.2s ease';
+                });
+                
+                control.addEventListener('blur', function() {
+                    this.parentElement.style.transform = 'scale(1)';
+                });
+            });
+
+            // Add keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                // Ctrl/Cmd + Enter to submit
+                if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                    e.preventDefault();
+                    form.dispatchEvent(new Event('submit'));
+                }
+                
+                // Escape to cancel
+                if (e.key === 'Escape') {
+                    cancelForm();
+                }
+            });
+
+            // Auto-focus first field
+            document.getElementById('fullName').focus();
+        });
+    </script>
+{% endblock extra_js %}
+ 
+ 
+ 

@@ -68,7 +68,7 @@
     }
 
     /* Product Grid */
-    .product-grid {
+    /* .product-grid {
         margin: 3rem 0;
     }
 
@@ -87,8 +87,52 @@
         transform: translateY(-8px);
         box-shadow: 0 15px 35px rgba(0,0,0,0.15);
         border-color: var(--primary-color);
+    } */
+
+    .product-grid {
+        margin: 3rem 0;
+        /* CRITICAL FIX 1: Ensure columns stretch to max height */
+        display: flex;
+        flex-wrap: wrap; 
+        align-items: stretch; 
     }
 
+    .product-card {
+        position: relative;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        border: 1px solid #e9ecef;
+        
+        /* CRITICAL FIX 2: Make the card a vertical Flex container */
+        display: flex;
+        flex-direction: column;
+        height: 100%; /* Ensures it fills the height of the stretched column */
+    }
+
+    .product-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        border-color: var(--primary-color);
+    }
+
+
+    /* --- You must also have these styles for the internal elements --- */
+
+    .product-info {
+        /* ... other styles ... */
+        flex-grow: 1; /* CRITICAL FIX 3: Allows the content area to stretch */
+        display: flex; /* Make .product-info a flex container */
+        flex-direction: column; /* To stack its children */
+        padding-bottom: 0.75rem
+    }
+
+    .product-actions {
+        margin-top: auto; /* CRITICAL FIX 4: Pushes the action button/badges to the bottom */
+    }
     /* Wishlist Heart */
     .wishlist-toggle {
         position: absolute;
@@ -158,13 +202,14 @@
         padding: 1.5rem;
     }
 
+
     .product-title {
         color: var(--primary-solid);
-        font-size: 1.1rem;
+        font-size: 23.5px;
         font-weight: 600;
-        margin-bottom: 0.8rem;
+        margin-bottom: 0;
         line-height: 1.4;
-        min-height: 2.8rem; /* Consistent height */
+        min-height: 2.8rem;
     }
 
     .rating {
@@ -192,7 +237,7 @@
     }
 
     .current-price {
-        font-size: 1.4rem;
+        font-size: 1.7rem;
         font-weight: bold;
         color: var(--primary-solid);
     }
@@ -244,6 +289,8 @@
         width: 100%;
         cursor: pointer;
         margin-top: 1rem;
+        text-align: center;
+        margin-bottom: -25px;
     }
 
     .quick-buy-btn:hover {
@@ -267,6 +314,8 @@
         margin: 3rem auto;
         display: block;
         cursor: pointer;
+        width: 390px;
+        text-align: center;
     }
 
     .view-all-btn:hover {
@@ -285,10 +334,9 @@
         text-decoration: none;
     }
 
-    /* Container max-width */
-    @media (min-width: 2000px) {
+    @media (min-width: 1536px) {
         .container {
-            max-width: 2000px;
+            max-width: 1990px !important; /* Forces the override */
         }
     }
 
@@ -433,23 +481,32 @@
         <div class="col-lg-3 col-md-6">
             <div class="product-card">
                 
-                <!-- Wishlist Heart Button -->
-                {% if user.is_authenticated %}
-                    {% with variant=product.variants.first %}
-                        {% if variant %}
-                            <form action="{% url 'wishlist_add' variant.id %}" method="post" style="display:inline;">
-                                {% csrf_token %}
-                                <button type="submit" class="wishlist-toggle" data-variant-id="{{ variant.id }}">
-                                    <i class="fa-heart heart-icon {% if variant.id in wishlist_variant_ids %}fas text-danger{% else %}far{% endif %}"></i>
-                                </button>
-                            </form>
-                        {% endif %}
-                    {% endwith %}
-                {% else %}
-                    <a href="{% url 'login' %}" class="wishlist-toggle">
-                        <i class="far fa-heart heart-icon"></i>
-                    </a>
-                {% endif %}
+    {% with variant=product.variants.first %}
+        {% if variant %}
+            
+            {% if user.is_authenticated %}
+                <form action="{% url 'wishlist_add' variant.id %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="wishlist-toggle" data-variant-id="{{ variant.id }}">
+                        <i class="fa-heart heart-icon {% if variant.id in wishlist_variant_ids %}fas text-danger{% else %}far{% endif %}"></i>
+                    </button>
+                </form>
+            
+            {% else %}
+                <a href="{% url 'login' %}" class="wishlist-toggle" title="Log in to add to wishlist">
+                    <i class="far fa-heart heart-icon"></i>
+                </a>
+            {% endif %}
+
+        {% else %}
+            <!-- if no variant -->
+            <span class="wishlist-toggle" style="pointer-events: none; opacity: 0.4;">
+                <i class="far fa-heart heart-icon"></i>
+            </span>
+        {% endif %}
+    {% endwith %}
+
+
 
                 <!-- Product Image -->
                 <div class="product-image-container">   
@@ -489,9 +546,12 @@
                     <div class="discount-badge">EXTRA 10% OFF ABOVE ₹7,000</div>
                     <div class="discount-badge">EXTRA 15% OFF ABOVE ₹15,000</div>
 
-                    <button class="quick-buy-btn" onclick="quickBuy('{{ product.id }}')">
+                    <!-- <button class="quick-buy-btn" onclick="quickBuy('{{ product.id }}')">
                         <i class="fas fa-shopping-cart me-1"></i> QUICK BUY
-                    </button>
+                    </button> -->
+                    <a href="{% url 'detail_product' product.id %}" class="quick-buy-btn">
+                        <i class="fas fa-shopping-cart me-1"></i> QUICK BUY
+                    </a>
                 </div>
             </div>
         </div>
@@ -508,11 +568,14 @@
     </div>
 
     <!-- View All Button -->
-    <button class="view-all-btn">
+    <!-- <button class="view-all-btn">
         <a href="{% url 'list_products' %}">
             <i class="fas fa-th-large me-2"></i>VIEW ALL PRODUCTS
         </a>
-    </button>
+    </button> -->
+    <a href="{% url 'list_products' %}" class="view-all-btn">
+        <i class="fas fa-th-large me-2"></i> VIEW ALL PRODUCTS
+    </a>
 
 </div>
 

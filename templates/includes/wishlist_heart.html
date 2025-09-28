@@ -1,0 +1,12 @@
+{% if user.is_authenticated %}
+    <form action="{% url 'wishlist_add' variant.id %}" method="post" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit" class="wishlist-toggle" data-variant-id="{{ variant.id }}">
+            <i class="fa-heart heart-icon {% if variant.id in wishlist_variant_ids %}fas text-danger{% else %}far{% endif %}"></i>
+        </button>
+    </form>
+{% else %}
+    <a href="{% url 'login' %}" class="wishlist-toggle">
+        <i class="far fa-heart heart-icon"></i>
+    </a>
+{% endif %}

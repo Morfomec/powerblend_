@@ -1,0 +1,35 @@
+
+    <!-- Header -->
+<div class="header">
+    <div class="container-fluid">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+                <!-- Add text-decoration-none to the <a> tag -->
+                <a href="{% url 'home' %}" class="me-3 text-muted text-decoration-none" style="margin-left: 172px;">
+                    <i class="fas fa-arrow-left"></i> Return to store
+                </a>
+            </div>
+                <!-- <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
+                <div style="background: var(--primary-teal); width: 50px; height: 40px; margin-right:10px;margin-left: 100px; display: flex; align-items: center; justify-content: center; border-radius: 3px;">
+                </div>
+                <span style="color: var(--primary-teal); font-weight: bold; font-size: 24px;">POWERBLEND</span>
+                </a> -->
+            <div class="d-flex align-items-center" style="margin-right: 40px;"> 
+                <a href="{% url 'logout' %}" class="text-muted text-decoration-none" style="margin-right: 84px;">
+                    <i class="fas fa-sign-out-alt" ></i> Log out
+                </a>
+            </div>
+        </div>
+        <div class="d-flex justify-content-between align-items-center w-100">
+                <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
+                    <div style="background: var(--primary-teal); width: 50px; height: 40px; margin-right:10px;margin-left: 100px; display: flex; align-items: center; justify-content: center; border-radius: 3px;">
+                    </div>
+                    <span style="color: var(--primary-teal); font-weight: bold; font-size: 24px;" class="logo">POWERBLEND</span>
+                </a>
+                <a href="{% url 'basket_view' %}" class="text-muted me-3 text-decoration-none" style="padding-right: 115px;">
+                    <i class="fas fa-shopping-basket"></i> Basket
+                </a>
+
+        </div>
+    </div>
+</div>

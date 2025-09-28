@@ -56,6 +56,8 @@ INSTALLED_APPS = [
     "category",
     "products",
     "wishlist",
+    "payments",
+    "user_profile",
 
     "widget_tweaks",
 
@@ -87,7 +89,7 @@ ACCOUNT_EMAIL_VERIFICATION = "none" # Use your custom OTP flow
 ACCOUNT_SIGNUP_FIELDS = ["email"]
 
 # Redirects
-LOGIN_URL = '/accounts/login/'
+LOGIN_URL = '/user/login/'
 LOGOUT_REDIRECT_URL = '/'
 LOGIN_REDIRECT_URL = '/'
 ACCOUNT_LOGOUT_REDIRECT_URL = '/'

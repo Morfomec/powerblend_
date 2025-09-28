@@ -446,8 +446,10 @@
                     <span>Total</span>
                     <span class="price-red" id="basket-total-final">₹{{ basket.total_price }}</span>
                 </div>
-
-                <button class="checkout-btn">🔒 CHECK OUT</button>
+                <a href="{% url 'checkout' %}">
+                    <button class="checkout-btn">🔒 CHECK OUT</button>
+                </a>
+                
             </div>
         </div>
     </div>

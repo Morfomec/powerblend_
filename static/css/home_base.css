@@ -362,6 +362,28 @@
         flex-wrap: wrap;
         gap: 2rem;
     }
+    .logo {
+        font-weight: bold;
+        color: var(--primary-solid);
+        font-size: 1.5rem;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+    }
+
+    .logo::before {
+        content: "M";
+        background: var(--primary-solid);
+        color: white;
+        width: 30px;
+        height: 30px;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 8px;
+        font-weight: bold;
+    }
 
     .trust-badges {
         background-color: var(--mp-light-gray);

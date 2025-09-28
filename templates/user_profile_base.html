@@ -4,11 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}POWERBLEND - Wishlist{% endblock %}</title>
+    <title>{% block title %}{% endblock %}</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css"> 
     
-    <link rel="stylesheet" href="{% static 'css/user_account_base.css' %}">
+    <link rel="stylesheet" href="{% static 'css/user_profile_base.css' %}">
 
     {% block extra_css %}{% endblock extra_css %}
 
@@ -16,54 +17,36 @@
 </head>
 <body>
 
+{% include 'includes/header_user_profile_base.html' %}
 
-
-    <!-- Header -->
-<div class="header">
-    <div class="container-fluid">
-        <div class="d-flex justify-content-between align-items-center">
-            <div class="d-flex align-items-center">
-                <!-- Add text-decoration-none to the <a> tag -->
-                <a href="{% url 'home' %}" class="me-3 text-muted text-decoration-none" style="margin-left: 172px;">
-                    <i class="fas fa-arrow-left"></i> Return to store
-                </a>
-            </div>
-                <!-- <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
-                <div style="background: var(--primary-teal); width: 50px; height: 40px; margin-right:10px;margin-left: 100px; display: flex; align-items: center; justify-content: center; border-radius: 3px;">
-                </div>
-                <span style="color: var(--primary-teal); font-weight: bold; font-size: 24px;">POWERBLEND</span>
-                </a> -->
-            <div class="d-flex align-items-center" style="margin-right: 40px;"> 
-                <a href="{% url 'logout' %}" class="text-muted text-decoration-none" style="margin-right: 84px;">
-                    <i class="fas fa-sign-out-alt" ></i> Log out
-                </a>
-            </div>
-        </div>
-        <div class="d-flex justify-content-between align-items-center w-100">
-                <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
-                    <div style="background: var(--primary-teal); width: 50px; height: 40px; margin-right:10px;margin-left: 100px; display: flex; align-items: center; justify-content: center; border-radius: 3px;">
-                    </div>
-                    <span style="color: var(--primary-teal); font-weight: bold; font-size: 24px;">POWERBLEND</span>
-                </a>
-                <a href="{% url 'basket_view' %}" class="text-muted me-3 text-decoration-none" style="padding-right: 115px;">
-                    <i class="fas fa-shopping-basket"></i> Basket
-                </a>
-
-        </div>
-    </div>
-</div>
 
     <div class="container-fluid py-4">
         <div class="row">
+        
+            <!-- Messages
+            {% if messages %}
+            <div class="messages-container">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} text-uppercase text-center fade-message">
+                    {{ message }}
+                    <span class="close-btn" onclick="this.parentElement.style.display='none';">&times;</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %} -->
+
+
+
 
             <!-- Sidebar -->
             <div class="col-lg-3 col-md-4">
                 <div class="sidebar">
                     <div class="sidebar-section">
                         <div class="sidebar-title px-3">Account Home</div>
-                        <a href="#" class="sidebar-item">
+                        <a href="{% url 'user_profile_view' %}" class="sidebar-item">
                             <i class="fas fa-home"></i>Home
                         </a>
+
                     </div>
                     
                     <div class="sidebar-section">
@@ -71,14 +54,14 @@
                         <a href="#" class="sidebar-item">
                             <i class="fas fa-box"></i> My Orders
                         </a>
-                        <a href="#" class="sidebar-item active">
+                        <a href="{% url 'wishlist_view' %}" class="sidebar-item">
                             <i class="fas fa-heart"></i> Wishlist
                         </a>
                         <a href="#" class="sidebar-item">
                             <i class="fas fa-credit-card"></i> Account Credit
                         </a>
-                        <a href="#" class="sidebar-item">
-                            <i class="fas fa-sync-alt"></i> Subscriptions
+                        <a href="{% url 'address_list' %}" class="sidebar-item">
+                            <i class="fas fa-landmark"></i> Address
                         </a>
                     </div>
 

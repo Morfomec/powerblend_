@@ -1,0 +1,156 @@
+{% extends 'payment_base.html' %}
+{% block title %}Checkout - POWERBLEND{% endblock %}
+{% block extra_css %}{% endblock extra_css %}
+{% block body %} 
+
+{% include 'includes/header_user_profile_base.html' %}
+
+    <div class="checkout-container">
+        <div class="row">
+            <!-- Left Column - Checkout Form -->
+            <div class="col-lg-8">
+                <!-- Delivery Address Section -->
+                <div class="checkout-card">
+                    <h3 class="card-title">
+                        <i class="fas fa-map-marker-alt"></i>
+                        Select Delivery Address
+                    </h3>
+                    
+                    <!-- Existing Address -->
+                    <div class="address-card selected" onclick="selectAddress(this)">
+                        <div class="address-type">
+                            <i class="fas fa-building me-1"></i>Office
+                        </div>
+                        <div class="address-name">Mohammed Shifil</div>
+                        <div class="address-details">
+                            Quar Al Hishjya, Ghrhajana, Kozhikode, Kerala<br>
+                            PIN: 673017
+                        </div>
+                        <div class="address-phone">
+                            <i class="fas fa-phone me-1"></i>+919606752197
+                        </div>
+                        <div class="address-actions">
+                            <button class="btn btn-edit">
+                                <i class="fas fa-edit me-1"></i>EDIT
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Add New Address Button -->
+                    <button class="btn-add-address" onclick="addNewAddress()">
+                        <i class="fas fa-plus me-2"></i>+ ADD NEW ADDRESS
+                    </button>
+                </div>
+
+                <!-- Apply Coupon Section -->
+                <div class="checkout-card">
+                    <h3 class="card-title">
+                        <i class="fas fa-ticket-alt"></i>
+                        Apply Coupon
+                    </h3>
+                    
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <input type="text" class="coupon-input w-100" placeholder="Enter Coupon Code" id="couponInput">
+                        </div>
+                        <div class="col-md-4">
+                            <button class="btn-apply-coupon w-100" onclick="applyCoupon()">
+                                <i class="fas fa-tags me-1"></i>APPLY
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="coupon-message" id="couponMessage"></div>
+                    
+                    <div class="mt-3">
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle me-1"></i>
+                            View Coupons: Get extra discounts on your orders
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column - Order Summary -->
+            <div class="col-lg-4">
+                <div class="order-summary">
+                    <h3 class="order-title">
+                        <i class="fas fa-shopping-cart me-2"></i>
+                        Your Order
+                    </h3>
+                    
+                    <!-- Product Items -->
+                    <div class="product-item">
+                        <img src="https://via.placeholder.com/60x60/ff6b35/ffffff?text=WP" alt="Whey Protein" class="product-image">
+                        <div class="product-details">
+                            <h6>Whey Protein</h6>
+                            <div class="product-qty">Qty: 1</div>
+                        </div>
+                        <div class="product-price">₹1,902.00</div>
+                    </div>
+
+                    <div class="product-item">
+                        <img src="https://via.placeholder.com/60x60/28a745/ffffff?text=CW" alt="Clear Whey Isolate" class="product-image">
+                        <div class="product-details">
+                            <h6>Clear Whey Isolate</h6>
+                            <div class="product-qty">Qty: 1</div>
+                        </div>
+                        <div class="product-price">₹2,999.00</div>
+                    </div>
+
+                    <!-- Price Breakdown -->
+                    <div class="mt-3">
+                        <div class="price-row">
+                            <span>Subtotal</span>
+                            <span>₹4,901.00</span>
+                        </div>
+                        <div class="price-row">
+                            <span>Shipping</span>
+                            <span class="text-success">FREE</span>
+                        </div>
+                        <div class="price-row">
+                            <span>Taxes</span>
+                            <span>₹588.12</span>
+                        </div>
+                        <div class="price-row">
+                            <span>Discount</span>
+                            <span class="text-warning">-₹490.10</span>
+                        </div>
+                        <div class="price-row total">
+                            <span>Total</span>
+                            <span>₹4,999.02</span>
+                        </div>
+                    </div>
+
+                    <!-- Payment Methods -->
+                    <div class="mt-4">
+                        <button class="payment-button" onclick="processPayment('razorpay')">
+                            <i class="fas fa-credit-card"></i>
+                            RAZORPAY
+                        </button>
+                        <button class="payment-button" onclick="processPayment('cod')">
+                            <i class="fas fa-money-bill-wave"></i>
+                            CASH ON DELIVERY
+                        </button>
+                        <button class="payment-button" onclick="processPayment('wallet')">
+                            <i class="fas fa-wallet"></i>
+                            PAY WITH WALLET
+                        </button>
+                    </div>
+
+                    <!-- Security Badge -->
+                    <div class="text-center mt-3">
+                        <small class="security-text">
+                            <i class="fas fa-shield-alt me-1"></i>
+                            256-bit SSL encrypted & secure payments
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock body %}
+{% block extra_js %}
+
+
+{% endblock extra_js %}

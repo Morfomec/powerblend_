@@ -33,6 +33,8 @@ urlpatterns = [
     path("products/", include("products.urls")),
     path("basket/", include("basket.urls")),
     path("wishlist/", include("wishlist.urls")),
+    path("payment/", include("payments.urls")),
+    path("profile/", include("user_profile.urls")),
 ]
 
 
