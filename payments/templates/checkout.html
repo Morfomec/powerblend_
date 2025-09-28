@@ -1,4 +1,5 @@
 {% extends 'payment_base.html' %}
+{% load static %}
 {% block title %}Checkout - POWERBLEND{% endblock %}
 {% block extra_css %}{% endblock extra_css %}
 {% block body %} 
@@ -13,33 +14,48 @@
                 <div class="checkout-card">
                     <h3 class="card-title">
                         <i class="fas fa-map-marker-alt"></i>
-                        Select Delivery Address
+                        Delivery Address
                     </h3>
                     
                     <!-- Existing Address -->
-                    <div class="address-card selected" onclick="selectAddress(this)">
-                        <div class="address-type">
-                            <i class="fas fa-building me-1"></i>Office
+                    {% if default_address %}
+                        <div class="address-card selected" onclick="selectAddress(this)">
+                            <div class="address-type">
+                                {% if default_address.address_type == 'HOME' %}
+                                    <i class="fas fa-home me-1"></i>Home
+                                {% elif default_address.address_type == 'OFFICE' %}
+                                    <i class="fas fa-building me-1"></i>Office
+                                {% else %}
+                                    <i class="fas fa-map-marker-alt me-1"></i>{{ default_address.address_type|title }}
+                                {% endif %}
+                            </div>
+
+                            <div class="address-name">{{ default_address.full_name }}</div>
+                            <div class="address-details">
+                                {{ default_address.address.line1 }}{% if default_address.address_line2 %}, {{ default_address.address_line2 }}{% endif %}<br>
+                                {{ default_address.city }}, {{ default_address.state }} {{ default_address.postal_code }} <br>
+                                {{ default_address.country }}    
+                            </div>
+                            <div class="address-phone">
+                                <i class="fas fa-phone me-1"></i>{{ default_address.mobile }}    {% if default_address.second_mobile %}   &nbsp;&nbsp; <i class="fas fa-phone me-1"></i>{{ default_address.second_mobile }}{% endif %}
+                            </div>
+                            <div class="address-actions">
+                                <a href="{% url 'address_update' default_address.id %}?next={{ request.path }}" class="btn btn-edit">
+                                    <i class="fas fa-edit me-1"></i>EDIT
+                                </a>
+                                <!-- <button class="btn btn-edit"></button> -->
+                            </div>
                         </div>
-                        <div class="address-name">Mohammed Shifil</div>
-                        <div class="address-details">
-                            Quar Al Hishjya, Ghrhajana, Kozhikode, Kerala<br>
-                            PIN: 673017
-                        </div>
-                        <div class="address-phone">
-                            <i class="fas fa-phone me-1"></i>+919606752197
-                        </div>
-                        <div class="address-actions">
-                            <button class="btn btn-edit">
-                                <i class="fas fa-edit me-1"></i>EDIT
-                            </button>
-                        </div>
-                    </div>
+                    {% else %}
+                        <h3 class="text-muted">No default address. Please add one.</h3><br>
+                    {% endif %}
 
                     <!-- Add New Address Button -->
-                    <button class="btn-add-address" onclick="addNewAddress()">
-                        <i class="fas fa-plus me-2"></i>+ ADD NEW ADDRESS
-                    </button>
+                     <a href="{% url 'address_create' %}?next={{ request.path }}" class="btn-add-address">
+                        <i class="fas fa-plus me-2"></i> ADD NEW ADDRESS
+                     </a>
+    
+       
                 </div>
 
                 <!-- Apply Coupon Section -->
@@ -80,45 +96,50 @@
                     </h3>
                     
                     <!-- Product Items -->
+                    {% for item in basket_items %}
                     <div class="product-item">
-                        <img src="https://via.placeholder.com/60x60/ff6b35/ffffff?text=WP" alt="Whey Protein" class="product-image">
+                        {% with item.variant.product.images.first as image %}
+                            {% if image %}
+                                <img src="{{ image.image.url }} " alt="{{ item.variant.product.name }}" class="product-image">
+                            {% else %}
+                                <img src="{% static 'images/placeholder.png' %}" alt="No Image">
+                            {% endif %}
+                        {% endwith %}
                         <div class="product-details">
-                            <h6>Whey Protein</h6>
-                            <div class="product-qty">Qty: 1</div>
+                            <h6>{{ item.variant.product.name }}</h6>
+                            <div class="product-qty">Qty: {{ item.quantity }}</div>
                         </div>
-                        <div class="product-price">₹1,902.00</div>
+                        <div class="product-price">₹{{ item.subtotal|floatformat:2 }}</div>
                     </div>
-
-                    <div class="product-item">
-                        <img src="https://via.placeholder.com/60x60/28a745/ffffff?text=CW" alt="Clear Whey Isolate" class="product-image">
-                        <div class="product-details">
-                            <h6>Clear Whey Isolate</h6>
-                            <div class="product-qty">Qty: 1</div>
-                        </div>
-                        <div class="product-price">₹2,999.00</div>
-                    </div>
+                    {% empty %}
+                    <h2>Your checkout is empty</h2>
+                    {% endfor %}
 
                     <!-- Price Breakdown -->
                     <div class="mt-3">
                         <div class="price-row">
                             <span>Subtotal</span>
-                            <span>₹4,901.00</span>
+                            <span>₹{{ subtotal|floatformat:2  }}</span>
                         </div>
                         <div class="price-row">
                             <span>Shipping</span>
-                            <span class="text-success">FREE</span>
+                            {% if shipping == 0 %}
+                                <span class="text-success">FREE</span>
+                            {% else %}
+                                <span>₹{{ shipping|floatformat:2  }}</span>
+                            {% endif %}
                         </div>
                         <div class="price-row">
                             <span>Taxes</span>
-                            <span>₹588.12</span>
+                            <span>₹{{ taxes|floatformat:2  }}</span>
                         </div>
                         <div class="price-row">
                             <span>Discount</span>
-                            <span class="text-warning">-₹490.10</span>
+                            <span class="text-warning">₹{{ discount|floatformat:2 }}</span>
                         </div>
                         <div class="price-row total">
                             <span>Total</span>
-                            <span>₹4,999.02</span>
+                            <span>₹{{ total|floatformat:2  }}</span>
                         </div>
                     </div>
 

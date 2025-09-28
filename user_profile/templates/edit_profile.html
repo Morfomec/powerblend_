@@ -1,0 +1,892 @@
+{% extends 'user_profile_base.html' %}
+{% load static %}
+
+{% block title %}Edit Profile - POWERBLEND{% endblock %}
+
+{% block extra_css %}
+    <style>
+        :root {
+            --primary-color: rgba(0, 57, 66, 0.8);
+            --primary-solid: rgb(0, 57, 66);
+            --light-bg: #f8f9fa;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --info-color: #17a2b8;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--light-bg);
+            line-height: 1.6;
+        }
+
+        /* Main Container */
+        .edit-profile-container {
+            margin: 0 auto;
+            padding: 0;
+            width: 1358px;
+            max-width: 100%;
+        }
+
+        /* Page Header */
+        .page-header {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid #e9ecef;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-solid), var(--primary-color));
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .page-title {
+            color: var(--primary-solid);
+            font-size: 2rem;
+            font-weight: 600;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .back-btn {
+            background: transparent;
+            border: 2px solid var(--primary-solid);
+            color: var(--primary-solid);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            max-width: 250px;
+        }
+
+        .back-btn:hover {
+            background: var(--primary-solid);
+            color: white;
+            text-decoration: none;
+        }
+
+        /* Section Cards */
+        .section-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid #e9ecef;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .section-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-solid), var(--primary-color));
+        }
+
+        .section-title {
+            color: var(--primary-solid);
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border-bottom: 1px solid #e9ecef;
+            padding-bottom: 1rem;
+        }
+
+        /* Profile Image Section */
+        .profile-image-section {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: var(--light-bg);
+            border-radius: 12px;
+        }
+
+        .profile-image-upload {
+            position: relative;
+            display: inline-block;
+        }
+
+        .current-avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 4px solid var(--primary-color);
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: var(--primary-solid);
+            margin: 0 auto 1rem;
+            overflow: hidden;
+        }
+
+        .upload-overlay {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: var(--primary-solid);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .upload-overlay:hover {
+            background: var(--primary-color);
+            transform: scale(1.1);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        /* Form Groups */
+        .form-floating {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-floating > .form-control,
+        .form-floating > .form-select {
+            height: calc(3.5rem + 2px);
+            padding: 1rem 0.75rem;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-floating > label {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            padding: 1rem 0.75rem;
+            pointer-events: none;
+            border: 1px solid transparent;
+            transform-origin: 0 0;
+            transition: opacity 0.1s ease-in-out, transform 0.1s ease-in-out;
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        .form-floating > .form-control:focus ~ label,
+        .form-floating > .form-control:not(:placeholder-shown) ~ label,
+        .form-floating > .form-select ~ label {
+            opacity: 0.65;
+            transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+            color: var(--primary-solid);
+            font-weight: 600;
+        }
+
+        .form-floating > .form-control:focus,
+        .form-floating > .form-select:focus {
+            border-color: var(--primary-solid);
+            box-shadow: 0 0 0 0.25rem rgba(0, 57, 66, 0.15);
+            outline: none;
+        }
+
+        /* Password Strength Indicator */
+        .password-strength {
+            margin-top: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .strength-bar {
+            height: 6px;
+            background: #e9ecef;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+
+        .strength-fill {
+            height: 100%;
+            transition: all 0.3s ease;
+            border-radius: 3px;
+            width: 0%;
+        }
+
+        .strength-weak .strength-fill {
+            width: 25%;
+            background: var(--danger-color);
+        }
+
+        .strength-medium .strength-fill {
+            width: 60%;
+            background: var(--warning-color);
+        }
+
+        .strength-strong .strength-fill {
+            width: 100%;
+            background: var(--success-color);
+        }
+
+        .strength-text {
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        /* Action Buttons */
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            justify-content: center;
+            padding-top: 2rem;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .btn-save {
+            background: var(--primary-solid);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            max-width: 300px;
+            min-width: 200px;
+            cursor: pointer;
+        }
+
+        .btn-save:hover {
+            background: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 57, 66, 0.3);
+        }
+
+        .btn-cancel {
+            background: transparent;
+            color: var(--primary-solid);
+            border: 2px solid var(--primary-solid);
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            max-width: 300px;
+            min-width: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-cancel:hover {
+            background: var(--primary-solid);
+            color: white;
+            text-decoration: none;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--info-color);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            max-width: 300px;
+            min-width: 200px;
+            cursor: pointer;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(23, 162, 184, 0.8);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(23, 162, 184, 0.3);
+        }
+
+        /* Email Verification Section */
+        .email-verification {
+            background: linear-gradient(135deg, var(--info-color), rgba(23, 162, 184, 0.8));
+            color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+
+        .verification-status {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .status-icon {
+            font-size: 1.5rem;
+        }
+
+        /* Notification Preferences */
+        .notification-section {
+            background: var(--light-bg);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .form-check {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .form-check:hover {
+            border-color: var(--primary-color);
+            background: rgba(0, 57, 66, 0.02);
+        }
+
+        .form-check-input:checked {
+            background-color: var(--primary-solid);
+            border-color: var(--primary-solid);
+        }
+
+        .form-check-label {
+            margin-left: 0.5rem;
+        }
+
+        /* Alert styles */
+        .alert {
+            border-radius: 8px;
+            border: none;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .alert-info {
+            background: rgba(23, 162, 184, 0.1);
+            color: var(--info-color);
+            border-left: 4px solid var(--info-color);
+        }
+
+        .alert-success {
+            background: rgba(40, 167, 69, 0.1);
+            color: var(--success-color);
+            border-left: 4px solid var(--success-color);
+        }
+
+        .alert-warning {
+            background: rgba(255, 193, 7, 0.1);
+            color: var(--warning-color);
+            border-left: 4px solid var(--warning-color);
+        }
+
+        .alert-danger {
+            background: rgba(220, 53, 69, 0.1);
+            color: var(--danger-color);
+            border-left: 4px solid var(--danger-color);
+        }
+
+        /* Validation */
+        .form-control.is-invalid,
+        .form-select.is-invalid {
+            border-color: var(--danger-color);
+            box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.15);
+        }
+
+        .form-control.is-valid,
+        .form-select.is-valid {
+            border-color: var(--success-color);
+            box-shadow: 0 0 0 0.25rem rgba(40, 167, 69, 0.15);
+        }
+
+        .invalid-feedback,
+        .valid-feedback {
+            display: block;
+            width: 100%;
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .invalid-feedback {
+            color: var(--danger-color);
+        }
+
+        .valid-feedback {
+            color: var(--success-color);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .edit-profile-container {
+                padding: 1rem 0.5rem;
+                width: 100%;
+            }
+
+            .section-card {
+                padding: 2rem 1.5rem;
+            }
+
+            .page-title {
+                font-size: 1.8rem;
+            }
+
+            .header-content {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .form-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn-save, .btn-cancel, .btn-secondary {
+                max-width: 100%;
+                width: 100%;
+            }
+
+            .profile-image-section {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+{% endblock extra_css %}
+
+{% block body %}
+    <div class="edit-profile-container">
+        
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="header-content">
+                <h1 class="page-title">
+                    <i class="fas fa-user-edit"></i>
+                    Profile Settings
+                </h1>
+                <a href="{% url 'user_dashboard' %}" class="back-btn">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Dashboard
+                </a>
+            </div>
+        </div>
+
+        <!-- Messages Display -->
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-exclamation-circle{% elif message.tags == 'warning' %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %} me-2"></i>
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- Profile Information Section -->
+        <div class="section-card">
+            <h3 class="section-title">
+                <i class="fas fa-user"></i>
+                Profile Information
+            </h3>
+            
+            <form method="post" enctype="multipart/form-data" id="profileForm" action="{% url 'edit_profile' %}">
+                {% csrf_token %}
+                
+                <!-- Profile Image Section -->
+                <div class="profile-image-section">
+                    <div class="profile-image-upload">
+                        <div class="current-avatar" id="avatarDisplay">
+                            {% if form.instance.profile_image %}
+                                <img src="{{ form.instance.profile_image.url }}" alt="Profile Image" style="width: 100%; height: 100%; object-fit: cover;">
+                            {% else %}
+                                <i class="fas fa-user"></i>
+                            {% endif %}
+                        </div>
+                        <button type="button" class="upload-overlay" onclick="document.getElementById('profileImage').click()">
+                            <i class="fas fa-camera"></i>
+                        </button>
+                        <input type="file" id="profileImage" name="profile_image" class="file-input" accept="image/*">
+                    </div>
+                    <h4 style="color: var(--primary-solid); margin-bottom: 0.5rem;">{{ form.instance.full_name|default:"Your Name" }}</h4>
+                    <p class="text-muted">Click the camera icon to upload a new profile picture</p>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="full_name" name="full_name" 
+                                   placeholder="Full Name" value="{{ form.instance.full_name|default_if_none:'' }}" required>
+                            <label for="full_name">Full Name *</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input type="email" class="form-control" id="email" name="email" 
+                                   placeholder="Email Address" value="{{ form.instance.email|default_if_none:'' }}" required>
+                            <label for="email">Email Address *</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input type="tel" class="form-control" id="mobile" name="mobile" 
+                                   placeholder="Mobile Number" value="{{ form.instance.mobile|default_if_none:'' }}" required>
+                            <label for="mobile">Mobile Number *</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input type="date" class="form-control" id="date_of_birth" name="date_of_birth" 
+                                   placeholder="Date of Birth" value="{{ form.instance.date_of_birth|date:'Y-m-d'|default_if_none:'' }}">
+                            <label for="date_of_birth">Date of Birth</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="gender" name="gender" placeholder="Enter your gender" value="{{ form.instance.gender|default_if_none:'' }}">
+                            <label for="gender">Gender</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="country" name="country" 
+                                   placeholder="Country" value="{{ form.instance.country|default:'India' }}">
+                            <label for="country">Country</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-save">
+                        <i class="fas fa-save me-2"></i>Update Profile
+                    </button>
+                    <a href="{% url 'user_dashboard' %}" class="btn-cancel">
+                        <i class="fas fa-times me-2"></i>Cancel Changes
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Security & Password Section -->
+        <div class="section-card">
+            <h3 class="section-title">
+                <i class="fas fa-lock"></i>
+                Security & Password
+            </h3>
+
+            <!-- Email Verification Status -->
+            <div class="email-verification">
+                <div class="verification-status">
+                    <i class="fas fa-envelope-check status-icon"></i>
+                    <div>
+                        <h5 style="margin: 0; color: white;">Email Verification Status</h5>
+                        <p style="margin: 0; opacity: 0.9;">Your email {{ form.instance.email }} is verified and secure</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Change Password Form -->
+            <form method="post" action="{% url 'change_password' %}" id="passwordForm">
+                {% csrf_token %}
+                
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Password Requirements:</strong> At least 8 characters with uppercase, lowercase, numbers, and special characters for maximum security.
+                </div>
+
+                <div class="row g-3">
+                    <!-- Current Password (half-width) -->
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input type="password" class="form-control" id="old_password" name="old_password" 
+                                placeholder="Current Password" required>
+                            <label for="old_password">Current Password *</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-3 mt-2">
+                    <!-- New Password -->
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input type="password" class="form-control" id="new_password1" name="new_password1" 
+                                placeholder="New Password" required>
+                            <label for="new_password1">New Password *</label>
+                            <div class="password-strength mt-2">
+                                <div class="strength-bar">
+                                    <div class="strength-fill"></div>
+                                </div>
+                                <div class="strength-text text-muted">Enter a password to see strength</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Confirm New Password -->
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input type="password" class="form-control" id="new_password2" name="new_password2" 
+                                placeholder="Confirm New Password" required>
+                            <label for="new_password2">Confirm New Password *</label>
+                            <div class="invalid-feedback">Passwords do not match</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions mt-4">
+                    <button type="submit" class="btn-save">
+                        <i class="fas fa-key me-2"></i>Change Password
+                    </button>
+                </div>
+            </form>
+
+
+            <!-- Change Email Form -->
+            <form method="post" action="{% url 'change_email' %}" id="emailForm" style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #e9ecef;">
+                {% csrf_token %}
+                <h4 style="color: var(--primary-solid); margin-bottom: 1.5rem;">
+                    <i class="fas fa-envelope me-2"></i>Change Email Address
+                </h4>
+                
+                <div class="form-floating">
+                    <input type="email" class="form-control" id="new_email" name="email" 
+                           placeholder="New Email Address" value="{{ form.instance.email }}" required>
+                    <label for="new_email">New Email Address *</label>
+                </div>
+
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    We'll send a verification OTP to your new email address. Please check your inbox after submitting.
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-secondary">
+                        <i class="fas fa-envelope me-2"></i>Send Verification OTP
+                    </button>
+                </div>
+            </form>
+        </div>
+<!-- 
+        Preferences & Notifications Section
+        <div class="section-card">
+            <h3 class="section-title">
+                <i class="fas fa-cog"></i>
+                Preferences & Notifications
+            </h3>
+
+            <form method="post" id="preferencesForm">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <select class="form-select" id="language" name="language">
+                                <option value="en" selected>English</option>
+                                <option value="hi">Hindi</option>
+                                <option value="ml">Malayalam</option>
+                                <option value="ta">Tamil</option>
+                            </select>
+                            <label for="language">Preferred Language</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <select class="form-select" id="currency" name="currency">
+                                <option value="INR" selected>Indian Rupee (₹)</option>
+                                <option value="USD">US Dollar ($)</option>
+                                <option value="EUR">Euro (€)</option>
+                                <option value="GBP">British Pound (£)</option>
+                            </select>
+                            <label for="currency">Preferred Currency</label>
+                        </div>
+                    </div>
+                </div> -->
+
+                <!-- Notification Preferences -->
+                <!-- <div class="notification-section">
+                    <h5 style="color: var(--primary-solid); margin-bottom: 1.5rem;">
+                        <i class="fas fa-bell me-2"></i>Notification Preferences
+                    </h5>
+
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="email_notifications" name="email_notifications" checked>
+                        <label class="form-check-label" for="email_notifications">
+                            <strong>Email Notifications</strong><br>
+                            <small class="text-muted">Receive order updates, shipping notifications, and important account information via email</small>
+                        </label>
+                    </div>
+
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="sms_notifications" name="sms_notifications" checked>
+                        <label class="form-check-label" for="sms_notifications">
+                            <strong>SMS Notifications</strong><br>
+                            <small class="text-muted">Get instant order status updates and delivery notifications via SMS</small>
+                        </label>
+                    </div>
+
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="marketing_emails" name="marketing_emails">
+                        <label class="form-check-label" for="marketing_emails">
+                            <strong>Marketing Communications</strong><br>
+                            <small class="text-muted">Receive newsletters, promotional offers, and product recommendations</small>
+                        </label>
+                    </div>
+
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="push_notifications" name="push_notifications">
+                        <label class="form-check-label" for="push_notifications">
+                            <strong>Browser Push Notifications</strong><br>
+                            <small class="text-muted">Get real-time notifications in your browser for urgent updates</small>
+                        </label>
+                    </div>
+                </div> -->
+
+                <!-- <div class="form-actions">
+                    <button type="submit" class="btn-save">
+                        <i class="fas fa-save me-2"></i>Save Preferences
+                    </button>
+                </div> -->
+            </form>
+        </div>
+    </div>
+{% endblock body %}
+
+{% block extra_js %}
+    <script>
+        // Password strength checker - minimal JS
+        document.getElementById('new_password1').addEventListener('input', function() {
+            const password = this.value;
+            const strengthBar = document.querySelector('.strength-bar');
+            const strengthText = document.querySelector('.strength-text');
+            
+            let strength = 0;
+            if (password.length >= 8) strength += 1;
+            if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength += 1;
+            if (/\d/.test(password)) strength += 1;
+            if (/[^A-Za-z0-9]/.test(password)) strength += 1;
+            
+            strengthBar.className = 'strength-bar';
+            if (strength <= 1) {
+                strengthBar.classList.add('strength-weak');
+                strengthText.textContent = 'Weak password';
+                strengthText.style.color = 'var(--danger-color)';
+            } else if (strength <= 2) {
+                strengthBar.classList.add('strength-medium');
+                strengthText.textContent = 'Medium strength';
+                strengthText.style.color = 'var(--warning-color)';
+            } else if (strength >= 3) {
+                strengthBar.classList.add('strength-strong');
+                strengthText.textContent = 'Strong password';
+                strengthText.style.color = 'var(--success-color)';
+            }
+            
+            if (password.length === 0) {
+                strengthBar.className = 'strength-bar';
+                strengthText.textContent = 'Enter a password to see strength';
+                strengthText.style.color = '#6c757d';
+            }
+        });
+        
+        // Password confirmation validation
+        document.getElementById('new_password2').addEventListener('input', function() {
+            const newPassword = document.getElementById('new_password1').value;
+            const confirmPassword = this.value;
+            
+            if (confirmPassword && newPassword !== confirmPassword) {
+                this.classList.add('is-invalid');
+                this.classList.remove('is-valid');
+            } else if (confirmPassword && newPassword === confirmPassword) {
+                this.classList.remove('is-invalid');
+                this.classList.add('is-valid');
+            } else {
+                this.classList.remove('is-invalid', 'is-valid');
+            }
+        });
+        
+        // Profile image preview
+        document.getElementById('profileImage').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('avatarDisplay').innerHTML = `<img src="${e.target.result}" style="width: 100%; height: 100%; object-fit: cover;">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        // Phone number formatting
+        document.getElementById('mobile').addEventListener('input', function() {
+            let value = this.value.replace(/\D/g, '');
+            value = value.substring(0, 10);
+            this.value = value;
+        });
+        
+        // Form loading states
+        document.getElementById('profileForm').addEventListener('submit', function() {
+            const btn = this.querySelector('.btn-save');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Updating...';
+            btn.disabled = true;
+        });
+        
+        document.getElementById('passwordForm').addEventListener('submit', function() {
+            const btn = this.querySelector('.btn-save');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Changing...';
+            btn.disabled = true;
+        });
+        
+        document.getElementById('emailForm').addEventListener('submit', function() {
+            const btn = this.querySelector('.btn-secondary');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Sending...';
+            btn.disabled = true;
+        });
+        
+        document.getElementById('preferencesForm').addEventListener('submit', function() {
+            const btn = this.querySelector('.btn-save');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Saving...';
+            btn.disabled = true;
+        });
+    </script>
+{% endblock extra_js %}

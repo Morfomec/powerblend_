@@ -470,6 +470,7 @@
             <form id="addressForm" method="POST"
                 action="{% if is_update %}{% url 'address_update' address.id %}{% else %}{% url 'address_create' %}{% endif %}" novalidate>
                 {% csrf_token %}
+                <input type="hidden" name="next" value="{{ next }}">
                 <!-- Personal Information Row -->
                 <div class="row">
                     <div class="col-md-6">
@@ -582,13 +583,19 @@
                     </div>
                 </div>
 
+                <p>Next URL: {{ next }}</p>
                 <!-- Action Buttons -->
                 <div class="row">
                     <div class="col-md-6 mb-3 mb-md-0">
-                        <a href="{% url 'address_list' %}" class="btn-cancel d-inline-block text-center">
+                        <a href="{% if next %}{{ next }}{% else %}{% url 'address_list' %}{% endif %}"  class="btn-cancel d-inline-block text-center">
                             <i class="fas fa-times me-2"></i>Cancel
                         </a>
                     </div>
+                    <!-- <div class="col-md-6 mb-3 mb-md-0">
+                        <button type="button" class="btn-cancel d-inline-block text-center" onclick="cancelForm()">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </button> -->
+                    <!-- </div> -->
                     <div class="col-md-6">
                         <button type="submit" class="btn-add-address">
                             {% if is_update %}
@@ -657,30 +664,26 @@
 
         // Form submission
         form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Validate all fields
-            let isValid = true;
-            inputs.forEach(input => {
-                validateField({ target: input });
-                if (!input.checkValidity()) {
-                    isValid = false;
-                }
-            });
+    // Validate all fields first
+    let isValid = true;
+    inputs.forEach(input => {
+        validateField({ target: input });
+        if (!input.checkValidity()) {
+            isValid = false;
+        }
+    });
 
-            if (isValid) {
-                submitForm();
-            } else {
-                showMessage('Please fill in all required fields correctly', 'error');
-                // Focus on first invalid field
-                const firstInvalid = form.querySelector('.is-invalid');
-                if (firstInvalid) {
-                    firstInvalid.focus();
-                    firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }
-            }
-        });
-
+    if (!isValid) {
+        e.preventDefault(); // Stop submission if invalid
+        showMessage('Please fill in all required fields correctly', 'error');
+        const firstInvalid = form.querySelector('.is-invalid');
+        if (firstInvalid) {
+            firstInvalid.focus();
+            firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    } 
+    // ✅ If valid, allow normal form submit, Django will handle redirect
+});
         function submitForm() {
             const submitButton = form.querySelector('.btn-add-address');
             const originalText = submitButton.innerHTML;
@@ -721,15 +724,16 @@
             }, 2000);
         }
 
-        function cancelForm() {
-            if (confirm('Are you sure you want to cancel? All entered data will be lost.')) {
-                showMessage('Returning to checkout...', 'info');
-                // Simulate going back
-                setTimeout(() => {
-                    window.history.back();
-                }, 1000);
-            }
+       function cancelForm() {
+    const nextUrl = document.querySelector('input[name="next"]').value;
+    if (confirm('Are you sure you want to cancel? All entered data will be lost.')) {
+        if(nextUrl) {
+            window.location.href = nextUrl;
+        } else {
+            window.location.href = "{% url 'address_list' %}";
         }
+    }
+}
 
         function goBack() {
             cancelForm();

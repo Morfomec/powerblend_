@@ -97,6 +97,12 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     full_name = models.CharField(max_length=255)
     email = models.EmailField(unique=True)
 
+    profile_image = models.ImageField(upload_to='user_profile_images/', blank=True, null=True)
+    mobile = models.CharField(max_length=15, blank=True, null=True)
+    date_of_birth = models.DateField(blank=True, null=True)
+    gender = models.CharField(max_length=10, choices=[('Male','Male'),('Female','Female'),('Other','Other')], blank=True, null=True)
+    country = models.CharField(max_length=100, blank=True, null=True)
+
     date_joined = models.DateTimeField(default=timezone.now)
     last_login = models.DateTimeField(null=True, blank=True, default=timezone.now)
 

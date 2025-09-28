@@ -1,5 +1,18 @@
 from django import forms
 from .models import Address
+from django.conf import settings
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+class EditProfileForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['full_name', 'profile_image', 'email', 'mobile', 'date_of_birth', 'gender', 'country']
+
+class EmailChangeForm(forms.Form):
+    email = forms.EmailField()
+
 
 class AddressForm(forms.ModelForm):
     class Meta:

@@ -1,0 +1,736 @@
+{% extends 'user_profile_base.html' %}
+{% load static %}
+{% block title %}Profile - POWERBLEND{% endblock %}
+{% block content %}
+{% endblock content %}
+{% block extra_css %}
+    <style>
+        :root {
+            --primary-color: rgba(0, 57, 66, 0.8);
+            --primary-solid: rgb(0, 57, 66);
+            --light-bg: #f8f9fa;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --info-color: #17a2b8;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--light-bg);
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            border-bottom: 1px solid #e9ecef;
+            padding: 1rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .logo {
+            font-weight: bold;
+            color: var(--primary-solid);
+            font-size: 1.5rem;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo::before {
+            content: "M";
+            background: var(--primary-solid);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 8px;
+            font-weight: bold;
+        }
+
+        /* Main Container */
+        .profile-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        /* Profile Header Card */
+        .profile-header-card {
+            background: linear-gradient(135deg, var(--primary-solid) 0%, var(--primary-color) 100%);
+            border-radius: 16px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .profile-header-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: shimmer 6s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .profile-header-content {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            object-fit: cover;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: white;
+        }
+
+        .profile-info h1 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .profile-info p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 0.3rem;
+        }
+
+        .profile-stats {
+            display: flex;
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        /* Section Cards */
+        .section-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .section-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-solid), var(--primary-color));
+        }
+
+        .section-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        }
+
+        .section-title {
+            color: var(--primary-solid);
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Quick Actions Grid */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .action-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            padding: 1.5rem;
+            border: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .action-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .action-icon {
+            font-size: 2.5rem;
+            color: var(--primary-solid);
+            margin-bottom: 1rem;
+        }
+
+        .action-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary-solid);
+            margin-bottom: 0.5rem;
+        }
+
+        .action-description {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .dashboard-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            }
+
+            .dashboard-section .card {
+            height: 100%;
+            }
+
+        /* Recent Orders */
+        .order-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .order-item:hover {
+            border-color: var(--primary-color);
+            background: rgba(0, 57, 66, 0.02);
+        }
+
+        .order-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            margin-right: 1rem;
+            background: var(--light-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .order-details {
+            flex: 1;
+        }
+
+        .order-title {
+            font-weight: 600;
+            color: var(--primary-solid);
+            margin-bottom: 0.3rem;
+        }
+
+        .order-meta {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .order-status {
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-delivered {
+            background: rgba(40, 167, 69, 0.1);
+            color: var(--success-color);
+        }
+
+        .status-processing {
+            background: rgba(255, 193, 7, 0.1);
+            color: var(--warning-color);
+        }
+
+        .status-shipped {
+            background: rgba(23, 162, 184, 0.1);
+            color: var(--info-color);
+        }
+
+        /* Address Cards */
+        .address-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+
+        .address-mini-card {
+            background: var(--light-bg);
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 1rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .address-mini-card.default {
+            border-color: var(--success-color);
+            background: rgba(40, 167, 69, 0.05);
+        }
+
+        .address-mini-card.default::before {
+            content: 'DEFAULT';
+            position: absolute;
+            top: -8px;
+            right: 10px;
+            background: var(--success-color);
+            color: white;
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .address-type-mini {
+            font-weight: 600;
+            color: var(--primary-solid);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .address-text-mini {
+            color: #6c757d;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        /* Buttons */
+        .btn-primary-custom {
+            background: var(--primary-solid);
+            border: none;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary-custom:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-1px);
+            text-decoration: none;
+        }
+
+        .btn-outline-primary-custom {
+            background: transparent;
+            border: 2px solid var(--primary-solid);
+            color: var(--primary-solid);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-outline-primary-custom:hover {
+            background: var(--primary-solid);
+            color: white;
+            transform: translateY(-1px);
+            text-decoration: none;
+        }
+
+        /* Account Settings */
+        .settings-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .settings-item:hover {
+            border-color: var(--primary-color);
+            background: rgba(0, 57, 66, 0.02);
+        }
+
+        .settings-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .settings-icon {
+            font-size: 1.2rem;
+            color: var(--primary-solid);
+            width: 24px;
+        }
+
+        .settings-details h6 {
+            margin: 0;
+            color: var(--primary-solid);
+            font-weight: 600;
+        }
+
+        .settings-details p {
+            margin: 0;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .profile-container {
+                padding: 0 0.5rem;
+            }
+
+            .profile-header-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+
+            .profile-info h1 {
+                font-size: 2rem;
+            }
+
+            .profile-stats {
+                justify-content: center;
+                gap: 1.5rem;
+            }
+
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+
+            .section-card {
+                padding: 1.5rem;
+            }
+
+            .order-item {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .order-image {
+                margin: 0 0 1rem 0;
+            }
+        }
+    </style>
+{% endblock extra_css %}
+{% block body %}
+    <div class="profile-container">
+        <!-- Profile Header -->
+        <div class="profile-header-card">
+            <div class="profile-header-content">
+                
+                <div class="profile-avatar">
+                    {% if user.profile_image %}
+                        <img src="{{ user.profile_image.url }}" alt="Avatar">
+                    {% else %}
+                        <i class="fas fa-user"></i>
+                    {% endif %}
+                </div>
+                <div class="profile-info">
+                    <h1>{{ user.full_name }}</h1>
+                    <p><i class="fas fa-envelope me-2"></i>{{ user.email }}</p>
+                    <p><i class="fas fa-phone me-2"></i>{{ user.mobile }}</p>
+                    <p><i class="fas fa-calendar me-2"></i>Member since {{ user.date_joined|date:"F Y" }}</p>
+                    <div class="profile-stats">
+                        <div class="stat-item">
+                            <span class="stat-number">12</span>
+                            <span class="stat-label">Total Orders</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">3</span>
+                            <span class="stat-label">Addresses</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">₹45,890</span>
+                            <span class="stat-label">Total Spent</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <a href="{% url 'edit_profile' %}" class="action-card">
+                <div class="action-icon">
+                    <i class="fas fa-edit"></i>
+                </div>
+                <div class="action-title">Edit Profile</div>
+                <div class="action-description">Update your personal information and preferences</div>
+            </a>
+            <a href="{% url 'address_list'%}" class="action-card">
+                <div class="action-icon">
+                    <i class="fas fa-map-marker-alt"></i>
+                </div>
+                <div class="action-title">Manage Addresses</div>
+                <div class="action-description">Add, edit or delete your delivery addresses</div>
+            </a>
+
+            <a href="#" class="action-card">
+                <div class="action-icon">
+                    <i class="fas fa-box"></i>
+                </div>
+                <div class="action-title">Order History</div>
+                <div class="action-description">View all your past and current orders</div>
+            </a>
+
+            <a href="{% url 'edit_profile'%}" class="action-card">
+                <div class="action-icon">
+                    <i class="fas fa-key"></i>
+                </div>
+                <div class="action-title">Change Password</div>
+                <div class="action-description">Update your account security settings</div>
+            </a>
+        </div>
+
+        <div class="row">
+            <!-- Recent Orders -->
+            <div class="col-lg-6">
+                <div class="section-card">
+                    <h3 class="section-title">
+                        <i class="fas fa-clock"></i>
+                        Recent Orders
+                    </h3>
+                    
+                    <div class="order-item">
+                        <div class="order-image">
+                            <i class="fas fa-dumbbell" style="color: var(--primary-solid);"></i>
+                        </div>
+                        <div class="order-details">
+                            <div class="order-title">Impact Whey Protein - 2.5kg</div>
+                            <div class="order-meta">Order #12345 • ₹2,999 • Dec 15, 2024</div>
+                        </div>
+                        <div class="order-status status-delivered">Delivered</div>
+                    </div>
+
+                    <div class="order-item">
+                        <div class="order-image">
+                            <i class="fas fa-pills" style="color: var(--success-color);"></i>
+                        </div>
+                        <div class="order-details">
+                            <div class="order-title">Omega-3 Fish Oil Capsules</div>
+                            <div class="order-meta">Order #12344 • ₹1,299 • Dec 12, 2024</div>
+                        </div>
+                        <div class="order-status status-shipped">Shipped</div>
+                    </div>
+
+                    <div class="order-item">
+                        <div class="order-image">
+                            <i class="fas fa-flask" style="color: var(--warning-color);"></i>
+                        </div>
+                        <div class="order-details">
+                            <div class="order-title">Clear Whey Isolate - Lemon</div>
+                            <div class="order-meta">Order #12343 • ₹3,499 • Dec 10, 2024</div>
+                        </div>
+                        <div class="order-status status-processing">Processing</div>
+                    </div>
+
+                    <div class="text-center mt-3">
+                        <a href="#" class="btn-outline-primary-custom">
+                            <i class="fas fa-history"></i>
+                            View All Orders
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Saved Addresses -->
+            <div class="col-lg-6">
+                <div class="section-card">
+                    <h3 class="section-title">
+                        <i class="fas fa-map-marker-alt"></i>
+                        Saved Addresses
+                    </h3>
+                    
+                    <div class="address-grid">
+                        <div class="address-mini-card default">
+                            <div class="address-type-mini">
+                                <i class="fas fa-home"></i>
+                                Home
+                            </div>
+                            <div class="address-text-mini">
+                                Qasr Al Hidayah, Ottapalam<br>
+                                Kerala 679501
+                            </div>
+                        </div>
+
+                        <div class="address-mini-card">
+                            <div class="address-type-mini">
+                                <i class="fas fa-building"></i>
+                                Office
+                            </div>
+                            <div class="address-text-mini">
+                                Tech Park, Infopark Kochi<br>
+                                Kerala 682042
+                            </div>
+                        </div>
+
+                        <div class="address-mini-card">
+                            <div class="address-type-mini">
+                                <i class="fas fa-map-marker-alt"></i>
+                                Other
+                            </div>
+                            <div class="address-text-mini">
+                                Beach Road, Kovalam<br>
+                                Kerala 695527
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-3">
+                        <a href="#" class="btn-outline-primary-custom">
+                            <i class="fas fa-plus"></i>
+                            Manage Addresses
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Account Settings -->
+        <!-- <div class="section-card">
+            <h3 class="section-title">
+                <i class="fas fa-cog"></i>
+                Account Settings
+            </h3>
+            
+            <div class="settings-item">
+                <div class="settings-info">
+                    <i class="fas fa-user settings-icon"></i>
+                    <div class="settings-details">
+                        <h6>Personal Information</h6>
+                        <p>Update your name, email, and phone number</p>
+                    </div>
+                </div>
+                <a href="#" class="btn-outline-primary-custom">
+                    <i class="fas fa-edit"></i>
+                    Edit
+                </a>
+            </div>
+
+            <div class="settings-item">
+                <div class="settings-info">
+                    <i class="fas fa-lock settings-icon"></i>
+                    <div class="settings-details">
+                        <h6>Password & Security</h6>
+                        <p>Change your password and security preferences</p>
+                    </div>
+                </div>
+                <a href="#" class="btn-outline-primary-custom">
+                    <i class="fas fa-key"></i>
+                    Change
+                </a>
+            </div>
+
+            <div class="settings-item">
+                <div class="settings-info">
+                    <i class="fas fa-bell settings-icon"></i>
+                    <div class="settings-details">
+                        <h6>Notifications</h6>
+                        <p>Manage your email and SMS preferences</p>
+                    </div>
+                </div>
+                <a href="#" class="btn-outline-primary-custom">
+                    <i class="fas fa-cog"></i>
+                    Manage
+                </a>
+            </div>
+
+            <div class="settings-item">
+                <div class="settings-info">
+                    <i class="fas fa-shield-alt settings-icon"></i>
+                    <div class="settings-details">
+                        <h6>Privacy Settings</h6>
+                        <p>Control your data and privacy preferences</p>
+                    </div>
+                </div>
+                <a href="#" class="btn-outline-primary-custom">
+                    <i class="fas fa-shield-alt"></i>
+                    Review
+                </a>
+            </div>
+        </div> -->
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Simple hover effects and animations
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add staggered animation to cards
+            const cards = document.querySelectorAll('.action-card, .section-card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        });
+    </script>
+
+{% endblock body %}
+{% block extra_js %}
+
+{% endblock extra_js %}

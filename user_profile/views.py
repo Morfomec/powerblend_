@@ -1,15 +1,151 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import PasswordChangeForm
+from django.core.mail import send_mail
+from django.utils.crypto import get_random_string
+from django.contrib.auth import update_session_auth_hash
+
 from .models import Address
 from .forms import AddressForm
+from django.urls import reverse
+
+from .forms import EditProfileForm, EmailChangeForm
+
 # from .model import 
 
 # Create your views here.
 
+@login_required
 def user_profile_view(request):
     return render(request, 'user_profile_home.html')
 
+
+
+@login_required
+def user_dashboard(request):
+    """
+    show user profile, addresses and recent orders.
+    """
+
+    user = request.user
+    addresses = Address.objects.filter(user=request.user)
+
+    
+    
+
+    context = {
+        'user': user,
+        'addresses' : addresses,
+        # 'orders': orders,
+    }
+
+    return render(request, 'user_dashboard.html', context)
+
+   
+
+@login_required
+def edit_profile(request):
+    """
+    Edit user profile
+    """
+
+    user = request.user
+
+    if request.method == 'POST':
+        form = EditProfileForm(request.POST, request.FILES, instance=request.user)
+
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Profile updated successfully!")
+            return redirect("user_dashboard")
+    
+    else:
+        form = EditProfileForm(instance=request.user)
+
+    context ={
+        'form' : form,
+    }
+    return render(request, "edit_profile.html", context)
+
+
+@login_required
+def change_email(request):
+    """
+    Change email with OTP verification
+    """
+
+    user = request.user
+
+    if request.method == 'POST':
+        form = EmailChangeForm(request.POST)
+        if form.is_valid():
+            new_email = form.cleaned_data['email']
+            otp = get_random_string(length=6, allowed_chars='0123456789')
+            request.session['email_otp'] = otp
+            request.session['new_email'] = new_email
+
+
+            # sending otp via email
+            send_mail(
+                subject="Email Verifiaction OTP",
+                message=f"Hi {user.full_name},\n\nYour OTP is: {otp}",
+                from_email="muhammedshifil@gmail.com",
+                recipient_list=[user.email],
+            )
+            return redirect('user_dashboard')
+    else:
+        form = EmailChangeForm(initial={'email': user.email})
+    
+    context = {
+        'form' : form,
+    }
+    return render(request, 'change_email.html', context)
+
+
+@login_required
+def verify_email_otp(request):
+    """
+    verify OTP sent to new email
+    """
+
+    if request.method == 'POST':
+        otp_entered = request.POST.get('otp')
+        if otp_entered == request.session.get('email_otp'):
+            request.user.email = request.session.get('new_email')
+            request.user.save()
+            messages.success(request, "Email updated successfully.")
+
+            # clear session
+            request.session.pop('email_otp')
+            request.session.pop('new_email')
+            return redirect('user_dashboard')
+        else:
+            messages.error(request, 'Invalid OTP.')
+    return render(request, 'verify_email.otp.html')
+
+
+@login_required
+def change_password(request):
+    """
+    Changing password for the account
+    """
+
+    if request.method == 'POST':
+        form = PasswordChangeForm(user=request.user, data = request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)
+            messages.success(request, 'Password changed successfully!')
+            return redirect('user_dashboard')
+        else:
+            messages.error(request, 'Please correct the error below.')
+    else:
+        form = PasswordChangeForm(user=request.user)
+    context = {
+        'form' : form,
+    }
+    return render(request, 'change_password.html', context)
 
 
 @login_required
@@ -98,8 +234,9 @@ def address_update(request, id):
 
 
             address.save()
+            next_url = request.POST.get("next") or request.GET.get("next") or reverse("address_list")
             messages.success(request,"Address updated successfully!")
-            return redirect("address_list")
+            return redirect(next_url)
     else:
         form = AddressForm(instance=address)
     
@@ -107,6 +244,7 @@ def address_update(request, id):
         'form': form,
         'is_update':True,
         'address': address,
+        'next': request.GET.get("next",""),
     }
     return render(request, "address_create.html", context)
 
@@ -119,3 +257,4 @@ def address_set_default(request, id):
     address.is_default = True
     address.save()
     return redirect('address_list')
+
