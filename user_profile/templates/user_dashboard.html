@@ -432,6 +432,31 @@
             font-size: 0.9rem;
         }
 
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;      /* make container round */
+            overflow: hidden;        /* crop image edges */
+            background: #f0f0f0;     /* fallback bg for icon */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #ddd;  /* optional border */
+        }
+
+        /* Image inside the avatar */
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;  /* crop and fill circle */
+        }
+
+        /* Icon fallback */
+        .profile-avatar i {
+            font-size: 50px;
+            color: #888;
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
             .profile-container {
@@ -525,7 +550,7 @@
                 <div class="action-description">Add, edit or delete your delivery addresses</div>
             </a>
 
-            <a href="#" class="action-card">
+            <a href="{% url 'order_list' %}" class="action-card">
                 <div class="action-icon">
                     <i class="fas fa-box"></i>
                 </div>
@@ -585,7 +610,7 @@
                     </div>
 
                     <div class="text-center mt-3">
-                        <a href="#" class="btn-outline-primary-custom">
+                        <a href="{% url 'order_list' %}" class="btn-outline-primary-custom">
                             <i class="fas fa-history"></i>
                             View All Orders
                         </a>
@@ -637,7 +662,7 @@
                     </div>
 
                     <div class="text-center mt-3">
-                        <a href="#" class="btn-outline-primary-custom">
+                        <a href="{% url 'address_list'%}" class="btn-outline-primary-custom">
                             <i class="fas fa-plus"></i>
                             Manage Addresses
                         </a>

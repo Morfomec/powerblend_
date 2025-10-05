@@ -145,18 +145,39 @@
 
                     <!-- Payment Methods -->
                     <div class="mt-4">
-                        <button class="payment-button" onclick="processPayment('razorpay')">
-                            <i class="fas fa-credit-card"></i>
-                            RAZORPAY
-                        </button>
-                        <button class="payment-button" onclick="processPayment('cod')">
-                            <i class="fas fa-money-bill-wave"></i>
-                            CASH ON DELIVERY
-                        </button>
-                        <button class="payment-button" onclick="processPayment('wallet')">
-                            <i class="fas fa-wallet"></i>
-                            PAY WITH WALLET
-                        </button>
+                        
+                        <!-- cod -->
+                        <form action="{% url 'checkout' %}" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="payment_method" value="wallet">
+                            <button type="submit" class="payment-button" >
+                                <i class="fas fa-wallet"></i>
+                                WALLET
+                            </button>
+                        </form>
+
+                        <form action="{% url 'checkout' %}" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="payment_method" value="razorpay">
+                            <button type="submit" class="payment-button">
+                                <i class="fas fa-credit-card"></i>
+                                RAZORPAY
+                            </button>
+                        </form>
+
+                        <form action="{% url 'checkout' %}" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="payment_method" value="cod">
+                            <button type="submit" class="payment-button">
+                                <i class="fas fa-money-bill-wave"></i>
+                                CASH ON DELIVERY
+                            </button>
+                         </form>
+
+                         
+
+
+
                     </div>
 
                     <!-- Security Badge -->

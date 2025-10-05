@@ -7,7 +7,7 @@ from django.views.decorators.cache import cache_control, never_cache
 from products.models import Product, ProductVariant
 from category.models import Category
 from wishlist.models import Wishlist, WishlistItem
-
+from django.db.models import Q, Sum
 # Create your views here.
 
 
@@ -45,7 +45,9 @@ def list_products(request):
     search_query = request.GET.get("search")
     
     if search_query:
-        products = products.filter(name__icontains=search_query) | products.filter(description__icontains=search_query)
+        products = products.filter (
+            Q(name__icontains=search_query) | Q(description__icontains=search_query)
+        )
 
     # filter by category
 
@@ -57,22 +59,23 @@ def list_products(request):
 
     #filter by price
 
-    min_price = request.GET.get("min_price")
-    max_price = request.GET.get("max_price")
+    min_price = request.GET.get("min.price")
+    max_price = request.GET.get("max.price")
 
     if min_price:
-        products = products.filter(price__gte=min_price)
+        products = products.filter(variants__price__gte=min_price)
     if max_price:
-        products = products.filter(price__lte=max_price)
+        products = products.filter(variants__price__lte=max_price)
 
     
     #sorting
 
     sort_option = request.GET.get("sort")
-    if sort_option == "price_low":
-        products = products.order_by("price")
-    elif sort_option == "price_high":
-        products = products.order_by("-price")
+    if sort_option == "variant.price_low":
+        products = products.order_by("variant__price")
+        messages.success(request, "Items in price low to high")
+    elif sort_option == "variant.price_high":
+        products = products.order_by("-variant__price")
     elif sort_option == "az":
         products = products.order_by("name")
     elif sort_option == "za":
@@ -91,7 +94,7 @@ def list_products(request):
 
     context = {
         'products': products,
-        'wishlist_variant_ids': list(wishlist_variant_ids),
+        'wishlist_variant_ids': wishlist_variant_ids,
     }
     return render(request, "product_listing.html", context)
 
@@ -104,12 +107,20 @@ def detail_product(request, id):
     return a single product detail page with variants
     """
     try:
-        single_product = get_object_or_404(Product, id=id, is_listed=True)
+        single_product = get_object_or_404(
+            Product.objects.prefetch_related('variants').annotate(total_stock=Sum('variants__stock')), id=id, is_listed=True)
 
         #get all variants for this product
         # variants = single_product.variants.all()
 
+        # Products = Products.objects.all()
+        # single_product = Product.objects.filter(id=id, is_listed=True) \
+        #     .prefetch_related('variants') \
+        #     .annotate(total_stock=Sum('variants__stock')) \
+        #     .first()
+
         variants = single_product.variants.all().order_by('weight')
+        
 
         #pick one as the dafault
         default_variant = variants.first() if variants.exists() else None

@@ -3,5 +3,6 @@ from . import views
 from django.shortcuts import redirect
 
 urlpatterns = [
-    path("", views.checkout_view, name='checkout'),    
+    path("", views.checkout_view, name='checkout'),   
+    
 ]

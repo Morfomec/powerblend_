@@ -1,0 +1,722 @@
+{% extends 'user_profile_base.html' %}
+{% load static %}
+
+{% block title %}My Orders - POWERBLEND{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+    --primary-color: rgba(0, 57, 66, 0.8);
+    --primary-solid: rgb(0, 57, 66);
+    --light-bg: #f8f9fa;
+    --success-color: #28a745;
+    --danger-color: #dc3545;
+    --warning-color: #ffc107;
+    --info-color: #17a2b8;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--light-bg);
+}
+
+/* Main Container */
+.orders-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0;
+}
+
+/* Page Header */
+.page-header {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+    padding: 1.5rem 2rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid #e9ecef;
+    position: relative;
+    overflow: hidden;
+}
+
+.page-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-solid), var(--primary-color));
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+.page-title {
+    color: var(--primary-solid);
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin: 0;
+    margin-bottom: 0.3rem;
+}
+
+.order-count {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+/* Search and Filter */
+.search-filter-section {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+    padding: 1.2rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid #e9ecef;
+}
+
+.search-box {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.search-input {
+    flex: 1;
+    min-width: 250px;
+    padding: 0.75rem 1rem;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+}
+
+.search-input:focus {
+    border-color: var(--primary-solid);
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(0, 57, 66, 0.12);
+}
+
+.filter-select {
+    padding: 0.75rem 1rem;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    min-width: 150px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.filter-select:focus {
+    border-color: var(--primary-solid);
+    outline: none;
+}
+
+.btn-search {
+    background: var(--primary-solid);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.btn-search:hover {
+    background: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 57, 66, 0.2);
+}
+
+/* Order Card */
+.order-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+    margin-bottom: 1.5rem;
+    border: 1px solid #e9ecef;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.order-card:hover {
+    box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+}
+
+.order-header {
+    background: var(--light-bg);
+    padding: 1.2rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.order-info {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+    flex: 1;
+    align-items: center;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    min-width: 70px;
+}
+
+.info-label {
+    font-size: 0.7rem;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin-bottom: 0.25rem;
+    font-weight: 500;
+}
+
+.info-value {
+    font-weight: 600;
+    color: var(--primary-solid);
+    font-size: 0.9rem;
+}
+
+.order-id-link {
+    color: var(--info-color);
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.order-id-link:hover {
+    color: var(--primary-solid);
+    text-decoration: underline;
+}
+
+.order-actions {
+    display: flex;
+    gap: 0.8rem;
+    align-items: center;
+}
+
+.status-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+.status-confirmed {
+    background: rgba(23, 162, 184, 0.15);
+    color: var(--info-color);
+}
+
+.status-delivered {
+    background: rgba(40, 167, 69, 0.15);
+    color: var(--success-color);
+}
+
+.status-processing {
+    background: rgba(255, 193, 7, 0.15);
+    color: #d39e00;
+}
+
+.status-cancelled {
+    background: rgba(220, 53, 69, 0.15);
+    color: var(--danger-color);
+}
+
+.toggle-btn {
+    background: var(--primary-solid);
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 0.5rem 0.7rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.toggle-btn:hover {
+    background: var(--primary-color);
+    transform: scale(1.05);
+}
+
+/* Products Table */
+.products-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.products-table thead {
+    background: var(--light-bg);
+}
+
+.products-table th {
+    padding: 1rem 0.8rem;
+    text-align: left;
+    font-size: 0.8rem;
+    color: var(--primary-solid);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.products-table td {
+    padding: 1rem 0.8rem;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 0.9rem;
+    vertical-align: middle;
+}
+
+/* Add alignment for action column */
+.products-table td:last-child {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.products-table tbody tr {
+    transition: all 0.2s ease;
+}
+
+.products-table tbody tr:hover {
+    background: rgba(0, 57, 66, 0.03);
+}
+
+.products-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.product-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.product-image {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    background: var(--light-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border: 1px solid #e9ecef;
+}
+
+.product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.product-title {
+    color: var(--info-color);
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.product-title:hover {
+    color: var(--primary-solid);
+    text-decoration: underline;
+}
+
+/* Action Buttons */
+.order-footer {
+    padding: 1rem 1.5rem;
+    text-align: right;
+    border-top: 1px solid #e9ecef;
+    background: #fafbfc;
+}
+
+.btn-view-more {
+    background: var(--primary-solid);
+    color: white;
+    border: none;
+    padding: 0.6rem 1.5rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-view-more:hover {
+    background: var(--primary-color);
+    color: white;
+    text-decoration: none;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 57, 66, 0.2);
+}
+
+.btn-cancel-order {
+    background: transparent;
+    color: var(--danger-color);
+    border: 2px solid var(--danger-color);
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+    white-space: nowrap;
+}
+
+.btn-cancel-order:hover {
+    background: var(--danger-color);
+    color: white;
+    text-decoration: none;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+/* Empty State */
+.empty-state {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+    padding: 4rem 2rem;
+    text-align: center;
+    border: 1px solid #e9ecef;
+}
+
+.empty-icon {
+    font-size: 4rem;
+    color: #ddd;
+    margin-bottom: 1.5rem;
+}
+
+.empty-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--primary-solid);
+    margin-bottom: 1rem;
+}
+
+.empty-description {
+    color: #6c757d;
+    margin-bottom: 2rem;
+    font-size: 1rem;
+}
+
+.btn-start-shopping {
+    background: var(--primary-solid);
+    color: white;
+    padding: 0.8rem 2rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+.btn-start-shopping:hover {
+    background: var(--primary-color);
+    color: white;
+    text-decoration: none;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 57, 66, 0.2);
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .order-info {
+        gap: 2rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .orders-container {
+        padding: 0 0.5rem;
+    }
+
+    .page-header {
+        padding: 1.2rem;
+    }
+
+    .page-title {
+        font-size: 1.5rem;
+    }
+
+    .search-box {
+        flex-direction: column;
+    }
+
+    .search-input {
+        width: 100%;
+        min-width: 100%;
+    }
+
+    .filter-select {
+        width: 100%;
+    }
+
+    .btn-search {
+        width: 100%;
+    }
+
+    .order-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .order-info {
+        width: 100%;
+        gap: 1rem;
+    }
+
+    .info-item {
+        min-width: auto;
+    }
+
+    .order-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .products-table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .products-table thead {
+        display: none;
+    }
+
+    .products-table tbody,
+    .products-table tr,
+    .products-table td {
+        display: block;
+    }
+
+    .products-table tr {
+        margin-bottom: 1rem;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .products-table td {
+        padding: 0.8rem;
+        text-align: left;
+        position: relative;
+        padding-left: 50%;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .products-table td:before {
+        content: attr(data-label);
+        position: absolute;
+        left: 0.8rem;
+        width: 45%;
+        padding-right: 10px;
+        white-space: nowrap;
+        font-weight: 600;
+        color: var(--primary-solid);
+        font-size: 0.75rem;
+        text-transform: uppercase;
+    }
+
+    .product-image {
+        width: 50px;
+        height: 50px;
+    }
+
+    .order-footer {
+        text-align: center;
+    }
+
+    .btn-view-more {
+        width: 100%;
+    }
+}
+</style>
+{% endblock extra_css %}
+
+{% block body %}
+    <div class="orders-container">
+        
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="header-content">
+                <div>
+                    <h1 class="page-title">My Orders</h1>
+                    <p class="order-count">There are {{ orders.count }} order{{ orders.count|pluralize }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search and Filter -->
+        <div class="search-filter-section">
+            <form method="get" class="search-box">
+                <input type="text" name="q" class="search-input" placeholder="Search by order ID or product name..." value="{{ request.GET.q }}">
+                <select name="status" class="filter-select">
+                    <option value="">All Status</option>
+                    <option value="confirmed" {% if request.GET.status == 'confirmed' %}selected{% endif %}>Confirmed</option>
+                    <option value="processing" {% if request.GET.status == 'processing' %}selected{% endif %}>Processing</option>
+                    <option value="delivered" {% if request.GET.status == 'delivered' %}selected{% endif %}>Delivered</option>
+                    <option value="cancelled" {% if request.GET.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                </select>
+                <button type="submit" class="btn-search">
+                    <i class="fas fa-search me-1"></i>Search
+                </button>
+            </form>
+        </div>
+
+        <!-- Orders List -->
+        {% if orders %}
+            {% for order in orders %}
+            <div class="order-card">
+                <!-- Order Header -->
+                <div class="order-header">
+                    <div class="order-info">
+                        <div class="info-item">
+                            <span class="info-label">#</span>
+                            <span class="info-value">{{ forloop.counter }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Order ID</span>
+                            <a href="{% url 'order_details' order_id=order.id %}" class="info-value order-id-link">
+                                {{ order.order_id }}
+                            </a>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Date</span>
+                            <span class="info-value">{{ order.created_at|date:"Y-m-d" }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Items</span>
+                            <span class="info-value">{{ order.items.count }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Total</span>
+                            <span class="info-value">₹{{ order.total }}</span>
+                        </div>
+                    </div>
+                    <div class="order-actions">
+                        <span class="status-badge status-{{ order.status|lower }}">{{ order.status|upper }}</span>
+                        <button class="toggle-btn" onclick="toggleOrderDetails({{ forloop.counter }})">
+                            <i class="fas fa-chevron-down" id="toggle-icon-{{ forloop.counter }}"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Order Items Table -->
+                <div id="order-details-{{ forloop.counter }}" style="display: none;">
+                    <table class="products-table">
+                        <thead>
+                            <tr>
+                                <th>Product ID</th>
+                                <th>Product Title</th>
+                                <th>Image</th>
+                                <th>Quantity</th>
+                                <th>Price</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in order.items.all %}
+                            <tr>
+                                <td data-label="Product ID">{{ item.variant.id }}</td>
+                                <td data-label="Product Title">
+                                    <a href="{% url 'detail_product' item.variant.product.id %}" class="product-title">
+                                        {{ item.variant.product.name }}
+                                    </a>
+                                </td>
+                                <td data-label="Image">
+                                    <div class="product-image">
+                                        {% if item.variant.product.images.first %}
+                                            <img src="{{ item.variant.product.images.first.image.url }}" alt="{{ item.variant.product.name }}">
+                                        {% else %}
+                                            <i class="fas fa-image" style="color: #ccc; font-size: 1.5rem;"></i>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td data-label="Quantity">{{ item.quantity }}</td>
+                                <td data-label="Price">₹{{ item.price }}</td>
+                                <td data-label="Action">
+                                    {% if order.status not in 'delivered,cancelled,returned' %}
+                                        <a href="#" class="btn-cancel-order">
+                                            <i class="fas fa-times"></i>Cancel Order
+                                        </a>
+                                    {% else %}
+                                        <span class="status-badge status-{{ order.status|lower }}">{{ order.status|upper }}</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+                    <!-- View More Button -->
+                    <div class="order-footer">
+                        <a href="{% url 'order_details' order_id=order.id %}" class="btn-view-more">
+                            VIEW MORE
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <!-- Empty State -->
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fas fa-shopping-bag"></i>
+                </div>
+                <h2 class="empty-title">No Orders Yet</h2>
+                <p class="empty-description">
+                    You haven't placed any orders yet. Start shopping to see your orders here!
+                </p>
+                <a href="{% url 'home' %}" class="btn-start-shopping">
+                    <i class="fas fa-shopping-cart me-2"></i>Start Shopping
+                </a>
+            </div>
+        {% endif %}
+    </div>
+{% endblock body %}
+
+{% block extra_js %}
+    <script>
+        function toggleOrderDetails(orderId) {
+            const detailsSection = document.getElementById(`order-details-${orderId}`);
+            const toggleIcon = document.getElementById(`toggle-icon-${orderId}`);
+            
+            if (detailsSection.style.display === 'none') {
+                detailsSection.style.display = 'block';
+                toggleIcon.classList.remove('fa-chevron-down');
+                toggleIcon.classList.add('fa-chevron-up');
+            } else {
+                detailsSection.style.display = 'none';
+                toggleIcon.classList.remove('fa-chevron-up');
+                toggleIcon.classList.add('fa-chevron-down');
+            }
+        }
+    </script>
+{% endblock extra_js %}

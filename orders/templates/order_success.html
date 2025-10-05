@@ -1,0 +1,416 @@
+{% extends 'payment_base.html' %}
+{% load static %}
+
+{% block title %}Order Placed - POWERBLEND{% endblock %}
+
+{% block extra_css %}
+    <style>
+        :root {
+            --primary-color: rgba(0, 57, 66, 0.8);
+            --primary-solid: rgb(0, 57, 66);
+            --light-bg: #f8f9fa;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--light-bg);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+        }
+
+        /* Success Container */
+        .success-container {
+            max-width: 600px;
+            width: 100%;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            padding: 3rem 2rem;
+            text-align: center;
+            animation: fadeInUp 0.6s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Success Icon */
+        .success-icon {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 2rem;
+            position: relative;
+            animation: scaleIn 0.5s ease 0.3s both;
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0);
+            }
+            to {
+                transform: scale(1);
+            }
+        }
+
+        .success-badge {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, var(--success-color), #20c997);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 30px rgba(40, 167, 69, 0.3);
+            position: relative;
+        }
+
+        .success-badge::before {
+            content: '';
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            background: rgba(40, 167, 69, 0.1);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1.3);
+                opacity: 0;
+            }
+        }
+
+        .checkmark {
+            font-size: 3rem;
+            color: white;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Success Message */
+        .success-title {
+            color: var(--primary-solid);
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .success-message {
+            color: #6c757d;
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 0.5rem;
+        }
+
+        .user-email {
+            color: var(--primary-solid);
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Order Info Box */
+        .order-info-box {
+            background: var(--light-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border: 1px solid #e9ecef;
+        }
+
+        .order-detail {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .order-detail:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .detail-value {
+            color: var(--primary-solid);
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .order-id-value {
+            color: var(--success-color);
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .delivery-date {
+            color: var(--danger-color);
+            font-weight: 600;
+        }
+
+        /* Invoice Button */
+        .invoice-btn {
+            background: white;
+            border: 2px solid var(--primary-solid);
+            color: var(--primary-solid);
+            padding: 0.8rem 2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            margin: 1rem 0.5rem;
+        }
+
+        .invoice-btn:hover {
+            background: var(--primary-solid);
+            color: white;
+            text-decoration: none;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 57, 66, 0.2);
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            background: var(--primary-solid);
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            min-width: 200px;
+            justify-content: center;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 57, 66, 0.2);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--primary-solid);
+            border: 2px solid var(--primary-solid);
+            padding: 0.8rem 2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            min-width: 200px;
+            justify-content: center;
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary-solid);
+            color: white;
+            text-decoration: none;
+            transform: translateY(-2px);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .success-container {
+                padding: 2rem 1.5rem;
+            }
+
+            .success-title {
+                font-size: 1.6rem;
+            }
+
+            .success-icon {
+                width: 80px;
+                height: 80px;
+            }
+
+            .success-badge {
+                width: 80px;
+                height: 80px;
+            }
+
+            .checkmark {
+                font-size: 2.5rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .btn-primary,
+            .btn-secondary {
+                width: 100%;
+            }
+        }
+    </style>
+{% endblock extra_css %}
+
+{% block body %}
+    <div class="success-container">
+        
+        <!-- Success Icon -->
+        <div class="success-icon">
+            <div clit ass="success-badge">
+                <i class="fas fa-check checkmark"></i>
+            </div>
+        </div>
+
+        <!-- Success Message -->
+        <h1 class="success-title">Your order is placed</h1>
+        <p class="success-message">Thank you for your payment.</p>
+        <p class="success-message">Order invoice sent to your email!</p>
+        <p class="user-email">{{ order.user.email|default:"muhammedshifil@gmail.com" }}</p>
+
+        <!-- Order Information -->
+        <div class="order-info-box">
+            <div class="order-detail">
+                <span class="detail-label">Order ID</span>
+                <span class="detail-value order-id-value">{{ order.order_id }}</span>
+            </div>
+            <div class="order-detail">
+                <span class="detail-label">Order Date</span>
+                <span class="detail-value">{{ order.created_at|date:"F d, Y" }}</span>
+            </div>
+            <div class="order-detail">
+                <span class="detail-label">Total Amount</span>
+                <span class="detail-value">₹{{ order.total }}</span>
+            </div>
+            <div class="order-detail">
+                <span class="detail-label">Payment Method</span>
+                <span class="detail-value">{{ order.get_payment_method_display }}</span>
+            </div>
+            <div class="order-detail">
+                <span class="detail-label">Estimated Delivery</span>
+                <span class="detail-value delivery-date">{{ estimated_delivery|date:"F d, Y"|default:"August 12, 2025" }}</span>
+            </div>
+        </div>
+
+        <a href="#" class="invoice-btn" download>
+            <i class="fas fa-file-invoice"></i>
+            Download Invoice
+        </a>
+
+
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <a href="{% url 'home' %}" class="btn-secondary">
+                <i class="fas fa-shopping-bag"></i>
+                Back to Purchase
+            </a>
+            <a href="{% url 'order_list' %}" class="btn-primary">
+                <i class="fas fa-receipt"></i>
+                Back to Orders
+            </a>
+        </div>
+    </div>
+{% endblock body %}
+
+{% block extra_js %}
+    <script>
+
+    </script>
+{% endblock extra_js %}
+
+{# 
+Sample Django View for this page:
+
+@login_required
+def order_success(request, order_id):
+    order = get_object_or_404(Order, order_id=order_id, user=request.user)
+    
+    # Calculate estimated delivery (e.g., 7 days from now)
+    from datetime import timedelta
+    estimated_delivery = order.created_at + timedelta(days=7)
+    
+    context = {
+        'order': order,
+        'estimated_delivery': estimated_delivery,
+    }
+    return render(request, 'order_success.html', context)
+
+
+# Invoice Download View
+@login_required
+def download_invoice(request, order_id):
+    order = get_object_or_404(Order, order_id=order_id, user=request.user)
+    
+    # Create PDF
+    buffer = io.BytesIO()
+    p = canvas.Canvas(buffer, pagesize=letter)
+    
+    # Add content to PDF
+    p.setFont("Helvetica-Bold", 24)
+    p.drawString(100, 750, "INVOICE")
+    
+    p.setFont("Helvetica", 12)
+    p.drawString(100, 720, f"Order ID: {order.order_id}")
+    p.drawString(100, 700, f"Date: {order.created_at.strftime('%Y-%m-%d')}")
+    p.drawString(100, 680, f"Customer: {order.user.full_name}")
+    p.drawString(100, 660, f"Email: {order.user.email}")
+    
+    # Add items
+    y = 620
+    p.drawString(100, y, "Items:")
+    y -= 20
+    for item in order.items.all():
+        p.drawString(120, y, f"{item.variant.product.name} x {item.quantity} = ₹{item.get_subtotal()}")
+        y -= 20
+    
+    # Total
+    y -= 20
+    p.drawString(100, y, f"Total: ₹{order.total}")
+    
+    p.showPage()
+    p.save()
+    
+    buffer.seek(0)
+    response = HttpResponse(buffer, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="invoice_{order.order_id}.pdf"'
+    
+    return response
+#}

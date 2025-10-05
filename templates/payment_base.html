@@ -543,40 +543,6 @@
         });
     }
 
-    // Process Payment Function
-    function processPayment(method) {
-        const button = event.target;
-        const originalText = button.innerHTML;
-        
-        // Show loading state
-        button.classList.add('btn-loading');
-        button.innerHTML = 'Processing...';
-        
-        // Simulate payment processing
-        setTimeout(() => {
-            button.classList.remove('btn-loading');
-            button.innerHTML = originalText;
-            
-            switch(method) {
-                case 'razorpay':
-                    showMessage('Redirecting to Razorpay gateway...', 'info');
-                    // Simulate Razorpay integration
-                    setTimeout(() => {
-                        showMessage('Payment gateway would open here', 'success');
-                    }, 1500);
-                    break;
-                case 'cod':
-                    showMessage('Order placed successfully! Cash on Delivery selected.', 'success');
-                    break;
-                case 'wallet':
-                    showMessage('Processing wallet payment...', 'info');
-                    setTimeout(() => {
-                        showMessage('Payment successful via wallet!', 'success');
-                    }, 2000);
-                    break;
-            }
-        }, 1500);
-    }
 
     // Show Message Function
     function showMessage(message, type = 'success') {

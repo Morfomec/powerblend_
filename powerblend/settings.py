@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     "wishlist",
     "payments",
     "user_profile",
+    "orders",
 
     "widget_tweaks",
 

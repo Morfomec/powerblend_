@@ -1,0 +1,207 @@
+{% extends 'payment_base.html' %}
+{% load static %}
+
+{% block title %}Order Cancelled- POWERBLEND{% endblock %}
+
+{% block extra_css %}
+
+  <style>
+        :root {
+            --primary-color: rgba(0, 57, 66, 0.8);
+            --primary-solid: rgb(0, 57, 66);
+            --light-bg: #f8f9fa;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --info-color: #17a2b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-bg);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .success-container {
+            background: white;
+            border-radius: 16px;
+            padding: 60px 40px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .success-icon {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 30px;
+            position: relative;
+            animation: scaleIn 0.5s ease-out;
+        }
+
+        @keyframes scaleIn {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .success-icon svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .badge-circle {
+            fill: var(--success-color);
+            opacity: 0.2;
+        }
+
+        .badge-inner {
+            fill: var(--success-color);
+        }
+
+        .checkmark {
+            stroke: white;
+            stroke-width: 3;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            animation: checkmark 0.5s ease-out 0.3s forwards;
+            stroke-dasharray: 50;
+            stroke-dashoffset: 50;
+        }
+
+        @keyframes checkmark {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        .success-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .success-message {
+            font-size: 15px;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .email-text {
+            font-size: 15px;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 40px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 14px 30px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-outline {
+            background: white;
+            color: var(--danger-color);
+            border: 2px solid var(--danger-color);
+        }
+
+        .btn-outline:hover {
+            background: var(--danger-color);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+        }
+
+        .btn-primary {
+            background: var(--danger-color);
+            color: white;
+            border: 2px solid var(--danger-color);
+        }
+
+        .btn-primary:hover {
+            background: #c82333;
+            border-color: #c82333;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .success-container {
+                padding: 40px 30px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+{% endblock extra_css %}
+
+{% block body %}
+
+    <div class="success-container">
+        <div class="success-icon">
+            <svg viewBox="0 0 100 100">
+                <circle class="badge-circle" cx="50" cy="50" r="45"/>
+                <circle class="badge-inner" cx="50" cy="50" r="35"/>
+                <path class="checkmark" d="M30 50 L42 62 L70 38"/>
+            </svg>
+        </div>
+
+        <h1 class="success-title">Your order is cancelled</h1>
+        
+        <p class="success-message">
+            Thank you for your payment.<br>
+            Order invoice send to your email
+        </p>
+        
+        <p class="email-text">muhammedshifl@gmail.com</p>
+
+        <div class="button-group">
+            <a href="{% url 'user_dashboard' %}" class="btn btn-outline">BACK TO HOME</a>
+            <a href="#" class="btn btn-primary">ORDER DETAILS</a>
+        </div>
+    </div>
+{% endblock body %}
+
+{% block extra_js %}
+
+{% endblock extra_js %}

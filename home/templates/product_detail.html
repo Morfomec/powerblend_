@@ -698,14 +698,14 @@
                         <strong>PROTEIN SALE</strong> | GET EXTRA 15% OFF ON CREATINE | Use code: <strong>CREATINE15</strong>
                     </div>
                     
-                    <div class="quantity-section">
+                    <!-- <div class="quantity-section">
                         <div class="section-label">Quantity:</div>
                         <div class="qty-controls">
                             <button type="button" class="qty-btn">−</button>
-                            <input type="number" value="1" class="qty-input">
+                            <input type="number" value="1" max="{{ product.stock }}" class="qty-input">
                             <button type="button" class="qty-btn">+</button>
                         </div>
-                    </div>
+                    </div> -->
                     
                     <div class="row">
                         <div class="col-10">
@@ -727,11 +727,20 @@
                     
                     <div class="stock-info">
                         <i class="fas fa-check me-2"></i>
-                        {% if product.stock and product.stock > 0 %}
+                        
+                    <!-- {% for variant in variants %}
+                        {% if variant.stock and variant.stock > 0 %}
                             In stock | Usually dispatched within 24 hours
                         {% else %}
                             Out of stock
                         {% endif %}
+                    {% endfor %}' -->
+                    
+                    {% if product.total_stock > 0 %}
+                        In stock | Usually dispatched within 24 hours
+                    {% else %}
+                        Out of stock
+                    {% endif %}
                     </div>
                 </div>
             </div>
