@@ -165,6 +165,7 @@ def detail_product(request, id):
         "unique_weights" : unique_weights,
         "current_url" : request.path,
         'wishlist_variant_ids': list(wishlist_variant_ids),
+        'user_authenticated' : request.user.is_authenticated,
 }
 
     return render(request, "product_detail.html", context)

@@ -126,6 +126,91 @@
     .form-check {
         margin-bottom: 1rem;
     }
+
+    .image-upload-area {
+    border: 2px dashed #e0e0e0;
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: var(--light-bg);
+    }
+
+    .image-upload-area:hover {
+        border-color: var(--primary-solid);
+        background: rgba(0, 57, 66, 0.05);
+    }
+
+    #imagePreview {
+        margin-top: 1.5rem;
+    }
+
+    .preview-box {
+        border: 2px solid var(--primary-solid);
+        border-radius: 12px;
+        padding: 1rem;
+        background: white;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .preview-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid var(--light-bg);
+    }
+
+    .preview-title {
+        color: var(--primary-solid);
+        font-weight: 600;
+        font-size: 1rem;
+    }
+
+    .remove-btn {
+        background: var(--danger-color);
+        color: white;
+        border: none;
+        padding: 0.4rem 0.8rem;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        transition: all 0.3s ease;
+    }
+
+    .remove-btn:hover {
+        background: #c82333;
+        transform: scale(1.05);
+    }
+
+    .image-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: var(--light-bg);
+        border-radius: 8px;
+        padding: 1rem;
+        min-height: 200px;
+    }
+
+    .preview-image {
+        max-width: 100%;
+        max-height: 300px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .image-info {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e0e0e0;
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
     .form-check-input {
         width: 1.25rem;
         height: 1.25rem;
@@ -279,18 +364,21 @@
                 <!-- Image Upload -->
                 <div class="form-group">
                     <label for="image" class="form-label">Category Image</label>
-                    <div class="image-upload-area" id="imageUploadArea">
+                    <div class="image-upload-area" id="imageUploadArea" onclick="document.getElementById('image').click()">
                         <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
                         <p class="text-muted mb-2">Click to select image or drag and drop</p>
                         <p class="text-muted small">Supported formats: JPG, PNG, GIF (Max: 5MB)</p>
                         <input type="file" class="form-control d-none" id="image" name="image" 
-                               accept="image/*">
+                            accept="image/*" onchange="previewCategoryImage(event)">
                     </div>
+                    
+                    <!-- Image Preview Box -->
                     <div id="imagePreview"></div>
+                    
                     {% if form.image.errors %}
                         <div class="text-danger mt-1">{{ form.image.errors.0 }}</div>
                     {% endif %}
-                </div>
+                </div>  
 
                 <!-- Status -->
                 <div class="form-group">
@@ -337,15 +425,15 @@ document.addEventListener("DOMContentLoaded", function () {
     const imagePreview = document.getElementById('imagePreview');
 
     // Auto-generate slug from name
-//     nameInput.addEventListener('input', function() {
-//         const name = this.value;
-//         const slug = name.toLowerCase()
-//                         .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
-//                         .replace(/\s+/g, '-') // Replace spaces with hyphens
-//                         .replace(/-+/g, '-') // Replace multiple hyphens with single
-//                         .trim('-'); // Remove leading/trailing hyphens
-//         slugInput.value = slug;
-//     });
+    nameInput.addEventListener('input', function() {
+        const name = this.value;
+        const slug = name.toLowerCase()
+                        .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+                        .replace(/\s+/g, '-') // Replace spaces with hyphens
+                        .replace(/-+/g, '-') // Replace multiple hyphens with single
+                        .trim('-'); // Remove leading/trailing hyphens
+        slugInput.value = slug;
+    });
 
 //     // Image upload functionality
 //     imageUploadArea.addEventListener('click', function() {
@@ -443,5 +531,119 @@ document.addEventListener("DOMContentLoaded", function () {
 //         document.getElementById('imagePreview').innerHTML = '';
 //     }
 // }
+
+
+</script>
+
+<script>
+document.getElementById("name").addEventListener("input", function() {
+    let name = this.value;
+    // Convert name to slug: lowercase, replace spaces with '-', remove invalid chars
+    let slug = name.toLowerCase()
+                   .trim()
+                   .replace(/\s+/g, '-')      // replace spaces with -
+                   .replace(/[^\w-]+/g, '')   // remove non-word chars
+                   .replace(/--+/g, '-')      // replace multiple - with single -
+                   .replace(/^-+|-+$/g, '');  // remove leading/trailing -
+    document.getElementById("slug").value = slug;
+});
+</script>
+
+<script>
+// Image Preview Function
+function previewCategoryImage(event) {
+    const file = event.target.files[0];
+    const previewContainer = document.getElementById('imagePreview');
+    
+    if (file) {
+        // Validate file size (5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            alert('File size must be less than 5MB');
+            event.target.value = '';
+            return;
+        }
+        
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+            alert('Please select a valid image file');
+            event.target.value = '';
+            return;
+        }
+        
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            // Calculate file size in KB/MB
+            const fileSize = file.size < 1024 * 1024 
+                ? (file.size / 1024).toFixed(2) + ' KB'
+                : (file.size / (1024 * 1024)).toFixed(2) + ' MB';
+            
+            // Create preview box
+            previewContainer.innerHTML = `
+                <div class="preview-box">
+                    <div class="preview-header">
+                        <span class="preview-title">
+                            <i class="fas fa-image me-2"></i>Image Preview
+                        </span>
+                        <button type="button" class="remove-btn" onclick="removeImage()">
+                            <i class="fas fa-times me-1"></i>Remove
+                        </button>
+                    </div>
+                    <div class="image-container">
+                        <img src="${e.target.result}" class="preview-image" alt="Preview">
+                    </div>
+                    <div class="image-info">
+                        <span><i class="fas fa-file-alt me-1"></i>${file.name}</span>
+                        <span><i class="fas fa-weight me-1"></i>${fileSize}</span>
+                    </div>
+                </div>
+            `;
+            
+            // Hide upload area
+            document.getElementById('imageUploadArea').style.display = 'none';
+        };
+        
+        reader.readAsDataURL(file);
+    }
+}
+
+// Remove Image Function
+function removeImage() {
+    document.getElementById('image').value = '';
+    document.getElementById('imagePreview').innerHTML = '';
+    document.getElementById('imageUploadArea').style.display = 'block';
+}
+
+// Drag and Drop Support
+const uploadArea = document.getElementById('imageUploadArea');
+
+uploadArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadArea.style.borderColor = 'var(--primary-solid)';
+    uploadArea.style.background = 'rgba(0, 57, 66, 0.05)';
+});
+
+uploadArea.addEventListener('dragleave', () => {
+    uploadArea.style.borderColor = '#e0e0e0';
+    uploadArea.style.background = 'var(--light-bg)';
+});
+
+uploadArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadArea.style.borderColor = '#e0e0e0';
+    uploadArea.style.background = 'var(--light-bg)';
+    
+    const file = e.dataTransfer.files[0];
+    if (file) {
+        document.getElementById('image').files = e.dataTransfer.files;
+        previewCategoryImage({ target: { files: [file] } });
+    }
+});
+
+// Reset Form Function
+function resetForm() {
+    document.getElementById('categoryForm').reset();
+    removeImage();
+}
 </script>
 {% endblock extra_js %}

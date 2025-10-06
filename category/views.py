@@ -5,10 +5,17 @@ from django.views.decorators.cache import cache_control, never_cache
 from django.utils import timezone
 from utils.pagination import get_pagination
 from .models import Category
+from django.contrib.admin.views.decorators import staff_member_required
+from django.utils.text import slugify
+
+from PIL import Image
+from io import BytesIO
+from django.core.files.base import ContentFile
 
 # Create your views here.
 
 # @login_required
+@staff_member_required
 def admin_category(request):
 
   """
@@ -49,7 +56,7 @@ def admin_category(request):
   return render(request, 'category_management.html', context)
 
 
-
+@staff_member_required
 def add_category(request):
   """
   TO handle both GET and POST requests for adding a new category
@@ -64,7 +71,8 @@ def add_category(request):
     is_active = request.POST.get('is_active') in ["on" , "true", "1", True]
 
 
-    if not name or not slug:
+    if not name and not slug:
+      slug = slugify(name)
       messages.error(request, "Category name and slug are required fields.")
 
       #repopulating the form with existing data to avoid losing it
@@ -76,10 +84,19 @@ def add_category(request):
           'description':{'value':description},
           'parent':{'value':parent_id},
           'is_active':{'value':is_active},
+          'image' : {'value' : image},
         },
         'parent_categories':category.objects.filter(parent__isnull=True),
       }
       return render(request, 'add_category.html', context)
+
+    if image:
+      img = Image.open(image)
+      img = img.convert('RGB')
+      img = img.resize((300, 300), Image.Resampling.LANCZOS)
+      img_io =BytesIO()
+      img.save(img_io, format='JPEG', quality=90)
+      image = ContentFile(img_io.getvalue(), name=image.name)
     
     parent = None
     if parent_id:
@@ -91,18 +108,19 @@ def add_category(request):
         return redirect('add_category')
 
     try:
-      if Category.objects.filter(name=name).exists():
+      if Category.objects.filter(name__exact=name).exists():
         messages.error(request, f"A category with the name '{name}' already exists.")
         return redirect('add_category')
-      if Category.objects.filter(slug=slug).exists():
+      if Category.objects.filter(slug__exact=slug).exists():
         messages.error(request, f"A category with the slug '{slug}' already exists.")
         return redirect('add_category')
+
       
 
       #creating and saving name and slug
       new_category = Category(
         name=name,
-        slug=slug,
+        # slug=slug,
         description=description,
         parent=parent,
         image=image,
@@ -128,7 +146,7 @@ def add_category(request):
   return render(request, 'add_category.html', context)
 
 
-
+@staff_member_required
 def edit_category(request, category_id):
   """
   Handle both GET and POST requests for editing an existing category.
@@ -210,7 +228,7 @@ def edit_category(request, category_id):
     }
     return render(request, 'add_category.html', context)
 
-
+@staff_member_required
 def toggle_listing(request, category_id):
   category = get_object_or_404(Category, id=category_id)
   category.is_active =not category.is_active

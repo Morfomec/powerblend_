@@ -559,6 +559,123 @@
             opacity: 0.1; /* default is 0.5 */
         }
 
+        /* Authentication Modal */
+        .auth-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .auth-modal-overlay.active {
+            display: flex;
+        }
+
+        .auth-modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 2.5rem;
+            max-width: 450px;
+            width: 90%;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            animation: modalSlideUp 0.3s ease-out;
+        }
+
+        @keyframes modalSlideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .auth-modal-icon {
+            width: 70px;
+            height: 70px;
+            margin: 0 auto 1.5rem;
+            background: linear-gradient(135deg, var(--primary-teal), rgba(0, 57, 66, 0.8));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .auth-modal-icon i {
+            font-size: 2rem;
+            color: white;
+        }
+
+        .auth-modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-teal);
+            margin-bottom: 0.75rem;
+        }
+
+        .auth-modal-message {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 2rem;
+            line-height: 1.5;
+        }
+
+        .auth-modal-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .auth-modal-btn {
+            flex: 1;
+            padding: 0.875rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .auth-modal-btn-primary {
+            background: var(--primary-teal);
+            color: white;
+        }
+
+        .auth-modal-btn-primary:hover {
+            background: rgba(0, 57, 66, 0.9);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 57, 66, 0.3);
+        }
+
+        .auth-modal-btn-secondary {
+            background: white;
+            color: var(--primary-teal);
+            border: 2px solid var(--primary-teal);
+        }
+
+        .auth-modal-btn-secondary:hover {
+            background: var(--primary-teal);
+            color: white;
+        }
+
+        @media (max-width: 576px) {
+            .auth-modal-buttons {
+                flex-direction: column;
+            }
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .selector-buttons {
@@ -709,6 +826,7 @@
                     
                     <div class="row">
                         <div class="col-10">
+                            {% if user.is_authenticated %}
                                 <form id="add-to-basket-form" method="POST" action="{% url 'basket_add' %}">
                                     {% csrf_token %}
                                     <input type="hidden" name="variant_id" value="{{ default_variant.id }}">
@@ -717,6 +835,11 @@
                                         <i class="fas fa-shopping-basket me-2"></i>ADD TO BASKET
                                     </button>
                                 </form>
+                            {% else %}
+                                <button type="button" class="add-to-basket" onclick="openAuthModal()">
+                                    <i class="fas fa-shopping-basket me-2"></i>ADD TO BASKET
+                                </button>
+                            {% endif %}
                         </div>
                         <div class="col-2">
                             <button class="wishlist-btn w-100">
@@ -765,6 +888,24 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Authentication Required Modal -->
+            <div class="auth-modal-overlay" id="authModal">
+                <div class="auth-modal-content">
+                    <div class="auth-modal-icon">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <h3 class="auth-modal-title">Sign in Required</h3>
+                    <p class="auth-modal-message">Wish to continue? Please sign in to access this feature.</p>
+                    <div class="auth-modal-buttons">
+                        <button type="button" class="auth-modal-btn auth-modal-btn-secondary" onclick="closeAuthModal()">
+                            <i class="fas fa-arrow-left me-2"></i>Go Back
+                        </button>
+                        <a href="{% url 'login' %}" class="auth-modal-btn auth-modal-btn-primary">
+                            <i class="fas fa-sign-in-alt me-2"></i>Sign In
+                        </a>
                     </div>
                 </div>
             </div>
@@ -1026,6 +1167,7 @@
                     <p>Creatine monohydrate is the most researched and proven form of creatine. It's been shown to be safe and effective in hundreds of studies. Other forms may claim advantages, but monohydrate remains the gold standard.</p>
                 </div>
             </div>
+
         </div>
         {% if request.session.show_login_modal %}
         <script>
@@ -1205,6 +1347,53 @@ document.getElementById("add-to-basket-form").addEventListener("submit", functio
             modal.show();
         }
     });
+});
+</script>
+
+<script>
+// Open Authentication Modal
+function openAuthModal() {
+    document.getElementById('authModal').classList.add('active');
+    document.body.style.overflow = 'hidden'; // Prevent scrolling
+}
+
+// Close Authentication Modal
+function closeAuthModal() {
+    document.getElementById('authModal').classList.remove('active');
+    document.body.style.overflow = 'auto'; // Restore scrolling
+}
+
+// Close modal when clicking outside
+document.getElementById('authModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeAuthModal();
+    }
+});
+
+// Example: Trigger modal on wishlist button if not authenticated
+document.addEventListener('DOMContentLoaded', function() {
+    const wishlistBtn = document.querySelector('.wishlist-btn');
+    
+    if (wishlistBtn) {
+        wishlistBtn.addEventListener('click', function(e) {
+            {% if not user.is_authenticated %}
+                e.preventDefault();
+                openAuthModal();
+            {% else %}
+                // Handle wishlist logic for authenticated users
+                const icon = this.querySelector('i');
+                if (icon.classList.contains('far')) {
+                    icon.classList.remove('far');
+                    icon.classList.add('fas');
+                    this.style.color = '#dc3545';
+                } else {
+                    icon.classList.remove('fas');
+                    icon.classList.add('far');
+                    this.style.color = 'var(--primary-teal)';
+                }
+            {% endif %}
+        });
+    }
 });
 </script>
 

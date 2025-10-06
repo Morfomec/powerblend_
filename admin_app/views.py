@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import cache_control, never_cache
 from django.contrib.auth import get_user_model
 from utils.pagination import get_pagination
+from django.contrib.admin.views.decorators import staff_member_required
 
 User = get_user_model ()
 
@@ -29,19 +30,19 @@ def admin_login(request):
             messages.error(request, ' Invalid credentials or not an admin user.')
     return render(request, 'admin_login.html')
 
-@login_required
+@staff_member_required
 def admin_dashboard(request):
     return render(request, 'dashboard.html', {'users' : request.user, 'active_page':'dashboard'})
     # return render(request, 'admin/dashboard.html', {'users' : request.user})
     
-
+@login_required
 def admin_logout(request):
     # logs out the user
     logout(request)
     # redirect to admin login page
     return redirect('admin_login')
 
-@login_required
+@staff_member_required
 def admin_user(request):
     # User = get_user_model()
 
@@ -81,10 +82,57 @@ def admin_user(request):
 
     return render(request, 'user_management.html', context)
 
-
+@login_required
 def toggle_user_status(request, user_id):
     user = get_object_or_404(User, id=user_id)
     user.is_active = not user.is_active
     user.save()
     return redirect('admin_user')
 
+
+
+@staff_member_required
+def admin_settings(request):
+    """
+    Allow admin user to view and update their profile settings. 
+    Pulling data directly from the the existing Customuser modeal.
+    """
+
+    #to get the current logged in staff user
+    user = request.user
+
+    if request.method == 'POST':
+        full_name = request.POST.get('full_name')
+        email = request.POST.get('email')
+        mobile = request.POST.get('mobile')
+        country = request.POST.get('country')
+        date_of_birth = request.POST.get('date_of_birth')
+        gender = request.POST.get('gender')
+
+        #to update only if data is provided
+        if full_name:
+            user.full_name = full_name
+        if email:
+            user.email = email
+        if mobile:
+            user.mobile = mobile
+        if country:
+            user.country = country
+        if date_of_birth :
+            user.date_of_birth = date_of_birth
+        if gender:
+            user.gender = gender
+        
+        #to hnadle profile images
+        if 'profile_image' in request.FILES:
+            user.profile_image = request.FILES['profile_image']
+
+        user.save()
+        messages.success(request, "Profile updated successfully!")
+        return redirect('admin_dashboard')
+    
+    context = {
+        'user': user,
+    }
+
+    return render(request, 'admin_settings.html', context)

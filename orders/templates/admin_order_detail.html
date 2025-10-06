@@ -274,9 +274,17 @@
 
 {% block body %}
 <div class="admin-container">
-    <a href="{% url 'admin_order_list' %}" class="back-link">
-        <i class="fas fa-arrow-left"></i> Back to Orders
-    </a>
+    <div class="content-card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                <h4 class="mb-1" style="color: var(--primary-solid); font-weight: 700;">Account Settings</h4>
+                <p class="mb-0 text-muted" style="font-size: 0.9rem;">Manage your profile and account preferences</p>
+            </div>
+            <a href="{% url 'admin_order_list' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Orders
+            </a>
+        </div>
+    </div>
 
     <!-- Messages -->
     {% if messages %}

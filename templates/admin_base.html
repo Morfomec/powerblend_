@@ -13,6 +13,9 @@
     <!-- External JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+
+
     <!-- Static CSS -->
     <link rel="stylesheet" href="{% static 'css/admin_base.css' %}">
     {% block extra_css %}{% endblock %}
@@ -22,7 +25,7 @@
         <div class="row">
 
             <!-- Messages -->
-            {% if messages %}
+            <!-- {% if messages %}
             <div class="messages-container">
                 {% for message in messages %}
                 <div class="alert alert-{{ message.tags }} text-uppercase text-center fade-message">
@@ -31,12 +34,12 @@
                 </div>
                 {% endfor %}
             </div>
-            {% endif %}
+            {% endif %} -->
 
             <!-- Sidebar -->
             <div class="col-md-2 p-0">
                 <div class="sidebar">
-                    <div class="sidebar-header">ADMIN DASHBOARD</div>
+                    <div class="sidebar-header">POWERBLEND</div>
                     <ul class="sidebar-menu">
 
                         <!-- Dashboard -->
@@ -100,7 +103,7 @@
                         <!-- Coupon, Reports, Settings -->
                         <li><a href="#"><i class="fas fa-percent"></i> Coupon</a></li>
                         <li><a href="#"><i class="fas fa-chart-bar"></i> Reports</a></li>
-                        <li><a href="#"><i class="fas fa-cog"></i> Settings</a></li>
+                        <li><a href="{% url 'admin_settings' %}"><i class="fas fa-cog"></i> Settings</a></li>
 
                         <!-- Logout -->
                         <li>
@@ -123,7 +126,7 @@
                 <div class="top-navbar">
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="welcome-section">
-                            <h5 class="mb-0">POWER</h5>
+                            <h5 class="mb-0"></h5>
                         </div>
                         <div class="nav-actions d-flex align-items-center">
 
@@ -134,10 +137,15 @@
                             </div>
 
                             <!-- Profile -->
-                            <div class="profile-section d-flex align-items-center">
-                                <img src="https://via.placeholder.com/40x40/28a745/ffffff?text=U" alt="Profile" class="profile-pic me-2">
+                            <a href="{% url 'admin_settings' %}" class="profile-section d-flex align-items-center" style="text-decoration: none;">
+                                {% if request.user.profile_image %}
+                                    <img src="{{ request.user.profile_image.url }}" alt="Profile" class="profile-pic me-2">
+                                {% else %}
+                                    <img src="/static/images/default-profile.png" alt="Profile" class="profile-pic me-2">
+                                {% endif %}
                                 <span class="profile-name">{{ request.user }}</span>
-                            </div>
+                            </a>
+                            
 
                         </div>
                     </div>
@@ -153,5 +161,25 @@
     {% block extra_js %}{% endblock extra_js %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script src="{% static 'js/admin_base.js' %}"></script>
+    <!-- Include jQuery, Bootstrap, Toastr -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+<script>
+    toastr.options = {
+        "closeButton": true,
+        "progressBar": true,
+        "positionClass": "toast-top-right",
+        "timeOut": "3000"
+    };
+
+    {% if messages %}
+        {% for message in messages %}
+            toastr["{{ message.tags|default:'info' }}"]("{{ message|escapejs }}");
+        {% endfor %}
+    {% endif %}
+</script>
+
 </body>
 </html>

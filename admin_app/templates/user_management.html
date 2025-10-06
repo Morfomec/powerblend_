@@ -219,11 +219,16 @@
 {% block body %} 
 
 
-    <div class="container-fluid">
+    <div class="container-fluid mb-4">
         <!-- Page Header -->
-        <div class="page-header">
+        <div class="page-header d-flex justify-content-between align-items-center">
+            <div>
             <h1 class="page-title">User Management</h1>
             <p class="page-subtitle">Manage and monitor all registered users on your platform</p>
+            </div>
+            <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+            </a>
         </div>
 
         <!-- Users Table -->

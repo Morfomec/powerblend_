@@ -1,0 +1,235 @@
+{% extends 'admin_base.html' %}
+{% load static %}
+
+{% block title %}Admin Settings - POWERBLEND{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-image-container {
+        position: relative;
+        display: inline-block;
+    }
+
+    .profile-image-overlay {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        background: var(--primary-solid);
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        transition: all 0.3s ease;
+    }
+
+    .profile-image-overlay:hover {
+        transform: scale(1.1);
+        background: var(--primary-color);
+    }
+
+    .input-group-text {
+        border: 2px solid #e9ecef;
+    }
+
+    .form-control:focus {
+        border-color: var(--primary-solid);
+        box-shadow: 0 0 0 0.2rem rgba(0, 57, 66, 0.15);
+    }
+
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 57, 66, 0.3);
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid" style="padding: 2rem;">
+    
+    <!-- Page Header -->
+    <div class="content-card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                <h4 class="mb-1" style="color: var(--primary-solid); font-weight: 700;">Account Settings</h4>
+                <p class="mb-0 text-muted" style="font-size: 0.9rem;">Manage your profile and account preferences</p>
+            </div>
+            <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="row">
+            <!-- Left Column - Profile Image -->
+            <div class="col-md-4 mb-4">
+                <div class="content-card">
+                    <div class="card-body text-center">
+                        <h5 class="mb-4" style="color: var(--primary-solid); font-weight: 600;">Profile Picture</h5>
+                        
+                        <!-- Profile Image Display -->
+                        <div class="position-relative d-inline-block mb-3">
+                            <img 
+                                id="profileImagePreview"
+                                src="{% if user.profile_image %}{{ user.profile_image.url }}{% else %}{% static 'images/default-avatar.png' %}{% endif %}" 
+                                alt="Profile" 
+                                class="rounded-circle"
+                                style="width: 180px; height: 180px; object-fit: cover; border: 5px solid var(--primary-solid); box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                            
+                            <!-- Camera Icon Overlay -->
+                            <label for="profileImageInput" class="position-absolute" style="bottom: 10px; right: 10px; cursor: pointer;">
+                                <div style="background: var(--primary-solid); width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(0,0,0,0.2);">
+                                    <i class="fas fa-camera" style="color: white; font-size: 1.2rem;"></i>
+                                </div>
+                            </label>
+                            <input type="file" id="profileImageInput" name="profile_image" accept="image/*" style="display: none;" onchange="previewImage(event)">
+                        </div>
+
+                        <div class="mt-3">
+                            <h6 style="color: var(--primary-solid); font-weight: 600; margin-bottom: 0.25rem;">{{ user.username }}</h6>
+                            <p class="text-muted mb-2" style="font-size: 0.9rem;">{{ user.email }}</p>
+                            <span class="badge" style="background: rgba(0, 57, 66, 0.1); color: var(--primary-solid); padding: 0.5rem 1rem; border-radius: 20px;">
+                                <i class="fas fa-shield-alt me-1"></i>Administrator
+                            </span>
+                        </div>
+
+                        <!-- Account Info -->
+                        <div class="mt-4 pt-4" style="border-top: 2px solid var(--light-bg);">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span style="color: #6c757d; font-size: 0.85rem;">Last Login:</span>
+                                <span style="color: var(--primary-solid); font-weight: 600; font-size: 0.85rem;">
+                                    {{ user.last_login|date:"M d, Y H:i" }}
+                                </span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span style="color: #6c757d; font-size: 0.85rem;">Member Since:</span>
+                                <span style="color: var(--primary-solid); font-weight: 600; font-size: 0.85rem;">
+                                    {{ user.date_joined|date:"M d, Y" }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column - Edit Forms -->
+            <div class="col-md-8">
+                
+                <!-- Personal Information -->
+                <div class="content-card mb-4">
+                    <div class="card-header">
+                        <i class="fas fa-user-edit me-2"></i>Personal Information
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" style="font-weight: 600; color: var(--primary-solid);">
+                                    Full Name <span style="color: var(--danger-color);">*</span>
+                                </label>
+                                <input 
+                                    type="text" 
+                                    name="full_name" 
+                                    class="form-control" 
+                                    value="{{ user.full_name }}" 
+                                    placeholder="Enter your full name">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" style="font-weight: 600; color: var(--primary-solid);">
+                                    Email Address <span style="color: var(--danger-color);">*</span>
+                                </label>
+                                <input 
+                                    type="email" 
+                                    name="email" 
+                                    class="form-control" 
+                                    value="{{ user.email }}" 
+                                    placeholder="admin@powerblend.com">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" style="font-weight: 600; color: var(--primary-solid);">
+                                    Mobile Number
+                                </label>
+                                <input 
+                                    type="text" 
+                                    name="mobile" 
+                                    class="form-control" 
+                                    value="{{ user.mobile }}" 
+                                    placeholder="Enter mobile number">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" style="font-weight: 600; color: var(--primary-solid);">
+                                    Country
+                                </label>
+                                <input 
+                                    type="text" 
+                                    name="country" 
+                                    class="form-control" 
+                                    value="{{ user.country }}" 
+                                    placeholder="Enter country">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" style="font-weight: 600; color: var(--primary-solid);">
+                                    Date of Birth
+                                </label>
+                                <input 
+                                    type="date" 
+                                    name="date_of_birth" 
+                                    class="form-control" 
+                                    value="{{ user.date_of_birth|date:'Y-m-d' }}">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" style="font-weight: 600; color: var(--primary-solid);">
+                                    Gender
+                                </label>
+                                <select name="gender" class="form-control">
+                                    <option value="">Select Gender</option>
+                                    <option value="male" {% if user.gender == 'male' %}selected{% endif %}>Male</option>
+                                    <option value="female" {% if user.gender == 'female' %}selected{% endif %}>Female</option>
+                                    <option value="other" {% if user.gender == 'other' %}selected{% endif %}>Other</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="d-flex justify-content-end gap-3">
+                    <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary" style="padding: 0.75rem 2rem; border-radius: 8px; font-weight: 600;">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </a>
+                    <button type="submit" class="btn" style="background: var(--primary-solid); color: white; padding: 0.75rem 2rem; border-radius: 8px; font-weight: 600; border: none;">
+                        <i class="fas fa-save me-2"></i>Save Changes
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </form>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Image Preview Function
+    function previewImage(event) {
+        const input = event.target;
+        const preview = document.getElementById('profileImagePreview');
+        
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+            }
+            
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>
+{% endblock %}
