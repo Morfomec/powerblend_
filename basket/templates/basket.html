@@ -412,16 +412,36 @@
                         </div>
 
                         <div class="remove-link">
-                            <form action="{% url 'basket_remove' item.id %}" method="post" style="display:inline;">
+                            <form action="{% url 'basket_remove' item.variant_id %}" method="post" style="display:inline;">
                                 {% csrf_token %}
                                 <button type="submit" class="remove-link">Remove</button>
                             </form>
                         </div>
                     </div>
                 </div>
-                {% empty %}
-                    <p>Your basket is empty</p>
-                {% endfor %}
+            {% empty %}
+            <div class="basket-item summary-title"  style="text-align: center; padding: 50px 20px; ">
+                
+                <div class="container-flex ">
+                    <!-- <h2 style="color: #333; margin-bottom: 20px;">Your Basket is Empty</h2> -->
+                    <p style="color: black;  font-size: 25px; display: flex; justify-content: center; align-items: center;">
+                        Looks like you haven't added anything yet. 
+                </div>
+               
+            </div>
+             <a href="{% url 'home' %}" style="
+                    background: rgb(0 57 66 / 1);
+                    color: white;
+                    padding: 12px 25px;
+                    border-radius: 6px;
+                    font-weight: bold;
+                    text-decoration: none;
+                    display: inline-block;
+                ">
+                    Start Shopping Now
+                </a>
+            {% endfor %}
+
             </div>
 
             <div class="basket-summary">

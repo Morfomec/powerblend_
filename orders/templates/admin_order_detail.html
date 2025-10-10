@@ -171,6 +171,7 @@
         font-size: 1.1rem;
         font-weight: 700;
         color: var(--primary-solid);
+        margin-right: 50px;
     }
 
     .status-update-form {
@@ -381,7 +382,7 @@
         <div class="total-section">
             <div class="total-row">
                 <span>Total Amount:</span>
-                <span>₹{{ order.total|floatformat:2 }}</span>
+                <span>₹{{ order_total|floatformat:2 }}</span>
             </div>
         </div>
     </div>

@@ -5,7 +5,7 @@ from decimal import Decimal
 from django.db import transaction
 from django.contrib.auth.decorators import login_required
 from orders.models import Order
-
+from basket.models import Basket
 from orders.utils import decrement_stock
 
 
@@ -26,7 +26,7 @@ def checkout_view(request):
     order = None
 
     # to get basket
-    basket = getattr(request.user, 'basket', None)
+    basket = Basket.objects.filter(user=request.user).first()
 
     if not basket or not basket.items.exists():
         messages.error(request, "Your basket is empty!")
@@ -35,7 +35,7 @@ def checkout_view(request):
     #basket details
 
     basket_items = basket.items.select_related('variant', 'variant__product').all()
-    subtotal = basket.total_price * Decimal('0.95')
+    subtotal = basket.total_price
     total_items = basket.total_items
 
     #tax and shipping calculation
@@ -79,8 +79,8 @@ def checkout_view(request):
                 decrement_stock(item.variant, item.quantity)
         
 
-        #3. clear basket after order creation
-        # basket.items.all().delete()  
+            #3. clear basket after order creation
+            # basket_items.all().delete()  
 
         if payment_method == 'cod':
             return redirect('order_success', order_id=order.id)

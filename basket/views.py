@@ -40,6 +40,14 @@ class BasketAddView(View):
                     "error": "This product cannot be added to the cart."
                 }, status=403)
 
+            #remove from whishlist if exists and mark from_wishlist
+
+            wishlist_item = WishlistItem.objects.filter(wishlist__user=request.user, variant=variant).first()
+            if wishlist_item:
+                wishlist_item.delete()
+                from_wishlist = True
+            else:
+                from_wishlist = False
 
             # Get or create basket
             basket, _ = Basket.objects.get_or_create(user=request.user)
@@ -48,7 +56,7 @@ class BasketAddView(View):
             item, created = BasketItem.objects.get_or_create(
                 basket=basket,
                 variant=variant,
-                defaults={"quantity": quantity},
+                defaults={"quantity": quantity, "from_wishlist": from_wishlist},
             )
 
             if not created:
@@ -97,8 +105,20 @@ class BasketRemoveView(LoginRequiredMixin, View):
     def post(self, request, variant_id, *args, **kwargs):
         basket = get_object_or_404(Basket, user=request.user)
         item = get_object_or_404(BasketItem, basket=basket, variant_id=variant_id)
+        
+        #if an item came from wishlist it should go back if removing
+        if item.from_wishlist:
+            from wishlist.models import Wishlist, WishlistItem
+            wishlist, _ = Wishlist.objects.get_or_create(user=request.user)
+            WishlistItem.objects.get_or_create(wishlist=wishlist, variant=item.variant)
+
+
         item.delete()
         messages.success(request, "Item removed from the basket.")
+        
+        
+
+        
         return redirect(request.META.get('HTTP_REFERER', '/'))
 
 

@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .models import Wishlist, WishlistItem
+from basket.models import Basket, BasketItem
 from products.models import ProductVariant
 
 # Create your views here.
@@ -33,8 +34,34 @@ class WishlistRemoveView(LoginRequiredMixin, View):
         wishlist = get_object_or_404(Wishlist, user=request.user)
         item = get_object_or_404(WishlistItem, wishlist=wishlist, variant_id=variant_id)
         item.delete()
-        messages.success(request, "Item remove from the wishlist.")
-        return redirect(request.MET.get("HTTP_REFERER", "/"))
+        messages.success(request, "Item removed from the wishlist.")
+        return redirect(request.META.get("HTTP_REFERER", "/"))
+
+
+class MoveToBasketView(LoginRequiredMixin, View):
+    def post(self, request, variant_id, *args, **kwargs):
+        variant = get_object_or_404(ProductVariant, id=variant_id)
+
+        #get or create usr's basket
+        basket, _ = Basket.objects.get_or_create(user=request.user)
+
+        #add item to basket(if not there already)
+        basket_item, created = BasketItem.objects.get_or_create(
+            basket=basket,
+            variant=variant,
+            defaults = {'quantity':1, 'from_wishlist': True}
+        )
+        if not created:
+            basket_item.quantity += 1
+            basket_item.save()
+
+        #remove from wishlist if present
+        wishlist = Wishlist.objects.filter(user=request.user).first()
+        if wishlist:
+            WishlistItem.objects.filter(wishlist=wishlist, variant=variant).delete()
+
+        messages.success(request, f"{variant.product.name} movied to basket.")
+        return redirect(request.META.get("HTTP_REFERER", "/"))
 
 
 class WishlistDetailView(LoginRequiredMixin, View):
@@ -53,4 +80,5 @@ class WishlistDetailView(LoginRequiredMixin, View):
         }
 
         return render(request, "wishlist.html", context)
+
 

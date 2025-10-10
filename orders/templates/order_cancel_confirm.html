@@ -189,15 +189,14 @@
         <h1 class="success-title">Your order is cancelled</h1>
         
         <p class="success-message">
-            Thank you for your payment.<br>
-            Order invoice send to your email
+            A confirmation email has been sent to 
         </p>
         
-        <p class="email-text">muhammedshifl@gmail.com</p>
+        <p class="email-text">{{ user_email }}</p>
 
         <div class="button-group">
-            <a href="{% url 'user_dashboard' %}" class="btn btn-outline">BACK TO HOME</a>
-            <a href="#" class="btn btn-primary">ORDER DETAILS</a>
+            <a href="{% url 'order_list' %}" class="btn btn-outline">BACK TO ORDERS</a>
+            <a href="{% url 'order_details' order.id %}" class="btn btn-primary">ORDER DETAILS</a>
         </div>
     </div>
 {% endblock body %}

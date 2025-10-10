@@ -168,6 +168,7 @@
         transition: all 0.3s ease;
         flex: 1;
         cursor: pointer;
+        width: 310px;
     }
 
     .btn-add-to-cart:hover {
@@ -421,10 +422,12 @@
                         <div class="product-price">₹{{ item.variant.price }}</div>
                         
                         <div class="product-actions">
-                            <button class="btn btn-add-to-cart" onclick="addToCart('{{ item.variant.id }}')">
-                                <i class="fas fa-shopping-cart me-1"></i>Add to Cart
+                            <form action="{% url 'move_to_basket' item.variant.id %}" method="post">
+                                {% csrf_token %}
+                                <button class="btn btn-add-to-cart" onclick="addToCart('{{ item.variant.id }}')">
+                                <i class="fas fa-shopping-cart me-1"></i>Add to Basket
                             </button>
-                            
+                            </form>
                             <form action="{% url 'wishlist_remove' item.variant.id %}" method="post" class="d-inline">
                                 {% csrf_token %}
                                 <button type="submit" class="btn btn-remove" title="Remove from wishlist">
@@ -438,14 +441,14 @@
             </div>
 
             <!-- Clear all wishlist option -->
-            <div class="wishlist-actions mt-4 text-center">
+            <!-- <div class="wishlist-actions mt-4 text-center">
                 <form action="#" method="post" class="d-inline" onsubmit="return confirmClearAll()">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-outline-danger">
                         <i class="fas fa-trash-alt me-1"></i>Clear All Wishlist
                     </button>
                 </form>
-            </div>
+            </div> -->
 
         {% else %}
             <!-- Empty State -->

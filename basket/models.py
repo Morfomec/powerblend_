@@ -24,6 +24,9 @@ class BasketItem(models.Model):
     variant = models.ForeignKey(ProductVariant, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
 
+    # to track the item came from wishlist or not
+    from_wishlist = models.BooleanField(default=False)
+
     @property
     def subtotal(self):
         return self.variant.price * self.quantity

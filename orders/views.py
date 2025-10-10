@@ -19,6 +19,10 @@ from django.urls import reverse
 from django.core.paginator import Paginator
 from django.contrib.admin.views.decorators import staff_member_required
 
+from django.template.loader import render_to_string
+from weasyprint import HTML
+import tempfile
+
 # Create your views here.
 
 
@@ -26,6 +30,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 
 @login_required
 def order_success(request, order_id):
+
     order = get_object_or_404(Order, id=order_id, user=request.user)
     
     # Calculate estimated delivery (e.g., 7 days from now)
@@ -74,6 +79,15 @@ def order_details(request, order_id):
 
     order = get_object_or_404(Order, id=order_id, user=request.user)
 
+    progress_line_map = {
+        'confirmed' : 25,
+        'shipped' : 50,
+        'out_for_delivery' :75,
+        'delivered' : 100,
+    }
+    progress_percent = progress_line_map.get(order.status, 0)
+
+
     order_items = order.items.select_related('variant', 'variant__product').prefetch_related('variant__product__images').all()    
     estimated_delivery = order.created_at + timedelta(days=7)
 
@@ -82,21 +96,31 @@ def order_details(request, order_id):
     if order.user != request.user and not request.user.is_staff:
         raise Http404()
 
-    basket = getattr(request.user, 'basket', None)
-    #tax and shipping calculation
-    subtotal = basket.total_price * Decimal('0.95')
 
-    shipping = Decimal('0')
-    discount = Decimal('0')
+
+    active_items = order.items.filter(is_cancelled=False, is_returned=False)
+    
+    for item in order_items:
+        item.total_price = item.price * item.quantity
+    
+    subtotal = sum(item.price * item.quantity for item in active_items)
+
     taxes = subtotal * Decimal('0.12')
+
+    shipping=0
+    discount=0
+
     total = subtotal + taxes + shipping - discount
+
 
     context = {
         'order' : order,
         'order_items' : order_items ,
+        # 'order_items' : active_items,
         'estimated_delivery' : estimated_delivery,
         'shipping_address' : order.shipping_address,
-
+        'progress_percent' : progress_percent,
+        'subtotal' : subtotal,
         'shipping' : shipping,
         'discount' : discount,
         'taxes' : taxes,
@@ -114,15 +138,16 @@ def cancel_order(request, order_id):
     """
 
     order = get_object_or_404(Order, id=order_id, user=request.user)
-    
+    user_email = order.user.email
+
     #to prevent double cancellation
     if order.status in ['cancelled', 'returned']:
         messages.info(request, "This order can't be cancelled.")
-        return redirect('order_details', id=order.order_id)
+        return redirect('order_details', order_id=order.id)
 
-    if order.status not in ['pending', 'processing']:
-        messages.error(request, "This oder can't be cancelled.")
-        return redirect('order_details', id=order.order_id)
+    if order.status not in ['pending', 'processing', 'confirmed', 'partially_cancelled']:
+        messages.error(request, "This oder can't be cancelled at this stage.")
+        return redirect('order_details', order_id=order.id)
 
     print("Order status:", order.status)
 
@@ -162,6 +187,7 @@ def cancel_order(request, order_id):
     context = {
         'order' : order,
         'form' : form,
+        'user_email' : user_email,
     }
 
     return render(request, 'order_cancel_confirm.html', context)
@@ -170,30 +196,42 @@ def cancel_order(request, order_id):
 @login_required
 def cancel_item(request, order_id):
     """
-    cancel a single item
+    cancel a single item in an order
     """
-    order = get_object_or_404(Order, order_id=order_id, user=request.user)
+    order = get_object_or_404(Order, id=order_id, user=request.user)
 
     if request.method == 'POST':
         form = CancelItemForm(request.POST)
         if form.is_valid():
-            item = get_object_or_404(OrderItem, id=form.cleaned_data['itme_id'], order=order)
+            item_id = form.cleaned_data['item_id']
+            reason = form.cleaned_data['reason']
+            item = get_object_or_404(OrderItem, id=item_id, order=order)
             
             if item.is_cancelled:
-                return redirect('order_details' ,  order_id=order.order_id)
+                messages.warning(request, "This item has already been cancelled")
+                return redirect('order_details' ,  order_id=order.id)
 
             with transaction.atomic():
+                #restocking
                 increment_stock(item.variant, item.quantity)
-                item.is_returned = True
-                item.returned_reason = form.cleaned_data('reason')
-                item.returned_at = timezone.now()
-                item.save(update_fields=['is_cancelled', 'cancelled_reason', 'cancelled_at'])
 
+                #update cancellation info
+                item.is_cancelled = True
+                item.status = 'cancelled'
+                item.cancelled_reason = reason
+                item.cancelled_at = timezone.now()
+                item.save(update_fields=['is_cancelled', 'status' ,'cancelled_reason', 'cancelled_at'])
+
+                #update order total
                 order.recalc_total()
 
-            return redirect('order_details',order_id=order.order_id)
+                #update overall order status
+                order.update_status()
 
-    return redirect('order_details', order_id = order.order_id)
+            messages.success(request, f"{item.variant} has been cancelled successfully.")
+            return redirect('order_details',order_id=order.id)
+
+    return redirect('order_details', order_id = order.id)
 
 @login_required
 def return_item(request, order_id): 
@@ -224,7 +262,7 @@ def return_item(request, order_id):
             item.returned_at  = timezone.now()
             item.save(update_fields=['is_returned', 'returned_reason', 'returned_at'])
 
-            # if all itmes are either cancelled or returned , will mark whole order as returned
+            # if all items are either cancelled or returned , will mark whole order as returned
             if not order.items.filter(is_cancelled=False, is_returned=False).exists():
                 order.status = 'returned'
                 order.save(update_fields=['status'])
@@ -244,8 +282,9 @@ def return_item(request, order_id):
 
 ALLOWED_TRANSITIONS = {
     'pending' : ['confirmed', 'cancelled'],
-    'confirmed' : ['shipped', 'cancelled'],
-    'shipped' : ['delivered'],
+    'confirmed' : ['shipped', 'out_for_delivery', 'cancelled'],
+    'shipped' : ['out_for_delivery', 'delivered'],
+    'out_for_delivery' : ['delivered'],
     'delivered' : ['returned'],
     'cancelled' : [],
     'returned' : [],
@@ -304,12 +343,19 @@ def admin_order_detail(request, id):
 
     order_items = order.items.select_related('variant', 'variant__product').all()
 
+    #to get subtotal for each items (if there are 2 * product)
+    for item in order_items:
+        item.subtotal = item.price * item.quantity
+
+    order_total = sum(item.subtotal for item in order_items)
+
     #prepare form prefilled with current status
     form = AdminOrderStatusForm(initial={'status' : order.status})
 
     context = {
         'order' : order,
         'order_items' : order_items,
+        'order_total' : order_total,
         'form' : form,
     }
 
@@ -393,12 +439,20 @@ def admin_update_order_status(request, id):
             messages.success(request, f"Order {order.order_id} confirmed.")
 
         #shipped
-        elif new_status in ['shipped', 'delivered']:
+        elif new_status in ['shipped', 'out_for_delivery', 'delivered']:
 
             order.status = new_status
             order.save(update_fields=['status'])
+
+
+            if new_status == 'delivered':
+                for item in order.items.filter(is_cancelled=False, is_returned=False):
+                    item.status = 'delivered'
+                    item.save(update_fields=['status'])
             messages.success(request, f"Order {order.order_id} updated to {new_status}.")
 
+        
+        # elif new_status 
         else:
 
             order.status = new_status
@@ -406,3 +460,55 @@ def admin_update_order_status(request, id):
             messages.success(request, f"Order {order.order_id} updated.")
 
     return redirect('admin_order_detail', id=order.id)
+
+
+
+
+@login_required
+def download_invoice(request, order_id):
+    """
+    to generate and download PDF invoice for an order
+    """
+
+    #getting order first
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+
+    #gertting orders itam
+    order_items = order.items.select_related('variant', 'variant__product').prefetch_related('variant__product__images').all()
+
+    #tax and shipping calculation
+    subtotal = sum(item.price * item.quantity for item in order_items)
+
+    shipping = Decimal('0')
+    discount = Decimal('0')
+    taxes = subtotal * Decimal('0.12')
+    total = subtotal + taxes + shipping - discount
+
+
+    context = {
+        'order' : order,
+        'order_items' : order_items,
+        'subtotal' : subtotal,
+        'tax_amount' : taxes,
+        'shipping' : shipping,
+        'company_name' : 'POWERBLEND',
+        'company_address' : 'Ottapalam, Palakkad. Kerala - 679102',
+        'company_phone' : '+91 9061752197',
+        'company_email' : 'support@powerblend.com',
+        'company_website': 'www.powerblend.com',
+    }
+
+    #render HTML template
+    html_string = render_to_string('invoice.html', context)
+
+    #generate pdf
+    html = HTML(string=html_string, base_url=request.build_absolute_uri())
+    result = html.write_pdf()
+
+    #create HTTP response
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="POWERBLEND_Invoice_{order.order_id}.pdf"'
+    response['Content-Transfer-Encoding'] = 'binary'
+    response.write(result)
+
+    return response

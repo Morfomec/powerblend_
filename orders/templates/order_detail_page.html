@@ -4,8 +4,6 @@
 {% block title%}Order Details - POWERBLEND{% endblock title %}
 
 {% block extra_css %}
-
-
 <style>
     :root {
     --primary-color: rgba(0, 57, 66, 0.8);
@@ -184,7 +182,7 @@ body {
 .product-item {
     display: flex;
     gap: 20px;
-    align-items: center;
+    align-items: flex-start;
 }
 
 .product-image {
@@ -225,6 +223,14 @@ body {
     font-size: 20px;
     font-weight: 700;
     color: var(--primary-solid);
+}
+
+.product-total {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--primary-solid);
+    margin-bottom: 10px;
+    text-align: right;
 }
 
 .details-grid {
@@ -558,6 +564,93 @@ textarea::placeholder {
     margin-bottom: 20px;
 }
 
+/* Cancel Item Button Styles */
+.cancel-item-btn {
+    background: rgba(220, 53, 69, 0.1);
+    border: 1px solid var(--danger-color);
+    color: var(--danger-color);
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.cancel-item-btn:hover {
+    background: var(--danger-color);
+    color: white;
+}
+
+.cancel-item-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #f0f0f0;
+    border-color: #ccc;
+    color: #999;
+}
+
+/* Return Item Button Styles */
+.return-item-btn {
+    background: rgba(255, 193, 7, 0.1);
+    border: 1px solid var(--warning-color);
+    color: #856404;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.return-item-btn:hover {
+    background: var(--warning-color);
+    color: #856404;
+}
+
+.return-item-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #f0f0f0;
+    border-color: #ccc;
+    color: #999;
+}
+
+/* Item status badge */
+.item-status {
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.item-status.cancelled {
+    background: rgba(220, 53, 69, 0.1);
+    color: var(--danger-color);
+}
+
+.item-status.returned {
+    background: rgba(255, 193, 7, 0.1);
+    color: #856404;
+}
+
+/* Adjust product section layout */
+.product-actions {
+    margin-left: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    min-width: 150px;
+    gap: 10px;
+}
+
 @media (max-width: 768px) {
     .details-grid {
         grid-template-columns: 1fr;
@@ -587,6 +680,17 @@ textarea::placeholder {
     .btn {
         width: 100%;
     }
+    
+    .product-actions {
+        width: 100%;
+        margin-left: 0;
+        align-items: center;
+    }
+    
+    .cancel-item-btn, .return-item-btn {
+        width: 100%;
+        justify-content: center;
+    }
 }
 </style>
 {% endblock extra_css %}
@@ -594,6 +698,7 @@ textarea::placeholder {
 {% block body %}
     
     <div class="container">
+    <!--###################  order cancelled ###################-->
 
     {% if order.status == 'cancelled' %}
         <!-- Cancelled Order Header -->
@@ -606,7 +711,7 @@ textarea::placeholder {
             </div>
         </div>
 
-        <!-- Products List (still visible) -->
+        <!-- Products List -->
         <div class="content">
             {% for item in order_items.all %}
             <div class="product-section">
@@ -627,7 +732,7 @@ textarea::placeholder {
                     <div class="product-price">₹{{ item.price }}</div>
                 </div> 
             </div>
-            {% endfor %}
+            {% endfor %} 
         </div>
 
         <!-- Go Back Button -->
@@ -635,54 +740,22 @@ textarea::placeholder {
             <p class="text-red-600 font-semibold" style="font-size: 24px; font-weight: 600; color: #28a745;">This order has been cancelled.</p>
             <a href="{% url 'order_list' %}" class="action-button" style="text-decoration: none;">Go Back</a>
         </div>
-        {% else %}
 
-
-
+    <!--###################  order returned ###################-->
         
+    {% elif order.status == 'returned' %}
+
+        <!-- Returned Order Header -->
         <div class="header_order_detail_page">
             <div class="header-top">
                 <div class="order-id">Order ID: {{ order.order_id }}</div>
-                <button class="invoice-btn">📄 Invoice</button>
             </div>
             <div class="order-meta">
-                <span>📅 Order date: {{ order.created_at|date:"F d, Y"}}</span>
-                <span class="delivery-date">🚚 Estimated delivery: {{ estimated_delivery|date:"F d, Y"}}</span>
-            </div>
-        </div>
-        
-
-        <div class="progress-section">
-            <div class="progress-track">
-                <div class="progress-line"></div>
-                <div class="progress-fill"></div>
-                
-                <div class="progress-step">
-                    <div class="step-circle completed">✓</div>
-                    <div class="step-label active">Order Confirmed</div>
-                    <div class="step-date">{{ order.created_at|date:"D, d M"}}</div>
-                </div>
-
-                <div class="progress-step">
-                    <div class="step-circle">📦</div>
-                    <div class="step-label">Shipped</div>
-                    <!-- <div class="step-date">Wed, 11th Jan</div> -->
-                </div>
-
-                <div class="progress-step">
-                    <div class="step-circle">🚚</div>
-                    <div class="step-label">Out For Delivery</div>
-                    <!-- <div class="step-date">Wed, 11th Jan</div> -->
-                </div>
-
-                <div class="progress-step">
-                    <div class="step-circle">✓</div>
-                    <div class="step-label">Delivered</div>
-                    <!-- <div class="step-date">Expected by, Mon 16th</div> -->
-                </div>
+                <span class="delivery-date text-red-600 font-semibold">📅 Order Returned</span>
             </div>
         </div>
 
+        <!-- Products List -->
         <div class="content">
             {% for item in order_items.all %}
             <div class="product-section">
@@ -701,6 +774,102 @@ textarea::placeholder {
                         <div class="product-qty">Qty: {{ item.quantity }}</div>
                     </div>
                     <div class="product-price">₹{{ item.price }}</div>
+                </div> 
+            </div>
+            {% endfor %} 
+        </div>
+
+        <!-- Go Back Button -->
+        <div class="text-center mt-4 mb-2">
+            <p class="text-red-600 font-semibold" style="font-size: 24px; font-weight: 600; color: #28a745;">This order has been returned.</p>
+            <a href="{% url 'order_list' %}" class="action-button" style="text-decoration: none;">Go Back</a>
+        </div>
+
+    <!--###################  order active ###################-->        
+
+    {% else %}
+
+        <div class="header_order_detail_page">
+            <div class="header-top"> 
+                <div class="order-id">Order ID: {{ order.order_id }}</div> 
+                <a href="{% url 'download_invoice' order.id %}" style="background: var(--primary-solid); color: white; padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none;">
+                    <i class="fas fa-download me-2"></i>Download Invoice
+                </a>
+            </div>
+            <div class="order-meta">
+                <span>📅 Order date: {{ order.created_at|date:"F d, Y"}}</span>
+                <span class="delivery-date">🚚 Estimated delivery: {{ estimated_delivery|date:"F d, Y"}}</span>
+            </div>
+        </div>
+        
+        <div class="progress-section">
+            <div class="progress-track">
+                <div class="progress-line"></div>
+                <div class="progress-fill" style="width: {{ progress_percent }}%;"></div>
+                
+                <div class="progress-step">
+                    <div class="step-circle {% if order.status in 'confirmed shipped out_for_delivery delivered' %}completed{% endif %}">✓</div>
+                    <div class="step-label {% if order.status == 'confirmed' %}active{% endif %} ">Order Confirmed</div>
+                    <div class="step-date">{{ order.created_at|date:"D, d M"}}</div>
+                </div>
+
+                <div class="progress-step">
+                    <div class="step-circle {% if order.status in 'shipped out_for_delivery delivered' %}completed{% endif %}">📦</div>
+                    <div class="step-label {% if order.status == 'shipped' %}active{% endif %}">Shipped</div>
+                </div>
+
+                <div class="progress-step">
+                    <div class="step-circle {% if order.status in 'out_for_delivery delivered' %}completed{% endif %}">🚚</div>
+                    <div class="step-label {% if order.status == 'out_for_delivery' %}active{% endif %}">Out For Delivery</div>
+                </div>
+
+                <div class="progress-step">
+                    <div class="step-circle {% if order.status in 'delivered' %}completed{% endif %}">✓</div>
+                    <div class="step-label {% if order.status == 'delivered' %}active{% endif %}">Delivered</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content">
+            {% for item in order_items %}
+            <div class="product-section">
+                <div class="product-item">
+                    <div class="product-image">
+                        {% with images=item.variant.product.images.all %}
+                            {% if images %}
+                                <img src="{{ images.first.image.url }}" alt="{{ item.variant.product.name }}" width="120">
+                            {% else %}
+                                <img src="{% static 'images/no-image.png' %}" alt="No image available" width="120">
+                            {% endif %}
+                        {% endwith %}
+                    </div>
+                    
+                    <div class="product-info">
+                        <div class="product-name">{{ item.variant.product.name }}</div>
+                        <div class="product-qty">Qty: {{ item.quantity }}</div>
+                        <div class="product-price">₹{{ item.price }}</div>
+                    </div>
+                    
+                    <!-- Actions area - shows total and appropriate button/badge -->
+                    <div class="product-actions">
+                        
+                            <div class="product-total">₹{{ item.total_price }}</div>
+                        
+
+                        {% if item.status == 'cancelled' %}
+                            <span class="item-status cancelled">Cancelled</span>
+                        {% elif item.status == 'returned' %}
+                            <span class="item-status returned">Returned</span>
+                        {% elif order.status == 'delivered' %}
+                            <button class="return-item-btn" onclick="openReturnItemModal({{ item.id }}, '{{ item.variant.product.name|escapejs }}')">
+                                <i class="fas fa-undo"></i> Return Item
+                            </button>
+                        {% else %}
+                            <button class="cancel-item-btn" onclick="openCancelItemModal({{ item.id }}, '{{ item.variant.product.name|escapejs }}')">
+                                <i class="fas fa-times-circle"></i> Cancel Item
+                            </button>
+                        {% endif %}
+                    </div>
                 </div> 
             </div>
             {% endfor %}
@@ -714,12 +883,12 @@ textarea::placeholder {
                                 {% if order.payment_method == 'cod' %}
                                     CASH
                                 {% elif order.payment_method == 'razorpay' %}
-                                    VISA
+                                    CARD
                                 {% else %}
                                     WALLET
                                 {% endif %}
                             </div>
-                            <span>Visa **68</span>
+                            <span>{{ order.get_payment_method_display }}</span>
                         </div>
                     </div>
                 </div>
@@ -753,14 +922,13 @@ textarea::placeholder {
                 </div>
             </div>
             
-                <button class="action-button" onclick="openCancelModal()">CANCEL ORDER</button>
-            {% endif %}
-            </div>
+            <button class="action-button" onclick="openCancelModal()">CANCEL ORDER</button>
         </div>
+    {% endif %}
+    </div>
 
-            <!-- Cancel Order Modal -->
+    <!-- Cancel Order Modal -->
     <div class="modal" id="cancelModal">
-
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Cancel Order</h2>
@@ -769,7 +937,6 @@ textarea::placeholder {
 
             <form method="post" action="{% url 'cancel_order' order.id %}">
                 {% csrf_token %}
-
                 <div class="modal-body">
                     <div class="alert-text">
                         ⚠️ This action cannot be undone. Your order will be cancelled immediately.
@@ -779,19 +946,19 @@ textarea::placeholder {
                         <label class="form-label required">Select Reason for Cancellation</label>
                         <div class="reason-options">
                             <div class="reason-option">
-                                <input type="radio" id="reason1" name="cancelReason" value="changed_mind">
+                                <input type="radio" id="reason1" name="reason" value="changed_mind">
                                 <label for="reason1">I changed my mind</label>
                             </div>
                             <div class="reason-option">
-                                <input type="radio" id="reason2" name="cancelReason" value="found_better">
+                                <input type="radio" id="reason2" name="reason" value="found_better">
                                 <label for="reason2">Found a better price elsewhere</label>
                             </div>
                             <div class="reason-option">
-                                <input type="radio" id="reason3" name="cancelReason" value="wrong_item">
+                                <input type="radio" id="reason3" name="reason" value="wrong_item">
                                 <label for="reason3">Ordered wrong item</label>
                             </div>
                             <div class="reason-option">
-                                <input type="radio" id="reason5" name="cancelReason" value="other">
+                                <input type="radio" id="reason5" name="reason" value="other">
                                 <label for="reason5">Other reason</label>
                             </div>
                         </div>
@@ -799,46 +966,220 @@ textarea::placeholder {
 
                     <div class="form-group">
                         <label class="form-label">Additional Comments (Optional)</label>
-                        <textarea placeholder="Please provide additional details about your cancellation..."></textarea>
+                        <textarea name="comments" placeholder="Please provide additional details about your cancellation..."></textarea>
                     </div>
                 </div>
-            <div class="modal-footer">
-                <button class="btn btn-cancel" onclick="closeCancelModal()">Go Back</button>
-                <button class="btn btn-confirm" onclick="confirmCancellation()">Confirm Cancel</button>
-            </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-cancel" onclick="closeCancelModal()">Go Back</button>
+                    <button type="submit" class="btn btn-confirm">Confirm Cancel</button>
+                </div>
             </form>
-
-            
         </div>
     </div>
+
+    <!-- Cancel Item Modal -->
+    <div class="modal" id="cancelItemModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Cancel Item</h2>
+                <button class="close-btn" onclick="closeCancelItemModal()">&times;</button>
+            </div>
+
+            <form method="post" action="{% url 'cancel_item' order.id %}" id="cancelItemForm">
+                {% csrf_token %}
+                <input type="hidden" name="item_id" id="cancelItemId">
+                
+                <div class="modal-body">
+                    <div class="alert-text">
+                        <strong>⚠️ Note:</strong> Once cancelled, this item cannot be restored to your order.
+                    </div>
+                    
+                    <p style="margin-bottom: 20px; color: #666;">
+                        You are about to cancel: <strong id="cancelItemName"></strong>
+                    </p>
+
+                    <div class="form-group">
+                        <label class="form-label required">Reason for Cancellation</label>
+                        <div class="reason-options">
+                            <div class="reason-option">
+                                <input type="radio" name="cancel_reason" value="changed_mind" id="cancel_reason1" required>
+                                <label for="cancel_reason1">Changed my mind</label>
+                            </div>
+                            <div class="reason-option">
+                                <input type="radio" name="cancel_reason" value="found_better_price" id="cancel_reason2">
+                                <label for="cancel_reason2">Found a better price elsewhere</label>
+                            </div>
+                            <div class="reason-option">
+                                <input type="radio" name="cancel_reason" value="ordered_by_mistake" id="cancel_reason3">
+                                <label for="cancel_reason3">Ordered by mistake</label>
+                            </div>
+                            <div class="reason-option">
+                                <input type="radio" name="cancel_reason" value="delivery_time" id="cancel_reason4">
+                                <label for="cancel_reason4">Delivery taking too long</label>
+                            </div>
+                            <div class="reason-option">
+                                <input type="radio" name="cancel_reason" value="other" id="cancel_reason5">
+                                <label for="cancel_reason5">Other reason</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Additional Comments (Optional)</label>
+                        <textarea name="cancel_comments" placeholder="Please provide any additional details..."></textarea>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-cancel" onclick="closeCancelItemModal()">Keep Item</button>
+                    <button type="submit" class="btn btn-confirm">Confirm Cancellation</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Return Item Modal -->
+    <div class="modal" id="returnItemModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Return Item</h2>
+                <button class="close-btn" onclick="closeReturnItemModal()">&times;</button>
+            </div>
+
+            <form method="post" action="{% url 'return-item' order.id %}" id="returnItemForm">
+                {% csrf_token %}
+                <input type="hidden" name="item_id" id="returnItemId">
+                
+                <div class="modal-body">
+                    <div class="alert-text">
+                        <strong>⚠️ Note:</strong> Please ensure the item is unused and in original packaging for a successful return.
+                    </div>
+                    
+                    <p style="margin-bottom: 20px; color: #666;">
+                        You are requesting a return for: <strong id="returnItemName"></strong>
+                    </p>
+                    
+                    <div class="form-group">
+                        <label class="form-label required">Reason for Return</label>
+                        <div class="reason-options">
+                            <div class="reason-option">
+                                <input type="radio" name="return_reason" value="defective" id="return_reason1" required>
+                                <label for="return_reason1">Product is defective or damaged</label>
+                            </div>
+                            <div class="reason-option">
+                                <input type="radio" name="return_reason" value="wrong_item" id="return_reason2">
+                                <label for="return_reason2">Wrong item received</label>
+                            </div>
+                            <div class="reason-option">
+                                <input type="radio" name="return_reason" value="not_as_described" id="return_reason3">
+                                <label for="return_reason3">Product not as described</label>
+                            </div>
+                            <div class="reason-option">
+                                <input type="radio" name="return_reason" value="quality_issue" id="return_reason4">
+                                <label for="return_reason4">Quality not satisfactory</label>
+                            </div>
+                            <div class="reason-option">
+                                <input type="radio" name="return_reason" value="size_fit" id="return_reason5">
+                                <label for="return_reason5">Size/fit issue</label>
+                            </div>
+                            <div class="reason-option">
+                                <input type="radio" name="return_reason" value="other" id="return_reason6">
+                                <label for="return_reason6">Other reason</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label required">Additional Details</label>
+                        <textarea name="return_comments" placeholder="Please describe the issue in detail to help us process your return faster..." required></textarea>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-cancel" onclick="closeReturnItemModal()">Cancel</button>
+                    <button type="submit" class="btn btn-confirm" style="background: var(--warning-color); color: #856404;">Submit Return Request</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
 {% endblock body %}
 
 {% block extra_js %} 
 <script>
-        function openCancelModal() {
-            document.getElementById('cancelModal').classList.add('active');
+    // Cancel Order Modal Functions
+    function openCancelModal() {
+        document.getElementById('cancelModal').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeCancelModal() {
+        document.getElementById('cancelModal').classList.remove('active');
+        document.body.style.overflow = 'auto';
+    }
+
+    // Cancel Item Modal Functions
+    function openCancelItemModal(itemId, itemName) {
+        document.getElementById('cancelItemId').value = itemId;
+        document.getElementById('cancelItemName').textContent = itemName;
+        document.getElementById('cancelItemModal').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeCancelItemModal() {
+        document.getElementById('cancelItemModal').classList.remove('active');
+        document.body.style.overflow = 'auto';
+        document.getElementById('cancelItemForm').reset();
+    }
+
+    // Return Item Modal Functions
+    function openReturnItemModal(itemId, itemName) {
+        document.getElementById('returnItemId').value = itemId;
+        document.getElementById('returnItemName').textContent = itemName;
+        document.getElementById('returnItemModal').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeReturnItemModal() {
+        document.getElementById('returnItemModal').classList.remove('active');
+        document.body.style.overflow = 'auto';
+        document.getElementById('returnItemForm').reset();
+    }
+
+    // Close modals when clicking outside
+    window.onclick = function(event) {
+        const cancelModal = document.getElementById('cancelModal');
+        const cancelItemModal = document.getElementById('cancelItemModal');
+        const returnModal = document.getElementById('returnItemModal');
+        
+        if (event.target === cancelModal) {
+            closeCancelModal();
         }
-
-        function closeCancelModal() {
-            document.getElementById('cancelModal').classList.remove('active');
+        if (event.target === cancelItemModal) {
+            closeCancelItemModal();
         }
-
-        function confirmCancellation() {
-            const selectedReason = document.querySelector('input[name="cancelReason"]:checked');
-
-            if(!selectedReason) {
-                alert('Please select a reason for cancellation');
-                return;
-            }
-
-            // window.location.href = "{% url 'cancel_order' order.id %}";
+        if (event.target === returnModal) {
+            closeReturnItemModal();
         }
+    }
 
-        // Close modal when clicking outside
-        document.getElementById('cancelModal').addEventListener('click', function(e) {
-            if (e.target === this) {
+    // Close modals on Escape key
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            const cancelModal = document.getElementById('cancelModal');
+            const cancelItemModal = document.getElementById('cancelItemModal');
+            const returnModal = document.getElementById('returnItemModal');
+            
+            if (cancelModal.classList.contains('active')) {
                 closeCancelModal();
             }
-        });
+            if (cancelItemModal.classList.contains('active')) {
+                closeCancelItemModal();
+            }
+            if (returnModal.classList.contains('active')) {
+                closeReturnItemModal();
+            }
+        }
+    });
 </script>
 {% endblock extra_js %}

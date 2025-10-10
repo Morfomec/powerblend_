@@ -7,27 +7,35 @@ from django.views.decorators.cache import cache_control, never_cache
 from django.contrib.auth import get_user_model
 from utils.pagination import get_pagination
 from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.sessions.models import Session
+from django.utils import timezone
 
 User = get_user_model ()
 
 # Create your views here.
 
-def admin_login(request):
-    # if request.user.is_authenticated:
-    #     # if request.user.is_staff or request.user.is_superuser:
-    #     return redirect('admin/dashboard')
+# def admin_login(request):
+#     # if request.user.is_authenticated:
+#     #     # if request.user.is_staff or request.user.is_superuser:
+#     #     return redirect('admin/dashboard')
 
+def admin_login(request):
     if request.method == 'POST':
         email = request.POST.get('email')
         password = request.POST.get('password')
         user = authenticate(request, email=email, password=password)
 
-        if user is not None and user.is_staff:
-            login(request, user)
-            # messages.success(request, 'Logged in syuccessfully')
-            return redirect('admin_dashboard')
+        if user is not None:
+            if not user.is_active:
+                messages.error(request, 'Your account has been blocked by admin.')
+            elif user.is_staff:
+                login(request, user)
+                return redirect('admin_dashboard')
+            else:
+                messages.error(request, 'You are not an admin user.')
         else:
-            messages.error(request, ' Invalid credentials or not an admin user.')
+            messages.error(request, 'Invalid credentials.')
+
     return render(request, 'admin_login.html')
 
 @staff_member_required
@@ -81,12 +89,25 @@ def admin_user(request):
     }
 
     return render(request, 'user_management.html', context)
-
+@staff_member_required
 @login_required
 def toggle_user_status(request, user_id):
+
     user = get_object_or_404(User, id=user_id)
     user.is_active = not user.is_active
     user.save()
+
+    if not user.is_active:
+        sessions = Session.objects.filter(expire_date__gte=timezone.now())
+        for session in sessions:
+            data = session.get_decoded()
+            session_user_id = data.get('_auth_user_id')
+            if str(session_user_id) == str(user_id):
+                session.delete()
+
+        messages.success(request, f"{user.full_name} has been blocked and logged out.")
+    else:
+        messages.success(request, f"{user.full_name} has been unblocked and can log in now.")
     return redirect('admin_user')
 
 
