@@ -194,6 +194,15 @@ def cancel_order(request, order_id):
 
 
 @login_required
+def return_order(request, order_id):
+    """
+    to return the whole order 
+    """
+
+    return render(request, 'order_detail_page.html')
+
+
+@login_required
 def cancel_item(request, order_id):
     """
     cancel a single item in an order

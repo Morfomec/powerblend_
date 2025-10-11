@@ -691,6 +691,8 @@ textarea::placeholder {
         width: 100%;
         justify-content: center;
     }
+
+    
 }
 </style>
 {% endblock extra_css %}
@@ -861,13 +863,16 @@ textarea::placeholder {
                         {% elif item.status == 'returned' %}
                             <span class="item-status returned">Returned</span>
                         {% elif order.status == 'delivered' %}
-                            <button class="return-item-btn" onclick="openReturnItemModal({{ item.id }}, '{{ item.variant.product.name|escapejs }}')">
+                            <button class="return-item-btn"
+                                onclick="openActionModal('return', 'item', {{ item.id }}, '{{ item.variant.product.name|escapejs }}', '{% url 'return_item' order.id %}')">
                                 <i class="fas fa-undo"></i> Return Item
                             </button>
                         {% else %}
-                            <button class="cancel-item-btn" onclick="openCancelItemModal({{ item.id }}, '{{ item.variant.product.name|escapejs }}')">
+                            <button class="cancel-item-btn"
+                                onclick="openActionModal('cancel', 'item', {{ item.id }}, '{{ item.variant.product.name|escapejs }}', '{% url 'cancel_item' order.id %}')">
                                 <i class="fas fa-times-circle"></i> Cancel Item
                             </button>
+
                         {% endif %}
                     </div>
                 </div> 
@@ -921,192 +926,27 @@ textarea::placeholder {
                     <span>Rs. {{ total|floatformat:2 }}</span>
                 </div>
             </div>
-            
-            <button class="action-button" onclick="openCancelModal()">CANCEL ORDER</button>
+            {% if order.status == 'delivered' and order.status != 'returned' %}
+                <button class="action-button"
+                    onclick="openActionModal('return', 'order', {{ order.id }}, '', '{% url 'return_order' order.id %}')">
+                    RETURN ORDER
+                </button>
+            {% elif order.status != 'cancelled' %}
+                <button class="action-button"
+                    onclick="openActionModal('cancel', 'order', {{ order.id }}, '', '{% url 'cancel_order' order.id %}')">
+                    CANCEL ORDER
+                </button>
+            {% endif %}
         </div>
     {% endif %}
     </div>
 
-    <!-- Cancel Order Modal -->
-    <div class="modal" id="cancelModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Cancel Order</h2>
-                <button class="close-btn" onclick="closeCancelModal()">&times;</button>
-            </div>
-
-            <form method="post" action="{% url 'cancel_order' order.id %}">
-                {% csrf_token %}
-                <div class="modal-body">
-                    <div class="alert-text">
-                        ⚠️ This action cannot be undone. Your order will be cancelled immediately.
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label required">Select Reason for Cancellation</label>
-                        <div class="reason-options">
-                            <div class="reason-option">
-                                <input type="radio" id="reason1" name="reason" value="changed_mind">
-                                <label for="reason1">I changed my mind</label>
-                            </div>
-                            <div class="reason-option">
-                                <input type="radio" id="reason2" name="reason" value="found_better">
-                                <label for="reason2">Found a better price elsewhere</label>
-                            </div>
-                            <div class="reason-option">
-                                <input type="radio" id="reason3" name="reason" value="wrong_item">
-                                <label for="reason3">Ordered wrong item</label>
-                            </div>
-                            <div class="reason-option">
-                                <input type="radio" id="reason5" name="reason" value="other">
-                                <label for="reason5">Other reason</label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Additional Comments (Optional)</label>
-                        <textarea name="comments" placeholder="Please provide additional details about your cancellation..."></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-cancel" onclick="closeCancelModal()">Go Back</button>
-                    <button type="submit" class="btn btn-confirm">Confirm Cancel</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Cancel Item Modal -->
-    <div class="modal" id="cancelItemModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Cancel Item</h2>
-                <button class="close-btn" onclick="closeCancelItemModal()">&times;</button>
-            </div>
-
-            <form method="post" action="{% url 'cancel_item' order.id %}" id="cancelItemForm">
-                {% csrf_token %}
-                <input type="hidden" name="item_id" id="cancelItemId">
-                
-                <div class="modal-body">
-                    <div class="alert-text">
-                        <strong>⚠️ Note:</strong> Once cancelled, this item cannot be restored to your order.
-                    </div>
-                    
-                    <p style="margin-bottom: 20px; color: #666;">
-                        You are about to cancel: <strong id="cancelItemName"></strong>
-                    </p>
-
-                    <div class="form-group">
-                        <label class="form-label required">Reason for Cancellation</label>
-                        <div class="reason-options">
-                            <div class="reason-option">
-                                <input type="radio" name="cancel_reason" value="changed_mind" id="cancel_reason1" required>
-                                <label for="cancel_reason1">Changed my mind</label>
-                            </div>
-                            <div class="reason-option">
-                                <input type="radio" name="cancel_reason" value="found_better_price" id="cancel_reason2">
-                                <label for="cancel_reason2">Found a better price elsewhere</label>
-                            </div>
-                            <div class="reason-option">
-                                <input type="radio" name="cancel_reason" value="ordered_by_mistake" id="cancel_reason3">
-                                <label for="cancel_reason3">Ordered by mistake</label>
-                            </div>
-                            <div class="reason-option">
-                                <input type="radio" name="cancel_reason" value="delivery_time" id="cancel_reason4">
-                                <label for="cancel_reason4">Delivery taking too long</label>
-                            </div>
-                            <div class="reason-option">
-                                <input type="radio" name="cancel_reason" value="other" id="cancel_reason5">
-                                <label for="cancel_reason5">Other reason</label>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Additional Comments (Optional)</label>
-                        <textarea name="cancel_comments" placeholder="Please provide any additional details..."></textarea>
-                    </div>
-                </div>
-                
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-cancel" onclick="closeCancelItemModal()">Keep Item</button>
-                    <button type="submit" class="btn btn-confirm">Confirm Cancellation</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Return Item Modal -->
-    <div class="modal" id="returnItemModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Return Item</h2>
-                <button class="close-btn" onclick="closeReturnItemModal()">&times;</button>
-            </div>
-
-            <form method="post" action="{% url 'return-item' order.id %}" id="returnItemForm">
-                {% csrf_token %}
-                <input type="hidden" name="item_id" id="returnItemId">
-                
-                <div class="modal-body">
-                    <div class="alert-text">
-                        <strong>⚠️ Note:</strong> Please ensure the item is unused and in original packaging for a successful return.
-                    </div>
-                    
-                    <p style="margin-bottom: 20px; color: #666;">
-                        You are requesting a return for: <strong id="returnItemName"></strong>
-                    </p>
-                    
-                    <div class="form-group">
-                        <label class="form-label required">Reason for Return</label>
-                        <div class="reason-options">
-                            <div class="reason-option">
-                                <input type="radio" name="return_reason" value="defective" id="return_reason1" required>
-                                <label for="return_reason1">Product is defective or damaged</label>
-                            </div>
-                            <div class="reason-option">
-                                <input type="radio" name="return_reason" value="wrong_item" id="return_reason2">
-                                <label for="return_reason2">Wrong item received</label>
-                            </div>
-                            <div class="reason-option">
-                                <input type="radio" name="return_reason" value="not_as_described" id="return_reason3">
-                                <label for="return_reason3">Product not as described</label>
-                            </div>
-                            <div class="reason-option">
-                                <input type="radio" name="return_reason" value="quality_issue" id="return_reason4">
-                                <label for="return_reason4">Quality not satisfactory</label>
-                            </div>
-                            <div class="reason-option">
-                                <input type="radio" name="return_reason" value="size_fit" id="return_reason5">
-                                <label for="return_reason5">Size/fit issue</label>
-                            </div>
-                            <div class="reason-option">
-                                <input type="radio" name="return_reason" value="other" id="return_reason6">
-                                <label for="return_reason6">Other reason</label>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label required">Additional Details</label>
-                        <textarea name="return_comments" placeholder="Please describe the issue in detail to help us process your return faster..." required></textarea>
-                    </div>
-                </div>
-                
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-cancel" onclick="closeReturnItemModal()">Cancel</button>
-                    <button type="submit" class="btn btn-confirm" style="background: var(--warning-color); color: #856404;">Submit Return Request</button>
-                </div>
-            </form>
-        </div>
-    </div>
+{% include 'includes/order_detail_page_modal.html' %}
 
 {% endblock body %}
 
 {% block extra_js %} 
-<script>
+<!-- <script>
     // Cancel Order Modal Functions
     function openCancelModal() {
         document.getElementById('cancelModal').classList.add('active');
@@ -1181,5 +1021,5 @@ textarea::placeholder {
             }
         }
     });
-</script>
+</script> -->
 {% endblock extra_js %}

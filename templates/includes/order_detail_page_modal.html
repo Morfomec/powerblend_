@@ -1,0 +1,161 @@
+<style>
+.modal-content {
+  background-color: #fff;
+  padding: 20px 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  max-width: 600px;
+  width: 90%;
+  text-align: center;
+  margin-left: 35%;
+}
+
+</style>
+<div class="modal" id="actionModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 id="modalTitle">Action</h2>
+      <button class="close-btn" onclick="closeActionModal()">&times;</button>
+    </div>
+
+    <form id="actionForm" method="post" action="">
+      {% csrf_token %}
+      <input type="hidden" name="item_id" id="actionItemId">
+
+      <div class="modal-body">
+        <div class="alert-text" id="actionAlertText"></div>
+
+        <p id="actionItemNameText" style="margin-bottom: 20px; color: #666; display: none;">
+          You are about to <span id="actionVerb"></span>: <strong id="actionItemName"></strong>
+        </p>
+
+        <div class="form-group">
+          <label class="form-label required" id="reasonLabel">Select Reason</label>
+          <div class="reason-options" id="reasonOptions"></div>
+        </div>
+
+        <div class="form-group" id="commentsGroup">
+          <label class="form-label">Additional Comments</label>
+          <textarea name="comments" id="actionComments" placeholder="You can share more details here..."></textarea>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-cancel" onclick="closeActionModal()">Cancel</button>
+        <button type="submit" class="btn btn-confirm" id="confirmBtn">Confirm</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+<script>
+    // Define reason sets for each scenario
+const REASON_SETS = {
+  cancel_item: [
+    ["changed_mind", "Changed my mind"],
+    ["found_better_price", "Found a better price elsewhere"],
+    ["ordered_by_mistake", "Ordered by mistake"],
+    // ["delivery_time", "Delivery taking too long"],
+    ["other", "Other reason"],
+  ],
+  cancel_order: [
+    ["changed_mind", "I changed my mind"],
+    ["found_better", "Found a better price elsewhere"],
+    ["wrong_item", "Ordered wrong item"],
+    ["other", "Other reason"],
+  ],
+  return_item: [
+    ["defective", "Product is defective or damaged"],
+    ["wrong_item", "Wrong item received"],
+    // ["not_as_described", "Product not as described"],
+    ["quality_issue", "Quality not satisfactory"],
+    ["other", "Other reason"],
+  ],
+  return_order: [
+    ["defective", "Products are defective or damaged"],
+    ["wrong_item", "Wrong order received"],
+    // ["not_as_described", "Products not as described"],
+    ["quality_issue", "Quality not satisfactory"],
+    ["other", "Other reason"],
+  ],
+};
+
+function openActionModal(actionType, targetType, targetId, targetName, actionUrl) {
+  const modal = document.getElementById("actionModal");
+  const title = document.getElementById("modalTitle");
+  const form = document.getElementById("actionForm");
+  const reasonOptions = document.getElementById("reasonOptions");
+  const alertText = document.getElementById("actionAlertText");
+  const itemNameText = document.getElementById("actionItemNameText");
+  const itemName = document.getElementById("actionItemName");
+  const verbSpan = document.getElementById("actionVerb");
+  const confirmBtn = document.getElementById("confirmBtn");
+  const commentsGroup = document.getElementById("commentsGroup");
+
+  // Compose a key like "cancel_item", "return_order", etc.
+  const key = `${actionType}_${targetType}`;
+  const reasons = REASON_SETS[key] || [];
+
+  // Set dynamic title
+  const properAction = actionType.charAt(0).toUpperCase() + actionType.slice(1);
+  const properTarget = targetType.charAt(0).toUpperCase() + targetType.slice(1);
+  title.textContent = `${properAction} ${properTarget}`;
+  verbSpan.textContent = actionType.toLowerCase();
+
+  // Show item name if it's an item action
+  if (targetType === "item") {
+    itemNameText.style.display = "block";
+    itemName.textContent = targetName;
+  } else {
+    itemNameText.style.display = "none";
+  }
+
+  // Update alert text
+  if (actionType === "cancel") {
+    alertText.innerHTML = "⚠️ This action cannot be undone. Once cancelled, it cannot be restored.";
+  } else {
+    alertText.innerHTML = "⚠️ Please ensure items are unused and in original packaging for a successful return.";
+  }
+
+  // Set form action and hidden inputs
+  form.action = actionUrl;
+  document.getElementById("actionItemId").value = targetId;
+
+  // Populate reasons
+  reasonOptions.innerHTML = "";
+  reasons.forEach(([value, label], idx) => {
+    const div = document.createElement("div");
+    div.classList.add("reason-option");
+    div.innerHTML = `
+      <input type="radio" id="reason_${idx}" name="reason" value="${value}" required>
+      <label for="reason_${idx}">${label}</label>
+    `;
+    reasonOptions.appendChild(div);
+  });
+
+  // Adjust confirm button
+  confirmBtn.textContent =
+    actionType === "cancel" ? "Confirm Cancellation" : "Submit Return Request";
+  confirmBtn.style.background =
+    actionType === "cancel" ? "var(--danger-color)" : "var(--warning-color)";
+
+  // Adjust comment field requirement
+  const textarea = document.getElementById("actionComments");
+  if (actionType === "return") {
+    textarea.required = true;
+  } else {
+    textarea.required = false;
+  }
+
+  // Show modal
+  modal.style.display = "block";
+}
+
+function closeActionModal() {
+  document.getElementById("actionModal").style.display = "none";
+}
+
+document.getElementById('cancelModal').classList.add('show');
+
+</script>
