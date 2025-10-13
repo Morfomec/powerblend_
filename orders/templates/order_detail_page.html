@@ -651,6 +651,52 @@ textarea::placeholder {
     gap: 10px;
 }
 
+.item-status.return-requested {
+    background: rgba(255, 193, 7, 0.15);
+    color: #856404;
+    border: 1px solid #ffc107;
+}
+
+.item-status.return-approved {
+    background: rgba(40, 167, 69, 0.15);
+    color: #28a745;
+    border: 1px solid #28a745;
+}
+
+.item-status.return-rejected {
+    background: rgba(220, 53, 69, 0.15);
+    color: #dc3545;
+    border: 1px solid #dc3545;
+}
+
+.item-status.returned {
+    background: rgba(23, 162, 184, 0.15);
+    color: #17a2b8;
+    border: 1px solid #17a2b8;
+}
+
+/* Status with icon spacing */
+.item-status i {
+    margin-right: 4px;
+}
+
+/* Rejection reason display */
+.rejection-info {
+    margin-top: 10px;
+    padding: 12px;
+    background: #fff3cd;
+    border-left: 4px solid #ffc107;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #856404;
+}
+
+.rejection-info strong {
+    display: block;
+    margin-bottom: 5px;
+    color: #856404;
+}
+
 @media (max-width: 768px) {
     .details-grid {
         grid-template-columns: 1fr;
@@ -846,33 +892,70 @@ textarea::placeholder {
                         {% endwith %}
                     </div>
                     
-                    <div class="product-info">
-                        <div class="product-name">{{ item.variant.product.name }}</div>
-                        <div class="product-qty">Qty: {{ item.quantity }}</div>
-                        <div class="product-price">₹{{ item.price }}</div>
+                <div class="product-info">
+                <div class="product-name">{{ item.variant.product.name }}</div>
+                <div class="product-qty">Qty: {{ item.quantity }}</div>
+                <div class="product-price">₹{{ item.price }}</div>
+                
+                <!-- Show Return Details if applicable -->
+                {% if item.status in 'return_requested,return_approved,return_rejected,returned' %}
+                <div class="return-details">
+                    <div class="detail-row">
+                        <span class="detail-label">Reason:</span>
+                        <span class="detail-value">{{ item.get_return_reason_display|default:item.return_reason }}</span>
                     </div>
+                    {% if item.return_comments %}
+                    <div class="detail-row">
+                        <span class="detail-label">Comments:</span>
+                        <span class="detail-value">{{ item.return_comments }}</span>
+                    </div>
+                    {% endif %}
+                    {% if item.return_requested_at %}
+                    <div class="detail-row">
+                        <span class="detail-label">Requested:</span>
+                        <span class="detail-value">{{ item.return_requested_at|date:"M d, Y H:i" }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
                     
                     <!-- Actions area - shows total and appropriate button/badge -->
+
                     <div class="product-actions">
-                        
-                            <div class="product-total">₹{{ item.total_price }}</div>
-                        
+                        <div class="product-total">₹{{ item.total_price }}</div>
+
+                        {% if item.return_status %}
+                            <span class="item-status
+                                {% if item.return_status == 'return_requested' %}return-requested{% endif %}
+                                {% if item.return_status == 'return_approved' %}return-approved{% endif %}
+                                {% if item.return_status == 'return_rejected' %}return-rejected{% endif %}
+                                {% if item.return_status == 'returned' %}returned{% endif %}
+                            ">
+                                {% if item.return_status == 'return_requested' %}Return Requested{% endif %}
+                                {% if item.return_status == 'return_approved' %}Return Approved{% endif %}
+                                {% if item.return_status == 'return_rejected' %}Return Rejected{% endif %}
+                                {% if item.return_status == 'returned' %}Returned{% endif %}
+                            </span>
+                        <!-- {% endif%} -->
+                            
 
                         {% if item.status == 'cancelled' %}
-                            <span class="item-status cancelled">Cancelled</span>
-                        {% elif item.status == 'returned' %}
-                            <span class="item-status returned">Returned</span>
+                            <span class="item-status cancelled">
+                                <i class="fas fa-ban"></i> Cancelled
+                            </span>
+                                                
                         {% elif order.status == 'delivered' %}
                             <button class="return-item-btn"
-                                onclick="openActionModal('return', 'item', {{ item.id }}, '{{ item.variant.product.name|escapejs }}', '{% url 'return_item' order.id %}')">
+                                onclick="openActionModal('return', 'item', {{ item.id }}, '{{ item.variant.product.name|escapejs }}', '{% url 'return_item' order.id item.id %}')">
                                 <i class="fas fa-undo"></i> Return Item
                             </button>
+                        
                         {% else %}
                             <button class="cancel-item-btn"
                                 onclick="openActionModal('cancel', 'item', {{ item.id }}, '{{ item.variant.product.name|escapejs }}', '{% url 'cancel_item' order.id %}')">
                                 <i class="fas fa-times-circle"></i> Cancel Item
                             </button>
-
                         {% endif %}
                     </div>
                 </div> 
@@ -917,7 +1000,7 @@ textarea::placeholder {
                     <span>Delivery</span>
                     <span>0.00</span>
                 </div>
-                <div class="summary-row tax">
+                <div class="summary-row tax">                    
                     <span>Tax</span>
                     <span>+Rs.{{ taxes|floatformat:2 }}</span>
                 </div>

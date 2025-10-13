@@ -104,9 +104,9 @@ class OrderItem(models.Model):
 
     RETURN_CHOICES = [
         ('pending', 'Pending'),
-        ('requested', 'Requested'),
-        ('approved', 'Approved'),
-        ('rejected', 'Rejected'),
+        ('return_requested', 'Return Requested'),
+        ('return_approved', 'Return Approved'),
+        ('return_rejected', 'Return Rejected'),
     ]
 
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
@@ -124,9 +124,9 @@ class OrderItem(models.Model):
 
     # returns fields
     is_returned = models.BooleanField(default=False)
-    returned_reason = models.TextField(blank=True, null=True)
+    return_reason = models.TextField(blank=True, null=True)
     returned_at = models.DateTimeField(blank=True, null=True)
-    return_status = models.CharField(max_length=20, choices=RETURN_CHOICES, default='none')
+    return_status = models.CharField(max_length=20, choices=RETURN_CHOICES, default='pending')
 
     @property
     def item_total(self):

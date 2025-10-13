@@ -119,7 +119,7 @@ function openActionModal(actionType, targetType, targetId, targetName, actionUrl
   }
 
   // Set form action and hidden inputs
-  form.action = actionUrl;
+  form.action = actionUrl.endsWith('/') ? actionUrl : actionUrl + '/';
   document.getElementById("actionItemId").value = targetId;
 
   // Populate reasons

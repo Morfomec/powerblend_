@@ -174,35 +174,136 @@
         margin-right: 50px;
     }
 
-    .status-update-form {
-        background: var(--light-bg);
+    /* Return Management Styles */
+    .return-section {
+        background: linear-gradient(135deg, rgba(255, 193, 7, 0.05) 0%, rgba(255, 193, 7, 0.02) 100%);
+        border-left: 4px solid var(--warning-color);
         padding: 1.5rem;
         border-radius: 8px;
-        border: 2px solid #e9ecef;
+        margin-bottom: 1.5rem;
     }
 
-    .form-group {
+    .return-section-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--primary-solid);
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .return-item {
+        background: white;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        padding: 1.5rem;
         margin-bottom: 1rem;
     }
 
-    .form-label {
+    .return-item.approved {
+        border-color: var(--success-color);
+        background: rgba(40, 167, 69, 0.05);
+    }
+
+    .return-item.rejected {
+        border-color: var(--danger-color);
+        background: rgba(220, 53, 69, 0.05);
+    }
+
+    .return-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 1rem;
+        gap: 1rem;
+    }
+
+    .return-product-info {
+        flex: 1;
+    }
+
+    .return-product-name {
+        font-weight: 700;
+        font-size: 1rem;
+        color: #333;
+        margin-bottom: 0.3rem;
+    }
+
+    .return-product-qty {
+        font-size: 0.9rem;
+        color: #666;
+    }
+
+    .return-status-badge {
+        padding: 0.4rem 1rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        display: inline-block;
+    }
+
+    .return-status-pending {
+        background: rgba(255, 193, 7, 0.2);
+        color: #d39e00;
+    }
+
+    .return-status-approved {
+        background: rgba(40, 167, 69, 0.2);
+        color: var(--success-color);
+    }
+
+    .return-status-rejected {
+        background: rgba(220, 53, 69, 0.2);
+        color: var(--danger-color);
+    }
+
+    .return-details {
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 6px;
+        margin-bottom: 1rem;
+    }
+
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.5rem 0;
+        font-size: 0.9rem;
+    }
+
+    .detail-row strong {
+        color: var(--primary-solid);
+    }
+
+    .return-reason {
+        margin-bottom: 1rem;
+    }
+
+    .return-reason-label {
         font-weight: 600;
         color: var(--primary-solid);
-        margin-bottom: 0.5rem;
-        display: block;
+        font-size: 0.9rem;
+        margin-bottom: 0.3rem;
     }
 
-    .form-select, .form-input {
-        width: 100%;
-        padding: 0.75rem;
-        border: 2px solid #e9ecef;
-        border-radius: 8px;
-        font-size: 0.95rem;
+    .return-reason-text {
+        background: white;
+        padding: 0.8rem;
+        border-left: 3px solid var(--warning-color);
+        border-radius: 4px;
+        color: #666;
+        font-size: 0.9rem;
+        line-height: 1.5;
     }
 
-    .form-select:focus, .form-input:focus {
-        outline: none;
-        border-color: var(--primary-solid);
+    .return-actions {
+        display: flex;
+        gap: 0.75rem;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e9ecef;
     }
 
     .btn {
@@ -213,6 +314,9 @@
         transition: all 0.3s ease;
         border: none;
         font-size: 0.9rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
     }
 
     .btn-primary {
@@ -235,6 +339,32 @@
         transform: translateY(-2px);
     }
 
+    .btn-danger {
+        background: var(--danger-color);
+        color: white;
+    }
+
+    .btn-danger:hover {
+        background: #c82333;
+        transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background: #5a6268;
+        transform: translateY(-2px);
+    }
+
+    .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+
     .alert {
         padding: 1rem;
         border-radius: 8px;
@@ -251,6 +381,12 @@
         background: rgba(220, 53, 69, 0.1);
         color: var(--danger-color);
         border-left: 4px solid var(--danger-color);
+    }
+
+    .alert-warning {
+        background: rgba(255, 193, 7, 0.1);
+        color: #d39e00;
+        border-left: 4px solid var(--warning-color);
     }
 
     .item-status {
@@ -270,18 +406,118 @@
         background: rgba(255, 193, 7, 0.1);
         color: #d39e00;
     }
+
+    .no-returns {
+        text-align: center;
+        padding: 2rem;
+        color: #6c757d;
+    }
+
+    .no-returns-icon {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .status-update-form {
+        background: var(--light-bg);
+        padding: 1.5rem;
+        border-radius: 8px;
+        border: 2px solid #e9ecef;
+    }
+
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: var(--primary-solid);
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .form-select, .form-input, textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .form-select:focus, .form-input:focus, textarea:focus {
+        outline: none;
+        border-color: var(--primary-solid);
+        box-shadow: 0 0 0 3px rgba(0, 57, 66, 0.1);
+    }
+
+    textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    .tabs {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+        border-bottom: 2px solid #e9ecef;
+    }
+
+    .tab-btn {
+        padding: 1rem 1.5rem;
+        background: transparent;
+        border: none;
+        color: #6c757d;
+        font-weight: 600;
+        cursor: pointer;
+        border-bottom: 3px solid transparent;
+        transition: all 0.3s ease;
+    }
+
+    .tab-btn.active {
+        color: var(--primary-solid);
+        border-bottom-color: var(--primary-solid);
+    }
+
+    .tab-content {
+        display: none;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    @media (max-width: 768px) {
+        .return-header {
+            flex-direction: column;
+        }
+
+        .return-actions {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+    }
 </style>
 {% endblock %}
 
 {% block body %}
 <div class="admin-container">
-    <div class="content-card mb-4">
+    <!-- Header -->
+    <div class="details-card mb-4">
         <div class="card-header d-flex justify-content-between align-items-center">
             <div>
-                <h4 class="mb-1" style="color: var(--primary-solid); font-weight: 700;">Account Settings</h4>
-                <p class="mb-0 text-muted" style="font-size: 0.9rem;">Manage your profile and account preferences</p>
+                <h4 class="mb-1" style="color: var(--primary-solid); font-weight: 700;">Order Management</h4>
+                <p class="mb-0 text-muted" style="font-size: 0.9rem;">View and manage order details and return requests</p>
             </div>
-            <a href="{% url 'admin_order_list' %}" class="btn btn-outline-secondary">
+            <a href="{% url 'admin_order_list' %}" class="btn btn-secondary">
                 <i class="fas fa-arrow-left me-2"></i>Back to Orders
             </a>
         </div>
@@ -359,18 +595,12 @@
                     <td>₹{{ item.price|floatformat:2 }}</td>
                     <td><strong>₹{{ item.subtotal|floatformat:2 }}</strong></td>
                     <td>
-                        {% if item.is_cancelled %}
-                            <span class="item-status item-cancelled">Cancelled</span>
-                            {% if item.cancelled_reason %}
-                                <br><small>{{ item.cancelled_reason }}</small>
-                            {% endif %}
-                        {% elif item.is_returned %}
-                            <span class="item-status item-returned">Returned</span>
-                            {% if item.returned_reason %}
-                                <br><small>{{ item.returned_reason }}</small>
-                            {% endif %}
+                        {% if item.status == 'cancelled' %}
+                            <span class="item-status item-cancelled">❌ Cancelled</span>
+                        {% elif item.status == 'returned' %}
+                            <span class="item-status item-returned">↩️ Returned</span>
                         {% else %}
-                            <span style="color: var(--success-color);">Active</span>
+                            <span style="color: var(--success-color); font-weight: 600;">✓ Active</span>
                         {% endif %}
                     </td>
                 </tr>
@@ -386,6 +616,94 @@
             </div>
         </div>
     </div>
+<!-- Return Requests Section (Only show if order is delivered) -->
+    {% if order.status == 'delivered' %}
+    <div class="details-card">
+        <div class="return-section">
+            <div class="return-section-title">
+                <i class="fas fa-undo"></i> Return Requests
+            </div>
+
+            <!-- Check if any item has a return_status other than pending -->
+            {% with return_items=order.items.all|dictsort:"id" %}
+                {% if return_items %}
+                    {% for item in return_items %}
+                        {% if item.return_status != 'pending' and item.return_status != 'none' %}
+                        <div class="return-item {% if item.return_status == 'return_approved' %}approved{% elif item.return_status == 'return_rejected' %}rejected{% endif %}">
+                            <div class="return-header">
+                                <div class="return-product-info">
+                                    <div class="return-product-name">{{ item.variant.product.name }}</div>
+                                    <div class="return-product-qty">Quantity: {{ item.quantity }}</div>
+                                </div>
+
+                                <!-- 🟢 Status Badge -->
+                                <span class="return-status-badge return-status-{{ item.return_status }}">
+                                    {% if item.return_status == 'return_items' %}
+                                        ⏳ Return Requested
+                                    {% elif item.return_status == 'return_approved' %}
+                                        ✅ Approved
+                                    {% elif item.return_status == 'return_rejected' %}
+                                        ❌ Rejected
+                                    {% endif %}
+                                </span>
+                            </div>
+
+                            <!-- 🕓 Details -->
+                            <div class="return-details">
+                                <div class="detail-row">
+                                    <strong>Requested On:</strong>
+                                    <span>{{ item.returned_at|date:"F d, Y H:i" }}</span>
+                                </div>
+                                <div class="detail-row">
+                                    <strong>Refund Amount:</strong>
+                                    <span>₹{{ item.item_total|floatformat:2 }}</span>
+                                </div>
+                            </div>
+
+                            <!-- 💬 Return Reason -->
+                            <div class="return-reason">
+                                <strong>Reason:</strong>
+                                <p>{{ item.return_reason|default:"(No reason provided)" }}</p>
+                            </div>
+
+                            <!-- 🧭 Admin Action Buttons -->
+                            {% if item.return_status == 'return_items' %}
+                            <div class="return-actions">
+                                <form method="post" action="{% url 'admin_process_return' item.id %}" style="display:inline;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="approve">
+                                    <button type="submit" class="btn btn-success" onclick="return confirm('Approve this return request?')">
+                                        <i class="fas fa-check"></i> Approve
+                                    </button>
+                                </form>
+
+                                <form method="post" action="{% url 'admin_process_return' item.id %}" style="display:inline;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="reject">
+                                    <button type="submit" class="btn btn-danger" onclick="return confirm('Reject this return request?')">
+                                        <i class="fas fa-times"></i> Reject
+                                    </button>
+                                </form>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    {% empty %}
+                        <div class="no-returns">
+                            <div class="no-returns-icon">📦</div>
+                            <p>No return requests for this order.</p>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="no-returns">
+                        <div class="no-returns-icon">📦</div>
+                        <p>No return requests for this order.</p>
+                    </div>
+                {% endif %}
+            {% endwith %}
+        </div>
+    </div>
+    {% endif %}
 
     <!-- Status Update Form -->
     <div class="details-card">
@@ -400,10 +718,10 @@
 
             <div class="form-group">
                 <label class="form-label">Reason (optional, for cancellations/returns):</label>
-                {{ form.reason }}
+                <textarea name="reason" placeholder="Enter reason for status change..."></textarea>
             </div>
 
-            <button type="submit" class="btn btn-success">
+            <button type="submit" class="btn btn-primary">
                 <i class="fas fa-check"></i> Update Status
             </button>
         </form>

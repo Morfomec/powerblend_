@@ -230,9 +230,9 @@ body {
     color: var(--success-color);
 }
 
-.status-processing {
+.status-processing, .status-out_for_delivery {
     background: rgba(255, 193, 7, 0.15);
-    color: #d39e00;
+    color: #23985c;
 }
 
 .status-returned {
@@ -240,7 +240,7 @@ body {
     color:  orange;
 }
 
-.status-cancelled {
+.status-cancelled, .status-partially_cancelled {
     background: rgba(220, 53, 69, 0.15);
     color: var(--danger-color);
 }
@@ -249,7 +249,7 @@ body {
     background: rgba(33, 150, 243, 0.15);
     color: #2196f3;
 }
-.status-partially-cancelled {
+.status-return_requested {
     background: rgba(255, 165, 0, 0.15); /* soft amber/orange tone */
     color: #ff9800; /* warm amber */
 }
@@ -603,6 +603,8 @@ body {
                     <option value="processing" {% if request.GET.status == 'processing' %}selected{% endif %}>Processing</option>
                     <option value="delivered" {% if request.GET.status == 'delivered' %}selected{% endif %}>Delivered</option>
                     <option value="cancelled" {% if request.GET.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                    <option value="partially_caancelled" {% if request.GET.status == 'partially_cancelled' %}selected{% endif %}>Partially Cancelled</option>
+                    <option value="return_requested" {% if request.GET.status == 'return_requested' %}selected{% endif %}>Return Requested</option>
                 </select>
                 <button type="submit" class="btn-search">
                     <i class="fas fa-search me-1"></i>Search
