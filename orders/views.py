@@ -246,39 +246,53 @@ def cancel_item(request, order_id):
 def return_item(request, order_id): 
     """
     return a single item (only if  delivered)
+    
     """
 
-    order = get_object_or_404(Order, order_id=order_id, user=request.user)
+    order = get_object_or_404(Order, user=request.user, id=order_id)
+    item = get_object_or_404(OrderItem, user=request.user, id=item_id)
 
-    #to make sure only delivered products can  be returned
 
     if order.status != 'delivered':
-        return redirect('order_details', order_id=order.order_id)
+        messages.info(request, "This item is not delivered yet")
+        return redirect('order_details', id=order.id)
 
-    if request.method == 'POST':
-        form = ReturnItemForm(request.POST)
-        if form.is_valid():
-            item = get_object_or_404(OrderItem, id=form.cleaned_data['item_id'], order=order)
+
+
+    if ReturnRequest.object.filter(order_item=item, status='pending').exists():
+        message.error(request, "Already requested return for this product")
+        return redirect('order_details', id=order.id)
+
+
+    ReturnRequest.objects.create(order_item=item, user=request.user, reason=request.POST.get('reason', ''))
+
+    messages.success(request, 'Return request sent for admin approval.')
+    return redirect('order_details', order_id=order.id)
+
+    # if request.method == 'POST':
+    #     form = ReturnItemForm(request.POST)
+    #     if form.is_valid():
+    #         item = get_object_or_404(OrderItem, id=form.cleaned_data['item_id'], order=order)
         
-        #if already returned
-        if item.is_returned:
-            return redirect('order_details', order_id=order.order_id)
+    #     #if already returned
+    #     if item.is_returned:
+    #         return redirect('order_details', order_id=order.order_id)
 
-        with transaction.atomic():
-            increment_stock(item.variant, item.quantity)
-            item.is_returned = True
-            item.returned_reason = form.cleaned_data['reason']
-            item.returned_at  = timezone.now()
-            item.save(update_fields=['is_returned', 'returned_reason', 'returned_at'])
+    #     with transaction.atomic():
+    #         increment_stock(item.variant, item.quantity)
+    #         item.is_returned = True
+    #         item.returned_reason = form.cleaned_data['reason']
+    #         item.returned_at  = timezone.now()
+    #         item.save(update_fields=['is_returned', 'returned_reason', 'returned_at'])
 
-            # if all items are either cancelled or returned , will mark whole order as returned
-            if not order.items.filter(is_cancelled=False, is_returned=False).exists():
-                order.status = 'returned'
-                order.save(update_fields=['status'])
+    #         # if all items are either cancelled or returned , will mark whole order as returned
+    #         if not order.items.filter(is_cancelled=False, is_returned=False).exists():
+    #             order.status = 'returned'
+    #             order.save(update_fields=['status'])
         
-        return redirect('order_details', order_id=order.order_id)
+    #     return redirect('order_details', order_id=order.order_id)
     
-    return redirect('order_details', order_id=order.order_id)
+    # return redirect('order_details', order_id=order.order_id)
 
 
 
@@ -470,6 +484,36 @@ def admin_update_order_status(request, id):
 
     return redirect('admin_order_detail', id=order.id)
 
+
+@staff_member_required
+def admin_return_process(request, request_id, action):
+    
+    return_request = get_object_or_404(ReturnRequest, id=request_id)
+
+    if return_request != 'pending':
+        messages.info(request, "Request already processed.")
+        return redirect('admin_order_detail')
+
+    if action == 'approve':
+        return_request.status = 'approved'
+        return_request.order_item.is_returned = True
+        return_request.order_item.returned_reason = return_request.reason
+        return_request.order_item.returned_at = timezone.now()
+        return_request.order_item.save(update_fields=['is_returned', 'returned_reason', 'returned_at'])
+
+
+        #if all items are returned/cancelled
+
+        order = return_request.order_item.order
+        if not order.items.filter(is_cancelled=False, is_returned=False).exists():
+            order.status = 'returned'
+            order.save(update_fields=['status'])
+    elif action == 'reject':
+        return_request = 'rejected'
+
+    return_request.save() 
+    messages.success(request, f"Return request {action}d successfully.")
+    return redirect('admin_order_detail')
 
 
 

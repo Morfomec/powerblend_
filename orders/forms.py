@@ -15,6 +15,9 @@ class ReturnItemForm(forms.Form):
     item_id = forms.IntegerField()
     reason = forms.CharField(required=True)
 
+class ReturnOrderForm(forms.Form):
+    reason = forms.CharField(required=True)
+
 
 
 

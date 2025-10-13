@@ -103,7 +103,7 @@ class OrderItem(models.Model):
     ]
 
     RETURN_CHOICES = [
-        ('none', 'None'),
+        ('pending', 'Pending'),
         ('requested', 'Requested'),
         ('approved', 'Approved'),
         ('rejected', 'Rejected'),
