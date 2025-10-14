@@ -599,6 +599,8 @@
                             <span class="item-status item-cancelled">❌ Cancelled</span>
                         {% elif item.status == 'returned' %}
                             <span class="item-status item-returned">↩️ Returned</span>
+                        {% elif item.status == 'return_rejected' %}
+                            <span class="item-status item-cancelled">❌ Return Rejected</span>
                         {% else %}
                             <span style="color: var(--success-color); font-weight: 600;">✓ Active</span>
                         {% endif %}
@@ -628,7 +630,7 @@
             {% with return_items=order.items.all|dictsort:"id" %}
                 {% if return_items %}
                     {% for item in return_items %}
-                        {% if item.return_status != 'pending' and item.return_status != 'none' %}
+                        {% if item.return_status != 'pending' and item.return_status != 'pending' %}
                         <div class="return-item {% if item.return_status == 'return_approved' %}approved{% elif item.return_status == 'return_rejected' %}rejected{% endif %}">
                             <div class="return-header">
                                 <div class="return-product-info">
@@ -636,23 +638,23 @@
                                     <div class="return-product-qty">Quantity: {{ item.quantity }}</div>
                                 </div>
 
-                                <!-- 🟢 Status Badge -->
+                                <!--  Status Badge -->
                                 <span class="return-status-badge return-status-{{ item.return_status }}">
                                     {% if item.return_status == 'return_items' %}
                                         ⏳ Return Requested
                                     {% elif item.return_status == 'return_approved' %}
-                                        ✅ Approved
+                                        ✅ Return Approved
                                     {% elif item.return_status == 'return_rejected' %}
-                                        ❌ Rejected
+                                        ❌ Return Rejected
                                     {% endif %}
                                 </span>
                             </div>
 
-                            <!-- 🕓 Details -->
+                            <!-- Details -->
                             <div class="return-details">
                                 <div class="detail-row">
                                     <strong>Requested On:</strong>
-                                    <span>{{ item.returned_at|date:"F d, Y H:i" }}</span>
+                                    <span>{{ item.return_at|date:"F d, Y H:i" }}</span>
                                 </div>
                                 <div class="detail-row">
                                     <strong>Refund Amount:</strong>
@@ -660,16 +662,16 @@
                                 </div>
                             </div>
 
-                            <!-- 💬 Return Reason -->
+                            <!--  Return Reason -->
                             <div class="return-reason">
                                 <strong>Reason:</strong>
                                 <p>{{ item.return_reason|default:"(No reason provided)" }}</p>
                             </div>
 
-                            <!-- 🧭 Admin Action Buttons -->
-                            {% if item.return_status == 'return_items' %}
+                            <!--  Admin Action Buttons -->
+                            {% if item.return_status == 'return_requested' %}
                             <div class="return-actions">
-                                <form method="post" action="{% url 'admin_process_return' item.id %}" style="display:inline;">
+                                <form method="post" action="{% url 'admin_return_process' item.id %}" style="display:inline;">
                                     {% csrf_token %}
                                     <input type="hidden" name="action" value="approve">
                                     <button type="submit" class="btn btn-success" onclick="return confirm('Approve this return request?')">
@@ -677,7 +679,7 @@
                                     </button>
                                 </form>
 
-                                <form method="post" action="{% url 'admin_process_return' item.id %}" style="display:inline;">
+                                <form method="post" action="{% url 'admin_return_process' item.id %}" style="display:inline;">
                                     {% csrf_token %}
                                     <input type="hidden" name="action" value="reject">
                                     <button type="submit" class="btn btn-danger" onclick="return confirm('Reject this return request?')">

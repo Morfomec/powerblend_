@@ -113,9 +113,7 @@ def add_product(request):
                 "active_page":"add_product",
             }
             return render(request, 'add_product.html', context)
-
-        # else:
-        #     r
+            
         try:
             #save products now
             category = get_object_or_404(Category, id=category)
@@ -199,90 +197,6 @@ def add_variants(request, product_id):
 
     return render(request, "add_variants.html", context)
 
-# def edit_product(request, product_id):
-#     """
-#     Handle both GET and POST requests for editing an existing products.
-#     """
-#     product = get_object_or_404(Product,id=product_id)
-
-#     if request.method == 'POST':
-#         name = request.POST.get('name')
-#         description = request.POST.get('description')
-#         category = request.POST.get('category')
-#         price = request.POST.get('price')
-#         stock = request.POST.get('stock')
-#         is_listed = request.POST.get('is_listed') in ["on", "true", "1", True]
-
-        
-#         #validation 
-        
-#         if not name or not description or not category or not price:
-#             messages.error(request, " Please fill in all required fields.")
-#             categories = Category.objects.all()
-#             context = {
-#                 'product':product,
-#                 'categories':categories,
-#                 'mode':"edit",
-#                 "active_page":"edit_product",
-#             }
-#             return render(request, 'add_product.html', context)
-
-#         # handle uploaded images
-
-#         uploaded_images = request.FILES.getlist('images')
-
-#         try:
-
-#             #to get the selected category
-#             category_id = request.POST.get('category')
-#             category_obj = get_object_or_404(Category, id=category_id)
-
-#             #update the product fields
-#             product.name = name
-#             product.description = description
-#             product.category = category_obj
-#             product.price = price
-#             product.stock = stock
-#             product.is_listed = is_listed
-            
-#             product.save()
-
-#             # to save uploaded images without removing exisiting oen
-
-#             if uploaded_images:
-#                 for img in uploaded_images:
-#                     ProductImage.objects.create(product=product, image=img)
-
-#             messages.success(request, f"Product '{name}' updated successfully!")
-#             return redirect('admin_products')
-
-#         except Exception as e:
-#             messages.error(request, f"An error occured:{e}")
-#             return redirect('edit_product', product_id=product.id)
-
-#     else: 
-#         #opening page first time
-
-#         categories = Category.objects.all()
-#         context = {
-#             "form":{
-#                 "name":{"value":product.name},
-#                 "description":{"value":product.description},
-#                 "category":{"value":product.category.id if product.category else None},
-#                 "price":{"value":product.price},
-#                 "stock":{"value":product.stock},
-#                 "is_listed":{"value":product.is_listed},
-                
-#             },
-#             "product":product,
-#             "categories":categories,
-#             "mode":"edit",
-#             "active_page":"edit_product",
-#         }
-#         return render(request, 'add_product.html', context)
-
-
-
 def edit_product(request, product_id):
     """
     Handle both GET and POST requests for editing an existing products.
@@ -336,39 +250,6 @@ def delete_product(request, product_id):
 
     messages.error(request, "Invalid request for product deletion.")
     return redirect('edit_product', product_id=product_id)
-
-# def add_product(request):
-#     if request.method == "POST":
-#         form = ProductForm(request.POST)
-#         formset = ProductImageFormSet(request.POST, request.FILES)
-
-#         if form.is_valid() and formset.is_valid():
-#             product = form.save()
-#             images = formset.save(commit=False)
-
-#             if len(images) < 3:  # enforce min 3 images
-#                 messages.error(request, "Please upload at least 3 images")
-#             else:
-#                 for i, img in enumerate(images):
-#                     img.product = product
-#                     if i == 0:
-#                         img.is_primary = True
-#                     img.save()
-#                 messages.success(request, "Product added successfully")
-#                 return redirect("admin_products")
-#         else:
-#             messages.error(request, "Please fix the errors below")
-#     else:
-#         form = ProductForm()
-#         formset = ProductImageForm()
-
-#     return render(request, "add_product.html", {
-#         "form": form,
-#         "formset": formset,
-#         "mode": "add"
-#     })
-
-
 
 def manage_attributes(request, product_id):
     """

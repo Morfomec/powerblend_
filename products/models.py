@@ -3,6 +3,8 @@ from category.models import Category
 from utils.file_uploads import product_image_upload_path
 from django.utils.text import slugify
 from django.utils import timezone
+from django.core.exceptions import ValidationError
+from django.db.models import F, Value
 # Create your models here.
 
 class Product(models.Model):
@@ -79,6 +81,19 @@ class ProductVariant(models.Model):
     stock = models.PositiveIntegerField(default=0)
     is_listed = models.BooleanField(default=True)
     max_quantity_per_order = models.PositiveIntegerField(default=5)
+
+    # def clean(self):
+    # # Skip validation if using F() expressions (database will handle it)
+    #     if isinstance(self.stock, F):
+    #         return
+
+    #     # Only check when actual integer value is known
+    #     if self.stock is not None and self.stock < 0:
+    #         raise ValidationError({"stock": "Stock cannot be negative"})
+
+    # def save(self, *args, **kwargs):
+    #     self.full_clean()  # calls clean()
+    #     super().save(*args, **kwargs)
     
     @property
     def original_price(self):
@@ -102,7 +117,7 @@ class ProductVariant(models.Model):
             details.append(self.weight)
         return f"{self.product.name} - {'/'.join(str(d) for d in details)}"
 
-
     class Meta:
         db_table = "product_variants"
         unique_together = ('product', 'flavor', 'weight')
+        constraints = [ models.CheckConstraint(check=models.Q(stock__gte=0), name='stock_non_negative')]

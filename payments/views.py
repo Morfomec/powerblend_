@@ -7,7 +7,8 @@ from django.contrib.auth.decorators import login_required
 from orders.models import Order
 from basket.models import Basket
 from orders.utils import decrement_stock
-
+from products.models import ProductVariant
+from django.core.exceptions import ValidationError
 
 
 # Create your views here.
@@ -54,13 +55,6 @@ def checkout_view(request):
         except Exception as e:
             messages.error(request, f"Payment method error is {str(e)}!!")
 
-        # shipping_address = (
-        #     f"{default_address.full_name} <br>"
-        #     f"{default_address.address}<br>"
-        #     f"{default_address.city}, {default_address.state}<br>"
-        #     f"{default_address.postal_code}, {default_address.country}"
-        # )
-
         shipping_address = (
             f"{default_address.full_name}<br>"
             f"{default_address.address}<br>"
@@ -74,9 +68,22 @@ def checkout_view(request):
         with transaction.atomic():
             #2. creare orderitems from basket items
             for item in basket_items:
+
+                variant = ProductVariant.objects.select_for_update().get(id=item.variant.id)
+                print("Variant ID:", variant.id)
+                print("Current stock in DB:", variant.stock)
+                variant.refresh_from_db()
+                if variant.stock < item.quantity:
+                    messages.error(request, f"Not enough stock for {variant.product.name}. Only {variant.stock} left.")
+                    transaction.set_rollback(True)  # rollback the current transaction
+                    return redirect('basket_view')
+
+                
+
                 order.items.create(variant=item.variant, quantity=item.quantity, price=item.subtotal)
                 
                 decrement_stock(item.variant, item.quantity)
+                
         
 
             #3. clear basket after order creation

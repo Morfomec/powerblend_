@@ -33,6 +33,13 @@ class Order(models.Model):
         ('wallet', 'Wallet'),
     ]
 
+    RETURN_CHOICES = [
+        ('pending', 'Pending'),
+        ('return_requested', 'Return Requested'),
+        ('return_approved', 'Return Approved'),
+        ('return_rejected', 'Return Rejected'),
+    ]
+
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="orders")
     order_id = models.CharField(max_length=32, unique=True, default=generate_order_id, editable=False)
     payment_method = models.CharField(max_length=20, choices=PAYMENT_CHOICES, default='None')
@@ -42,6 +49,11 @@ class Order(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     subtotal = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     shipping_address = models.TextField(blank=True, null=True)
+
+    is_returned = models.BooleanField(default=False)
+    return_reason = models.TextField(blank=True, null=True)
+    return_at = models.DateTimeField(blank=True, null=True)
+    return_status = models.CharField(max_length=50, choices=RETURN_CHOICES, default='pending')
 
 
     def __str__(self):
@@ -87,6 +99,23 @@ class Order(models.Model):
             self.status = 'pending'
         self.save(update_fields=['status'])
 
+    def update_return_status(self):
+        
+        status =self.items.values_list('return_status', flat=True)
+        if all(s == 'return_approved' for s in status):
+            self.return_status = 'return_approved'
+            self.is_returned = True
+
+        elif all(s == 'return_requested' for s in status):
+            self.return_status = 'return_requested'
+        elif all(s == 'return_rejected' for s in status):
+            self.return_status = 'return_rejected'
+        elif all(s == 'returned' for s in status):
+            self.return_status = 'returned'
+        else:
+            self.return_status = 'returned'
+        self.save()
+
 
 # OrderItems Model , links each order to a ProductVariant
 class OrderItem(models.Model):
@@ -125,7 +154,7 @@ class OrderItem(models.Model):
     # returns fields
     is_returned = models.BooleanField(default=False)
     return_reason = models.TextField(blank=True, null=True)
-    returned_at = models.DateTimeField(blank=True, null=True)
+    return_at = models.DateTimeField(blank=True, null=True)
     return_status = models.CharField(max_length=20, choices=RETURN_CHOICES, default='pending')
 
     @property

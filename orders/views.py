@@ -112,7 +112,9 @@ def order_details(request, order_id):
 
     total = subtotal + taxes + shipping - discount
 
-
+    order_return_status = None
+    statuses = order.items.filter(is_cancelled=False, is_returned=False).values_list('return_status', flat=True)
+    
     context = {
         'order' : order,
         'order_items' : order_items ,
@@ -193,13 +195,106 @@ def cancel_order(request, order_id):
     return render(request, 'order_cancel_confirm.html', context)
 
 
+# @login_required
+# def return_order(request, order_id):
+#     """
+#     to return the whole order 
+#     """
+
+#     order = get_object_or_404(Order, id=order_id, user=request.user)
+
+#     if order.status != 'delivered':
+#         messages.error(request, "This order cannot be returned at this moment.")
+#         return redirect('order_details', order_id=order.id)
+
+
+#     eligible_item = order.items.filter(is_cancelled=False, is_returned=False, status='delivered')
+#     if not eligible_item.exists():
+#         messages.info(request, "No items eligible for return.")
+#         return redirect('order_details', order_id=order.id)
+
+#     if request.method == 'POST':
+#         reason = request.POST.get('reason', 'No reason provided.')
+#         with transaction.atomic():
+#             for item in eligible_item:
+
+#                 increment_stock(item.variant, item.quantity)
+
+#                 item.is_returned =True
+#                 item.return_at =timezone.now()
+#                 item.return_reason = reason
+#                 item.return_status = 'return_requested'
+#                 item.save(update_fields=['is_returned', 'return_at', 'return_reason', 'return_status'])
+
+            
+#             remaining_items = order.items.filter(is_cancelled=False, is_returned=False)
+#             if not remaining_items.exists():
+#                 order.status = 'returned'
+#                 order.save(update_fields=['status'])
+
+#         messages.success(request,"Return request submitted for admin approval.")
+#         return redirect('order_details', order_id=order.id)
+
+#     context = {
+#         'order':order,
+#         'eligible_items':eligible_items,
+#     }
+#     return render(request, 'order_detail_page.html')
+
 @login_required
 def return_order(request, order_id):
-    """
-    to return the whole order 
-    """
+    
+    order = get_object_or_404(Order, id=order_id, user=request.user)
 
-    return render(request, 'order_detail_page.html')
+    if order.return_status == 'return_requested':
+        messages.info(request, " Return request already submitted.")
+        return redirect('order_details', order_id=order.id)
+
+    reason = request.POST.get('reason', 'No reason provided')
+
+    active_items = order.items.filter(is_cancelled=False, is_returned=False, status='delivered')
+
+    if not active_items.exists():
+        messages.warning(request, "No eligible items to return.")
+        return render('order_details', order_id=order.id)
+
+
+    for item in active_items:
+        item.return_status = 'return_requested'
+        item.return_at = timezone.now()
+        item.return_reason = reason
+        item.save(update_fields=['return_status', 'return_reason', 'return_at'])
+
+    # # order-level return status
+    # order.return_status = 'return_requested'
+    # order.save(update_fields=['return_status'])
+
+    order.update_return_status()
+
+    messages.success(request, "Return request submitted for the admin to approve.")
+    return redirect('order_details', order_id=order.id)
+
+
+
+
+    # if order.status != 'delivered':
+    #     messages.error(request, "This order cannot be returned at this moment.")
+    #     return redirect('order_details', id=order_id)
+    
+    # if order.return_status != 'pending':
+    #     messages.infor(request, "Return request already submitted or processed.")
+    #     return redirect('order_details', id=order.id)
+
+    
+    # order.return_status = 'pending'
+    # order.return_reason = request.POST.get('reason', '')
+    # order.save()
+
+    # messages.success(request, "Your return request submitted for admin approval.")
+    # return redirect('order_details', id=order.id)
+
+
+
 
 
 @login_required
@@ -248,6 +343,8 @@ def return_item(request, order_id, item_id):
     return a single item (only if  delivered)
     
     """
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    item = get_object_or_404(OrderItem, id=item_id, order=order)
 
     if item.status != 'delivered':
         messages.error(request, "This item is not delivered yet.")
@@ -272,8 +369,8 @@ def return_item(request, order_id, item_id):
         # Mark as requested
     item.return_status = 'return_requested'
     item.return_reason = request.POST.get('reason', '')
-    item.returned_at = timezone.now()
-    item.save(update_fields=['return_status', 'return_reason', 'returned_at'])
+    item.return_at = timezone.now()
+    item.save(update_fields=['return_status', 'return_reason', 'return_at'])
 
     messages.success(request, 'Return request sent for admin approval.')
     return redirect('order_details', order_id=order.id)
@@ -386,6 +483,8 @@ def admin_order_detail(request, id):
     #prepare form prefilled with current status
     form = AdminOrderStatusForm(initial={'status' : order.status})
 
+    return_items = order.items.filter(return_status__in=['return_requested', 'return_approved', 'return_rejected'])
+
 
     # return_requests = ReturnRequest.objects.filter(item__order=order)
 
@@ -395,6 +494,7 @@ def admin_order_detail(request, id):
         'order_total' : order_total,
         'form' : form,
         # 'return_requests' : return_requests
+        'return_items': return_items,
     }
 
     return render(request, 'admin_order_detail.html', context)
@@ -500,58 +600,6 @@ def admin_update_order_status(request, id):
     return redirect('admin_order_detail', id=order.id)
 
 
-# @staff_member_required
-# def admin_return_process(request, return_id):
-#     """
-#     Admin to approve or to reject return requests.
-#     """
-
-#     return_req = get_object_or_404(ReturnRequest, id=return_id)
-
-#     if request.method == 'POST':
-#         action = request.POST.get("action")
-#         if action == 'approve':
-#             return_req.status = 'approved'
-#             return_req.item.return_status = 'return_approved'
-#             retunr_req.approved_at = timezone.now()
-#             return_req.item.is_returned = True
-#         elif action == 'reject':
-#             return_req.status = 'rejected'
-#             return_req.item.return_status = 'return_rejected'
-
-#         return_req.save()
-#         rreturn_req.item.save(update_fields=['return_status', 'is_returned', 'approved_at'])
-#     return redirect('admin_order_detail', order=return_req.item.order.id)
-
-
-    
-    # return_request = get_object_or_404(ReturnRequest, id=request_id)
-
-    # if return_request != 'pending':
-    #     messages.info(request, "Request already processed.")
-    #     return redirect('admin_order_detail')
-
-    # if action == 'approve':
-    #     return_request.status = 'approved'
-    #     return_request.order_item.is_returned = True
-    #     return_request.order_item.returned_reason = return_request.reason
-    #     return_request.order_item.returned_at = timezone.now()
-    #     return_request.order_item.save(update_fields=['is_returned', 'returned_reason', 'returned_at'])
-
-
-    #     #if all items are returned/cancelled
-
-    #     order = return_request.order_item.order
-    #     if not order.items.filter(is_cancelled=False, is_returned=False).exists():
-    #         order.status = 'returned'
-    #         order.save(update_fields=['status'])
-    # elif action == 'reject':
-    #     return_request = 'rejected'
-
-    # return_request.save() 
-    # messages.success(request, f"Return request {action}d successfully.")
-    # return redirect('admin_order_detail')
-
 
 
 @staff_member_required
@@ -567,16 +615,20 @@ def admin_return_process(request, item_id):
         item.is_returned = True
         item.status = 'returned'
         item.returned_at = timezone.now()
+        increment_stock(item.variant, item.quantity)
         messages.success(request, f"Return approved for {item.variant.product.name}.")
     elif action == 'reject':
         item.return_status = 'return_rejected'
         messages.warning(request, f"Return rejected for {item.variant.product.name}.")
     else:
         messages.error(request, "Invalid action.")
-        return redirect('admin_order_detail', order_id=item.order.id)
+        return redirect('admin_order_detail', id=item.order.id)
 
-    item.save(update_fields=['return_status', 'is_returned', 'status', 'returned_at'])
-    return redirect('admin_order_detail', order_id=item.order.id)
+    item.save(update_fields=['return_status', 'is_returned', 'status', 'return_at'])
+
+    item.order.update_return_status()
+
+    return redirect('admin_order_detail', id=item.order.id)
 
 
 

@@ -840,7 +840,7 @@ textarea::placeholder {
         <div class="header_order_detail_page">
             <div class="header-top"> 
                 <div class="order-id">Order ID: {{ order.order_id }}</div> 
-                <a href="{% url 'download_invoice' order.id %}" style="background: var(--primary-solid); color: white; padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none;">
+                <a href="{% url 'download_invoice' order_id=order.id %}" style="background: var(--primary-solid); color: white; padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none;">
                     <i class="fas fa-download me-2"></i>Download Invoice
                 </a>
             </div>
@@ -924,32 +924,37 @@ textarea::placeholder {
 
                     <div class="product-actions">
                         <div class="product-total">₹{{ item.total_price }}</div>
-
-                        {% if item.return_status %}
-                            <span class="item-status
-                                {% if item.return_status == 'return_requested' %}return-requested{% endif %}
-                                {% if item.return_status == 'return_approved' %}return-approved{% endif %}
-                                {% if item.return_status == 'return_rejected' %}return-rejected{% endif %}
-                                {% if item.return_status == 'returned' %}returned{% endif %}
-                            ">
-                                {% if item.return_status == 'return_requested' %}Return Requested{% endif %}
-                                {% if item.return_status == 'return_approved' %}Return Approved{% endif %}
-                                {% if item.return_status == 'return_rejected' %}Return Rejected{% endif %}
-                                {% if item.return_status == 'returned' %}Returned{% endif %}
-                            </span>
-                        <!-- {% endif%} -->
-                            
-
-                        {% if item.status == 'cancelled' %}
+                        {% if item.status == 'delivered' %}
+                            {% if item.return_status == 'pending' %}
+                                <button class="return-item-btn"
+                                    onclick="openActionModal('return', 'item', {{ item.id }}, '{{ item.variant.product.name|escapejs }}', '{% url 'return_item' order.id item.id %}')">
+                                    <i class="fas fa-undo"></i> Return Item
+                                </button>
+                            {% else %}
+                                <span class="item-status
+                                    {% if item.return_status == 'return_requested' %}return-requested{% endif %}
+                                    {% if item.return_status == 'return_approved' %}return-approved{% endif %}
+                                    {% if item.return_status == 'return_rejected' %}return-rejected{% endif %}
+                                    {% if item.return_status == 'returned' %}returned{% endif %}
+                                ">
+                                    {% if item.return_status == 'return_requested' %}Return Requested{% endif %}
+                                    {% if item.return_status == 'return_approved' %}Return Approved{% endif %}
+                                    {% if item.return_status == 'return_rejected' %}Return Rejected{% endif %}
+                                    {% if item.return_status == 'returned' %}Returned{% endif %}
+                                </span>
+                            {% endif %}
+                                
+                        
+                        {% elif item.status == 'cancelled' %}
                             <span class="item-status cancelled">
                                 <i class="fas fa-ban"></i> Cancelled
                             </span>
-                                                
-                        {% elif order.status == 'delivered' %}
-                            <button class="return-item-btn"
-                                onclick="openActionModal('return', 'item', {{ item.id }}, '{{ item.variant.product.name|escapejs }}', '{% url 'return_item' order.id item.id %}')">
-                                <i class="fas fa-undo"></i> Return Item
-                            </button>
+                        {% elif order.return_status == 'return_approved' %}
+                            <span class="item-status return-approved">
+                                <i class="fas fa-check-circle"></i> Return Approved
+                            </span>
+                                                                  
+                        
                         
                         {% else %}
                             <button class="cancel-item-btn"
@@ -957,6 +962,8 @@ textarea::placeholder {
                                 <i class="fas fa-times-circle"></i> Cancel Item
                             </button>
                         {% endif %}
+                            
+                        
                     </div>
                 </div> 
             </div>
@@ -1009,12 +1016,56 @@ textarea::placeholder {
                     <span>Rs. {{ total|floatformat:2 }}</span>
                 </div>
             </div>
-            {% if order.status == 'delivered' and order.status != 'returned' %}
-                <button class="action-button"
-                    onclick="openActionModal('return', 'order', {{ order.id }}, '', '{% url 'return_order' order.id %}')">
-                    RETURN ORDER
-                </button>
-            {% elif order.status != 'cancelled' %}
+            {% if order.status == 'delivered' %}
+                {% if order.return_status == 'return_requested' %}
+                    
+                    <!-- Go Back Button -->
+                    <div class="text-center mt-4 mb-2">
+                        <p class="text-red-600 font-semibold" style="font-size: 24px; font-weight: 600; color: #28a745;">
+                            <span class="item-status return-requested">
+                                <i class="fas fa-history"></i> Return Requested
+                            </span>
+                        </p>
+                        <a href="{% url 'order_list' %}" class="action-button" style="text-decoration: none;">Go Back</a>
+                    </div>
+                {% elif order.return_status == 'return_approved' %}
+                    <div class="text-center mt-4 mb-2">
+                        <p class="text-red-600 font-semibold" style="font-size: 24px; font-weight: 600; color: #28a745;">
+                            <span class="item-status return-approved">
+                                <i class="fas fa-check-circle"></i> Return Approved
+                            </span>
+                        </p>
+                        <a href="{% url 'order_list' %}" class="action-button" style="text-decoration: none;">Go Back</a>
+                    </div>
+                    
+                {% elif order.return_status == 'return_rejected' %}
+                    <div class="text-center mt-4 mb-2">
+                        <p class="text-red-600 font-semibold" style="font-size: 24px; font-weight: 600; color: #28a745;">
+                            <span class="item-status return-rejected">
+                                <i class="fas fa-times-circle"></i> Return Rejected
+                            </span>
+                        </p>
+                        <a href="{% url 'order_list' %}" class="action-button" style="text-decoration: none;">Go Back</a>
+                    </div>
+                    
+                {% elif order.return_status == 'returned' %}
+                    <div class="text-center mt-4 mb-2">
+                        <p class="text-red-600 font-semibold" style="font-size: 24px; font-weight: 600; color: #28a745;">
+                            <span class="item-status returned">
+                                <i class="fas fa-box-open"></i> Returned
+                            </span>
+                        </p>
+                        <a href="{% url 'order_list' %}" class="action-button" style="text-decoration: none;">Go Back</a>
+                    </div>
+                    
+                {% else %}
+                    <!-- Show button only if no return request yet -->
+                    <button class="action-button"
+                        onclick="openActionModal('return', 'order', {{ order.id }}, '', '{% url 'return_order' order.id %}')">
+                        RETURN ORDER
+                    </button>
+                {% endif %}
+            {% elif order.status != 'delivered' and order.status != 'cancelled' %}
                 <button class="action-button"
                     onclick="openActionModal('cancel', 'order', {{ order.id }}, '', '{% url 'cancel_order' order.id %}')">
                     CANCEL ORDER
