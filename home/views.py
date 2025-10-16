@@ -8,6 +8,8 @@ from products.models import Product, ProductVariant
 from category.models import Category
 from wishlist.models import Wishlist, WishlistItem
 from django.db.models import Q, Sum
+from offers.models import Offer
+from offers.utils import get_best_offer_for_product, get_discount_info_for_variant
 # Create your views here.
 
 
@@ -17,6 +19,16 @@ from django.db.models import Q, Sum
 def home_view(request):
     products = Product.objects.filter(is_listed=True).prefetch_related("variants")
     # variant = ProductVariant.objects.all()
+
+    for product in products:
+        product.best_offer = get_best_offer_for_product(product)
+        variants = list(product.variants.all())
+
+        for variant in variants:
+            variant.discount_info = get_discount_info_for_variant(variant)
+
+        product.display_variant = variants[0] if variants else None
+      
 
     wishlist_variant_ids = []
     if request.user.is_authenticated:
@@ -38,8 +50,8 @@ def list_products(request):
     return products list page
     """
 
+
     products = Product.objects.filter(is_listed=True).prefetch_related("variants")
-    categories = Category.objects.all()
 
     # search
     search_query = request.GET.get("search")
@@ -59,8 +71,8 @@ def list_products(request):
 
     #filter by price
 
-    min_price = request.GET.get("min.price")
-    max_price = request.GET.get("max.price")
+    min_price = request.GET.get("min_price")
+    max_price = request.GET.get("max_price")
 
     if min_price:
         products = products.filter(variants__price__gte=min_price)
@@ -68,6 +80,8 @@ def list_products(request):
         products = products.filter(variants__price__lte=max_price)
 
     
+
+
     #sorting
 
     sort_option = request.GET.get("sort")
@@ -91,6 +105,19 @@ def list_products(request):
         wishlist = getattr(request.user, 'wishlist', None)
         if wishlist:
             wishlist_variant_ids = list(wishlist.items.values_list('variant_id', flat=True))
+
+    # for product in products:
+    #     product.best_offer = get_best_offer_for_product(product)
+
+
+    for product in products:
+        product.best_offer = get_best_offer_for_product(product)
+        for variant in product.variants.all():
+            variant.discount_info = get_discount_info_for_variant(variant)
+
+    categories = Category.objects.all()
+
+
 
     context = {
         'products': products,
@@ -121,6 +148,8 @@ def detail_product(request, id):
 
         variants = single_product.variants.all().order_by('weight')
         
+        for variant in variants:
+            variant.discount_info = get_discount_info_for_variant(variant)
 
         #pick one as the dafault
         default_variant = variants.first() if variants.exists() else None

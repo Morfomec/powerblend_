@@ -7,6 +7,9 @@ from .forms import ProductForm, ProductImageForm, ProductVariantForm, FlavorForm
 from django.urls import reverse
 from django.db.models import Sum
 
+from offers.utils import get_best_offer_for_product,get_discount_info_for_variant
+
+
 
 # Create your views here.
 

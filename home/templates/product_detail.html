@@ -785,6 +785,16 @@
                         <!-- <div class="text-muted small">Inclusive of all taxes</div> -->
                     </div>
                     {% endif %}
+
+                    
+
+                    {% if product.best_offer %}
+                        <div class="discount-badge">
+                            {{ product.best_offer.name|upper }} - {{ product.best_offer.discount_percent }}% OFF
+                        </div>
+                    {% else %}
+                        <div class="discount-badge">Exclusive Offers awaits</div>
+                    {% endif %}
                     
                     <!-- Flavor Selector -->
                     <div class="flavor-selector">
@@ -841,11 +851,11 @@
                                 </button>
                             {% endif %}
                         </div>
-                        <!-- <div class="col-2">
+                        <div class="col-2">
                             <button class="wishlist-btn w-100">
                                 <i class="far fa-heart"></i>
                             </button>
-                        </div> -->
+                        </div>
                     </div>
                     
                     <div class="stock-info">

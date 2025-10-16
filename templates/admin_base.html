@@ -65,7 +65,7 @@
                         <!-- Category -->
                         <li class="{% if active_page == 'admin_category' %}active{% endif %}">
                             <a href="{% url 'admin_category' %}">
-                                <i class="fas fa-tags"></i> Category
+                                <i class="fas fa-box-open"></i> Category
                             </a>
                         </li>
 
@@ -86,6 +86,8 @@
                         <!-- Orders -->
                         <li><a href="{% url 'admin_order_list' %}"><i class="fas fa-shopping-cart"></i> Orders</a></li>
 
+                        <li><a href="{% url 'admin_offer_list' %}"><i class="fas fa-gift"></i> Offers</a></li>
+
                         <!-- Banners -->
                         <li>
                             <a href="#" class="dropdown-toggle" data-dropdown="banners">
@@ -101,7 +103,9 @@
                         </li>
 
                         <!-- Coupon, Reports, Settings -->
+                        
                         <li><a href="#"><i class="fas fa-percent"></i> Coupon</a></li>
+
                         <li><a href="#"><i class="fas fa-chart-bar"></i> Reports</a></li>
                         <li><a href="{% url 'admin_settings' %}"><i class="fas fa-cog"></i> Settings</a></li>
 
@@ -152,7 +156,7 @@
                 </div>  
 
                 <!-- Body Content -->
-                {% block body %}{% endblock %}
+                {% block body %}{% endblock body %}
 
             </div>
         </div>

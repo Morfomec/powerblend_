@@ -1,0 +1,521 @@
+{% extends "admin_base.html" %}
+{% load custom_tags %}
+
+{% block title %}{% if offer %}Edit Offer{% else %}Add New Offer{% endif %} - Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary-color: rgba(0, 57, 66, 0.8);
+        --primary-solid: rgb(0, 57, 66);
+        --light-bg: #f8f9fa;
+        --success-color: #28a745;
+        --danger-color: #dc3545;
+    }
+
+    .admin-container {
+        max-width: 1570px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: var(--light-bg);
+    }
+
+
+    .page-header {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+        padding: 1.5rem 2rem;
+        margin-bottom: 1.5rem;
+        border: 1px solid #e9ecef;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .page-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary-solid), var(--primary-color));
+    }
+
+    .page-title {
+        color: var(--primary-solid);
+        font-size: 1.8rem;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .form-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+        padding: 2rem;
+        border: 1px solid #e9ecef;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        font-weight: 600;
+        color: var(--primary-solid);
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+    }
+
+    .form-label .required {
+        color: var(--danger-color);
+        margin-left: 0.25rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .form-control:focus {
+        border-color: var(--primary-solid);
+        outline: none;
+        box-shadow: 0 0 0 0.2rem rgba(0, 57, 66, 0.12);
+    }
+
+    .form-control[type="number"] {
+        -moz-appearance: textfield;
+    }
+
+    .form-control[type="number"]::-webkit-inner-spin-button,
+    .form-control[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    textarea.form-control {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    select.form-control {
+        cursor: pointer;
+    }
+
+    select.form-control[multiple] {
+        min-height: 150px;
+    }
+
+    .form-help {
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin-top: 0.5rem;
+        display: block;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+
+    .switch-container {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        background: var(--light-bg);
+        border-radius: 8px;
+    }
+
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 30px;
+    }
+
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+        border-radius: 30px;
+    }
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 22px;
+        width: 22px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+
+    input:checked + .slider {
+        background-color: var(--success-color);
+    }
+
+    input:checked + .slider:before {
+        transform: translateX(30px);
+    }
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+        border: none;
+    }
+
+    .btn-success {
+        background: var(--success-color);
+        color: white;
+    }
+
+    .btn-success:hover {
+        background: #218838;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+    }
+
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background: #5a6268;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .btn-back {
+        background: transparent;
+        color: #6c757d;
+        border: 2px solid #6c757d;
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    .btn-back:hover {
+        background: #6c757d;
+        color: white;
+    }
+
+    .btn-group {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .input-group {
+        position: relative;
+        display: flex;
+        align-items: stretch;
+    }
+
+    .input-group .form-control {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+
+    .input-group-text {
+        padding: 0.75rem 1rem;
+        background: var(--light-bg);
+        border: 2px solid #e9ecef;
+        border-left: none;
+        border-radius: 0 8px 8px 0;
+        font-weight: 600;
+        color: var(--primary-solid);
+    }
+
+    @media (max-width: 768px) {
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+
+        .btn-group {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="admin-container">
+    <!-- Page Header -->
+    <div class="page-header d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="page-title">{% if offer %}Edit Offer{% else %}Add New Offer{% endif %}</h1>
+            <p style="color: #6c757d; margin-top: 0.5rem;">
+                {% if offer %}Update offer details{% else %}Create a new discount offer{% endif %}
+            </p>
+        </div>
+        <a href="{% url 'admin_offer_list' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Order Lists
+        </a>
+    </div>
+
+    <!-- Form Card -->
+    <div class="form-card">
+        <form method="post" id="offerForm">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label class="form-label">
+                    Offer Name<span class="required">*</span>
+                </label>
+                <input 
+                    type="text" 
+                    class="form-control" 
+                    name="name" 
+                    value="{{ offer.name }}" 
+                    placeholder="e.g., Summer Sale 2024"
+                    required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">
+                    Offer Type<span class="required">*</span>
+                </label>
+                <select class="form-control" id="offer_type" name="offer_type" required>
+                    <option value="">Select offer type</option>
+                    <option value="category" {% if offer.offer_type == 'category' %}selected{% endif %}>Category Offer</option>
+                    <option value="product" {% if offer.offer_type == 'product' %}selected{% endif %}>Product Offer</option>
+                    <option value="referral" {% if offer.offer_type == 'referral' %}selected{% endif %}>Referral Offer</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Description</label>
+                <textarea 
+                    class="form-control" 
+                    name="description" 
+                    placeholder="Describe the offer details...">{{ offer.description }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">
+                    Discount Percentage<span class="required">*</span>
+                </label>
+                <div class="input-group">
+                    <input 
+                        type="number" 
+                        class="form-control" 
+                        name="discount_percent" 
+                        value="{{ offer.discount_percent }}" 
+                        min="0" 
+                        max="100" 
+                        step="0.01"
+                        placeholder="0.00"
+                        required>
+                    <span class="input-group-text">%</span>
+                </div>
+            </div>
+
+            
+                <!-- Categories -->
+                <div class="form-group" id="categoryField" style="display: none;">
+                    <label>Categories</label>
+                    <div class="form-check mb-1">
+                        <input type="checkbox" class="form-check-input select-all" data-target="category-checkbox" id="selectAllCategories">
+                        <label class="form-check-label" for="selectAllCategories">Select All Categories</label>
+                    </div>
+                    {% for category in categories %}
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input category-checkbox" name="categories" value="{{ category.id }}"
+                            {% if category.id in selected_category_ids %}checked{% endif %}>
+                        <label class="form-check-label">{{ category.name }}</label>
+                    </div>
+                    {% endfor %}
+                </div>
+            
+                <!-- Products -->
+                <div class="form-group" id="productField" style="display: none;">
+                    <label>Products</label>
+                    <div class="form-check mb-1">
+                        <input type="checkbox" class="form-check-input select-all" data-target="product-checkbox" id="selectAllProducts">
+                        <label class="form-check-label" for="selectAllProducts">Select All Products</label>
+                    </div>
+                    {% for product in products %}
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input product-checkbox" name="products" value="{{ product.id }}"
+                            {% if product.id in selected_product_ids %}checked{% endif %}>
+                        <label class="form-check-label">{{ product.name }}</label>
+                    </div>
+                    {% endfor %}
+                </div>
+            
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">
+                        Start Date<span class="required">*</span>
+                    </label>
+                    <input 
+                        type="datetime-local" 
+                        class="form-control" 
+                        name="start_date" 
+                        value="{{ offer.start_date|date:'Y-m-d\TH:i' }}" 
+                        required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">
+                        End Date<span class="required">*</span>
+                    </label>
+                    <input 
+                        type="datetime-local" 
+                        class="form-control" 
+                        name="end_date" 
+                        value="{{ offer.end_date|date:'Y-m-d\TH:i' }}" 
+                        required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="switch-container">
+                    <label class="switch">
+                        <input type="checkbox" name="active" id="active" 
+                               {% if offer.active or not offer %}checked{% endif %}>
+                        <span class="slider"></span>
+                    </label>
+                    <label class="form-label" for="active" style="margin: 0; cursor: pointer;">
+                        Active Offer
+                    </label>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-check me-2"></i>
+                    {% if offer %}Update Offer{% else %}Create Offer{% endif %}
+                </button>
+                <a href="{% url 'admin_offer_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </a>
+            </div>
+        </form>
+        
+    </div>
+
+</div>
+
+<!-- <script>
+document.addEventListener('DOMContentLoaded', function() {
+    const offerTypeSelect = document.getElementById('offer_type');
+    const categoryField = document.getElementById('categoryField');
+    const productField = document.getElementById('productField');
+    const categorySelect = document.getElementById('categories');
+    const productSelect = document.getElementById('products');
+
+    function toggleFields() {
+        const selectedType = offerTypeSelect.value;
+        
+        if (selectedType === 'category') {
+            categoryField.style.display = 'block';
+            productField.style.display = 'none';
+            categorySelect.required = true;
+            productSelect.required = false;
+        } else if (selectedType === 'product') {
+            categoryField.style.display = 'none';
+            productField.style.display = 'block';
+            categorySelect.required = false;
+            productSelect.required = true;
+        } else {
+            categoryField.style.display = 'none';
+            productField.style.display = 'none';
+            categorySelect.required = false;
+            productSelect.required = false;
+        }
+    }
+
+    offerTypeSelect.addEventListener('change', toggleFields);
+    
+    // Initialize on page load
+    toggleFields();
+});
+</script> -->
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const offerTypeSelect = document.getElementById('offer_type');
+    const categoryField = document.getElementById('categoryField');
+    const productField = document.getElementById('productField');
+
+    // Toggle category/product fields based on Offer Type
+    function toggleFields() {
+        const selectedType = offerTypeSelect.value;
+        
+        if (selectedType === 'category') {
+            categoryField.style.display = 'block';
+            productField.style.display = 'none';
+        } else if (selectedType === 'product') {
+            categoryField.style.display = 'none';
+            productField.style.display = 'block';
+        } else {
+            categoryField.style.display = 'none';
+            productField.style.display = 'none';
+        }
+    }
+
+    offerTypeSelect.addEventListener('change', toggleFields);
+    toggleFields(); // initialize on page load
+
+    // Reusable Select All logic
+    const selectAllBoxes = document.querySelectorAll('.select-all');
+
+    selectAllBoxes.forEach(selectAll => {
+        const targetClass = selectAll.dataset.target;
+        const checkboxes = document.querySelectorAll('.' + targetClass);
+
+        selectAll.addEventListener('change', function() {
+            checkboxes.forEach(cb => cb.checked = selectAll.checked);
+        });
+
+        checkboxes.forEach(cb => {
+            cb.addEventListener('change', function() {
+                selectAll.checked = Array.from(checkboxes).every(c => c.checked);
+            });
+        });
+
+        // Initialize Select All
+        selectAll.checked = Array.from(checkboxes).every(c => c.checked);
+    });
+});
+</script>
+
+{% endblock %}

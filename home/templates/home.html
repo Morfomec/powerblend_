@@ -525,30 +525,34 @@
                         <span>★★★★★</span> <span>(30,468 reviews)</span>
                     </div>
 
-                    {% with product.variants.first as variant %}
-                        {% if variant %}
+
+                    {% if product.display_variant %}
+                        {% with product.display_variant.discount_info as info %}
                             <div class="price-section">
-                                <span class="current-price">₹{{ variant.price }}</span>
-                                {% if variant.original_price %}
-                                    <span class="original-price">Was ₹{{ variant.original_price }}</span>
-                                {% endif %}
-                                {% if variant.save_price %}
-                                    <span class="save-price">Save ₹{{ variant.save_price }}</span>
+                                <span class="current-price">₹{{ info.price|floatformat:2 }}</span>
+
+                                {% if info.original_price > info.price %}
+                                    <span class="original-price ">Was ₹{{ info.original_price|floatformat:2 }}</span>
+                                    <span class="save-price ">Save ₹{{ info.save_price|floatformat:2 }}</span>
+                                    <!-- <span class="discount-badge bg-warning text-dark px-2 py-1 rounded">
+                                        {{ info.offer_name|title }} - {{ info.discount_percent|floatformat:0 }}% OFF
+                                    </span> -->
                                 {% endif %}
                             </div>
-                        {% else %}
-                            <div class="price-section">
-                                <span class="current-price text-muted">No variants available</span>
-                            </div>
-                        {% endif %}
-                    {% endwith %}
+                        {% endwith %}
+                    {% else %}
+                        <div class="price-section">
+                            <span class="current-price text-muted">No variants available</span>
+                        </div>
+                    {% endif %}
 
-                    <div class="discount-badge">EXTRA 10% OFF ABOVE ₹7,000</div>
-                    <div class="discount-badge">EXTRA 15% OFF ABOVE ₹15,000</div>
-
-                    <!-- <button class="quick-buy-btn" onclick="quickBuy('{{ product.id }}')">
-                        <i class="fas fa-shopping-cart me-1"></i> QUICK BUY
-                    </button> -->
+                    {% if product.best_offer %}
+                        <div class="discount-badge">
+                            {{ product.best_offer.name|upper }} - {{ product.best_offer.discount_percent }}% OFF
+                        </div>
+                    {% else %}
+                        <div class="discount-badge">Exclusive Offers awaits</div>
+                    {% endif %}
                     <a href="{% url 'detail_product' product.id %}" class="quick-buy-btn">
                         <i class="fas fa-shopping-cart me-1"></i> QUICK BUY
                     </a>
