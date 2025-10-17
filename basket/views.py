@@ -9,6 +9,8 @@ from django.http import JsonResponse
 
 from wishlist.models import WishlistItem
 
+from offers.utils import get_best_offer_for_product, get_
+
 
 # Create your views here.
 

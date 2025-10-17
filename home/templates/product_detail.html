@@ -670,6 +670,40 @@
             color: white;
         }
 
+
+        .selector-btn {
+    padding: 8px 16px;
+    border: 1px solid #ddd;
+    background-color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    text-decoration: none;
+    color: inherit;
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+.selector-btn.active {
+    background-color: var(--primary-teal);
+    color: white;
+    border-color: var(--primary-teal);
+    cursor: default;
+}
+
+.selector-btn.disabled {
+    background-color: #f5f5f5;
+    color: #999;
+    cursor: not-allowed;
+    border-color: #ddd;
+    opacity: 0.6;
+}
+
+.selector-btn:not(.active):not(.disabled):hover {
+    border-color: var(--primary-teal);
+    background-color: rgba(0, 57, 66, 0.1);
+}
+
         @media (max-width: 576px) {
             .auth-modal-buttons {
                 flex-direction: column;
@@ -772,25 +806,23 @@
                     
                     <!-- price -->
 
-                    {% if default_variant %}
-                    <div class="price-section">
-                        <span class="current-price">₹{{ default_variant.price }}</span>
-                        {% if default_variant.original_price %}
-                            <span class="original-price">Was ₹{{ default_variant.original_price }}</span>
-                        {% endif %}
-                        {% if default_variant.save_price %}
-                            <span class="savings">Save ₹{{ default_variant.save_price }}</span>
-                        {% endif %}
-                        <!-- <div class="price-per-kg">₹2,598.00/kg</div> -->
-                        <!-- <div class="text-muted small">Inclusive of all taxes</div> -->
-                    </div>
+                    {% if selected_variant_info %}
+                        <div class="price-section">
+                            <span class="current-price">₹{{ selected_variant_info.price }}</span>
+                            {% if selected_variant_info.has_discount and selected_variant_info.original_price %}
+                                <span class="original-price">Was ₹{{ selected_variant_info.original_price }}</span>
+                            {% endif %}
+                            {% if selected_variant_info.save_amount and selected_variant_info.save_amount > 0 %}
+                                <span class="savings">Save ₹{{ selected_variant_info.save_amount }}</span>
+                            {% endif %}
+                        </div>
                     {% endif %}
 
                     
 
-                    {% if product.best_offer %}
+                    {% if best_offer %}
                         <div class="discount-badge">
-                            {{ product.best_offer.name|upper }} - {{ product.best_offer.discount_percent }}% OFF
+                            {{ best_offer.name|upper }} - {{ best_offer.discount_percent }}% OFF
                         </div>
                     {% else %}
                         <div class="discount-badge">Exclusive Offers awaits</div>
@@ -800,11 +832,16 @@
                     <div class="flavor-selector">
                         <div class="section-label">Flavour:</div>
                         <div class="selector-buttons">
-                            {% for flavor, data in unique_flavors.items %}
-                                <button class="selector-btn" data-variant-id="{{ data.variant_id }}" data-price="{{ data.price }}"{% if not data.available %}disabled{% endif %}">{{ flavor }}</button>
-    
-                            {% empty %}
-                                <p class="text-muted">No flavors available</p>
+                            {% for flavor_name, data in available_flavors.items %}
+                                {% if selected_variant_info.flavor.flavor == flavor_name %}
+                                    <button class="selector-btn active" disabled>{{ flavor_name }}</button>
+                                {% else %}
+                                    <a href="?weight={{ selected_variant_info.weight.weight }}&flavor={{ flavor_name|urlencode }}"
+                                    class="selector-btn {% if not data.available %}disabled{% endif %}"
+                                    {% if not data.available %}onclick="return false;"{% endif %}>
+                                        {{ flavor_name }}
+                                    </a>
+                                {% endif %}
                             {% endfor %}
                         </div>
                     </div>
@@ -813,8 +850,18 @@
                     <div class="amount-selector">
                         <div class="section-label">Size:</div>
                         <div class="selector-buttons">
-                            {% for weight, data in unique_weights.items %}
-                                    <button type="button" class="selector-btn" data-variant-id="{{ data.variant_id }}" data-price="{{ data.price }}" {% if not data.available %}disabled{% endif %}">{{ weight|upper }}</button>
+                            {% for weight, data in available_weights.items %}
+                                {% if selected_variant_info.weight == weight %}
+                                    <button class="selector-btn active" disabled>
+                                        {{ weight|upper }}
+                                    </button>
+                                {% else %}
+                                    <a href="?weight={{ weight }}&flavor={{ selected_variant_info.flavor }}" 
+                                    class="selector-btn {% if not data.available %}disabled{% endif %}"
+                                    {% if not data.available %}onclick="return false;"{% endif %}>
+                                        {{ weight|upper }}
+                                    </a>
+                                {% endif %}
                             {% empty %}
                                 <p class="text-muted">No sizes available</p>
                             {% endfor %}
@@ -833,18 +880,26 @@
                             <button type="button" class="qty-btn">+</button>
                         </div>
                     </div> -->
+
+                    <!-- Add to Basket Form -->
                     
                     <div class="row">
                         <div class="col-10">
                             {% if user.is_authenticated %}
-                                <form id="add-to-basket-form" method="POST" action="{% url 'basket_add' %}">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="variant_id" value="{{ default_variant.id }}">
-                                    <input type="hidden" name="quantity" value="1" class="qty-input">
-                                    <button type="submit" class="add-to-basket">
-                                        <i class="fas fa-shopping-basket me-2"></i>ADD TO BASKET
+                                {% if selected_variant.stock > 0 %}
+                                    <form id="add-to-basket-form" method="POST" action="{% url 'basket_add' %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="variant_id" value="{{ selected_variant.id }}">
+                                        <input type="hidden" name="quantity" value="1">
+                                        <button type="submit" class="add-to-basket">
+                                            <i class="fas fa-shopping-basket me-2"></i>ADD TO BASKET
+                                        </button>
+                                    </form>
+                                {% else %}
+                                    <button type="button" class="add-to-basket" disabled style="background-color: #ccc; cursor: not-allowed;">
+                                        <i class="fas fa-times me-2"></i>OUT OF STOCK
                                     </button>
-                                </form>
+                                {% endif %}
                             {% else %}
                                 <button type="button" class="add-to-basket" onclick="openAuthModal()">
                                     <i class="fas fa-shopping-basket me-2"></i>ADD TO BASKET
@@ -852,28 +907,33 @@
                             {% endif %}
                         </div>
                         <div class="col-2">
-                            <button class="wishlist-btn w-100">
-                                <i class="far fa-heart"></i>
-                            </button>
+                            {% if user.is_authenticated %}
+                                <button class="wishlist-btn w-100" onclick="alert('Wishlist feature coming soon!')">
+                                    {% if selected_variant.id in wishlist_variant_ids %}
+                                        <i class="fas fa-heart" style="color: #dc3545;"></i>
+                                    {% else %}
+                                        <i class="far fa-heart"></i>
+                                    {% endif %}
+                                </button>
+                            {% else %}
+                                <button class="wishlist-btn w-100" onclick="openAuthModal()">
+                                    <i class="far fa-heart"></i>
+                                </button>
+                            {% endif %}
                         </div>
                     </div>
                     
                     <div class="stock-info">
                         <i class="fas fa-check me-2"></i>
-                        
-                    <!-- {% for variant in variants %}
-                        {% if variant.stock and variant.stock > 0 %}
-                            In stock | Usually dispatched within 24 hours
+                        {% if selected_variant.stock > 0 %}
+                            {% if selected_variant.stock <= 5 %}
+                                Only {{ selected_variant.stock }} left in stock | Order soon!
+                            {% else %}
+                                In stock | Usually dispatched within 24 hours
+                            {% endif %}
                         {% else %}
-                            Out of stock
+                            <span style="color: #dc3545;">Out of stock</span>
                         {% endif %}
-                    {% endfor %}' -->
-                    
-                    {% if product.total_stock > 0 %}
-                        In stock | Usually dispatched within 24 hours
-                    {% else %}
-                        Out of stock
-                    {% endif %}
                     </div>
                 </div>
             </div>
@@ -921,6 +981,25 @@
             </div>
         </div>
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
         <!-- Promotion Section -->
         <div class="promo-section">
             <div class="promo-title">OUR BEST SELLING</div>
@@ -1196,58 +1275,16 @@
 {% block extra_js %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 <script>
+
+
+
+
+
+
+
+
+
 document.addEventListener("DOMContentLoaded", function () {
-
-    /* -------------------- Quantity Selector -------------------- */
-    const qtyInput = document.querySelector('.qty-input');
-    const qtyBtns = document.querySelectorAll('.qty-btn');
-    const qtyHidden = document.getElementById('quantityInput');
-
-    if (qtyBtns && qtyInput) {
-        qtyBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const isIncrement = btn.textContent === '+';
-                let currentValue = parseInt(qtyInput.value) || 1;
-                if (isIncrement) {
-                    qtyInput.value = currentValue + 1;
-                } else if (currentValue > 1) {
-                    qtyInput.value = currentValue - 1;
-                }
-                if (qtyHidden) qtyHidden.value = qtyInput.value;
-            });
-        });
-
-        qtyInput.addEventListener('input', function () {
-            if (qtyHidden) qtyHidden.value = this.value;
-        });
-    }
-
-
-    /* -------------------- Variant Selector (size/flavour) -------------------- */
-    const selectorBtns = document.querySelectorAll('.selector-btn');
-    selectorBtns.forEach(btn => {
-        btn.addEventListener('click', function () {
-            // Remove active from all siblings
-            this.closest('.selector-buttons')
-                .querySelectorAll('.selector-btn')
-                .forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-
-            // Update price
-            const priceElement = document.querySelector('.current-price');
-            const price = this.dataset.price;
-            if (price && priceElement) {
-                priceElement.textContent = `₹${price}`;
-            }
-
-            // Update hidden variant input
-            const variantInput = document.getElementById('variantInput') || document.querySelector('input[name="variant_id"]');
-            if (variantInput) {
-                variantInput.value = this.dataset.variantId;
-            }
-        });
-    });
-
 
     /* -------------------- Thumbnails -------------------- */
     const mainImage = document.getElementById("main-product-image");
@@ -1262,7 +1299,6 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         });
     }
-
 
     /* -------------------- Image Modal -------------------- */
     const modal = document.getElementById("imageModal");
@@ -1281,31 +1317,7 @@ document.addEventListener("DOMContentLoaded", function () {
         };
     }
 
-
-    /* -------------------- Wishlist -------------------- */
-    const wishlistBtn = document.querySelector('.wishlist-btn');
-    if (wishlistBtn) {
-        wishlistBtn.addEventListener('click', function (e) {
-            {% if not user.is_authenticated %}
-                e.preventDefault();
-                openAuthModal();
-            {% else %}
-                const icon = this.querySelector('i');
-                if (icon.classList.contains('far')) {
-                    icon.classList.remove('far');
-                    icon.classList.add('fas');
-                    this.style.color = '#dc3545';
-                } else {
-                    icon.classList.remove('fas');
-                    icon.classList.add('far');
-                    this.style.color = 'var(--primary-teal)';
-                }
-            {% endif %}
-        });
-    }
-
-
-    /* -------------------- Add to Basket AJAX -------------------- */
+    /* -------------------- Add to Basket AJAX (Optional) -------------------- */
     const addToBasketForm = document.getElementById("add-to-basket-form");
     if (addToBasketForm) {
         addToBasketForm.addEventListener("submit", function (e) {
@@ -1334,11 +1346,10 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
-
 /* -------------------- Auth Modal Functions -------------------- */
 function openAuthModal() {
     document.getElementById('authModal').classList.add('active');
-    document.body.style.overflow = 'hidden'; // prevent background scroll
+    document.body.style.overflow = 'hidden';
 }
 
 function closeAuthModal() {
@@ -1348,27 +1359,6 @@ function closeAuthModal() {
 
 document.getElementById('authModal')?.addEventListener('click', function (e) {
     if (e.target === this) closeAuthModal();
-});
-</script>
-<script>
-document.querySelectorAll('.add-to-basket-form').forEach(form => {
-    form.addEventListener('submit', function(e){
-        e.preventDefault();
-        fetch(this.action, {
-            method: 'POST',
-            body: new FormData(this),
-            headers: { 'X-Requested-With': 'XMLHttpRequest' }
-        })
-        .then(res => res.json())
-        .then(data => {
-            if(data.success){
-                document.querySelector('#basket-count').textContent = data.basket_count;
-                document.querySelector('#basket-subtotal').textContent = data.subtotal;
-                alert(`${data.product} added!`);
-                // optionally update item list dynamically
-            }
-        });
-    });
 });
 </script>
 

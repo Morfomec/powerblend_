@@ -10,6 +10,7 @@ from wishlist.models import Wishlist, WishlistItem
 from django.db.models import Q, Sum
 from offers.models import Offer
 from offers.utils import get_best_offer_for_product, get_discount_info_for_variant
+from collections import OrderedDict
 # Create your views here.
 
 
@@ -131,50 +132,130 @@ def list_products(request):
 
 def detail_product(request, id):
     """
-    return a single product detail page with variants
+    Return a single product detail page with variants, consistent with home discount logic.
     """
     try:
         single_product = get_object_or_404(
-            Product.objects.prefetch_related('variants').annotate(total_stock=Sum('variants__stock')), id=id, is_listed=True)
-
-        #get all variants for this product
-        # variants = single_product.variants.all()
-
-        # Products = Products.objects.all()
-        # single_product = Product.objects.filter(id=id, is_listed=True) \
-        #     .prefetch_related('variants') \
-        #     .annotate(total_stock=Sum('variants__stock')) \
-        #     .first()
+            Product.objects.prefetch_related('variants').annotate(total_stock=Sum('variants__stock')),
+            id=id,
+            is_listed=True
+        )
 
         variants = single_product.variants.all().order_by('weight')
-        
+
+        if not variants.exists():
+            messages.warning(request, "No variants available for this product.")
+            return redirect('list_products')
+
+        # Apply discount info just like home view
         for variant in variants:
             variant.discount_info = get_discount_info_for_variant(variant)
 
-        #pick one as the dafault
-        default_variant = variants.first() if variants.exists() else None
-        
-        #a dict to hold unique variants and their status
+        # Apply best product-level offer
+        best_offer = get_best_offer_for_product(single_product)
+
+        # Update each variant’s price after considering best offer
+        for variant in variants:
+            base_price = variant.discount_info['price']
+            if best_offer:
+                variant.offer_price = variant.discount_info['price']
+            else:
+                variant.offer_price = base_price
+
+
+        # Handle unique weights & flavors
+
         unique_weights = {}
         unique_flavors = {}
 
         for variant in variants:
-            #for unique weight
             if variant.weight and variant.weight not in unique_weights:
                 unique_weights[variant.weight] = {
-                    'available' : variant.stock > 0,
-                    'variant_id' : variant.id, 
-                    'price' : variant.price,
-                    # 'weight' : variant.weight,
-                    # 'variant.flavor' : variant.flavor,
+                    'available': variant.stock > 0,
+                    'variant_id': variant.id,
+                    'price': variant.offer_price,
+                    'original_price': variant.discount_info.get('original_price'),
+                    'save_amount': variant.discount_info.get('save_amount'),
+                    'stock': variant.stock,
                 }
 
-            #for unique flavor
             if variant.flavor and variant.flavor not in unique_flavors:
                 unique_flavors[variant.flavor] = {
-                    "variant_id" : variant.id,
-                    'variant_id' : variant.id, 
-                    'price' : variant.price,
+                    'available': variant.stock > 0,
+                    'variant_id': variant.id,
+                    'price': variant.offer_price,
+                    'original_price': variant.discount_info.get('original_price'),
+                    'save_amount': variant.discount_info.get('save_amount'),
+                    'stock': variant.stock,
+                }
+
+        selected_weight = request.GET.get('weight')
+        selected_flavor = request.GET.get('flavor')
+        selected_variant = None
+
+        for variant in variants:
+            # Get the text value whether it’s a related object or a direct string
+            flavor_name = getattr(variant.flavor, "flavor", None)
+            weight_name = getattr(variant.weight, "weight", None)
+
+            # Case-insensitive comparison for safety
+            if (not selected_flavor or (flavor_name and flavor_name.lower() == selected_flavor.lower())) and \
+            (not selected_weight or (weight_name and weight_name.lower() == selected_weight.lower())):
+                selected_variant = variant
+                break
+
+        # Fallback to first variant if no match found
+        if not selected_variant:
+            selected_variant = variants.first()
+        
+        print("Selected flavor:", selected_flavor)
+        print("Selected weight:", selected_weight)
+        print("Final variant:", selected_variant.flavor, selected_variant.weight)
+
+        # ✅ Corrected typo and logic
+        for variant in variants:
+            weight_match = (not selected_weight or variant.weight == selected_weight)
+            flavor_match = (not selected_flavor or variant.flavor == selected_flavor)
+            if weight_match and flavor_match:
+                selected_variant = variant
+                break
+
+        if not selected_variant:
+            selected_variant = variants.first()
+
+        selected_variant_info = {
+            'id': selected_variant.id,
+            'price': selected_variant.offer_price,
+            'original_price': selected_variant.discount_info.get('original_price'),
+            'save_amount': selected_variant.discount_info.get('save_amount'),
+            'weight': selected_variant.weight,
+            'flavor': selected_variant.flavor,
+            'stock': selected_variant.stock,
+            'has_discount': bool(selected_variant.discount_info.get('save_amount', 0) > 0),
+        }
+
+        # Related variant groupings
+        variants_by_weight = [v for v in variants if v.weight == selected_variant.weight]
+        variants_by_flavor = [v for v in variants if v.flavor == selected_variant.flavor]
+
+        available_flavors = OrderedDict()
+        for variant in variants:
+            if variant.flavor and variant.flavor.flavor not in available_flavors:
+                available_flavors[variant.flavor.flavor] = {
+                    'variant_id': variant.id,
+                    'available': variant.stock > 0,
+                    'weight': variant.weight,
+                    'flavor_obj': variant.flavor,  # keep object if needed
+                }
+
+        available_weights = OrderedDict()
+        for variant in variants:
+            if variant.weight and variant.weight not in available_weights:
+                available_weights[variant.weight] = {
+                    'variant_id': variant.id,
+                    'available': variant.stock > 0,
+                    'weight_obj': variant.weight,  # keep object if needed
+                    'flavor': variant.flavor,
                 }
 
     except Exception as e:
@@ -185,16 +266,19 @@ def detail_product(request, id):
         wishlist = getattr(request.user, 'wishlist', None)
         if wishlist:
             wishlist_variant_ids = list(wishlist.items.values_list('variant_id', flat=True))
-            
-    context = {
-        "product" : single_product,
-        "variants" : variants,
-        "default_variant" : default_variant,
-        "unique_flavors" : unique_flavors,
-        "unique_weights" : unique_weights,
-        "current_url" : request.path,
-        'wishlist_variant_ids': list(wishlist_variant_ids),
-        'user_authenticated' : request.user.is_authenticated,
-}
 
+    context = {
+        "product": single_product,
+        "variants": variants,
+        "selected_variant": selected_variant,
+        "selected_variant_info": selected_variant_info,
+        "unique_flavors": unique_flavors,
+        "unique_weights": unique_weights,
+        "available_flavors": available_flavors if available_flavors else unique_flavors,
+        "available_weights": available_weights if available_weights else unique_weights,
+        "best_offer": best_offer,
+        "wishlist_variant_ids": wishlist_variant_ids,
+        # 'weight': selected_variant.weight,
+        # 'flavor': selected_variant.flavor,
+    }
     return render(request, "product_detail.html", context)
