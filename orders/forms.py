@@ -24,7 +24,7 @@ class ReturnOrderForm(forms.Form):
 
 class AdminOrderStatusForm(forms.Form):
 
-    status = forms.ChoiceField(choices=Order.STATUS_CHOICES)
+    status = forms.ChoiceField(choices=Order.ORDER_STATUS_CHOICES)
     reason = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows':3}))
 
 

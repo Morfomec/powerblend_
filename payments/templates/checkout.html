@@ -156,14 +156,26 @@
                             </button>
                         </form>
 
-                        <form action="{% url 'checkout' %}" method="post">
+                        <!-- <form action="{{ callback_url }}" method="post">
                             {% csrf_token %}
                             <input type="hidden" name="payment_method" value="razorpay">
-                            <button type="submit" class="payment-button">
+                            <button type="submit" class="payment-button" id="rzp-button1">
+                                <i class="fas fa-credit-card"></i>
+                                RAZORPAY
+                            </button>
+                        </form> -->
+
+                        <form action="{{ callback_url }}" method="POST" id="razorpay-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="payment_method" value="razorpay">
+                            <button type="submit" class="payment-button" id="rzp-button">
                                 <i class="fas fa-credit-card"></i>
                                 RAZORPAY
                             </button>
                         </form>
+
+
+
 
                         <form action="{% url 'checkout' %}" method="post">
                             {% csrf_token %}
@@ -180,6 +192,7 @@
 
                     </div>
 
+
                     <!-- Security Badge -->
                     <div class="text-center mt-3">
                         <small class="security-text">
@@ -193,6 +206,52 @@
     </div>
 {% endblock body %}
 {% block extra_js %}
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+{% if razorpay_order_id %}
+<script>
+document.getElementById('rzp-button').onclick = function(e){
+    var options = {
+        "key": "{{ razorpay_merchant_key }}",
+        "amount": "{{ razorpay_amount }}",   // in paise
+        "currency": "{{ currency }}",
+        "name": "POWERBLEND",
+        "description": "Order Payment",
+        "order_id": "{{ razorpay_order_id }}",
+        "prefill": {
+            "name": "{{ request.user.full_name }}",
+            "email": "{{ request.user.email }}"
+        },
+        "theme": {"color": "#0c4b65"},
+        "handler": function(response){
+            var form = document.getElementById('razorpay-form');
 
+            // Append Razorpay data
+            var rpid = document.createElement('input');
+            rpid.type = 'hidden';
+            rpid.name = 'razorpay_payment_id';
+            rpid.value = response.razorpay_payment_id;
+            form.appendChild(rpid);
+
+            var roid = document.createElement('input');
+            roid.type = 'hidden';
+            roid.name = 'razorpay_order_id';
+            roid.value = response.razorpay_order_id;
+            form.appendChild(roid);
+
+            var sig = document.createElement('input');
+            sig.type = 'hidden';
+            sig.name = 'razorpay_signature';
+            sig.value = response.razorpay_signature;
+            form.appendChild(sig);
+
+            form.submit();
+        }
+    };
+    var rzp = new Razorpay(options);
+    rzp.open();
+    e.preventDefault();
+};
+</script>
+{% endif %}
 
 {% endblock extra_js %}

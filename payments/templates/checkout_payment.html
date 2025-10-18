@@ -1,0 +1,33 @@
+<!-- templates/checkout_payment.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Complete Your Payment</title>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+<body>
+
+<h2>Processing Payment...</h2>
+
+<form action="{{ callback_url }}" method="POST">
+    {% csrf_token %}
+    <script
+        src="https://checkout.razorpay.com/v1/checkout.js"
+        data-key="{{ razorpay_merchant_key }}"
+        data-amount="{{ razorpay_amount }}"
+        data-currency="{{ currency }}"
+        data-order_id="{{ razorpay_order_id }}"
+
+        data-name="Your Store Name"
+        data-description="Order Payment"
+        data-image="/static/images/logo.png"
+        data-prefill.name="{{ request.user.full_name}}"
+        data-prefill.email="{{ request.user.email }}"
+        data-theme.color="#0c4b65">
+    </script>
+    <input type="hidden" name="hidden">
+</form>
+
+</body>
+</html>

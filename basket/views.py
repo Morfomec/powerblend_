@@ -9,7 +9,7 @@ from django.http import JsonResponse
 
 from wishlist.models import WishlistItem
 
-from offers.utils import get_best_offer_for_product, get_
+from offers.utils import get_best_offer_for_product, get_discount_info_for_variant
 
 
 # Create your views here.
@@ -78,6 +78,8 @@ class BasketAddView(View):
                 item.quantity += quantity
                 item.save()
 
+            discount_info = get_discount_info_for_variant(variant)
+
             # Remove from wishlist if exists
             WishlistItem.objects.filter(wishlist__user=request.user, variant=variant).delete()
 
@@ -90,8 +92,14 @@ class BasketAddView(View):
                 "variant": str(variant),
                 "quantity": item.quantity,
                 "basket_count": basket.total_items,  # total items in basket
-                "subtotal": basket.total_price,       # total price
+                "subtotal": str(basket.total_price),     # total price
                 "image": image_url,
+
+                'price' : str(discount_info['price']),
+                'original_price' :str(discount_info['original_price']),
+                'save_price' : str(discount_info['save_price']),
+                'discount_percent' : str(discount_info['discount_percent']),
+                'offer_name' : str(discount_info['offer_name']),
             })
         else:
             
@@ -131,9 +139,17 @@ class BasketDetailView(LoginRequiredMixin, View):
         if request.user.is_authenticated:
             basket= get_object_or_404(Basket, user=request.user)
             items = basket.items.select_related('variant', 'variant__product').all()
+
+            for item in items:
+                item.variant.discount_info = get_discount_info_for_variant(item.variant)
+                item.discounted_subtotal = item.variant.discount_info['price'] * item.quantity
+                item.original_subtotal = item.variant.discount_info['original_price'] * item.quantity
+                item.save_subtotal = item.variant.discount_info['save_price'] * item.quantity
+
             total_price = sum(item.subtotal for item in items)
 
         else:
+            basket = None
             items = []
             total_price = 0
 

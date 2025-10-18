@@ -17,7 +17,7 @@ def generate_order_id():
 
 # order model
 class Order(models.Model):
-    STATUS_CHOICES= [
+    ORDER_STATUS_CHOICES= [
         ('pending', 'Pending'),
         ('confirmed', 'Confirmed'),
         ('shipped', 'Shipped'),
@@ -40,10 +40,16 @@ class Order(models.Model):
         ('return_rejected', 'Return Rejected'),
     ]
 
+    PAYMENT_STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('paid', 'Paid'),
+        ('failed', 'Failed'),
+    ]
+
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="orders")
     order_id = models.CharField(max_length=32, unique=True, default=generate_order_id, editable=False)
-    payment_method = models.CharField(max_length=20, choices=PAYMENT_CHOICES, default='None')
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    payment_method = models.CharField(max_length=20, choices=PAYMENT_CHOICES, blank=True, null=True)
+    status = models.CharField(max_length=20, choices=ORDER_STATUS_CHOICES, default='pending')
     total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -54,6 +60,10 @@ class Order(models.Model):
     return_reason = models.TextField(blank=True, null=True)
     return_at = models.DateTimeField(blank=True, null=True)
     return_status = models.CharField(max_length=50, choices=RETURN_CHOICES, default='pending')
+
+    payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='pending')
+    razorpay_order_id = models.CharField(max_length=255, blank=True, null=True)
+    razorpay_payment_id = models.CharField(max_length=255, blank=True, null=True)
 
 
     def __str__(self):

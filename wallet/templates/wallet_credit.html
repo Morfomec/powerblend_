@@ -1,0 +1,645 @@
+{% extends 'user_profile_base.html' %}
+{% load static %}
+
+{% block title %}Wallet Credit - POWERBLEND{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary-color: rgba(0, 57, 66, 0.8);
+        --primary-solid: rgb(0, 57, 66);
+        --light-bg: #f8f9fa;
+        --success-color: #28a745;
+        --danger-color: #dc3545;
+        --warning-color: #ffc107;
+        --info-color: #17a2b8;
+    }
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: var(--light-bg);
+    }
+
+    /* Add Money Container */
+    .add-money-container {
+        max-width: 1570px;
+        margin: 0 auto;
+        padding: 0;
+    }
+
+    /* Page Header */
+    .page-header {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+        padding: 1.5rem 2rem;
+        margin-bottom: 1.5rem;
+        border: 1px solid #e9ecef;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .page-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary-solid), var(--primary-color));
+    }
+
+    .header-content {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .back-button {
+        color: var(--primary-solid);
+        font-size: 1.5rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+    }
+
+    .back-button:hover {
+        color: var(--primary-color);
+        transform: translateX(-3px);
+    }
+
+    .page-title {
+        color: var(--primary-solid);
+        font-size: 1.8rem;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    /* Current Balance Card */
+    .balance-card {
+        background: linear-gradient(135deg, var(--primary-solid) 0%, var(--primary-color) 100%);
+        border-radius: 12px;
+        padding: 1.5rem 2rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0, 57, 66, 0.2);
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .balance-info h3 {
+        font-size: 0.9rem;
+        font-weight: 500;
+        opacity: 0.9;
+        margin-bottom: 0.5rem;
+    }
+
+    .balance-amount {
+        font-size: 2rem;
+        font-weight: 700;
+    }
+
+    .balance-icon {
+        font-size: 3rem;
+        opacity: 0.3;
+    }
+
+    /* Add Money Form */
+    .add-money-form {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+        padding: 2rem;
+        border: 1px solid #e9ecef;
+    }
+
+    .form-section {
+        margin-bottom: 2rem;
+    }
+
+    .section-title {
+        color: var(--primary-solid);
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .section-title i {
+        color: var(--primary-color);
+    }
+
+    /* Amount Selection */
+    .amount-options {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .amount-option {
+        background: white;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        padding: 1.2rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .amount-option:hover {
+        border-color: var(--primary-solid);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 57, 66, 0.1);
+    }
+
+    .amount-option.selected {
+        background: var(--primary-solid);
+        border-color: var(--primary-solid);
+        color: white;
+    }
+
+    .amount-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 0.3rem;
+    }
+
+    .amount-label {
+        font-size: 0.75rem;
+        opacity: 0.8;
+    }
+
+    /* Custom Amount Input */
+    .custom-amount-group {
+        position: relative;
+    }
+
+    .custom-amount-input {
+        width: 100%;
+        padding: 1rem 1rem 1rem 2.5rem;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        font-size: 1.2rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .custom-amount-input:focus {
+        border-color: var(--primary-solid);
+        outline: none;
+        box-shadow: 0 0 0 0.2rem rgba(0, 57, 66, 0.12);
+    }
+
+    .currency-symbol {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--primary-solid);
+    }
+
+    .amount-hint {
+        color: #6c757d;
+        font-size: 0.85rem;
+        margin-top: 0.5rem;
+    }
+
+    /* Payment Method Selection */
+    .payment-methods {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .payment-method {
+        background: white;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        padding: 1.2rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .payment-method:hover {
+        border-color: var(--primary-solid);
+        box-shadow: 0 2px 8px rgba(0, 57, 66, 0.1);
+    }
+
+    .payment-method.selected {
+        border-color: var(--primary-solid);
+        background: rgba(0, 57, 66, 0.03);
+    }
+
+    .payment-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        background: var(--light-bg);
+    }
+
+    .payment-icon.upi {
+        background: rgba(40, 167, 69, 0.1);
+        color: var(--success-color);
+    }
+
+    .payment-icon.card {
+        background: rgba(0, 123, 255, 0.1);
+        color: #007bff;
+    }
+
+    .payment-icon.netbanking {
+        background: rgba(255, 193, 7, 0.1);
+        color: var(--warning-color);
+    }
+
+    .payment-info {
+        flex: 1;
+    }
+
+    .payment-name {
+        font-weight: 600;
+        color: var(--primary-solid);
+        margin-bottom: 0.2rem;
+    }
+
+    .payment-description {
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+
+    .payment-radio {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+    }
+
+    /* Transaction Summary */
+    .transaction-summary {
+        background: var(--light-bg);
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-top: 1.5rem;
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.8rem 0;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .summary-row:last-child {
+        border-bottom: none;
+        padding-top: 1rem;
+        margin-top: 0.5rem;
+        border-top: 2px solid #dee2e6;
+    }
+
+    .summary-label {
+        color: #6c757d;
+        font-size: 0.95rem;
+    }
+
+    .summary-value {
+        font-weight: 600;
+        color: var(--primary-solid);
+    }
+
+    .summary-total {
+        font-size: 1.3rem;
+        color: var(--success-color);
+    }
+
+    /* Submit Button */
+    .btn-submit {
+        width: 100%;
+        background: var(--primary-solid);
+        color: white;
+        border: none;
+        padding: 1rem;
+        border-radius: 10px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .btn-submit:hover {
+        background: var(--primary-color);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 57, 66, 0.3);
+    }
+
+    .btn-submit:disabled {
+        background: #6c757d;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    /* Security Info */
+    .security-info {
+        background: rgba(23, 162, 184, 0.1);
+        border-left: 4px solid var(--info-color);
+        padding: 1rem;
+        border-radius: 8px;
+        margin-top: 1.5rem;
+        display: flex;
+        align-items: start;
+        gap: 1rem;
+    }
+
+    .security-icon {
+        color: var(--info-color);
+        font-size: 1.5rem;
+    }
+
+    .security-text {
+        flex: 1;
+    }
+
+    .security-title {
+        font-weight: 600;
+        color: var(--info-color);
+        margin-bottom: 0.3rem;
+    }
+
+    .security-description {
+        font-size: 0.85rem;
+        color: #6c757d;
+        line-height: 1.5;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .add-money-container {
+            padding: 0 0.5rem;
+        }
+
+        .page-header {
+            padding: 1.2rem;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+        }
+
+        .balance-card {
+            flex-direction: column;
+            text-align: center;
+            gap: 1rem;
+        }
+
+        .balance-amount {
+            font-size: 1.8rem;
+        }
+
+        .add-money-form {
+            padding: 1.5rem;
+        }
+
+        .amount-options {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+</style>
+{% endblock extra_css %}
+
+{% block body %}
+<div class="add-money-container">
+    
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="header-content">
+            <a href="{% url 'wallet_detail' %}" class="back-button">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <h1 class="page-title">Add Money</h1>
+        </div>
+    </div>
+
+    <!-- Current Balance -->
+    <div class="balance-card">
+        <div class="balance-info">
+            <h3>Current Balance</h3>
+            <div class="balance-amount">₹{{ wallet.balance|default:"0.00" }}</div>
+        </div>
+        <div class="balance-icon">
+            <i class="fas fa-wallet"></i>
+        </div>
+    </div>
+
+    <!-- Add Money Form -->
+    <form method="post" class="add-money-form" id="addMoneyForm">
+        {% csrf_token %}
+        
+        <!-- Amount Selection -->
+        <div class="form-section">
+            <div class="section-title">
+                <i class="fas fa-money-bill-wave"></i>
+                Select Amount
+            </div>
+            
+            <div class="amount-options">
+                <div class="amount-option" data-amount="500">
+                    <div class="amount-value">₹500</div>
+                    <div class="amount-label">Popular</div>
+                </div>
+                <div class="amount-option" data-amount="1000">
+                    <div class="amount-value">₹1000</div>
+                    <div class="amount-label">Most Used</div>
+                </div>
+                <div class="amount-option" data-amount="2000">
+                    <div class="amount-value">₹2000</div>
+                    <div class="amount-label">Recommended</div>
+                </div>
+                <div class="amount-option" data-amount="5000">
+                    <div class="amount-value">₹5000</div>
+                    <div class="amount-label">Save More</div>
+                </div>
+            </div>
+
+            <div class="custom-amount-group">
+                <span class="currency-symbol">₹</span>
+                <input 
+                    type="number" 
+                    name="amount" 
+                    id="customAmount" 
+                    class="custom-amount-input" 
+                    placeholder="Enter custom amount"
+                    min="100"
+                    max="50000"
+                    required
+                >
+            </div>
+            <p class="amount-hint">
+                <i class="fas fa-info-circle"></i> Minimum ₹100 | Maximum ₹50,000
+            </p>
+        </div>
+
+        <!-- Payment Method -->
+        <div class="form-section">
+            <div class="section-title">
+                <i class="fas fa-credit-card"></i>
+                Payment Method
+            </div>
+            
+            <div class="payment-methods">
+                <label class="payment-method selected">
+                    <div class="payment-icon upi">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <div class="payment-info">
+                        <div class="payment-name">UPI</div>
+                        <div class="payment-description">Google Pay, PhonePe, Paytm & More</div>
+                    </div>
+                    <input type="radio" name="payment_method" value="upi" class="payment-radio" checked>
+                </label>
+
+                <label class="payment-method">
+                    <div class="payment-icon card">
+                        <i class="fas fa-credit-card"></i>
+                    </div>
+                    <div class="payment-info">
+                        <div class="payment-name">Debit/Credit Card</div>
+                        <div class="payment-description">Visa, Mastercard, Rupay</div>
+                    </div>
+                    <input type="radio" name="payment_method" value="card" class="payment-radio">
+                </label>
+
+                <label class="payment-method">
+                    <div class="payment-icon netbanking">
+                        <i class="fas fa-university"></i>
+                    </div>
+                    <div class="payment-info">
+                        <div class="payment-name">Net Banking</div>
+                        <div class="payment-description">All major banks supported</div>
+                    </div>
+                    <input type="radio" name="payment_method" value="netbanking" class="payment-radio">
+                </label>
+            </div>
+        </div>
+
+        <!-- Transaction Summary -->
+        <div class="transaction-summary">
+            <div class="summary-row">
+                <span class="summary-label">Amount to Add</span>
+                <span class="summary-value" id="summaryAmount">₹0.00</span>
+            </div>
+            <div class="summary-row">
+                <span class="summary-label">Processing Fee</span>
+                <span class="summary-value">₹0.00</span>
+            </div>
+            <div class="summary-row">
+                <span class="summary-label">Total Payable</span>
+                <span class="summary-value summary-total" id="summaryTotal">₹0.00</span>
+            </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn-submit" id="submitBtn" disabled>
+            <i class="fas fa-lock"></i>
+            Proceed to Payment
+        </button>
+
+        <!-- Security Info -->
+        <div class="security-info">
+            <div class="security-icon">
+                <i class="fas fa-shield-alt"></i>
+            </div>
+            <div class="security-text">
+                <div class="security-title">Secure Transaction</div>
+                <div class="security-description">
+                    Your payment information is encrypted and secure. We never store your card details.
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock body %}
+
+{% block extra_js %}
+<script>
+    // Amount selection
+    const amountOptions = document.querySelectorAll('.amount-option');
+    const customAmountInput = document.getElementById('customAmount');
+    const summaryAmount = document.getElementById('summaryAmount');
+    const summaryTotal = document.getElementById('summaryTotal');
+    const submitBtn = document.getElementById('submitBtn');
+
+    amountOptions.forEach(option => {
+        option.addEventListener('click', function() {
+            amountOptions.forEach(opt => opt.classList.remove('selected'));
+            this.classList.add('selected');
+            
+            const amount = this.getAttribute('data-amount');
+            customAmountInput.value = amount;
+            updateSummary(amount);
+        });
+    });
+
+    customAmountInput.addEventListener('input', function() {
+        amountOptions.forEach(opt => opt.classList.remove('selected'));
+        const amount = this.value;
+        updateSummary(amount);
+    });
+
+    function updateSummary(amount) {
+        if (amount && amount >= 100) {
+            summaryAmount.textContent = `₹${parseFloat(amount).toFixed(2)}`;
+            summaryTotal.textContent = `₹${parseFloat(amount).toFixed(2)}`;
+            submitBtn.disabled = false;
+        } else {
+            summaryAmount.textContent = '₹0.00';
+            summaryTotal.textContent = '₹0.00';
+            submitBtn.disabled = true;
+        }
+    }
+
+    // Payment method selection
+    const paymentMethods = document.querySelectorAll('.payment-method');
+    
+    paymentMethods.forEach(method => {
+        method.addEventListener('click', function() {
+            paymentMethods.forEach(m => m.classList.remove('selected'));
+            this.classList.add('selected');
+            this.querySelector('.payment-radio').checked = true;
+        });
+    });
+
+    // Form validation
+    document.getElementById('addMoneyForm').addEventListener('submit', function(e) {
+        const amount = customAmountInput.value;
+        
+        if (!amount || amount < 100) {
+            e.preventDefault();
+            alert('Please enter an amount of at least ₹100');
+            return;
+        }
+        
+        if (amount > 50000) {
+            e.preventDefault();
+            alert('Maximum amount allowed is ₹50,000');
+            return;
+        }
+    });
+</script>
+{% endblock extra_js %}

@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     "user_profile",
     "orders",
     "offers",
+    "wallet",
 
     "widget_tweaks",
 
@@ -120,8 +121,8 @@ SITE_ID = 1
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
         'APP': {
-            'client_id': '1015922401709-icn4a641ark3ofqb4tfvtisar17o0hm7.apps.googleusercontent.com',
-            'secret': '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',
+            'client_id': os.getenv('CLIENT_ID'),
+            'secret': os.getenv('SECRET'),
             'key': ''
         },
         'SCOPE': ['profile', 'email',],
@@ -255,4 +256,7 @@ EMAIL_HOST_PASSWORD = 'jerdbaluuebjrmzv'
 
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
+
+RAZOR_KEY_ID = os.getenv('RAZOR_KEY_ID')
+RAZOR_KEY_SECRET = os.getenv('RAZOR_KEY_SECRET')
 

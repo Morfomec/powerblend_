@@ -37,6 +37,7 @@ urlpatterns = [
     path("profile/", include("user_profile.urls")),
     path("orders/", include("orders.urls")),
     path("offers/", include("offers.urls")),
+    path("wallet/", include("wallet.urls")),
 ]
 
 

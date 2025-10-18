@@ -404,11 +404,16 @@
                         {% endif %}
                         
                         <div class="price-section">
-                            <div class="current-price" id="subtotal-{{ item.id }}">₹{{ item.subtotal }}</div>
-                            <div class="price-savings">
-                                <span class="original-price">Was ₹{{ item.variant.save_price }}</span>
-                                <span class="savings">Save ₹{{ item.variant.save_price }} ({{ item.variant.discount_percentage }}%)</span>
-                            </div>
+                            {% if item.variant.discount_info and item.variant.discount_info.price < item.variant.discount_info.original_price %}
+                                <div class="product-specs" id="subtotal-{{ item.id }}">Per Piece ₹{{ item.variant.discount_info.price }}</div>
+                                <div class="current-price" id="subtotal-{{ item.id }}">₹{{ item.discounted_subtotal }}</div>
+                                <div class="price-savings">
+                                    <span class="original-price">Was ₹{{ item.original_subtotal }}</span>
+                                    <span class="savings">Save ₹{{ item.save_subtotal }} ({{ item.variant.discount_info.discount_percent }}%)</span>
+                                </div>
+                            {% else %}
+                                <div class="current-price">₹{{ item.variant.price }}</div>
+                            {% endif %}
                         </div>
 
                         <div class="remove-link">

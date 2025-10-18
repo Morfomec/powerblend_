@@ -27,9 +27,15 @@ class BasketItem(models.Model):
     # to track the item came from wishlist or not
     from_wishlist = models.BooleanField(default=False)
 
+    # @property
+    # def subtotal(self):
+    #     return self.variant.price * self.quantity
+
     @property
     def subtotal(self):
-        return self.variant.price * self.quantity
+        from offers.utils import get_discount_info_for_variant
+        discount_info = get_discount_info_for_variant(self.variant)
+        return discount_info['price'] * self.quantity
     
     def __str__(Self):
         return f"{self.variant} x {self.quantity}"
