@@ -386,7 +386,7 @@
             <div class="card-header d-flex justify-content-between align-items-center">
 
                 
-                <a href="{% url 'manage_attributes' product_id %}"><span><i class="fas fa-plus-circle me-2"></i>Add New Variant</span></a>
+                <a href="{% url 'manage_attributes' product.id %}"><span><i class="fas fa-plus-circle me-2"></i>Add New Variant</span></a>
                 <button type="button" class="btn btn-secondary btn-sm" onclick="toggleVariantForm()">
                     <i class="fas fa-chevron-down me-1"></i> Toggle Form
                 </button>
@@ -497,7 +497,8 @@
                         <thead>
                             <tr>
                                 <th>SI No</th>
-                                <th>Variant Details</th>
+                                <th>Variant Name</th>
+                                <th>Details</th>
                                 <th>Price</th>
                                 <th>Stock</th>
                                 <th>Status</th>
@@ -508,6 +509,7 @@
                         {% for variant in page_obj %}
                             <tr>
                                 <td>{{ forloop.counter|add:page_obj.start_index|add:"-1" }}</td>
+                                <td><strong>{{ variant.product.name }}</strong></td>
                                 <td>
                                     {% if variant.flavor %}
                                         <span class="variant-badge badge-flavor">{{ variant.flavor }}</span>
@@ -535,32 +537,30 @@
 
                                     <!-- List & Unlist toggle -->
 
-                                        <form action="{% url 'toggle_variant_listing' variant.id %}" method="post" style="display: inline;" class="variant-toggle-form">
-                                            {% csrf_token %}                                
-                                                <button class="btn btn-sm btn-action {% if variant.is_listed %}btn-block{% else %}btn-unblock{% endif %}" type="submit">
-                                                    {% if variant.is_listed %}
-                                                        <i class="fas fa-ban me-1"></i>List
-                                                    {% else %}
-                                                        <i class="fas fa-check me-1"></i>Unlist
-                                                    {% endif %}
-                                                </button>
+                                        <form action="{% url 'toggle_variant_listing' variant.id %}" 
+                                            method="POST" 
+                                            style="display:inline;">
+                                            {% csrf_token %}
+                                            <button class="btn btn-sm {% if variant.is_listed %}btn-danger{% else %}btn-success{% endif %}" type="submit">
+                                                {% if variant.is_listed %}
+                                                    <i class="fas fa-ban me-1"></i>Unlist
+                                                {% else %}
+                                                    <i class="fas fa-check me-1"></i>List
+                                                {% endif %}
+                                            </button>
                                         </form>
 
                                         <!-- Edit -->
-                                        <a href="{% url 'add_variants' product_id %}?page={{ page_obj.number }}" 
+                                        <a href="{% url 'edit_variant' variant.id %}?page={{ page_obj.number }}" 
                                         class="btn btn-sm btn-edit" title="Edit">
                                             <i class="fas fa-edit me-1"></i> Edit
                                         </a>
 
                                         <!-- Delete -->
-                                        <button type="button" 
-                                                class="btn btn-sm btn-delete" 
-                                                data-bs-toggle="modal" 
-                                                data-bs-target="#deleteModal"
-                                                title="Delete">
-                                            <i class="fas fa-trash me-1"></i> Delete
-                                        </button>
-
+    
+                                        <a href="{% url 'delete_variant' variant.id %}" class="btn btn-danger btn-sm">
+                                            Delete
+                                        </a>
 
                                     </div>
                                 </td>
@@ -578,7 +578,7 @@
         </div>
         
         <!-- Confirmation Modal -->
-        <div class="modal fade" id="actionModal" tabindex="-1">
+        <!-- <div class="modal fade" id="actionModal" tabindex="-1">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                 <div class="modal-header">
@@ -594,7 +594,7 @@
                 </div>
                 </div>
             </div>
-        </div>
+        </div> -->
 {% endblock body %}
 {% block extra_js %}
 
@@ -628,7 +628,7 @@ document.addEventListener('DOMContentLoaded', function() {
             formToSubmit.submit();
         } else if (formToSubmit && formToSubmit.classList.contains('btn-delete')) {
             // Handle delete action manually if needed
-            alert('Handle delete here!');
+          
         }
         const modalEl = document.getElementById('actionModal');
         bootstrap.Modal.getInstance(modalEl).hide();

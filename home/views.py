@@ -87,10 +87,10 @@ def list_products(request):
 
     sort_option = request.GET.get("sort")
     if sort_option == "variant.price_low":
-        products = products.order_by("variant__price")
+        products = products.order_by("variants__price")
         messages.success(request, "Items in price low to high")
     elif sort_option == "variant.price_high":
-        products = products.order_by("-variant__price")
+        products = products.order_by("-variants__price")
     elif sort_option == "az":
         products = products.order_by("name")
     elif sort_option == "za":
@@ -113,16 +113,34 @@ def list_products(request):
 
     for product in products:
         product.best_offer = get_best_offer_for_product(product)
-        for variant in product.variants.all():
-            variant.discount_info = get_discount_info_for_variant(variant)
+
+        available_variants = product.variants.filter(stock__gt=0)
+        if available_variants.exists():
+            cheapest_variant = available_variants.order_by('price').first()
+            discount_info = get_discount_info_for_variant(cheapest_variant)
+            product.display_variant = discount_info
+        
+            # get_discount_info_for_variant(cheapest_variant)
+            # product.display_variant = cheapest_variant
+        else:
+            product.display_variant = None
+        # for variant in product.variants.all():
+        #     variant.discount_info = get_discount_info_for_variant(variant)
 
     categories = Category.objects.all()
 
 
 
     context = {
+
         'products': products,
         'wishlist_variant_ids': wishlist_variant_ids,
+        'categories': categories,
+        'search_query': search_query,
+        'selected_category': category_id,
+        'min_price': min_price,
+        'max_price': max_price,
+        'sort_option': sort_option,
     }
     return render(request, "product_listing.html", context)
 
@@ -281,4 +299,5 @@ def detail_product(request, id):
         # 'weight': selected_variant.weight,
         # 'flavor': selected_variant.flavor,
     }
+    print("Selected variant info:", selected_variant_info)
     return render(request, "product_detail.html", context)

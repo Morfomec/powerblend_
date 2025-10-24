@@ -277,6 +277,30 @@
         align-items: center;
     }
 
+        .current-price {
+        font-size: 1.7rem;
+        font-weight: bold;
+        color: var(--primary-solid);
+    }
+
+        .original-price {
+        background-color: var(--danger-color);
+        color: white;
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        text-decoration: line-through;
+    }
+        .save-price {
+        background-color: var(--success-color);
+        color: white;
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+
+
     .logo::before {
         content: "M";
         background: var(--primary-solid);
@@ -417,9 +441,20 @@
                     </div>
 
                     <div class="product-info">
-                        <h5 class="product-title">{{ item.variant.product.name }}</h5>
+
+
+                        <h5>{{ item.variant.product.name }}</h5>
                         <p class="product-variant">{{ item.variant }}</p>
+
+                        {% if item.variant.active_offer %}
+                        <div class="product-price">
+                            <span class="current-price">₹{{ item.variant.active_offer.price }}</span>
+                            <span class="original-price"><del>Was ₹{{ item.variant.active_offer.original_price}}</del></span>
+                            <span class="save-price">Save ₹{{ item.variant.active_offer.save_price }}</span>
+                        </div>
+                        {% else %}
                         <div class="product-price">₹{{ item.variant.price }}</div>
+                        {% endif %}
                         
                         <div class="product-actions">
                             <form action="{% url 'move_to_basket' item.variant.id %}" method="post">

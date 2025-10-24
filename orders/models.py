@@ -65,6 +65,13 @@ class Order(models.Model):
     razorpay_order_id = models.CharField(max_length=255, blank=True, null=True)
     razorpay_payment_id = models.CharField(max_length=255, blank=True, null=True)
 
+    discount_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    coupon_discount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+    @property
+    def final_amount(self):
+        return self.total - self.discount_amount 
+
 
     def __str__(self):
         return f"{self.order_id} ({self.user})"

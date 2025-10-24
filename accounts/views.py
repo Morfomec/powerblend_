@@ -10,11 +10,16 @@ from django.urls import reverse_lazy
 from django.contrib.auth.views import PasswordChangeView
 from django.contrib.auth.forms import PasswordChangeForm
 
-from .models import CustomUser
+from .models import CustomUser, UserReferral
 from django.core.mail import send_mail
 from django.utils import timezone
 from datetime import timedelta
 import random
+from decimal import Decimal
+from wallet.models import Wallet
+
+from admin_app.utils import reward_referrer
+
 
 # Create your views here.
 
@@ -23,51 +28,77 @@ def generate_otp():
     return str(random.randint(100000, 999999))
 
 
+
 def register_view(request):
     """
-    
+    Handle user registration with optional referrer code.
+    New users trigger wallet reward for referrer if code is valid.
     """
     if request.method == "POST":
         form = RegistrationForm(request.POST)
 
         if form.is_valid():
-            # email = form.cleaned_data.get('email')
-
-            # extra check to see if email already in db
-            # if CustomUser.objects.filter(email=email).exists():
-            #     messages.error(request, 'This email is already registered.')
-            #     return redirect('register')
-
-            # creating user but not activating
+            # Step 1: Create and save new user (inactive until verified)
             user = form.save(commit=False)
             user.is_active = False
             user.is_verified = False
+            user.save()
 
-            # creating otp
+            # Step 2: Ensure the new user has a UserReferral object
+            referrer_obj, created = UserReferral.objects.get_or_create(user=user)
+
+            # Step 3: Handle optional referrer code
+            ref_code = form.cleaned_data.get('referrer_code', '').strip().upper()
+            if ref_code:
+                try:
+                    # Find referrer
+                    referrer_ref = UserReferral.objects.get(referrer_code=ref_code)
+
+                    # Link new user to the referrer
+                    referrer_obj.referred_by = referrer_ref
+                    referrer_obj.save()
+
+                    # Credit ₹500 to referrer's wallet
+                    wallet, w_created = Wallet.objects.get_or_create(user=referrer_ref.user)
+                    wallet.credit(Decimal('500.00'))
+                    print(f"DEBUG REFERRAL LINK: New User {user.email}, Referred By: {referrer_obj.referred_by}")
+
+                    messages.success(
+                        request,
+                        f"Referral applied! {referrer_ref.user.full_name} earned ₹500 in their wallet."
+                    )
+
+                except UserReferral.DoesNotExist:
+                    messages.warning(
+                        request,
+                        "Invalid referrer code — registration continued without it."
+                    )
+
+            # Step 4: Generate OTP for email verification
             otp = generate_otp()
             user.email_otp = otp
             user.otp_created_at = timezone.now()
             user.save()
 
-            # sending otp via email
+            # Step 5: Send OTP email
             send_mail(
-                subject="Email Verifiaction OTP",
+                subject="Email Verification OTP",
                 message=f"Hi {user.full_name},\n\nYour OTP is: {otp}",
                 from_email="muhammedshifil@gmail.com",
                 recipient_list=[user.email],
             )
 
-            # storing user_id in session for later otp verification
+            # Step 6: Store user_id in session for OTP verification
             request.session["user_id"] = user.id
 
-            # return redirect('login')
             messages.success(
                 request,
-                "Registration is successful!! An OTP has been sent to your email. Verify account within 5 minutes.",
+                "Registration successful! An OTP has been sent to your email. Verify your account within 5 minutes."
             )
             return redirect("verify_otp")
+
         else:
-            messages.error(request, "Please corrects the errors below.")
+            messages.error(request, "Please correct the errors below.")
             return render(request, "registration.html", {"form": form})
 
     else:

@@ -1,12 +1,12 @@
-from django.shortcuts import render, redirect,get_object_or_404
+from django.shortcuts import render, redirect,get_object_or_404, HttpResponse
 from .models import Product, ProductImage, Flavor, Weight, ProductVariant
 from category.models import Category
 from utils.pagination import get_pagination
 from django.contrib import messages
-from .forms import ProductForm, ProductImageForm, ProductVariantForm, FlavorForm, WeightForm
+from .forms import ProductForm,  ProductVariantForm, FlavorForm, WeightForm
 from django.urls import reverse
 from django.db.models import Sum
-
+from django.views.decorators.http import require_POST
 from offers.utils import get_best_offer_for_product,get_discount_info_for_variant
 
 
@@ -14,7 +14,7 @@ from offers.utils import get_best_offer_for_product,get_discount_info_for_varian
 # Create your views here.
 
 def admin_products(request):
-    """
+    """       
     Fetch all products from the db and rendder them in the product management page.
     """
 
@@ -23,7 +23,9 @@ def admin_products(request):
     if 'clear' in request.GET:
         return redirect('admin_products')
             
+    # products = Product.objects.filter(is_listed=True, category__is_active=True).order_by('name')
     products = Product.objects.all().order_by('name')
+
     products = products.annotate(total_stock=Sum('variants__stock'))
 
     #to get query parameters
@@ -47,8 +49,10 @@ def admin_products(request):
     
     #for pagination 
     page_obj= get_pagination(request, products, per_page=5)
+    products = Product.objects.all().order_by('name')
     
     context = {
+        "product" : products,
         "active_page": "admin_products",
         "page_obj":page_obj,
     }
@@ -73,7 +77,7 @@ def add_product(request):
 
         uploaded_images = request.FILES.getlist('images')
         
-        if not name or not description or not category or not price:
+        if not name or not description or not category:
             messages.error(request, "Field inputs are missing!!")
 
             categories = Category.objects.all()
@@ -85,8 +89,8 @@ def add_product(request):
                     'name':{'value':name},
                     'description':{'value':description},
                     'category':{'value':category},
-                    'price':{'value':price},
-                    'stock':{'value':stock},
+                    # 'price':{'value':price},
+                    # 'stock':{'value':stock},
                     'is_listed':{'value':is_listed},
                 },
                 'categories': categories,
@@ -107,8 +111,8 @@ def add_product(request):
                     'name':{'value':name},
                     'description':{'value':description},
                     'category':{'value':category},
-                    'price':{'value':price},
-                    'stock':{'value':stock},
+                    # 'price':{'value':price},
+                    # 'stock':{'value':stock},
                     'is_listed':{'value':is_listed},
                 },
                 'categories': categories,
@@ -124,8 +128,8 @@ def add_product(request):
                 name = name,
                 description=description,
                 category=category,
-                price=price,
-                stock=stock if stock else 0,
+                # price=price,
+                # stock=stock if stock else 0,
                 is_listed=is_listed,
             )
             # return render(request, 'add_product.html', context)
@@ -140,9 +144,22 @@ def add_product(request):
             return redirect(f"{reverse('admin_products')}?page={current_page}")
         
         except Exception as e:
-            messages.error(request, f"An error occurred:{e}")
-            print
-            return redirect('add_product')
+            messages.error(request, f"An error occurred: {e}")
+            print("Error while saving product:", e)
+            categories = Category.objects.all()
+            context = {
+                'form': {
+                    'name': {'value': name},
+                    'description': {'value': description},
+                    'category': {'value': category},
+                    'is_listed': {'value': is_listed},
+                },
+                'categories': categories,
+                "mode": "add",
+                "active_page": "add_product",
+            }
+            
+            return render(request, 'add_product.html', context)
 
     else:
         categories = Category.objects.all()
@@ -156,6 +173,33 @@ def add_product(request):
         
         return render(request, 'add_product.html', context)
 
+
+
+# def add_product(request):
+
+#     current_page = request.GET.get('page', '1')
+
+#     if request.method == 'POST':
+#         form = ProductForm(request.POST, request.FILES)
+#         if form.is_valid():
+#             product = form.save(commit=False)
+#             product.save()
+#             for img in request.FILES.getlist('images'):
+#                 ProductImage.objects.create(product=product, image=img)
+
+#             messages.success(request, f"Product '{product.name}' added successfully!")
+
+#             return redirect(f"{reverse('admin_products')}?page={current_page}")
+#         else: 
+#             messages.error(request, "Please fix the errors below.")
+#     else:
+#         form = ProductForm()
+    
+#     context = {
+#         'form':form,
+#         'current_page' : current_page,
+#     }
+#     return render(request, 'add_product.html', context)
 
 def add_variants(request, product_id):
     """
@@ -200,6 +244,58 @@ def add_variants(request, product_id):
 
     return render(request, "add_variants.html", context)
 
+
+
+
+
+def edit_variant(request, variant_id):
+    """
+    Handle get and post reequest for editing an existing product variant.
+    """
+
+    variant = get_object_or_404(ProductVariant,id=variant_id)
+    product = variant.product
+
+    current_page = request.GET.get('page', '1')
+
+    if request.method == 'POST':
+        form = ProductVariantForm(request.POST, instance=variant)
+        if form.is_valid():
+                        
+            flavor = form.cleaned_data['flavor']
+            weight = form.cleaned_data['weight']
+
+            if(flavor != variant.flavor) or (weight != variant.weight):
+                exisiting_variant = ProductVariant.objects.filter(product=product, flavor=flavor, weight=weight).exclude(id=variant.id)
+            
+                if exisiting_variant.exists():
+                    messages.error(request, "This variant already exists!")
+                    return render(request, 'add_variants.html', {
+                            'product': product,
+                            'variant': variant,
+                            'form': form,
+                            'mode': "edit",
+                        })
+            
+            updated_variant = form.save(commit=False)
+            updated_variant.product= product
+            updated_variant.save()
+            messages.success(request, f"Variant updated successfully for {product.name}")
+            # return redirect("add_variants", product_id=product.id)
+            return redirect(f"{reverse('add_variants', args=[product.id])}?page={current_page}")
+       
+    else:
+        form = ProductVariantForm(instance=variant)
+
+    context = {
+        'product' : product,
+        'variant' : variant,
+        'form' : form,
+        'mode' : "edit",
+        'active_page' : 'edit_variant',
+    }
+    return render(request, 'add_variants.html', context)
+
 def edit_product(request, product_id):
     """
     Handle both GET and POST requests for editing an existing products.
@@ -220,7 +316,9 @@ def edit_product(request, product_id):
             # to handle image uploads (keeps old one and add new)
             if uploaded_images:
                 for img in uploaded_images:
-                    ProductImage.objects.create(product=product, image=img)
+                    exisiting_image = product.images.filter(image__icontains=img.name).exists()
+                    if not exisiting_image:
+                        ProductImage.objects.create(product=product, image=img)
 
             messages.success(request, f"Product '{product.name}' updated successfully!")
             return redirect(f"{reverse('admin_products')}?page={current_page}")
@@ -241,18 +339,7 @@ def edit_product(request, product_id):
     }
     return render(request, 'add_product.html', context)
 
-def delete_product(request, product_id):
-    product = get_object_or_404(Product, id=product_id)
-    current_page = request.GET.get('page', '1')
 
-    if request.method == 'POST':
-        product_name = product.name
-        product.delete()
-        messages.success(request, f"Product '{product_name}' was deleted successfully.")
-        return redirect(f"{reverse('admin_products')}?page={current_page}")
-
-    messages.error(request, "Invalid request for product deletion.")
-    return redirect('edit_product', product_id=product_id)
 
 def manage_attributes(request, product_id):
     """
@@ -323,11 +410,122 @@ def toggle_product_listing(request, product_id):
 
     return redirect('admin_products')
 
-def toggle_variant_listing(request, productvariant_id):
-    variant = get_object_or_404(ProductVariant, id=productvariant_id)
+@require_POST
+def toggle_variant_listing(request, variant_id):
+    variant = get_object_or_404(ProductVariant, id=variant_id)
+    product = variant.product
+
     variant.is_listed = not variant.is_listed
     variant.save()
+
+    # return HttpResponse(f"Success! New status: {variant.is_listed}", status=200)
 
     status = "listed" if variant.is_listed else "unlisted"
     messages.success(request, f"Variant '{variant.flavor}'-'{variant.weight}' is now {status}.")
     return redirect('add_variants', product_id=variant.product.id)
+
+
+
+
+def upload_product_images(request):
+    if request.method == 'POST':
+        product_id = request.POST.get('product')
+        product = get_object_or_404(Product, id=product_id)
+        images = request.FILES.getlist('images')
+
+        for img in images:
+            ProductImages.objects.create(product=product, image=img)
+        
+        messages.success(request, 'Images uploaded successfully.')
+        return redirect('admin_products')
+
+
+def delete_product_image(request, image_id):
+    """
+    Delete a specific image from a product 
+    """
+
+    image = get_object_or_404(ProductImage, id=image_id)
+    product = image.product
+    remaining_images = product.images.count()
+
+    if request.method == 'POST':
+        if remaining_images <= 3:
+            messages.error(request, "You must have at least 3 product images.")
+        else:    
+            image.delete()
+            messages.success(request,"Image deleted successfully.")
+        return redirect(reverse('edit_product', kwargs={'product_id': product.id}))
+    return redirect(reverse('edit_product', kwargs={'product_id': product.id}))
+
+
+
+
+def delete_product(request, product_id):
+    return confirm_delete(request, model=Product, object_id=product_id, object_name="product", redirect_url_name="admin_products")
+
+
+
+def delete_variant(request, variant_id):
+    variant = get_object_or_404(ProductVariant, id=variant_id)
+    product_id = variant.product.id
+    return confirm_delete(request, model=ProductVariant, object_id=variant_id, object_name="variants", redirect_url_name="add_variants", redirect_kwargs={'product_id' : product_id})
+
+
+
+def confirm_delete(request, model, object_id, object_name, redirect_url_name, redirect_kwargs=None):
+    
+    obj = get_object_or_404(model, id=object_id)
+
+    if request.method == 'POST':
+
+        obj.delete()
+        messages.success(request, f"{object_name.capitalize()} deleted successfully.")
+        return redirect(reverse(redirect_url_name, kwargs=redirect_kwargs or {}))
+
+    
+    context = {
+        'object_name' : object_name,
+        'object_display' : str(obj),
+        'confirm_url' : request.path,
+        'cancel_url' : reverse(redirect_url_name, kwargs=redirect_kwargs or {}),
+
+    }
+
+    return render(request, 'confirm_delete.html', context)
+
+
+
+
+# def delete_variant(request, variant_id):
+#     """
+#     Handle deleting an exisiting variant
+#     """
+
+#     variant = get_object_or_404(ProductVariant, id=variant_id)
+#     product_id = variant.product.id
+    
+#     if request.method == 'POST':
+#         variant_name = str(variant)
+#         print("before")
+#         variant.delete()
+#         print("after delete")
+#         messages.success(request, f"Variant '{variant_name}' has deleted successfully.")
+#         return redirect('add_variants', product_id=product_id)
+    
+#     return render(request, 'confirm_delete.html', {'variant':variant})
+
+
+
+# def delete_product(request, product_id):
+#     product = get_object_or_404(Product, id=product_id)
+#     current_page = request.GET.get('page', '1')
+
+#     if request.method == 'POST':
+#         product_name = product.name
+#         product.delete()
+#         messages.success(request, f"Product '{product_name}' was deleted successfully.")
+#         return redirect(f"{reverse('admin_products')}?page={current_page}")
+
+#     messages.error(request, "Invalid request for product deletion.")
+#     return redirect('edit_product', product_id=product_id)

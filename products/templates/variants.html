@@ -1,0 +1,539 @@
+{% extends "admin_base.html" %}
+{% load custom_tags %}
+{% load widget_tweaks %}
+
+
+{% block extra_css %}
+
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .page-header {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .page-title {
+            color: #1a5f7a;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        .page-subtitle {
+            color: #6c757d;
+            font-size: 1rem;
+            margin-bottom: 0;
+        }
+        .content-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        .content-card .card-header {
+            background: white;
+            border-bottom: 1px solid #eee;
+            padding: 1.5rem;
+            font-weight: 600;
+            color: #333;
+            border-radius: 10px 10px 0 0;
+        }
+        .content-card .card-body {
+            padding: 1.5rem;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .form-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        .form-control, .form-select {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #1a5f7a;
+            box-shadow: 0 0 0 0.2rem rgba(26, 95, 122, 0.25);
+            outline: 0;
+        }
+        .form-text {
+            color: #6c757d;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+        .btn-primary {
+            background: #1a5f7a;
+            border-color: #1a5f7a;
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 1rem;
+        }
+        .btn-primary:hover {
+            background: #155a75;
+            border-color: #155a75;
+            color: white;
+        }
+        .btn-secondary {
+            background: #e9ecef;
+            border-color: #e9ecef;
+            color: #333;
+            padding: 0.75rem 2rem;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 1rem;
+        }
+        .btn-secondary:hover {
+            background: #dee2e6;
+            border-color: #dee2e6;
+            color: #333;
+        }
+        .btn-danger {
+            background: #dc3545;
+            border-color: #dc3545;
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 1rem;
+        }
+        .btn-danger:hover {
+            background: #c82333;
+            border-color: #bd2130;
+            color: white;
+        }
+        .btn-success {
+            background: #28a745;
+            border-color: #28a745;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        .btn-success:hover {
+            background: #218838;
+            border-color: #1e7e34;
+            color: white;
+        }
+        
+        /* Product Info Card */
+        .product-info-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .product-info-card h3 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.5rem;
+        }
+        .product-info-card p {
+            margin: 0;
+            opacity: 0.95;
+        }
+        
+        /* Variants Table */
+        .variants-table {
+            margin-top: 1rem;
+        }
+        .variants-table thead {
+            background: #f8f9fa;
+        }
+        .variants-table th {
+            border-bottom: 2px solid #dee2e6;
+            padding: 1rem;
+            font-weight: 600;
+            color: #333;
+        }
+        .variants-table td {
+            padding: 1rem;
+            vertical-align: middle;
+        }
+        .variant-badge {
+            display: inline-block;
+            padding: 0.35rem 0.65rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-right: 0.5rem;
+        }
+        .badge-flavor {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        .badge-weight {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+        .stock-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        .stock-high {
+            background: #d4edda;
+            color: #155724;
+        }
+        .stock-medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .stock-low {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        /* Add Variant Section */
+        .add-variant-section {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 2px dashed #dee2e6;
+        }
+        .add-variant-section.active {
+            background: white;
+            border: 2px solid #1a5f7a;
+        }
+        
+        .required {
+            color: #dc3545;
+        }
+        .form-row {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .form-col {
+            flex: 1;
+        }
+        .btn-group-actions {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 10px;
+        }
+        .btn-group-actions .btn {
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            min-width: 150px;
+        }
+        
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center; /* horizontally center */
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-sm {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.875rem;
+            border-radius: 4px;
+        }
+        .btn-edit {
+            background: #17a2b8;
+            border: none;
+            color: white;
+        }
+        .btn-edit:hover {
+            background: #138496;
+            color: white;
+        }
+        .btn-delete {
+            background: #dc3545;
+            border: none;
+            color: white;
+        }
+        .btn-delete:hover {
+            background: #c82333;
+            color: white;
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1.5rem;
+            color: #6c757d;
+        }
+        .empty-state i {
+            font-size: 4rem;
+            opacity: 0.3;
+            margin-bottom: 1rem;
+        }
+            
+        .btn-block {
+        background: #dc3545;
+        color: white;
+        }
+
+        .btn-block:hover {
+            background: #c82333;
+            color: white;
+        }
+
+        .btn-unblock {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-unblock:hover {
+            background: #218838;
+            color: white;
+        }
+        
+        /* Alert Messages */
+        .alert {
+            border: none;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+        .alert-info {
+            background: rgba(23, 162, 184, 0.1);
+            color: #17a2b8;
+        }
+        .status-badge {
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-listed {
+            background: rgba(40, 167, 69, 0.1);
+            color: #28a745;
+        }
+        .status-unlisted {
+            background: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+        }
+
+        table th, 
+        table td {
+            text-align: center;
+            vertical-align: middle;
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+            .page-header {
+                padding: 1.5rem;
+            }
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+            .btn-group-actions {
+                flex-direction: column;
+            }
+            .btn-group-actions .btn {
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+            .action-buttons {
+                flex-direction: column;
+            }
+            .action-buttons .btn {
+                width: 100%;
+            }
+        }
+    </style>
+{% endblock extra_css %}
+{% block body %}
+  
+        <!-- Existing Variants List -->
+        <div class="content-card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-list me-2"></i>Existing Variants (6)</span>
+
+                <!-- Back Button -->
+                <div class="text-center mt-4">
+                    <a href="{% url 'admin_products' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-4"></i> Back to Products
+                    </a>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover variants-table">
+                        <thead>
+                            <tr>
+                                <th>SI No</th>
+                                <th>Variant Name</th>
+                                <th>Details</th>
+                                <th>Price</th>
+                                <th>Stock</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for variant in page_obj %}
+                            <tr>
+                                <td>{{ forloop.counter|add:page_obj.start_index|add:"-1" }}</td>
+                                <td><strong>{{ variant.product.name }}</strong></td>
+                                <td>
+                                    {% if variant.flavor %}
+                                        <span class="variant-badge badge-flavor">{{ variant.flavor }}</span>
+                                    {% endif %}
+                                    {% if variant.weight %}
+                                        <span class="variant-badge badge-weight">{{ variant.weight }}</span>
+                                    {% endif %}
+                                </td>
+                                <td><strong>₹{{ variant.price }}</strong></td>
+                                <td>
+                                    <span class="stock-badge 
+                                        {% if variant.stock > 20 %}stock-high
+                                        {% elif variant.stock > 5 %}stock-medium
+                                        {% else %}stock-low{% endif %}">
+                                        {{ variant.stock }} units
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="status-badge {% if variant.is_listed %}status-listed{% else %}status-unlisted{% endif %}">
+                                        {% if variant.is_listed %}Listed{% else %}Unlisted{% endif %}
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <div class="action-buttons">
+
+                                    <!-- List & Unlist toggle -->
+
+                                        <form action="{% url 'toggle_variant_listing' variant.id %}" method="POST" style="display:inline;">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-sm btn-action {% if variant.is_listed %}btn-block{% else %}btn-unblock{% endif %}">
+                                                {% if variant.is_listed %}
+                                                    <i class="fas fa-ban me-1"></i>Unlist
+                                                {% else %}
+                                                    <i class="fas fa-check me-1"></i>List
+                                                {% endif %}
+                                            </button>
+                                        </form>
+
+                                        <!-- Edit -->
+                                        <a href="{% url 'edit_variant' variant.id %}?page={{ page_obj.number }}" 
+                                        class="btn btn-sm btn-edit" title="Edit">
+                                            <i class="fas fa-edit me-1"></i> Edit
+                                        </a>
+
+                                        <!-- Delete -->
+                                        <button type="button" 
+                                                class="btn btn-sm btn-delete" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#deleteModal"
+                                                title="Delete">
+                                            <i class="fas fa-trash me-1"></i> Delete
+                                        </button>
+
+
+                                    </div>
+                                </td>
+
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center">No variants added yet</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Confirmation Modal -->
+        <div class="modal fade" id="actionModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm Action</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmActionBtn">Yes</button>
+                </div>
+                </div>
+            </div>
+        </div>
+{% endblock body %}
+{% block extra_js %}
+
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let formToSubmit = null;
+
+    // Attach modal to all variant toggle forms
+    document.querySelectorAll('.variant-toggle-form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            formToSubmit = this;
+            const modal = new bootstrap.Modal(document.getElementById('actionModal'));
+            modal.show();
+        });
+    });
+
+    // Attach modal to delete buttons
+    document.querySelectorAll('.btn-delete').forEach(button => {
+        button.addEventListener('click', function() {
+            formToSubmit = this; // optional for delete
+            const modal = new bootstrap.Modal(document.getElementById('actionModal'));
+            modal.show();
+        });
+    });
+
+    // Confirm button submits the form
+    document.getElementById('confirmActionBtn').addEventListener('click', function() {
+        if (formToSubmit && formToSubmit.tagName === "FORM") {
+            formToSubmit.submit();
+        } else if (formToSubmit && formToSubmit.classList.contains('btn-delete')) {
+            // Handle delete action manually if needed
+            alert('Handle delete here!');
+        }
+        const modalEl = document.getElementById('actionModal');
+        bootstrap.Modal.getInstance(modalEl).hide();
+    });
+});
+</script>
+
+
+
+{% endblock extra_js %}
+
+

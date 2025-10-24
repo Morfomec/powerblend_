@@ -2,13 +2,13 @@ from django.db import models
 from django.utils import timezone
 from django.core.exceptions import ValidationError
 from category.models import Category
-from products.models import Product
+
 
 # Create your models here.
 
 
 class Offer(models.Model):
-
+    from products.models import Product
     OFFER_CHOICES = (
         ('category', 'Category Offer'),
         ('product' , 'Product Offer'),
@@ -56,6 +56,29 @@ class Offer(models.Model):
         now = timezone.noadmin_offer_listw()
         return self.active and (self.start_date <= now <= (self.end_date or now))
 
+    # def discount_amount(self, price):
+    #     if not self.is_valid():
+    #         return (price * (self.discount_percent/100))
+
+
+    @property
     def discount_amount(self, price):
         if not self.is_valid():
-            return (price * (self.discount_percent/100))
+            return price
+        discount = self.discount_percent / Deciaml(100)
+        discounted_price = price * (1 - discount)
+        return discounted_price
+
+    @property
+    def savings(self, price):
+        if not self.is_valid():
+            return Decimal(0)
+        discount = self.discount_percent / Decimal(100)
+        save_amount = price * save_amount
+        return save_amount
+
+    @property
+    def original_price(self, price):
+        if not self.is_valid():
+            return price
+        return price

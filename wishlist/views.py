@@ -7,6 +7,10 @@ from .models import Wishlist, WishlistItem
 from basket.models import Basket, BasketItem
 from products.models import ProductVariant
 
+from offers.utils import get_discount_info_for_variant
+from django.views.generic import ListView
+
+
 # Create your views here.
 
 class WishlistAddView(LoginRequiredMixin, View):
@@ -17,6 +21,9 @@ class WishlistAddView(LoginRequiredMixin, View):
         wishlist, _ = Wishlist.objects.get_or_create(user=request.user)
 
         item, created = WishlistItem.objects.get_or_create(wishlist=wishlist, variant=variant)
+
+        discount_info = get_discount_info_for_variant(variant)
+        print("Dicount info:", discount_info)
 
         if created:
             messages.success(request, f"{variant.product.name} added to wishlist.")
@@ -82,3 +89,30 @@ class WishlistDetailView(LoginRequiredMixin, View):
         return render(request, "wishlist.html", context)
 
 
+
+
+# class WishlistView(LoginRequiredMixin, View):
+#     def get(self, request, *args, **kwargs):
+#         wishlist = Wishlist.objects.filter(user=request.user).first()
+#         if not wishlist:
+#             return render(request, 'wishlist.html', {'wishlist_items': []})
+
+#         items = WishlistItem.objects.filter(wishlist=wishlist)
+
+#         print(f"DEBUG: Found {items.count()} WishlistItems for user {request.user.full_name}.")
+
+#         wishlist_items = []
+#         for item in items:
+#             discount_info = get_discount_info_for_variant(item.variant)
+
+#             print(f"DEBUG: Variant ID {item.variant.id}, Discount info: {discount_info}")
+#             wishlist_items.append({
+#                 'item': item,
+#                 'discount_info': discount_info
+#             })
+
+#             print("Dicount info:", discount_info)
+#         return render(request, 'wishlist.html', {'wishlist_items': wishlist_items})
+       
+
+       

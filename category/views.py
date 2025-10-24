@@ -7,6 +7,7 @@ from utils.pagination import get_pagination
 from .models import Category
 from django.contrib.admin.views.decorators import staff_member_required
 from django.utils.text import slugify
+from django.urls import reverse
 
 from PIL import Image
 from io import BytesIO
@@ -43,7 +44,7 @@ def admin_category(request):
     categories = categories.filter(is_active=False)
 
 
-  #for pagination
+  #for pagination<i class="fas fa-check "></i>
   page_obj = get_pagination(request, categories, per_page=5)
 
 
@@ -229,9 +230,39 @@ def edit_category(request, category_id):
     return render(request, 'add_category.html', context)
 
 @staff_member_required
-def toggle_listing(request, category_id):
+def toggle_category_listing(request, category_id):
   category = get_object_or_404(Category, id=category_id)
-  category.is_active =not category.is_active
-  category.save()
-  # messages.success(request, f"Category {'unlisted' if not category.is_active else 'relisted'} successfully!")
+
+  if request.method == 'POST':
+    category.is_active =not category.is_active
+    category.save()
+
+    status = 'listed' if category.is_active else 'unlisted'
+    messages.success(request, f"Category {status} successfully!")
+
   return redirect('admin_category')
+
+
+def delete_category(request, category_id):
+  """
+  Handle deleting an exisiting category
+  """
+
+  category = get_object_or_404(Category, id=category_id)
+  current_page = request.GET.get('page', '1')
+
+  if request.method == 'POST':
+
+    category_name = category.name
+    category.delete()
+    messages.success(request, f"Category '{category_name}' has deleted successfully.")
+    
+    return redirect(f"{reverse('admin_category')}?page={current_page}")
+
+  context = {
+      "category": category,
+      "category_name": category.name,
+  }
+  return render(request, "confirm_delete.html", context)
+
+

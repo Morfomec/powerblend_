@@ -64,12 +64,12 @@
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
-
+from django.utils.crypto import get_random_string
 # Create your models here.
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, full_name, password=None, **kwargs):
-       
+        
         if not email:
             raise ValueError("Email is required")
         if not full_name:
@@ -80,7 +80,7 @@ class CustomUserManager(BaseUserManager):
         user.set_password(password)
         user.save(using=self._db)
         return user
-    
+
     def create_superuser(self, email, full_name, password=None, **kwargs):
         kwargs.setdefault("is_staff", True)
         kwargs.setdefault("is_superuser", True)
@@ -139,6 +139,27 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         if self.full_name:
             return str(self.full_name)
         return str(self.email)
-    
+
     class Meta:
         db_table = 'registered_users'
+
+
+def generate_referral_code(length=8):
+    return get_random_string(length).upper()
+
+
+class UserReferral(models.Model):
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='referral')
+    referral_code = models.CharField(max_length=20, unique=True, blank=True, null=True)
+    referred_by = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='referrers')
+
+    def __str__(self):
+        return f"{self.user.full_name or self.user.email} - {self.referral_code}"
+
+
+    def save(self, *args, **kwargs):
+        if not self.referral_code:
+            self.referral_code = generate_referral_code()
+            
+            print(f"Generated referral code for {self.user.email}: {self.referral_code}")  # 👈 add this line
+        super().save(*args, **kwargs)

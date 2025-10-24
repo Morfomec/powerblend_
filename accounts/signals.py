@@ -22,3 +22,15 @@
 #         user.save()
 
 
+# accounts/signals.py
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from .models import CustomUser, UserReferral, generate_referral_code
+
+@receiver(post_save, sender=CustomUser)
+def create_referral_for_user(sender, instance, created, **kwargs):
+    if created:
+        code = generate_referral_code()
+        while UserReferral.objects.filter(referral_code=code).exists():
+            code = generate_referral_code()
+        UserReferral.objects.create(user=instance, referral_code=code)

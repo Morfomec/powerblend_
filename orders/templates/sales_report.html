@@ -1,0 +1,659 @@
+{% extends 'admin_base.html' %}
+{% load static %}
+
+{% block title %}Sales Report - Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary-color: rgba(0, 57, 66, 0.8);
+        --primary-solid: rgb(0, 57, 66);
+        --light-bg: #f8f9fa;
+        --success-color: #28a745;
+        --danger-color: #dc3545;
+        --warning-color: #ffc107;
+        --info-color: #17a2b8;
+    }
+
+    .admin-container {
+        max-width: 1570px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .page-header {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+        padding: 1.5rem 2rem;
+        margin-bottom: 1.5rem;
+        border: 1px solid #e9ecef;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .page-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: var(--primary-solid);
+    }
+
+    .page-title {
+        font-size: 1.75rem;
+        font-weight: 600;
+        color: var(--primary-solid);
+        margin-bottom: 0.25rem;
+    }
+
+    .page-subtitle {
+        color: #6c757d;
+        font-size: 0.95rem;
+        margin-bottom: 0;
+    }
+
+    .content-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border: 1px solid #e9ecef;
+    }
+
+    .card-header-custom {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--primary-solid);
+        margin-bottom: 1.25rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid #e9ecef;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+        border: 1px solid #e9ecef;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+    }
+
+    .stat-card.sales {
+        border-left: 4px solid var(--success-color);
+    }
+
+    .stat-card.orders {
+        border-left: 4px solid var(--info-color);
+    }
+
+    .stat-card.discount {
+        border-left: 4px solid var(--warning-color);
+    }
+
+    .stat-card.coupon {
+        border-left: 4px solid var(--danger-color);
+    }
+
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .stat-icon.sales {
+        background: rgba(40, 167, 69, 0.1);
+        color: var(--success-color);
+    }
+
+    .stat-icon.orders {
+        background: rgba(23, 162, 184, 0.1);
+        color: var(--info-color);
+    }
+
+    .stat-icon.discount {
+        background: rgba(255, 193, 7, 0.1);
+        color: var(--warning-color);
+    }
+
+    .stat-icon.coupon {
+        background: rgba(220, 53, 69, 0.1);
+        color: var(--danger-color);
+    }
+
+    .stat-label {
+        font-size: 0.85rem;
+        color: #6c757d;
+        text-transform: uppercase;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-value {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--primary-solid);
+    }
+
+    .filter-form {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        align-items: end;
+    }
+
+    .filter-group {
+        flex: 1;
+        min-width: 200px;
+    }
+
+    .filter-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: var(--primary-solid);
+        font-size: 0.9rem;
+    }
+
+    .form-check {
+        margin-bottom: 0.5rem;
+    }
+
+    .form-check-input:checked {
+        background-color: var(--primary-solid);
+        border-color: var(--primary-solid);
+    }
+
+    .date-range-group {
+        display: none;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .date-range-group.show {
+        display: flex;
+    }
+
+    .btn-primary {
+        background-color: var(--primary-solid);
+        border-color: var(--primary-solid);
+        padding: 0.5rem 1.5rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        background-color: rgba(0, 57, 66, 0.9);
+        border-color: rgba(0, 57, 66, 0.9);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 57, 66, 0.3);
+    }
+
+    .btn-outline-primary {
+        color: var(--primary-solid);
+        border-color: var(--primary-solid);
+        padding: 0.5rem 1.5rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline-primary:hover {
+        background-color: var(--primary-solid);
+        border-color: var(--primary-solid);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 57, 66, 0.3);
+    }
+
+    .sales-table {
+        width: 100%;
+        margin-bottom: 0;
+    }
+
+    .sales-table thead {
+        background-color: var(--primary-color);
+        color: white;
+    }
+
+    .sales-table thead th {
+        padding: 1rem;
+        font-weight: 600;
+        border: none;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .sales-table tbody tr {
+        border-bottom: 1px solid #e9ecef;
+        transition: background-color 0.2s ease;
+    }
+
+    .sales-table tbody tr:hover {
+        background-color: rgba(0, 57, 66, 0.05);
+    }
+
+    .sales-table tbody td {
+        padding: 1rem;
+        vertical-align: middle;
+        color: #495057;
+    }
+
+    .badge-payment {
+        padding: 0.4rem 0.8rem;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+
+    .badge-razorpay {
+        background-color: rgba(23, 162, 184, 0.1);
+        color: var(--info-color);
+    }
+
+    .badge-cod {
+        background-color: rgba(255, 193, 7, 0.1);
+        color: #d39e00;
+    }
+
+    .badge-wallet {
+        background-color: rgba(40, 167, 69, 0.1);
+        color: var(--success-color);
+    }
+
+    .pagination {
+        margin-top: 1.5rem;
+        justify-content: center;
+    }
+
+    .pagination .page-link {
+        color: var(--primary-solid);
+        border: 1px solid #dee2e6;
+        margin: 0 0.25rem;
+        border-radius: 6px;
+    }
+
+    .pagination .page-link:hover {
+        background-color: var(--primary-solid);
+        color: white;
+        border-color: var(--primary-solid);
+    }
+
+    .pagination .page-item.active .page-link {
+        background-color: var(--primary-solid);
+        border-color: var(--primary-solid);
+    }
+
+    .chart-container {
+        position: relative;
+        height: 350px;
+        margin-top: 1rem;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: #6c757d;
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+        color: #dee2e6;
+        margin-bottom: 1rem;
+    }
+
+    @media (max-width: 768px) {
+        .page-header {
+            padding: 1rem;
+        }
+
+        .filter-form {
+            flex-direction: column;
+        }
+
+        .filter-group {
+            width: 100%;
+        }
+
+        .date-range-group {
+            flex-direction: column;
+        }
+
+        .btn-group-custom {
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .btn-group-custom .btn {
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+
+        .sales-table {
+            font-size: 0.85rem;
+        }
+
+        .sales-table thead th,
+        .sales-table tbody td {
+            padding: 0.75rem 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="admin-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="d-flex justify-content-between align-items-center flex-wrap">
+            <div>
+                <h1 class="page-title">Sales Report</h1>
+                <p class="page-subtitle">Analyze your store's performance and download detailed reports.</p>
+            </div>
+            <div class="btn-group-custom d-flex gap-2 mt-3 mt-md-0">
+                <a href="{% url 'download_sales_pdf' %}?filter_type={{ filter_type }}&start_date={{ start_date }}&end_date={{ end_date }}" 
+                   class="btn btn-primary">
+                    <i class="fas fa-file-pdf me-2"></i>Download PDF
+                </a>
+                <a href="{% url 'download_sales_excel' %}?filter_type={{ filter_type }}&start_date={{ start_date }}&end_date={{ end_date }}" 
+                   class="btn btn-outline-primary">
+                    <i class="fas fa-file-excel me-2"></i>Download Excel
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="content-card">
+        <h2 class="card-header-custom">
+            <i class="fas fa-filter me-2"></i>Filter Reports
+        </h2>
+        <form method="GET" action="{% url 'admin_sales_report' %}" id="filterForm">
+            <div class="filter-form">
+                <div class="filter-group">
+                    <label>Report Period</label>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="filter_type" id="daily" value="daily" 
+                               {% if filter_type == 'daily' %}checked{% endif %}>
+                        <label class="form-check-label" for="daily">Daily</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="filter_type" id="weekly" value="weekly" 
+                               {% if filter_type == 'weekly' %}checked{% endif %}>
+                        <label class="form-check-label" for="weekly">Weekly</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="filter_type" id="monthly" value="monthly" 
+                               {% if filter_type == 'monthly' %}checked{% endif %}>
+                        <label class="form-check-label" for="monthly">Monthly</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="filter_type" id="custom" value="custom" 
+                               {% if filter_type == 'custom' %}checked{% endif %}>
+                        <label class="form-check-label" for="custom">Custom Range</label>
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <div class="date-range-group {% if filter_type == 'custom' %}show{% endif %}" id="dateRangeGroup">
+                        <div style="flex: 1;">
+                            <label for="start_date">Start Date</label>
+                            <input type="date" class="form-control" id="start_date" name="start_date" 
+                                   value="{{ start_date }}" {% if filter_type != 'custom' %}disabled{% endif %}>
+                        </div>
+                        <div style="flex: 1;">
+                            <label for="end_date">End Date</label>
+                            <input type="date" class="form-control" id="end_date" name="end_date" 
+                                   value="{{ end_date }}" {% if filter_type != 'custom' %}disabled{% endif %}>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="filter-group" style="flex: 0 0 auto;">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search me-2"></i>Filter
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Summary Statistics -->
+    <div class="row g-3 mb-4">
+        <div class="col-lg-3 col-md-6">
+            <div class="stat-card sales">
+                <div class="stat-icon sales">
+                    <i class="fas fa-rupee-sign"></i>
+                </div>
+                <div class="stat-label">Total Sales</div>
+                <div class="stat-value">₹{{ total_sales|floatformat:2|default:"0.00" }}</div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="stat-card orders">
+                <div class="stat-icon orders">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+                <div class="stat-label">Total Orders</div>
+                <div class="stat-value">{{ total_orders|default:"0" }}</div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="stat-card discount">
+                <div class="stat-icon discount">
+                    <i class="fas fa-tag"></i>
+                </div>
+                <div class="stat-label">Total Discount</div>
+                <div class="stat-value">₹{{ total_discount|floatformat:2|default:"0.00" }}</div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="stat-card coupon">
+                <div class="stat-icon coupon">
+                    <i class="fas fa-ticket-alt"></i>
+                </div>
+                <div class="stat-label">Total Coupon Deduction</div>
+                <div class="stat-value">₹{{ total_coupon|floatformat:2|default:"0.00" }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sales Table -->
+    <div class="content-card">
+        <h2 class="card-header-custom">
+            <i class="fas fa-table me-2"></i>Sales Details
+        </h2>
+        <div class="table-responsive">
+            <table class="sales-table table">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer Name</th>
+                        <th>Date</th>
+                        <th>Payment Method</th>
+                        <th>Total Amount</th>
+                        <th>Discount</th>
+                        <th>Coupon</th>
+                        <th>Final Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if orders %}
+                        {% for order in orders %}
+                        <tr>
+                            <td><strong>#{{ order.order_id }}</strong></td>
+                            <td>{{ order.user.get_full_name|default:order.user.username }}</td>
+                            <td>{{ order.created_at|date:"d M, Y" }}</td>
+                            <td>
+                                {% if order.payment_method == 'razorpay' %}
+                                    <span class="badge-payment badge-razorpay">Razorpay</span>
+                                {% elif order.payment_method == 'cod' %}
+                                    <span class="badge-payment badge-cod">Cash on Delivery</span>
+                                {% elif order.payment_method == 'wallet' %}
+                                    <span class="badge-payment badge-wallet">Wallet</span>
+                                {% else %}
+                                    <span class="badge-payment badge-razorpay">{{ order.payment_method|title }}</span>
+                                {% endif %}
+                            </td>
+                            <td>₹{{ order.total_price|floatformat:2 }}</td>
+                            <td>₹{{ order.discount_amount|floatformat:2|default:"0.00" }}</td>
+                            <td>₹{{ order.coupon_discount|floatformat:2|default:"0.00" }}</td>
+                            <td><strong>₹{{ order.final_amount|floatformat:2 }}</strong></td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="8">
+                                <div class="empty-state">
+                                    <i class="fas fa-inbox"></i>
+                                    <p class="mb-0">No orders found for the selected period.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if orders.has_other_pages %}
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                {% if orders.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ orders.previous_page_number }}&filter_type={{ filter_type }}&start_date={{ start_date }}&end_date={{ end_date }}">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
+                {% endif %}
+
+                {% for num in orders.paginator.page_range %}
+                    {% if orders.number == num %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                    {% elif num > orders.number|add:'-3' and num < orders.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}&filter_type={{ filter_type }}&start_date={{ start_date }}&end_date={{ end_date }}">{{ num }}</a>
+                    </li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if orders.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ orders.next_page_number }}&filter_type={{ filter_type }}&start_date={{ start_date }}&end_date={{ end_date }}">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+
+    <!-- Sales Chart (Optional) -->
+    {% if chart_data %}
+    <div class="content-card">
+        <h2 class="card-header-custom">
+            <i class="fas fa-chart-line me-2"></i>Sales Trend
+        </h2>
+        <div class="chart-container">
+            <canvas id="salesChart"></canvas>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Toggle date range visibility
+    document.querySelectorAll('input[name="filter_type"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            const dateRangeGroup = document.getElementById('dateRangeGroup');
+            const startDate = document.getElementById('start_date');
+            const endDate = document.getElementById('end_date');
+            
+            if (this.value === 'custom') {
+                dateRangeGroup.classList.add('show');
+                startDate.disabled = false;
+                endDate.disabled = false;
+            } else {
+                dateRangeGroup.classList.remove('show');
+                startDate.disabled = true;
+                endDate.disabled = true;
+            }
+        });
+    });
+
+    // Chart.js implementation (if chart_data exists)
+    {% if chart_data %}
+    const ctx = document.getElementById('salesChart');
+    if (ctx) {
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: {{ chart_labels|safe }},
+                datasets: [{
+                    label: 'Sales (₹)',
+                    data: {{ chart_values|safe }},
+                    borderColor: 'rgb(0, 57, 66)',
+                    backgroundColor: 'rgba(0, 57, 66, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    borderWidth: 3,
+                    pointRadius: 5,
+                    pointBackgroundColor: 'rgb(0, 57, 66)',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointHoverRadius: 7
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return 'Sales: ₹' + context.parsed.y.toFixed(2);
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '₹' + value.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+    {% endif %}
+</script>
+{% endblock %}

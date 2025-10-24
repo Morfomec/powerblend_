@@ -12,6 +12,8 @@ from django.urls import reverse
 
 from .forms import EditProfileForm, EmailChangeForm
 
+from accounts.models import UserReferral
+
 # from .model import 
 
 # Create your views here.
@@ -31,12 +33,20 @@ def user_dashboard(request):
     user = request.user
     addresses = Address.objects.filter(user=request.user)
 
+    referral, created = UserReferral.objects.get_or_create(user=user)
+
+    if created and not referral.referral_code:
+        referral.save()
     
-    
+    referral.refresh_from_db() 
+
+    referred_users = referral.referrals.all()
 
     context = {
         'user': user,
         'addresses' : addresses,
+        'referral_code': referral.referral_code,
+        'referred_users' : referred_users,
         # 'orders': orders,
     }
 

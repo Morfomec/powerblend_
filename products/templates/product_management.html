@@ -464,7 +464,7 @@
                                     <th>PRODUCT</th>
                                     <th>DESCRIPTION</th>
                                     <th>CATEGORY</th>
-                                    <th>PRICE</th>
+                                    <!-- <th>PRICE</th> -->
                                     <th>STOCK</th>
                                     <th>DATE</th>
                                     <th>STATUS</th>
@@ -496,16 +496,16 @@
                                     </td>
 
                                     <td>
-                                        <span class="description-text" title="{{ product.description }}">
+                                        <!-- <span class="description-text" title="{{ product.description }}"> -->
                                             {{ product.description }}
-                                        </span>
+                                        <!-- </span> -->
                                     </td>
 
                                     <td>{{ product.category.name }}</td>
 
-                                    <td>
+                                    <!-- <td>
                                         <span class="price-text">${{ product.price }}</span>
-                                    </td>
+                                    </td> -->
 
 
                                     <td>
@@ -534,36 +534,40 @@
 
                                     <td>
                                         <a href="{% url 'add_variants' product_id=product.id %}" class="btn btn-action btn-sm btn-variants" title="Manage Variants">
-                                            <i class="fas fa-layer-group me-1"></i>Variants
+                                            <!-- <i class="fas fa-arrows-alt"></i>Variants -->
+                                            <i ></i>Variants
                                         </a>
                                     </td>
 
                                     <td>
                                         <div class="action-buttons">
+                                            <!-- List/Unlist Product -->
+                                                <form action="{% url 'toggle_product_listing' product.id %}" method="post" style="display:inline;">
+                                                    {% csrf_token %}
+                                                    {% if product.is_listed %}
+                                                        <button type="submit" class="btn btn-warning btn-sm" title="Unlist Product">
+                                                            Unlist
+                                                        </button>
+                                                    {% else %}
+                                                        <button type="submit" class="btn btn-success btn-sm" title="List Product">
+                                                             List
+                                                        </button>
+                                                    {% endif %}
+                                                </form>
 
-                                            <!-- Edit Product -->
-                                            <a href="{% url 'edit_product' product.id %}?page={{ page_obj.number }}" class="btn btn-action btn-sm btn-edit" title="Edit Product">
-                                                <i class="fas fa-edit"></i>Edit
+                                            <!-- Edit -->
+                                            <a href="{% url 'edit_product' product.id %}?page={{ page_obj.number }}" 
+                                            class="btn btn-sm btn-edit" title="Edit">
+                                                Edit
                                             </a>
 
-                                            <!-- List/Unlist Product -->
-                                            {% if product.stock > 0 %}
-                                            <form action="{% url 'toggle_product_listing' product.id %}" method="post" style="display: inline;">
-                                                {% csrf_token %}
-                                                <button class="btn btn-action {% if product.is_listed %}btn-unlist{% else %}btn-list{% endif %}" type="submit" title="{% if product.is_listed %}Unlist{% else %}List{% endif %}">
-                                                    {% if product.is_listed %}
-                                                        <i class="fas fa-ban me-1"></i>Unlist
-                                                    {% else %}
-                                                        <i class="fas fa-check me-1"></i>List
-                                                    {% endif %}
-                                                </button>
-                                            </form>
-                                            {% endif %}
-
-                                            <!-- Add/Edit Offer -->
-                                            <button class="btn btn-action btn-offer" type="button" title="Add/Edit Offer" data-bs-toggle="modal" data-bs-target="#offerModal" data-product-id="{{ product.id }}" data-product-name="{{ product.name }}">
-                                                <i class="fas fa-tag me-1"></i>Offer
-                                            </button>
+                                            <!-- Delete -->
+                                        
+                            
+                                            <a href="{% url 'delete_product' product.id %}" class="btn btn-danger btn-sm">
+                                                Delete
+                                            </a> 
+                                            
 
                                         </div>
                                     </td>
@@ -721,3 +725,8 @@
     });
     </script>
     {% endblock extra_js %}
+
+
+
+
+

@@ -43,7 +43,6 @@
                                 <a href="{% url 'address_update' default_address.id %}?next={{ request.path }}" class="btn btn-edit">
                                     <i class="fas fa-edit me-1"></i>EDIT
                                 </a>
-                                <!-- <button class="btn btn-edit"></button> -->
                             </div>
                         </div>
                     {% else %}
@@ -54,8 +53,6 @@
                      <a href="{% url 'address_create' %}?next={{ request.path }}" class="btn-add-address">
                         <i class="fas fa-plus me-2"></i> ADD NEW ADDRESS
                      </a>
-    
-       
                 </div>
 
                 <!-- Apply Coupon Section -->
@@ -65,24 +62,77 @@
                         Apply Coupon
                     </h3>
                     
-                    <div class="row align-items-center">
-                        <div class="col-md-8">
-                            <input type="text" class="coupon-input w-100" placeholder="Enter Coupon Code" id="couponInput">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <!-- input name must match form field -->
+                                <input type="text" name="code" class="coupon-input w-100" placeholder="Enter Coupon Code" value="{{ coupon_form.code.value }}">
+                            </div>
+                            <div class="col-md-4">
+                                <button type="submit" name="apply_coupon" class="btn-apply-coupon w-100">
+                                    <i class="fas fa-tags me-1"></i>APPLY
+                                </button>
+                            </div>
                         </div>
-                        <div class="col-md-4">
-                            <button class="btn-apply-coupon w-100" onclick="applyCoupon()">
-                                <i class="fas fa-tags me-1"></i>APPLY
-                            </button>
-                        </div>
-                    </div>
+                    </form>
                     
                     <div class="coupon-message" id="couponMessage"></div>
                     
-                    <div class="mt-3">
-                        <small class="text-muted">
-                            <i class="fas fa-info-circle me-1"></i>
-                            View Coupons: Get extra discounts on your orders
-                        </small>
+                    <!-- Available Coupons Section -->
+                    <div class="available-coupons-section mt-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="available-coupons-title mb-0">
+                                <i class="fas fa-gift me-2"></i>Available Coupons
+                            </h5>
+                            <button class="btn-view-coupons" onclick="toggleCoupons()">
+                                <span id="toggleText">View All</span>
+                                <i class="fas fa-chevron-down ms-1" id="toggleIcon"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="coupons-list" id="couponsList" style="display: none;">
+                            {% if available_coupons %}
+                                {% for coupon in available_coupons %}
+                                <div class="coupon-card">
+                                    <div class="coupon-left">
+                                        <div class="coupon-code-badge">{{ coupon.code }}</div>
+                                        <div class="coupon-discount">
+                                            ₹{{ coupon.discount_amount }} OFF
+                                        </div>
+                                    </div>
+                                    <div class="coupon-middle">
+                                        <div class="coupon-description">{{ coupon.description }}</div>
+                                        <div class="coupon-details">
+                                            {% if coupon.minimum_amount %}
+                                                <span class="coupon-condition">
+                                                    <i class="fas fa-shopping-cart me-1"></i>Min Order: ₹{{ coupon.minimum_amount }}
+                                                </span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="coupon-validity">
+                                            <i class="fas fa-clock me-1"></i>Valid till: {{ coupon.valid_to|date:"d M, Y" }}
+                                        </div>
+                                    </div>
+                                    <!-- <div class="coupon-right">
+                                        <button class="btn-apply-this-coupon" onclick="applyThisCoupon('{{ coupon.code }}')">
+                                            APPLY
+                                        </button>
+                                    </div> -->
+                                    <div class="coupon-right">
+                                        <button type="button" class="btn-apply-this-coupon" onclick="copyCoupon('{{ coupon.code }}')">
+                                            COPY
+                                        </button>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="no-coupons">
+                                    <i class="fas fa-inbox fa-3x mb-3"></i>
+                                    <p>No coupons available at the moment</p>
+                                </div>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -115,6 +165,8 @@
                     <h2>Your checkout is empty</h2>
                     {% endfor %}
 
+
+
                     <!-- Price Breakdown -->
                     <div class="mt-3">
                         <div class="price-row">
@@ -133,9 +185,24 @@
                             <span>Taxes</span>
                             <span>₹{{ taxes|floatformat:2  }}</span>
                         </div>
-                        <div class="price-row">
-                            <span>Discount</span>
-                            <span class="text-warning">₹{{ discount|floatformat:2 }}</span>
+<div class="price-row-wrapper">
+                            <div class="price-row">
+                                {% if applied_coupon %}
+                                    <span>Coupon ({{ applied_coupon.code }})</span>
+                                    <span class="text-warning">-₹{{ discount|floatformat:2 }}</span>
+                                {% else %}
+                                    <span>Discount</span>
+                                    <span class="text-warning">₹0.00</span>
+                                {% endif %}
+                            </div>
+                            {% if applied_coupon %}
+                                <form method="POST" class="remove-coupon-form">
+                                    {% csrf_token %}
+                                    <button type="submit" name="remove_coupon" class="btn-remove-coupon">
+                                        <i class="fas fa-times-circle me-1"></i>Remove Coupon
+                                    </button>
+                                </form>
+                            {% endif %}
                         </div>
                         <div class="price-row total">
                             <span>Total</span>
@@ -145,8 +212,6 @@
 
                     <!-- Payment Methods -->
                     <div class="mt-4">
-                        
-                        <!-- cod -->
                         <form action="{% url 'checkout' %}" method="post">
                             {% csrf_token %}
                             <input type="hidden" name="payment_method" value="wallet">
@@ -155,15 +220,6 @@
                                 WALLET
                             </button>
                         </form>
-
-                        <!-- <form action="{{ callback_url }}" method="post">
-                            {% csrf_token %}
-                            <input type="hidden" name="payment_method" value="razorpay">
-                            <button type="submit" class="payment-button" id="rzp-button1">
-                                <i class="fas fa-credit-card"></i>
-                                RAZORPAY
-                            </button>
-                        </form> -->
 
                         <form action="{{ callback_url }}" method="POST" id="razorpay-form">
                             {% csrf_token %}
@@ -174,9 +230,6 @@
                             </button>
                         </form>
 
-
-
-
                         <form action="{% url 'checkout' %}" method="post">
                             {% csrf_token %}
                             <input type="hidden" name="payment_method" value="cod">
@@ -185,13 +238,7 @@
                                 CASH ON DELIVERY
                             </button>
                          </form>
-
-                         
-
-
-
                     </div>
-
 
                     <!-- Security Badge -->
                     <div class="text-center mt-3">
@@ -205,14 +252,20 @@
         </div>
     </div>
 {% endblock body %}
+
 {% block extra_js %}
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+
 {% if razorpay_order_id %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 <script>
+    
 document.getElementById('rzp-button').onclick = function(e){
     var options = {
         "key": "{{ razorpay_merchant_key }}",
-        "amount": "{{ razorpay_amount }}",   // in paise
+        "amount": {{ razorpay_amount }},
         "currency": "{{ currency }}",
         "name": "POWERBLEND",
         "description": "Order Payment",
@@ -225,24 +278,13 @@ document.getElementById('rzp-button').onclick = function(e){
         "handler": function(response){
             var form = document.getElementById('razorpay-form');
 
-            // Append Razorpay data
-            var rpid = document.createElement('input');
-            rpid.type = 'hidden';
-            rpid.name = 'razorpay_payment_id';
-            rpid.value = response.razorpay_payment_id;
-            form.appendChild(rpid);
-
-            var roid = document.createElement('input');
-            roid.type = 'hidden';
-            roid.name = 'razorpay_order_id';
-            roid.value = response.razorpay_order_id;
-            form.appendChild(roid);
-
-            var sig = document.createElement('input');
-            sig.type = 'hidden';
-            sig.name = 'razorpay_signature';
-            sig.value = response.razorpay_signature;
-            form.appendChild(sig);
+            ['razorpay_payment_id','razorpay_order_id','razorpay_signature'].forEach(function(name){
+                var input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = name;
+                input.value = response[name];
+                form.appendChild(input);
+            });
 
             form.submit();
         }
@@ -254,4 +296,36 @@ document.getElementById('rzp-button').onclick = function(e){
 </script>
 {% endif %}
 
+<script>
+function toggleCoupons() {
+    const couponsList = document.getElementById('couponsList');
+    const toggleText = document.getElementById('toggleText');
+    const toggleIcon = document.getElementById('toggleIcon');
+    
+    if (couponsList.style.display === 'none') {
+        couponsList.style.display = 'block';
+        toggleText.textContent = 'Hide';
+        toggleIcon.classList.remove('fa-chevron-down');
+        toggleIcon.classList.add('fa-chevron-up');
+    } else {
+        couponsList.style.display = 'none';
+        toggleText.textContent = 'View All';
+        toggleIcon.classList.remove('fa-chevron-up');
+        toggleIcon.classList.add('fa-chevron-down');
+    }
+}
+
+function applyThisCoupon(code) {
+    document.getElementById('couponInput').value = code;
+    applyCoupon();
+}
+
+function copyCoupon(code) {
+    navigator.clipboard.writeText(code).then(() => {
+        toastr.success('Coupon code copied: ' + code);
+    }).catch(() => {
+        toastr.error('Failed to copy coupon code');
+    });
+}
+</script>
 {% endblock extra_js %}

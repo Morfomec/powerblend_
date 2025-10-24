@@ -13,14 +13,14 @@ class Wallet(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.user.full_name}'s Wallet: ₹{self.balanace}"
+        return f"{self.user.full_name}'s Wallet: ₹{self.balance}"
 
     def credit(self, amount: Decimal):
         """
         add money to wallet and record transcation
         """
         with transaction.atomic():
-            WalletTransaction.objects.create(wallet=self, amount=amount, type='Credit')
+            WalletTransaction.objects.create(wallet=self, amount=amount, transaction_type='Credit')
             self.balance += amount
             self.save(update_fields=['balance'])
 
@@ -32,9 +32,9 @@ class Wallet(models.Model):
         if self.balance < amount:
             raise ValueError("Insufficient wallet balance")
         with transaction.atomic():
-            WalletTransaction.objects.create(wallet=self, amount=amount, type='Debit')
+            WalletTransaction.objects.create(wallet=self, amount=amount, transaction_type='Debit')
             self.balance -= amount
-            self.save(update_fields=['balanace'])
+            self.save(update_fields=['balance'])
 
 class WalletTransaction(models.Model):
     wallet = models.ForeignKey(Wallet, on_delete=models.CASCADE, related_name='transactions')

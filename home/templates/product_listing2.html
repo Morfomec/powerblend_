@@ -1,0 +1,325 @@
+{% extends 'home_base.html' %}
+{% load static %}
+{% block content %}
+<h1>Welcome, {{request.user.username }}!</h1>
+{% endblock content %}
+{% block extra_css %}
+<style>
+    /* New styles for specific pages or components */
+    
+    .app-promo h2 {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin-bottom: 1rem;
+    }
+    .btn-primary-custom:hover {
+        background-color: #e55a2b;
+    }
+    .original-price{
+
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .save-price {
+        background-color: #28a745;
+        color: white;
+    }
+    .current-price {
+        font-size: 26px;
+        font-weight: bold;
+        color: #333;
+    }
+
+    .quick-buy-btn:hover {
+        background-color: #2a5a63;
+    }
+    
+    /* .quick-buy-btn {
+        background: var(--primary-solid);
+        color: white;
+        border: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+        width: 100%;
+        cursor: pointer;
+        margin-top: 1rem;
+        text-align: center;
+        margin-bottom: -25px;
+    } */
+
+</style>
+    {% endblock extra_css %}
+
+    {% block body %}
+
+
+
+    <div class="container">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="#">Home</a></li>
+                <li class="breadcrumb-item active">Nutrition</li>
+            </ol>
+        </nav>
+
+        <!-- Page Title & Promo -->
+        <div class="d-flex justify-content-between align-items-center">
+            <h1 class="page-title">Powerblend Best Sellers</h1>
+            <div class="nav-arrows">
+                <i class="fas fa-chevron-left"></i>
+                <i class="fas fa-chevron-right ms-3"></i>
+            </div>
+        </div>
+
+        <div class="promo-banner">
+            <strong>Up to 40% OFF Everything + Extra 10% OFF above ₹7,000 | Extra 15% OFF above ₹10,000 | Discount Auto - Applies at checkout</strong>
+        </div>
+
+        <!-- Filter Tabs -->
+        <ul class="nav nav-tabs filter-tabs">
+            <li class="nav-item">
+                <a class="nav-link" href="#">NEW: HYPBOX</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">NEW: Vitamins</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Bundles</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" href="#">Clear Protein</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Creatine</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">PRO</a>
+            </li>
+        </ul>
+
+
+        <form method="get" id="filterForm">
+            <div class="filters-row">
+                <div class="row align-items-center">
+
+                    <!-- Sort -->
+                    <div class="col-md-2">
+                        <select class="form-select" name="sort" onchange="this.form.submit()">
+                            <option value="">Sort</option>
+                            <option value="price_low" {% if request.GET.sort == "price_low" %}selected{% endif %}>Price: Low to High</option>
+                            <option value="price_high" {% if request.GET.sort == "price_high" %}selected{% endif %}>Price: High to Low</option>
+                            <option value="az" {% if request.GET.sort == "az" %}selected{% endif %}>A → Z</option>
+                            <option value="za" {% if request.GET.sort == "za" %}selected{% endif %}>Z → A</option>
+                            <option value="new" {% if request.GET.sort == "new" %}selected{% endif %}>New Arrivals</option>
+                            <option value="featured" {% if request.GET.sort == "featured" %}selected{% endif %}>Featured</option>
+                        </select>
+                    </div>
+
+                    <!-- Category -->
+                    <div class="col-md-2">
+                        <select class="form-select" name="category" onchange="this.form.submit()">
+                            <option value="">All Categories</option>
+                            {% for cat in categories %}
+                                <option value="{{ cat.id }}" {% if request.GET.category == cat.id|stringformat:"s" %}selected{% endif %}>
+                                    {{ cat.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Price Range -->
+                    <div class="col-md-2">
+                        <input type="number" class="form-control" name="min_price" placeholder="Min Price"
+                            value="{{ request.GET.min_price }}">
+                    </div>
+                    <div class="col-md-2">
+                        <input type="number" class="form-control" name="max_price" placeholder="Max Price"
+                            value="{{ request.GET.max_price }}">
+                    </div>
+
+                    <!-- Search -->
+                    <div class="col-md-2">
+                        <input type="text" class="form-control" name="search" placeholder="Search..."
+                            value="{{ request.GET.search }}">
+                    </div>
+
+                    <!-- Apply Button + Results -->
+                    <div class="col-md-2 text-end">
+                        <button type="submit" class="btn btn-outline-secondary">Apply</button>
+                        <a href="{% url 'list_products' %}" class="btn btn-outline-secondary ms-2">Clear</a>
+                        <!-- <span class="ms-2">{{ products.count }} Results</span> -->
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <!-- Impact Whey Promo -->
+        <div class="impact-promo">
+            <h3>OUR BEST SELLING IMPACT WHEY PROTEIN FOR <span style="color: #ff6b35;">FREE</span></h3>
+            <p>TRY FOR <span style="color: #ff6b35;">₹500</span> & GET A <span style="color: #ff6b35;">₹500</span> VOUCHER</p>
+            <button class="btn btn-primary">TRY NOW</button>
+            <div class="position-absolute top-0 end-0 p-3">
+                <i class="fas fa-heart text-white me-2"></i>
+                <i class="fas fa-share text-white"></i>
+            </div>
+        </div>
+
+        <!-- Products Section -->
+        <h2 class="mb-4">Our Products</h2>
+        
+        <div class="row">
+            <!-- Product 1 -->
+        {% for product in products %}
+            <div class="col-lg-3 col-md-6">
+                <div class="product-card">
+                    <i class="far fa-heart heart-icon"></i>
+
+                    <div class="product-image text-center">   
+                        {% if product.images.all %}
+                        <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" class="img-fluid">
+                        {% else %}
+                        <img src="https://via.placeholder.com/300x300?text=No+Image" alt="No image available"  class="img-fluid w-100" style="object-fit: cover; height: 250px;">
+                        {% endif %}
+                    </div>
+
+
+                    <!-- for product info -->
+                    <div class="product-info">
+                        <h5 class="product-title">{{ product.name }}</h5>
+
+                        <div class="rating">
+                            <span>★★★★★</span> <span>(30468)</span>
+                        </div>
+                        {% with product.variants.first as variant %}
+                            {% if variant %}
+                                <div class="price-section">
+                                    <span class="current-price">₹{{ variant.price }}</span>
+                                    <span class="original-price">Was ₹{{ variant.original_price }}</span>
+                                    <span class="save-price">Save ₹{{ variant.save_price }}</span>
+                                </div>
+                            {% else %}
+                                <div class="price-section">
+                                    <span class="current-price">No variants available</span>
+                                </div>
+                            {% endif %}
+                        {% endwith %}
+                        
+
+                        <!-- {% with product.variants.first as variant %}
+                            {% if variant %}
+                                {% with variant.discount_info as info %}
+                                    <span class="current-price">₹{{ info.price|floatformat:2 }}</span>
+                                    {% if info.original_price > info.price %}
+                                        <span class="original-price">Was ₹{{ info.original_price|floatformat:2 }}</span>
+                                        <span class="save-price">Save ₹{{ info.save_price|floatformat:2 }}</span>
+                                    {% endif %}
+                                {% endwith %}
+                            {% else %}
+                                <span class="current-price">No variants available</span>
+                            {% endif %}
+                        {% endwith %} -->
+
+
+                        
+
+                        {% if product.best_offer %}
+                            <div class="discount-badge">
+                                {{ product.best_offer.name|upper }} - {{ product.best_offer.discount_percent }}% OFF
+                            </div>
+                        {% else %}
+                            <div class="discount-badge">Exclusive Offers awaits</div>
+                        {% endif %}
+                        <div>
+                            <a href="{% url 'detail_product' product.id %}" class="quick-buy-btn">
+                                <i class="fas fa-shopping-cart me-1"></i> QUICK BUY
+                            </a>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+
+        </div>
+
+        <!-- View All Button -->
+        <button class="view-all-btn">VIEW ALL</button>
+        
+    </div>
+
+
+
+
+    {% endblock body %}
+
+    {% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+<script>
+    // Toastr config
+    toastr.options = {
+        "closeButton": true,
+        "progressBar": true,
+        "positionClass": "toast-bottom-right",
+        "timeOut": "3000"
+    };
+
+    // Django messages → Toastr
+    {% if messages %}
+        {% for message in messages %}
+            toastr["{{ message.tags|default:'info' }}"]("{{ message|escapejs }}");
+        {% endfor %}
+    {% endif %}
+</script>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Add some interactivity
+        document.addEventListener('DOMContentLoaded', function() {
+            // Heart icon toggle
+            const heartIcons = document.querySelectorAll('.heart-icon');
+            heartIcons.forEach(icon => {
+                icon.addEventListener('click', function() {
+                    this.classList.toggle('fas');
+                    this.classList.toggle('far');
+                    this.style.color = this.classList.contains('fas') ? '#ff6b35' : '#ccc';
+                });
+            });
+
+            // Quick buy button hover effect
+            const quickBuyBtns = document.querySelectorAll('.quick-buy-btn');
+            quickBuyBtns.forEach(btn => {
+                btn.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px)';
+                    this.style.transition = 'transform 0.2s ease';
+                });
+                btn.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+
+            // Product card hover effect
+            const productCards = document.querySelectorAll('.product-card');
+            productCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-5px)';
+                    this.style.transition = 'transform 0.3s ease, box-shadow 0.3s ease';
+                });
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+        });
+    </script>
+{% endblock extra_js %}

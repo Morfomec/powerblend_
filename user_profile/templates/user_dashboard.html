@@ -457,6 +457,87 @@
             color: #888;
         }
 
+
+        /* Referral Code in Header */
+        .referral-code-section {
+            max-width: 450px;
+        }
+
+        .referral-label {
+            font-size: 0.95rem;
+            font-weight: 500;
+            opacity: 0.95;
+            display: block;
+        }
+
+        .referral-code-wrapper {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .referral-code-input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            letter-spacing: 2px;
+            text-align: center;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .referral-code-input:focus {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .referral-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .referral-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .referral-btn i {
+            pointer-events: none;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .referral-code-section {
+                max-width: 100%;
+            }
+            
+            .referral-code-wrapper {
+                flex-wrap: wrap;
+            }
+            
+            .referral-code-input {
+                flex: 1 1 100%;
+                min-width: 200px;
+            }
+            
+            .referral-btn {
+                flex: 1;
+                min-width: 80px;
+            }
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
             .profile-container {
@@ -502,6 +583,8 @@
         <!-- Profile Header -->
         <div class="profile-header-card">
             <div class="profile-header-content">
+                <!-- <p>DEBUG REFERRAL CODE: {{ referral_code }}</p> -->
+
                 
                 <div class="profile-avatar">
                     {% if user.profile_image %}
@@ -515,6 +598,37 @@
                     <p><i class="fas fa-envelope me-2"></i>{{ user.email }}</p>
                     <p><i class="fas fa-phone me-2"></i>{{ user.mobile }}</p>
                     <p><i class="fas fa-calendar me-2"></i>Member since {{ user.date_joined|date:"F Y" }}</p>
+                    
+                    <!-- Referral Code Section -->
+                    <div class="referral-code-section mt-3">
+                        <label class="referral-label mb-2">
+                            <i class="fas fa-gift me-2"></i>Your Referral Code
+                        </label>
+                        <div class="referral-code-wrapper">
+                            <input 
+                                type="text" 
+                                class="referral-code-input" 
+                                id="referralCodeHeader" 
+                                value="{{ referral_code }}" 
+                                readonly
+                            >
+                            <button 
+                                class="referral-btn" 
+                                onclick="copyReferralCodeHeader()"
+                                title="Copy to clipboard"
+                            >
+                                <i class="fas fa-copy"></i>
+                            </button>
+                            <button 
+                                class="referral-btn" 
+                                onclick="shareReferralCodeHeader()"
+                                title="Share referral code"
+                            >
+                                <i class="fas fa-share-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
                     <div class="profile-stats">
                         <div class="stat-item">
                             <span class="stat-number">12</span>
@@ -758,4 +872,88 @@
 {% endblock body %}
 {% block extra_js %}
 
+
+<script>
+    // Referral Code Functions
+    function copyReferralCodeHeader() {
+        const codeInput = document.getElementById('referralCodeHeader');
+        const btn = event.currentTarget;
+        
+        codeInput.select();
+        codeInput.setSelectionRange(0, 99999);
+        
+        navigator.clipboard.writeText(codeInput.value).then(() => {
+            // Update button
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check"></i>';
+            btn.style.background = 'rgba(40, 167, 69, 0.3)';
+            btn.style.borderColor = 'rgba(40, 167, 69, 0.5)';
+            
+            // Show toastr notification
+            if (typeof toastr !== 'undefined') {
+                toastr.success('Referral code copied to clipboard!');
+            }
+            
+            // Reset after 2 seconds
+            setTimeout(() => {
+                btn.innerHTML = originalHTML;
+                btn.style.background = 'rgba(255, 255, 255, 0.2)';
+                btn.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+            }, 2000);
+        }).catch(err => {
+            console.error('Failed to copy:', err);
+            if (typeof toastr !== 'undefined') {
+                toastr.error('Failed to copy code. Please try again.');
+            }
+        });
+    }
+
+    function shareReferralCodeHeader() {
+        const code = document.getElementById('referralCodeHeader').value;
+        const shareData = {
+            title: 'Join POWERBLEND',
+            text: `Use my referral code "${code}" when signing up for POWERBLEND and get exclusive benefits!`,
+            url: window.location.origin + '/register?ref=' + code
+        };
+        
+        if (navigator.share) {
+            navigator.share(shareData)
+                .then(() => {
+                    if (typeof toastr !== 'undefined') {
+                        toastr.success('Thanks for sharing!');
+                    }
+                })
+                .catch((err) => {
+                    if (err.name !== 'AbortError') {
+                        console.error('Share failed:', err);
+                    }
+                });
+        } else {
+            // Fallback: Copy link to clipboard
+            const shareUrl = window.location.origin + '/register?ref=' + code;
+            navigator.clipboard.writeText(shareUrl).then(() => {
+                if (typeof toastr !== 'undefined') {
+                    toastr.info('Referral link copied to clipboard!');
+                } else {
+                    alert('Referral link copied to clipboard!');
+                }
+            });
+        }
+    }
+
+    // Existing animation code...
+    document.addEventListener('DOMContentLoaded', function() {
+        const cards = document.querySelectorAll('.action-card, .section-card');
+        cards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            
+            setTimeout(() => {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, index * 100);
+        });
+    });
+</script>
 {% endblock extra_js %}

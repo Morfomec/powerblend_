@@ -749,10 +749,9 @@
         <div class="container">
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="#">Home</a></li>
-                    <li class="breadcrumb-item"><a href="#">Sports Nutrition</a></li>
-                    <li class="breadcrumb-item"><a href="#">Creatine</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Complete Creatine Monohydrate</li>
+                    <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'list_products' %}">Shop</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ product.name }}</li>
                 </ol>
             </nav>
         </div>
@@ -806,17 +805,19 @@
                     
                     <!-- price -->
 
-                    {% if selected_variant_info %}
-                        <div class="price-section">
-                            <span class="current-price">₹{{ selected_variant_info.price }}</span>
-                            {% if selected_variant_info.has_discount and selected_variant_info.original_price %}
-                                <span class="original-price">Was ₹{{ selected_variant_info.original_price }}</span>
-                            {% endif %}
-                            {% if selected_variant_info.save_amount and selected_variant_info.save_amount > 0 %}
-                                <span class="savings">Save ₹{{ selected_variant_info.save_amount }}</span>
-                            {% endif %}
-                        </div>
-                    {% endif %}
+{% if selected_variant_info %}
+    <div class="price-section">
+        <span class="current-price">₹{{ selected_variant_info.price }}</span>
+
+        {% if selected_variant_info.has_discount and selected_variant_info.original_price %}
+            <span class="original-price">Was ₹{{ selected_variant_info.original_price }}</span>
+        {% endif %}
+
+        {% if selected_variant_info.save_amount and selected_variant_info.save_amount > 0 %}
+            <span class="savings">Save ₹{{ selected_variant_info.save_amount }}</span>
+        {% endif %}
+    </div>
+{% endif %}
 
                     
 

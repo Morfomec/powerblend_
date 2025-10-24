@@ -410,8 +410,7 @@
                                 <th>DESCRIPTION</th>
                                 <th>DATE</th>
                                 <th>OFFER PRICE</th>
-                                <th>ADD OFFER</th>
-                                <th>STATUS</th>
+
                                 <th>LIST/UNLIST</th>
                                 <th>EDIT</th>
                             </tr>
@@ -449,33 +448,18 @@
 
                                 <td> {{category.created_at|date:"F d, Y"}} </td>
 
-                                <td>
-                                    {% if category.discount %}
-                                        <span class="offer-price"> {{ category.discount }}% off</span>
-                                    {% else %}
-                                        <span class="no-offer">No offer</span>
-                                    {% endif %}
-                                </td>
+                              
 
-                                <td>
-                                    <button class="btn btn-action btn-offer" type="button" title="Add/Edit Offer">
-                                        <i class="fas fa-tag me-1"></i>Edit Offer
-                                    </button>
-                                </td>
-
-                                <td><span class="status-badge {% if category.is_active %}status-listed{% else %}status-unlisted{% endif %}">
+                                <td><span class="status-badge  {% if category.is_active %}status-listed{% else %}status-unlisted{% endif %}">
                                     {% if category.is_active %}Listed{% else %}Unlisted{% endif %}</span></td>
 
                                 <td>
-                                    <form action="{% url 'toggle_listing' category.id %}" method="post" style="display: inline;" class="category-listing-form">
+                                    <form action="{% url 'toggle_category_listing' category.id %}" method="POST" style="display: inline;" class="category-listing-form">
                                         {% csrf_token %}
-                                            <button class="btn btn-action {% if category.is_active %}btn-unlist{% else %}btn-list{% endif %}" type="submit" title="{% if category.is_active %}Unlist{% else %}List{% endif %}">
-                                                {% if category.is_active %}
-                                                    <i class="fas fa-ban me-1"></i>Unlist
-                                                {% else %}
-                                                    <i class="fas fa-check me-1"></i>List
-                                                {% endif %}
-
+                                            <button type="submit" class="btn {% if category.is_active %}btn-warning{% else %}btn-success{% endif %}" 
+                                                    
+                                                    title="{% if category.is_active %}Unlist{% else %}List{% endif %}">
+                                                {% if category.is_active %}Unlist{% else %}List{% endif %}
                                             </button>
 
                                     </form>
@@ -485,6 +469,10 @@
                                     <a href="{% url 'edit_category' category.id %}" class="btn btn-action btn-edit">
                                          <i class="fas fa-edit me-1"></i> Edit
                                     </a>
+                            
+                                    <a href="{% url 'delete_category' category.id %}" class="btn btn-danger btn-sm">
+                                        Delete
+                                    </a> 
                                 </td>
                                     
                                 <!-- </td>

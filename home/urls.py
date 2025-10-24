@@ -1,7 +1,7 @@
 from django.urls import path
 from . import views
 from django.shortcuts import redirect
-
+847
 
 urlpatterns = [
     path("", views.home_view, name='home'),

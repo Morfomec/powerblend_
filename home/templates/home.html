@@ -529,6 +529,7 @@
                     {% if product.display_variant %}
                         {% with product.display_variant.discount_info as info %}
                             <div class="price-section">
+                            {% if product.best_offer %}
                                 <span class="current-price">₹{{ info.price|floatformat:2 }}</span>
 
                                 {% if info.original_price > info.price %}
@@ -538,6 +539,9 @@
                                         {{ info.offer_name|title }} - {{ info.discount_percent|floatformat:0 }}% OFF
                                     </span> -->
                                 {% endif %}
+                            {% else %}
+                                <span class="current-price">₹{{ info.price|floatformat:2 }}</span>
+                            {% endif %}
                             </div>
                         {% endwith %}
                     {% else %}
@@ -545,7 +549,9 @@
                             <span class="current-price text-muted">No variants available</span>
                         </div>
                     {% endif %}
+                    
 
+                    
                     {% if product.best_offer %}
                         <div class="discount-badge">
                             {{ product.best_offer.name|upper }} - {{ product.best_offer.discount_percent }}% OFF

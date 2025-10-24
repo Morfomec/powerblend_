@@ -16,4 +16,6 @@ urlpatterns = [
     path('admin/return-process/<int:item_id>/', views.admin_return_process, name='admin_return_process'),
     
     path('invoice/<int:order_id>/download/', views.download_invoice, name='download_invoice')
+
+    
 ]

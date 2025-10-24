@@ -62,17 +62,29 @@
             </div>
         {% endif %}
     </div>
+    <div class="form-group">
+        <label class="form-label">
+            Referral Code
+            <span class="required-text">(optional)</span>
+        </label>
+        <input type="text" class="form-control" name="referral_code" value="{{ form.referral_code.value|default:'' }}">
+        {% if form.referral_code.errors.0 %}
+            <div class="text-danger small">
+                {{ form.referral_code.errors.0 }}
+            </div>
+        {% endif %}
+    </div>
 
     <button type="submit" class="btn btn-create-account">Create Account</button>
 
 
-<!-- Divider -->
+<!-- Divider
 <div class="divider">
     <span>OR</span>
-</div>
+</div> -->
 
 
-<h3 class="form-title2">Sign up with</h3>
+<h3 class="form-title2" style="text-align: center;">Or sign up with</h3>
 <!-- Google Sign Up -->
 <a href="{% provider_login_url 'google' %}" class="btn btn-google">
     <svg class="google-icon" viewBox="0 0 24 24">

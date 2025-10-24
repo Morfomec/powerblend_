@@ -2,9 +2,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.http import HttpResponse, Http404
-from django.db.models import Q 
+from django.db.models import Q, Sum, Count
 from django.utils import timezone
-from datetime import timedelta
+from datetime import timedelta, date
 import io 
 from decimal import Decimal
 from django.contrib import messages
@@ -23,6 +23,7 @@ from django.template.loader import render_to_string
 from weasyprint import HTML
 import tempfile
 
+from wallet.utils import refund_to_wallet
 # Create your views here.
 
 
@@ -173,6 +174,8 @@ def cancel_order(request, order_id):
                     item.save(update_fields=['is_cancelled', 'cancelled_reason', 'cancelled_at'])
                     print(f"Cancelling item {item.id} ({item.variant})")
 
+                    if order.payment_method in ['razorpay', 'wallet']:
+                        refund_to_wallet(order.user, order.total, reason=f"Refund for cancelled order {order.id}")
                 
                 order.status = 'cancelled'
                 print("Before recalc:", order.total)
@@ -195,51 +198,6 @@ def cancel_order(request, order_id):
     return render(request, 'order_cancel_confirm.html', context)
 
 
-# @login_required
-# def return_order(request, order_id):
-#     """
-#     to return the whole order 
-#     """
-
-#     order = get_object_or_404(Order, id=order_id, user=request.user)
-
-#     if order.status != 'delivered':
-#         messages.error(request, "This order cannot be returned at this moment.")
-#         return redirect('order_details', order_id=order.id)
-
-
-#     eligible_item = order.items.filter(is_cancelled=False, is_returned=False, status='delivered')
-#     if not eligible_item.exists():
-#         messages.info(request, "No items eligible for return.")
-#         return redirect('order_details', order_id=order.id)
-
-#     if request.method == 'POST':
-#         reason = request.POST.get('reason', 'No reason provided.')
-#         with transaction.atomic():
-#             for item in eligible_item:
-
-#                 increment_stock(item.variant, item.quantity)
-
-#                 item.is_returned =True
-#                 item.return_at =timezone.now()
-#                 item.return_reason = reason
-#                 item.return_status = 'return_requested'
-#                 item.save(update_fields=['is_returned', 'return_at', 'return_reason', 'return_status'])
-
-            
-#             remaining_items = order.items.filter(is_cancelled=False, is_returned=False)
-#             if not remaining_items.exists():
-#                 order.status = 'returned'
-#                 order.save(update_fields=['status'])
-
-#         messages.success(request,"Return request submitted for admin approval.")
-#         return redirect('order_details', order_id=order.id)
-
-#     context = {
-#         'order':order,
-#         'eligible_items':eligible_items,
-#     }
-#     return render(request, 'order_detail_page.html')
 
 @login_required
 def return_order(request, order_id):
@@ -277,24 +235,6 @@ def return_order(request, order_id):
 
 
 
-    # if order.status != 'delivered':
-    #     messages.error(request, "This order cannot be returned at this moment.")
-    #     return redirect('order_details', id=order_id)
-    
-    # if order.return_status != 'pending':
-    #     messages.infor(request, "Return request already submitted or processed.")
-    #     return redirect('order_details', id=order.id)
-
-    
-    # order.return_status = 'pending'
-    # order.return_reason = request.POST.get('reason', '')
-    # order.save()
-
-    # messages.success(request, "Your return request submitted for admin approval.")
-    # return redirect('order_details', id=order.id)
-
-
-
 
 
 @login_required
@@ -326,6 +266,9 @@ def cancel_item(request, order_id):
                 item.cancelled_at = timezone.now()
                 item.save(update_fields=['is_cancelled', 'status' ,'cancelled_reason', 'cancelled_at'])
 
+                if order.payment_method in ['wallet', 'razorpay']:
+                    refund_to_wallet(order.user, item.price * item.quantity, reason=f"Refund for cancelled item {item.variant}")
+
                 #update order total
                 order.recalc_total()
 
@@ -354,17 +297,7 @@ def return_item(request, order_id, item_id):
         messages.info(request, "Return already requested or approved.")
         return redirect('order_details', order_id=order.id)
 
-    # if request.method == 'POST':
-    #     reason = request.POST.get('reason', '')
-    #     comments = request.POST.get('comments', '')
 
-    #     ReturnRequest.objects.create(
-    #         item=item,
-    #         reason=reason,
-    #         comments=comments,
-    #         status='pending',
-    #         requested_at=timezone.now()
-        # )
 
         # Mark as requested
     item.return_status = 'return_requested'
@@ -375,35 +308,6 @@ def return_item(request, order_id, item_id):
     messages.success(request, 'Return request sent for admin approval.')
     return redirect('order_details', order_id=order.id)
     
-    # return redirect('order_details', order_id=order.id)
-
-    # if request.method == 'POST':
-    #     form = ReturnItemForm(request.POST)
-    #     if form.is_valid():
-    #         item = get_object_or_404(OrderItem, id=form.cleaned_data['item_id'], order=order)
-        
-    #     #if already returned
-    #     if item.is_returned:
-    #         return redirect('order_details', order_id=order.order_id)
-
-    #     with transaction.atomic():
-    #         increment_stock(item.variant, item.quantity)
-    #         item.is_returned = True
-    #         item.returned_reason = form.cleaned_data['reason']
-    #         item.returned_at  = timezone.now()
-    #         item.save(update_fields=['is_returned', 'returned_reason', 'returned_at'])
-
-    #         # if all items are either cancelled or returned , will mark whole order as returned
-    #         if not order.items.filter(is_cancelled=False, is_returned=False).exists():
-    #             order.status = 'returned'
-    #             order.save(update_fields=['status'])
-        
-    #     return redirect('order_details', order_id=order.order_id)
-    
-    # return redirect('order_details', order_id=order.order_id)
-
-
-
 
 
 
@@ -504,6 +408,8 @@ def admin_update_order_status(request, id):
     """
     to handles the post to change the order status from the admin panel and
     to increment or decrement the the stock upon cancel/return, also to recalc totals.
+
+    handles order-level status changes, including setting an order to 'returned'.
     """
 
     order = get_object_or_404(Order, id=id)
@@ -542,7 +448,7 @@ def admin_update_order_status(request, id):
                 item.cancelled_reason = reason
                 item.cancelled_at = timezone.now()
                 item.save(update_fields=['is_cancelled', 'cancelled_reason', 'cancelled_at'])
-            
+
             order.status = 'cancelled'
             order.recalc_total()
             order.save(update_fields=['status', 'total'])
@@ -561,6 +467,10 @@ def admin_update_order_status(request, id):
                 item.returned_reason=reason
                 item.returned_at = timezone.now()
                 item.save(update_fields=['is_returned', 'returned_reason','returned_at'])
+
+            total_refund = sum(item.price * item.quantity for item in order.items.fitler(is_cancelled=False, is_returned=True))
+            if order.payment_method in ['razorpay', 'wallet']:
+                refund_to_wallet(order.user, total_refund, reason=f"Refund for returned order {order.order_id}")
 
             order.status = 'returned'
             order.recalc_total()
@@ -617,6 +527,9 @@ def admin_return_process(request, item_id):
         item.returned_at = timezone.now()
         increment_stock(item.variant, item.quantity)
         messages.success(request, f"Return approved for {item.variant.product.name}.")
+
+        if item.order.payment_method in ['razorpay', 'wallet']:
+            refund_to_wallet(item.order.user, item.price * item.quantity, reason=f"Refund for returned item {item.variant}")
     elif action == 'reject':
         item.return_status = 'return_rejected'
         messages.warning(request, f"Return rejected for {item.variant.product.name}.")
@@ -680,3 +593,5 @@ def download_invoice(request, order_id):
     response.write(result)
 
     return response
+
+

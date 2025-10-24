@@ -1,41 +1,368 @@
 {% extends 'home_base.html' %}
 {% load static %}
+
 {% block content %}
-<h1>Welcome, {{request.user.username }}!</h1>
+<div class="home-container">
+    <div class="welcome-header mb-4">
+        <h1 class="welcome-title">Welcome, {{ request.user.username }}!</h1>
+    </div>
+</div>
 {% endblock content %}
+
 {% block extra_css %}
 <style>
-    /* New styles for specific pages or components */
-    
-    .app-promo h2 {
-        font-size: 2.5rem;
-        font-weight: bold;
+    :root {
+        --primary-color: rgba(0, 57, 66, 0.8);
+        --primary-solid: rgb(0, 57, 66);
+        --light-bg: #f8f9fa;
+        --success-color: #28a745;
+        --danger-color: #dc3545;
+        --warning-color: #ffc107;
+    }
+
+    .home-container {
+        padding: 2rem 0;
+    }
+
+    .welcome-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .welcome-title {
+        color: var(--primary-solid);
+        font-size: 2.2rem;
+        font-weight: 600;
         margin-bottom: 1rem;
     }
-    .btn-primary-custom:hover {
-        background-color: #e55a2b;
-    }
-    .original-price{
 
-        background-color: #dc3545;
+    /* Breadcrumb Styling */
+    .breadcrumb {
+        background: transparent;
+        padding: 1rem 0;
+        margin-bottom: 1.5rem;
+    }
+
+    .breadcrumb-item a {
+        color: var(--primary-solid);
+        text-decoration: none;
+    }
+
+    .breadcrumb-item.active {
+        color: #6c757d;
+    }
+
+    /* Page Title */
+    .page-title {
+        color: var(--primary-solid);
+        font-size: 2rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+
+    .nav-arrows {
+        color: var(--primary-solid);
+        font-size: 1.2rem;
+        cursor: pointer;
+    }
+
+    .nav-arrows i:hover {
+        color: var(--primary-color);
+    }
+
+    /* Promo Banner */
+    .promo-banner {
+        background: linear-gradient(135deg,#e55a2b);
         color: white;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+        text-align: center;
+        font-size: 0.95rem;
+    }
+
+    /* Filter Tabs */
+    .filter-tabs {
+        border-bottom: 2px solid #e9ecef;
+        margin-bottom: 2rem;
+    }
+
+    .filter-tabs .nav-link {
+        color: var(--primary-solid);
+        border: none;
+        padding: 0.8rem 1.5rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .filter-tabs .nav-link:hover {
+        color: var(--primary-color);
+        background: transparent;
+    }
+
+    .filter-tabs .nav-link.active {
+        color: var(--primary-solid);
+        background: transparent;
+        border-bottom: 3px solid var(--primary-solid);
+    }
+
+    /* Filters Row */
+    .filters-row {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        margin-bottom: 2rem;
+    }
+
+    .filters-row .form-select,
+    .filters-row .form-control {
+        border: 2px solid #e9ecef;
+        border-radius: 6px;
+        padding: 0.6rem 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .filters-row .form-select:focus,
+    .filters-row .form-control:focus {
+        border-color: var(--primary-solid);
+        box-shadow: 0 0 0 0.2rem rgba(0, 57, 66, 0.1);
+    }
+
+    .filters-row .btn {
+        padding: 0.6rem 1.5rem;
+        font-weight: 600;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+    }
+
+    .filters-row .btn-outline-secondary {
+        border-color: var(--primary-solid);
+        color: var(--primary-solid);
+    }
+
+    .filters-row .btn-outline-secondary:hover {
+        background: var(--primary-solid);
+        color: white;
+    }
+
+    /* Impact Promo */
+    .impact-promo {
+        background: linear-gradient(135deg, var(--primary-solid) 0%, #1a7a8a 100%);
+        color: white;
+        padding: 3rem;
+        border-radius: 12px;
+        margin: 2rem 0;
+        position: relative;
+        overflow: hidden;
+        text-align: center;
+    }
+
+    .impact-promo h3 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+
+    .impact-promo p {
+        font-size: 1.2rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .impact-promo .btn-primary {
+        background: #ff6b35;
+        border: none;
+        padding: 0.8rem 2.5rem;
+        font-weight: 600;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+    }
+
+    .impact-promo .btn-primary:hover {
+        background: #e55a2b;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
+    }
+
+    /* Product Grid */
+    .product-grid {
+        margin: 3rem 0;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: stretch;
+    }
+
+    .product-card {
+        position: relative;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        border: 1px solid #e9ecef;
+        display: flex;
+        flex-direction: column;
+        height: 96%;
+    }
+
+    .product-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        border-color: var(--primary-color);
+    }
+
+    /* Wishlist Heart */
+    .wishlist-toggle {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: rgba(255, 255, 255, 0.9);
+        border: none;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        backdrop-filter: blur(10px);
+    }
+
+    .wishlist-toggle:hover {
+        background: white;
+        transform: scale(1.1);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    .heart-icon {
+        font-size: 1.2rem;
+        transition: all 0.3s ease;
+        color: #ccc;
+    }
+
+    .heart-icon.fas {
+        color: var(--danger-color) !important;
+        animation: heartBeat 0.3s ease;
+    }
+
+    @keyframes heartBeat {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.2); }
+        100% { transform: scale(1); }
+    }
+
+    /* Product Image */
+    .product-image-container {
+        width: 100%;
+        padding-top: 100%;
+        position: relative;
+        overflow: hidden;
+        background: var(--light-bg);
+    }
+
+    .product-image-container img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    .product-card:hover .product-image-container img {
+        transform: scale(1.05);
+    }
+
+    /* Product Info */
+    .product-info {
+        padding: 1.5rem;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .product-title {
+        color: var(--primary-solid);
+        font-size: 23.5px;
+        font-weight: 600;
+        margin-bottom: 0;
+        line-height: 1.4;
+        min-height: 2.8rem;
+    }
+    .rating {
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+    }
+
+    .rating span:first-child {
+        color: #ffc107;
+        font-size: 1rem;
+    }
+
+    .rating span:last-child {
+        color: #6c757d;
+        margin-left: 0.5rem;
+    }
+
+    /* Price Section */
+    .price-section {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.8rem;
+        margin-bottom: 1rem;
+    }
+
+    .current-price {
+        font-size: 1.7rem;
+        font-weight: bold;
+        color: var(--primary-solid);
+    }
+
+    .original-price {
+        background-color: var(--danger-color);
+        color: white;
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        text-decoration: line-through;
     }
 
     .save-price {
-        background-color: #28a745;
+        background-color: var(--success-color);
         color: white;
-    }
-    .current-price {
-        font-size: 26px;
-        font-weight: bold;
-        color: #333;
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        font-weight: 500;
     }
 
-    .quick-buy-btn:hover {
-        background-color: #2a5a63;
+    /* Discount Badges */
+    .discount-badge {
+        background: linear-gradient(45deg, var(--primary-solid), var(--primary-color));
+        color: white;
+        font-size: 0.7rem;
+        font-weight: 500;
+        padding: 0.3rem 0.6rem;
+        border-radius: 4px;
+        margin: 0.2rem 0;
+        text-align: center;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
     }
-    
-    /* .quick-buy-btn {
+
+
+    /* Product Actions */
+    .product-actions {
+        margin-top: auto;
+    }
+
+    /* Quick Buy Button */
+    .quick-buy-btn {
         background: var(--primary-solid);
         color: white;
         border: none;
@@ -50,185 +377,367 @@
         cursor: pointer;
         margin-top: 1rem;
         text-align: center;
-        margin-bottom: -25px;
-    } */
+        text-decoration: none;
+        display: inline-block;
+    }
 
+    .quick-buy-btn:hover {
+        background: var(--primary-color);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,57,66,0.3);
+        text-decoration: none;
+    }
+
+    /* View All Button */
+    .view-all-btn {
+        background: var(--primary-solid);
+        color: white;
+        border: none;
+        padding: 1rem 3rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+        margin: 3rem auto;
+        display: block;
+        cursor: pointer;
+        max-width: 390px;
+        text-align: center;
+    }
+
+    .view-all-btn:hover {
+        background: var(--primary-color);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0,57,66,0.3);
+    }
+
+    @media (min-width: 1536px) {
+        .container {
+            max-width: 1990px !important;
+        }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .welcome-title {
+            font-size: 1.8rem;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+        }
+
+        .filters-row {
+            padding: 1rem;
+        }
+
+        .filters-row .col-md-2 {
+            margin-bottom: 0.5rem;
+        }
+
+        .product-info {
+            padding: 1rem;
+        }
+
+        .current-price {
+            font-size: 1.2rem;
+        }
+
+        .impact-promo h3 {
+            font-size: 1.3rem;
+        }
+
+        .impact-promo p {
+            font-size: 1rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .home-container {
+            padding: 1rem 0;
+        }
+
+        .product-card {
+            margin-bottom: 1.5rem;
+        }
+
+        .price-section {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .filter-tabs .nav-link {
+            padding: 0.6rem 1rem;
+            font-size: 0.85rem;
+        }
+    }
+
+    /* Loading States */
+    .btn-loading {
+        position: relative;
+        pointer-events: none;
+        opacity: 0.7;
+    }
+
+    .btn-loading::after {
+        content: '';
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        margin: auto;
+        border: 2px solid transparent;
+        border-top-color: currentColor;
+        border-radius: 50%;
+        animation: button-loading-spinner 1s ease infinite;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+    }
+
+    @keyframes button-loading-spinner {
+        from { transform: rotate(0turn); }
+        to { transform: rotate(1turn); }
+    }
+
+    /* Enhanced hover effects */
+    .product-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s;
+        z-index: 1;
+    }
+
+    .product-card:hover::before {
+        left: 100%;
+    }
 </style>
-    {% endblock extra_css %}
+{% endblock extra_css %}
 
-    {% block body %}
+{% block body %}
 
+<div class="container">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+            <li class="breadcrumb-item active">Shop</li>
+        </ol>
+    </nav>
 
-
-    <div class="container">
-        <!-- Breadcrumb -->
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="#">Home</a></li>
-                <li class="breadcrumb-item active">Nutrition</li>
-            </ol>
-        </nav>
-
-        <!-- Page Title & Promo -->
-        <div class="d-flex justify-content-between align-items-center">
-            <h1 class="page-title">Powerblend Best Sellers</h1>
-            <div class="nav-arrows">
-                <i class="fas fa-chevron-left"></i>
-                <i class="fas fa-chevron-right ms-3"></i>
-            </div>
+    <!-- Page Title & Promo -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="page-title">Powerblend Best Sellers</h1>
+        <div class="nav-arrows">
+            <i class="fas fa-chevron-left"></i>
+            <i class="fas fa-chevron-right ms-3"></i>
         </div>
+    </div>
 
-        <div class="promo-banner">
-            <strong>Up to 40% OFF Everything + Extra 10% OFF above ₹7,000 | Extra 15% OFF above ₹10,000 | Discount Auto - Applies at checkout</strong>
-        </div>
+    <div class="promo-banner">
+        <strong>Up to 40% OFF Everything + Extra 10% OFF above ₹7,000 | Extra 15% OFF above ₹10,000 | Discount Auto - Applies at checkout</strong>
+    </div>
 
-        <!-- Filter Tabs -->
-        <ul class="nav nav-tabs filter-tabs">
-            <li class="nav-item">
-                <a class="nav-link" href="#">NEW: HYPBOX</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">NEW: Vitamins</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">Bundles</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link active" href="#">Clear Protein</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">Creatine</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">PRO</a>
-            </li>
-        </ul>
+    <!-- Filter Tabs -->
+    <ul class="nav nav-tabs filter-tabs">
+        <li class="nav-item">
+            <a class="nav-link" href="#">NEW: HYPBOX</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#">NEW: Vitamins</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#">Bundles</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link active" href="#">Clear Protein</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#">Creatine</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#">PRO</a>
+        </li>
+    </ul>
 
+    <!-- Filters Form -->
+    <form method="get" id="filterForm">
+        <div class="filters-row">
+            <div class="row align-items-center">
+                <!-- Sort -->
+                <div class="col-md-2 mb-2 mb-md-0">
+                    <select class="form-select" name="sort" onchange="this.form.submit()">
+                        <option value="">Sort</option>
+                        <option value="price_low" {% if request.GET.sort == "price_low" %}selected{% endif %}>Price: Low to High</option>
+                        <option value="price_high" {% if request.GET.sort == "price_high" %}selected{% endif %}>Price: High to Low</option>
+                        <option value="az" {% if request.GET.sort == "az" %}selected{% endif %}>A → Z</option>
+                        <option value="za" {% if request.GET.sort == "za" %}selected{% endif %}>Z → A</option>
+                        <option value="new" {% if request.GET.sort == "new" %}selected{% endif %}>New Arrivals</option>
+                        <option value="featured" {% if request.GET.sort == "featured" %}selected{% endif %}>Featured</option>
+                    </select>
+                </div>
 
-        <form method="get" id="filterForm">
-            <div class="filters-row">
-                <div class="row align-items-center">
+                <!-- Category -->
+                <div class="col-md-2 mb-2 mb-md-0">
+                    <select class="form-select" name="category" onchange="this.form.submit()">
+                        <option value="">All Categories</option>
+                        {% for cat in categories %}
+                            <option value="{{ cat.id }}" {% if request.GET.category == cat.id|stringformat:"s" %}selected{% endif %}>
+                                {{ cat.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
 
-                    <!-- Sort -->
-                    <div class="col-md-2">
-                        <select class="form-select" name="sort" onchange="this.form.submit()">
-                            <option value="">Sort</option>
-                            <option value="price_low" {% if request.GET.sort == "price_low" %}selected{% endif %}>Price: Low to High</option>
-                            <option value="price_high" {% if request.GET.sort == "price_high" %}selected{% endif %}>Price: High to Low</option>
-                            <option value="az" {% if request.GET.sort == "az" %}selected{% endif %}>A → Z</option>
-                            <option value="za" {% if request.GET.sort == "za" %}selected{% endif %}>Z → A</option>
-                            <option value="new" {% if request.GET.sort == "new" %}selected{% endif %}>New Arrivals</option>
-                            <option value="featured" {% if request.GET.sort == "featured" %}selected{% endif %}>Featured</option>
-                        </select>
-                    </div>
+                <!-- Price Range -->
+                <div class="col-md-2 mb-2 mb-md-0">
+                    <input type="number" class="form-control" name="min_price" placeholder="Min Price"
+                        value="{{ request.GET.min_price }}">
+                </div>
+                <div class="col-md-2 mb-2 mb-md-0">
+                    <input type="number" class="form-control" name="max_price" placeholder="Max Price"
+                        value="{{ request.GET.max_price }}">
+                </div>
 
-                    <!-- Category -->
-                    <div class="col-md-2">
-                        <select class="form-select" name="category" onchange="this.form.submit()">
-                            <option value="">All Categories</option>
-                            {% for cat in categories %}
-                                <option value="{{ cat.id }}" {% if request.GET.category == cat.id|stringformat:"s" %}selected{% endif %}>
-                                    {{ cat.name }}
-                                </option>
-                            {% endfor %}
-                        </select>
-                    </div>
+                <!-- Search -->
+                <div class="col-md-2 mb-2 mb-md-0">
+                    <input type="text" class="form-control" name="search" placeholder="Search..."
+                        value="{{ request.GET.search }}">
+                </div>
 
-                    <!-- Price Range -->
-                    <div class="col-md-2">
-                        <input type="number" class="form-control" name="min_price" placeholder="Min Price"
-                            value="{{ request.GET.min_price }}">
-                    </div>
-                    <div class="col-md-2">
-                        <input type="number" class="form-control" name="max_price" placeholder="Max Price"
-                            value="{{ request.GET.max_price }}">
-                    </div>
-
-                    <!-- Search -->
-                    <div class="col-md-2">
-                        <input type="text" class="form-control" name="search" placeholder="Search..."
-                            value="{{ request.GET.search }}">
-                    </div>
-
-                    <!-- Apply Button + Results -->
-                    <div class="col-md-2 text-end">
-                        <button type="submit" class="btn btn-outline-secondary">Apply</button>
-                        <a href="{% url 'list_products' %}" class="btn btn-outline-secondary ms-2">Clear</a>
-                        <!-- <span class="ms-2">{{ products.count }} Results</span> -->
-                    </div>
+                <!-- Apply Button -->
+                <div class="col-md-2 text-end">
+                    <button type="submit" class="btn btn-outline-secondary">Apply</button>
+                    <a href="{% url 'list_products' %}" class="btn btn-outline-secondary ms-2">Clear</a>
                 </div>
             </div>
-        </form>
-
-        <!-- Impact Whey Promo -->
-        <div class="impact-promo">
-            <h3>OUR BEST SELLING IMPACT WHEY PROTEIN FOR <span style="color: #ff6b35;">FREE</span></h3>
-            <p>TRY FOR <span style="color: #ff6b35;">₹500</span> & GET A <span style="color: #ff6b35;">₹500</span> VOUCHER</p>
-            <button class="btn btn-primary">TRY NOW</button>
-            <div class="position-absolute top-0 end-0 p-3">
-                <i class="fas fa-heart text-white me-2"></i>
-                <i class="fas fa-share text-white"></i>
-            </div>
         </div>
+    </form>
 
-        <!-- Products Section -->
-        <h2 class="mb-4">Our Products</h2>
-        
-        <div class="row">
-            <!-- Product 1 -->
+    <!-- Impact Whey Promo -->
+    <div class="impact-promo">
+        <h3>OUR BEST SELLING IMPACT WHEY PROTEIN FOR <span style="color: #ff6b35;">FREE</span></h3>
+        <p>TRY FOR <span style="color: #ff6b35;">₹500</span> & GET A <span style="color: #ff6b35;">₹500</span> VOUCHER</p>
+        <button class="btn btn-primary">TRY NOW</button>
+        <div class="position-absolute top-0 end-0 p-3">
+            <i class="fas fa-heart text-white me-2"></i>
+            <i class="fas fa-share text-white"></i>
+        </div>
+    </div>
+
+    <!-- Products Section -->
+    <!-- <h2 class="mb-4" style="color: var(--primary-solid); font-weight: 600;">Our Products</h2> -->
+    
+    <div class="row product-grid">
         {% for product in products %}
-            <div class="col-lg-3 col-md-6">
-                <div class="product-card">
-                    <i class="far fa-heart heart-icon"></i>
-
-                    <div class="product-image text-center">   
-                        {% if product.images.all %}
-                        <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" class="img-fluid">
+        <div class="col-lg-3 col-md-6">
+            <div class="product-card">
+                
+                <!-- {% with variant=product.variants.first %}
+                    {% if variant %}
+                        {% if user.is_authenticated %}
+                            <form action="{% url 'wishlist_add' variant.id %}" method="post" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="wishlist-toggle" data-variant-id="{{ variant.id }}">
+                                    <i class="fa-heart heart-icon {% if variant.id in wishlist_variant_ids %}fas{% else %}far{% endif %}"></i>
+                                </button>
+                            </form>
                         {% else %}
-                        <img src="https://via.placeholder.com/300x300?text=No+Image" alt="No image available"  class="img-fluid w-100" style="object-fit: cover; height: 250px;">
+                            <a href="{% url 'login' %}" class="wishlist-toggle" title="Log in to add to wishlist">
+                                <i class="far fa-heart heart-icon"></i>
+                            </a>
                         {% endif %}
-                    </div>
+                    {% else %}
+                        <span class="wishlist-toggle" style="pointer-events: none; opacity: 0.4;">
+                            <i class="far fa-heart heart-icon"></i>
+                        </span>
+                    {% endif %}
+                {% endwith %} -->
 
 
-                    <!-- for product info -->
-                    <div class="product-info">
-                        <h5 class="product-title">{{ product.name }}</h me-4 f5>
+                <!-- Product Image -->
+                <div class="product-image-container">   
+                    {% if product.images.all %}
+                        <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" class="img-fluid">
+                    {% else %}
+                        <img src="https://via.placeholder.com/400x400/f8f9fa/6c757d?text=No+Image+Available" alt="No image available" class="img-fluid">
+                    {% endif %}
+                </div>
 
-                        <div class="rating">
-                            <span>★★★★★</span> <span>(30468)</span>
+                <!-- Product Info -->
+                <div class="product-info">
+                    <h5 class="product-title">{{ product.name }}</h5>
+
+                    <div class="rating">
+                        <span>★★★★★</span> <span>(30,468 reviews)</span>
+                    </div>wishlist_itemswishlist_items
+
+
+                    <!-- {% if product.display_variant %}
+                        <div class="price-section">
+                            <span class="current-price">₹{{ product.display_variant.price|floatformat:2 }}</span>
+
+                            {% if product.display_variant.original_price > product.display_variant.price %}
+                                <span class="original-price">Was ₹{{ product.display_variant.original_price|floatformat:2 }}</span>
+                                <span class="save-price">Save ₹{{ product.display_variant.save_price|floatformat:2 }}</span>
+                            {% endif %}
                         </div>
-                        {% with product.variants.first as variant %}
-                            {% if variant %}
-                                <div class="price-section">
-                                    <span class="current-price">₹{{ variant.price }}</span>
-                                    <span class="original-price">Was ₹{{ variant.original_price }}</span>
-                                    <span class="save-price">Save ₹{{ variant.save_price }}</span>
-                                </div>
-                            {% else %}
-                                <div class="price-section">
-                                    <span class="current-price">No variants available</span>
-                                </div>
-                            {% endif %}
+                    {% else %}
+                        <div class="price-section">
+                            <span class="current-price text-muted">No variants available</span>
+                        </div>
+                    {% endif %} -->
+
+
+                    <!-- {% if product.display_variant %}
+                        {% with product.display_variant.discount_info as info %}
+                            <div class="price-section">
+                                <span class="current-price">₹{{ info.price|floatformat:2 }}</span>
+
+                                {% if info.original_price > info.price %}
+                                    <span class="original-price ">Was ₹{{ info.original_price|floatformat:2 }}</span>
+                                    <span class="save-price ">Save ₹{{ info.save_price|floatformat:2 }}</span>
+                                    
+                                {% endif %}
+                            </div>
                         {% endwith %}
-                        
+                    {% else %}
+                        <div class="price-section">
+                            <span class="current-price text-muted">No variants available</span>
+                        </div>
+                    {% endif %} -->
+                
 
-                        {% with product.variants.first as variant %}
-                            {% if variant %}
-                                {% with variant.discount_info as info %}
-                                    <span class="current-price">₹{{ info.price|floatformat:2 }}</span>
-                                    {% if info.original_price > info.price %}
-                                        <span class="original-price">Was ₹{{ info.original_price|floatformat:2 }}</span>
-                                        <span class="save-price">Save ₹{{ info.save_price|floatformat:2 }}</span>
-                                    {% endif %}
-                                {% endwith %}
+                    {% if product.display_variant %}
+                        <div class="price-section">
+                            {% if product.best_offer %}
+                                <span class="current-price">₹{{ product.display_variant.price|floatformat:2 }}</span>
+
+                                {% if product.display_variant.original_price > product.display_variant.price %}
+                                    <span class="original-price">Was ₹{{ product.display_variant.original_price|floatformat:2 }}</span>
+                                    <span class="save-price">Save ₹{{ product.display_variant.save_price|floatformat:2 }}</span>
+                                {% endif %}
                             {% else %}
-                                <span class="current-price">No variants available</span>
+                                <span class="current-price">₹{{ product.display_variant.price|floatformat:2 }}</span>
                             {% endif %}
-                        {% endwith %}
+                        </div>
+                    {% else %}
+                        <div class="price-section">
+                            <span class="current-price text-muted">No variants available</span>
+                        </div>
+                    {% endif %}
 
 
-                        
-
+                    <div class="product-actions">
                         {% if product.best_offer %}
                             <div class="discount-badge">
                                 {{ product.best_offer.name|upper }} - {{ product.best_offer.discount_percent }}% OFF
@@ -236,31 +745,27 @@
                         {% else %}
                             <div class="discount-badge">Exclusive Offers awaits</div>
                         {% endif %}
-                        <div>
-                            <a href="{% url 'detail_product' product.id %}" class="quick-buy-btn">
-                                <i class="fas fa-shopping-cart me-1"></i> QUICK BUY
-                            </a>
 
-                        </div>
-
+                        <a href="{% url 'detail_product' product.id %}" class="quick-buy-btn">
+                            <i class="fas fa-shopping-cart me-1"></i> QUICK BUY
+                        </a>
                     </div>
                 </div>
             </div>
-        {% endfor %}
-
         </div>
-
-        <!-- View All Button -->
-        <button class="view-all-btn">VIEW ALL</button>
-        
+        {% endfor %}
     </div>
 
+    <!-- View All Button -->
+    <button class="view-all-btn">
+        <i class="fas fa-th-large me-2"></i>VIEW ALL PRODUCTS
+    </button>
+    
+</div>
 
+{% endblock body %}
 
-
-    {% endblock body %}
-
-    {% block extra_js %}
+{% block extra_js %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
@@ -280,46 +785,42 @@
             toastr["{{ message.tags|default:'info' }}"]("{{ message|escapejs }}");
         {% endfor %}
     {% endif %}
-</script>
 
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Add some interactivity
-        document.addEventListener('DOMContentLoaded', function() {
-            // Heart icon toggle
-            const heartIcons = document.querySelectorAll('.heart-icon');
-            heartIcons.forEach(icon => {
-                icon.addEventListener('click', function() {
+    // Enhanced interactivity
+    document.addEventListener('DOMContentLoaded', function() {
+        // Heart icon toggle with animation
+        const heartIcons = document.querySelectorAll('.heart-icon');
+        heartIcons.forEach(icon => {
+            icon.addEventListener('click', function(e) {
+                if (!this.closest('form')) {
                     this.classList.toggle('fas');
                     this.classList.toggle('far');
-                    this.style.color = this.classList.contains('fas') ? '#ff6b35' : '#ccc';
-                });
-            });
-
-            // Quick buy button hover effect
-            const quickBuyBtns = document.querySelectorAll('.quick-buy-btn');
-            quickBuyBtns.forEach(btn => {
-                btn.addEventListener('mouseenter', function() {
-                    this.style.transform = 'translateY(-2px)';
-                    this.style.transition = 'transform 0.2s ease';
-                });
-                btn.addEventListener('mouseleave', function() {
-                    this.style.transform = 'translateY(0)';
-                });
-            });
-
-            // Product card hover effect
-            const productCards = document.querySelectorAll('.product-card');
-            productCards.forEach(card => {
-                card.addEventListener('mouseenter', function() {
-                    this.style.transform = 'translateY(-5px)';
-                    this.style.transition = 'transform 0.3s ease, box-shadow 0.3s ease';
-                });
-                card.addEventListener('mouseleave', function() {
-                    this.style.transform = 'translateY(0)';
-                });
+                }
             });
         });
-    </script>
+
+        // Add intersection observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe product cards for scroll animations
+        document.querySelectorAll('.product-card').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(card);
+        });
+    });
+</script>
 {% endblock extra_js %}

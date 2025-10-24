@@ -6,7 +6,8 @@ from django import forms
 
 class RegistrationForm(UserCreationForm):
     email = forms.EmailField(required=True)
-
+    referral_code = forms.CharField(required=False, max_length=8, label="Referral Code (optional)",
+        widget=forms.TextInput(attrs={'placeholder': 'Enter referral code if any'}))
 
     class Meta:
         model = CustomUser

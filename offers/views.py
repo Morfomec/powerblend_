@@ -156,3 +156,6 @@ def admin_delete_offer(request, offer_id):
 
     messages.success(request, "Offer deleted successfully.")
     return redirect('admin_offer_list')
+
+
+

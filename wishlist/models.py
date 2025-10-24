@@ -12,7 +12,7 @@ class Wishlist(models.Model):
 
 
     def __str__(self):
-        return f"Wishlist of {self.user.username}"
+        return f"Wishlist of {self.user.email}"
     
     class Meta:
         db_table = 'wishlist'

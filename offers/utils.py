@@ -1,12 +1,13 @@
 from django.utils import timezone
 from decimal import Decimal
 from django.db.models import Q
-from .models import Offer
 
 
 
 
 def get_best_offer_for_product(product):
+    from .models import Offer
+
     now = timezone.now()
 
     product_offers = Offer.objects.filter(offer_type='product', products=product, active=True, start_date__lte=now).filter(Q(end_date__gte=now) | Q(end_date__isnull=True))

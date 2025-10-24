@@ -5,6 +5,8 @@ from django.utils.text import slugify
 from django.utils import timezone
 from django.core.exceptions import ValidationError
 from django.db.models import F, Value
+
+from offers.utils import get_discount_info_for_variant
 # Create your models here.
 
 class Product(models.Model):
@@ -81,6 +83,7 @@ class ProductVariant(models.Model):
     stock = models.PositiveIntegerField(default=0)
     is_listed = models.BooleanField(default=True)
     max_quantity_per_order = models.PositiveIntegerField(default=5)
+    
 
     # def clean(self):
     # # Skip validation if using F() expressions (database will handle it)
@@ -95,19 +98,62 @@ class ProductVariant(models.Model):
     #     self.full_clean()  # calls clean()
     #     super().save(*args, **kwargs)
     
-    @property
-    def original_price(self):
-        return self.price + 950
+    # @property
+    # def original_price(self):
+    #     return self.price + 950
+
+    # @property
+    # def save_price(self):
+    #     return self.original_price - self.price
+
+    from offers.models import Offer
+
 
     @property
-    def save_price(self):
-        return self.original_price - self.price
+    def active_offer(self):
+        return get_discount_info_for_variant(self)
+
+    # @property
+    # def discounted_price(self):
+    #     if self.active_offer:
+    #         return self.active_offer.discount_amount(self.price)
+    #     return self.price
     
+
+    @property
+    def discounted_price(self):
+        offer = self.active_offer
+        if offer and 'final_price' in offer:
+            return offer['final_price']
+        return self.price
+
+
+    @property
+    def savings(self):
+        offer = self.active_offer
+        if offer and 'savings' in offer:
+            return offer['savings']
+        return 0
+
     @property
     def discount_percentage(self):
-        if self.original_price > 0:
-            return round(((self.original_price - self.price)/ self.original_price) * 100, 2)
+        offer = self.active_offer
+        if offer and 'discount_percent' in offer:
+            return offer['discount_percent']
         return 0
+
+    # @property
+    # def savings(self):
+    #     if self.active_offer:
+    #         return self.active_offer.savings(self.price)
+    #     return 0
+
+    
+    # @property
+    # def discount_percentage(self):
+    #     if self.original_price > 0:
+    #         return round(((self.original_price - self.price)/ self.original_price) * 100, 2)
+    #     return 0
 
     def __str__(self):
         details = []
