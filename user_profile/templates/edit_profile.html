@@ -491,6 +491,218 @@
             }
         }
     </style>
+    <style>
+/* Security Divider */
+.security-divider {
+    margin: 3rem 0 2rem 0;
+    text-align: center;
+    position: relative;
+}
+
+.security-divider::before,
+.security-divider::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: calc(50% - 120px);
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #e9ecef, transparent);
+}
+
+.security-divider::before {
+    left: 0;
+}
+
+.security-divider::after {
+    right: 0;
+}
+
+.security-divider span {
+    background: white;
+    padding: 0.5rem 1.5rem;
+    color: var(--primary-solid);
+    font-weight: 700;
+    font-size: 1.1rem;
+    border: 2px solid #e9ecef;
+    border-radius: 50px;
+    display: inline-flex;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+/* Security Actions Grid */
+.security-actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.security-action-card {
+    background: linear-gradient(135deg, #ffffff, #f8f9fa);
+    border: 2px solid #e9ecef;
+    border-radius: 16px;
+    padding: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.security-action-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-solid), var(--primary-color));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease;
+}
+
+.security-action-card:hover {
+    border-color: var(--primary-color);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 57, 66, 0.15);
+    text-decoration: none;
+}
+
+.security-action-card:hover::before {
+    transform: scaleX(1);
+}
+
+.action-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+.password-icon {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.email-icon {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+}
+
+.security-action-card:hover .action-icon {
+    transform: scale(1.1) rotate(5deg);
+}
+
+.action-content {
+    flex: 1;
+}
+
+.action-content h5 {
+    margin: 0 0 0.5rem 0;
+    color: var(--primary-solid);
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.action-content p {
+    margin: 0;
+    color: #6c757d;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.action-arrow {
+    color: var(--primary-color);
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+}
+
+.security-action-card:hover .action-arrow {
+    transform: translateX(5px);
+    color: var(--primary-solid);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .security-actions-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .security-divider::before,
+    .security-divider::after {
+        width: calc(50% - 100px);
+    }
+
+    .security-divider span {
+        font-size: 1rem;
+        padding: 0.5rem 1rem;
+    }
+
+    .security-action-card {
+        padding: 1.5rem;
+    }
+
+    .action-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 1.5rem;
+    }
+}
+
+/* Alternative Compact Version - Uncomment to use */
+
+.security-actions-compact {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 2px solid #f8f9fa;
+}
+
+.security-btn {
+    flex: 1;
+    background: white;
+    border: 2px solid var(--primary-solid);
+    color: var(--primary-solid);
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+}
+
+.security-btn i {
+    font-size: 1.2rem;
+}
+
+.security-btn:hover {
+    background: var(--primary-solid);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 57, 66, 0.2);
+    text-decoration: none;
+}
+
+@media (max-width: 576px) {
+    .security-actions-compact {
+        flex-direction: column;
+    }
+}
+
+</style>
 {% endblock extra_css %}
 
 {% block body %}
@@ -527,6 +739,8 @@
                 <i class="fas fa-user"></i>
                 Profile Information
             </h3>
+          
+
             
             <form method="post" enctype="multipart/form-data" id="profileForm" action="{% url 'edit_profile' %}">
                 {% csrf_token %}
@@ -554,15 +768,18 @@
                     <div class="col-md-6">
                         <div class="form-floating">
                             <input type="text" class="form-control" id="full_name" name="full_name" 
-                                   placeholder="Full Name" value="{{ form.instance.full_name|default_if_none:'' }}" required>
+                                placeholder="Full Name" value="{{ form.instance.full_name|default_if_none:'' }}" required>
                             <label for="full_name">Full Name *</label>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-floating">
                             <input type="email" class="form-control" id="email" name="email" 
-                                   placeholder="Email Address" value="{{ form.instance.email|default_if_none:'' }}" required>
+                                placeholder="Email Address" value="{{ form.instance.email|default_if_none:'' }}" required disabled>
                             <label for="email">Email Address *</label>
+                            <small class="text-muted mt-1 d-block">
+                                <i class="fas fa-lock me-1"></i>To change your email, use the security settings below
+                            </small>
                         </div>
                     </div>
                 </div>
@@ -571,14 +788,14 @@
                     <div class="col-md-6">
                         <div class="form-floating">
                             <input type="tel" class="form-control" id="mobile" name="mobile" 
-                                   placeholder="Mobile Number" value="{{ form.instance.mobile|default_if_none:'' }}" required>
+                                placeholder="Mobile Number" value="{{ form.instance.mobile|default_if_none:'' }}" required>
                             <label for="mobile">Mobile Number *</label>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-floating">
                             <input type="date" class="form-control" id="date_of_birth" name="date_of_birth" 
-                                   placeholder="Date of Birth" value="{{ form.instance.date_of_birth|date:'Y-m-d'|default_if_none:'' }}">
+                                placeholder="Date of Birth" value="{{ form.instance.date_of_birth|date:'Y-m-d'|default_if_none:'' }}">
                             <label for="date_of_birth">Date of Birth</label>
                         </div>
                     </div>
@@ -594,202 +811,59 @@
                     <div class="col-md-6">
                         <div class="form-floating">
                             <input type="text" class="form-control" id="country" name="country" 
-                                   placeholder="Country" value="{{ form.instance.country|default:'India' }}">
+                                placeholder="Country" value="{{ form.instance.country|default:'India' }}">
                             <label for="country">Country</label>
                         </div>
                     </div>
                 </div>
 
+                <!-- Primary Actions -->
                 <div class="form-actions">
                     <button type="submit" class="btn-save">
-                        <i class="fas fa-save me-2"></i>Update Profile
+                        <i class="fas fa-save me-2"></i>Save Changes
                     </button>
                     <a href="{% url 'user_dashboard' %}" class="btn-cancel">
-                        <i class="fas fa-times me-2"></i>Cancel Changes
+                        <i class="fas fa-times me-2"></i>Cancel
                     </a>
                 </div>
             </form>
-        </div>
 
-        <!-- Security & Password Section -->
-        <div class="section-card">
-            <h3 class="section-title">
-                <i class="fas fa-lock"></i>
-                Security & Password
-            </h3>
-
-            <!-- Email Verification Status -->
-            <div class="email-verification">
-                <div class="verification-status">
-                    <i class="fas fa-envelope-check status-icon"></i>
-                    <div>
-                        <h5 style="margin: 0; color: white;">Email Verification Status</h5>
-                        <p style="margin: 0; opacity: 0.9;">Your email {{ form.instance.email }} is verified and secure</p>
-                    </div>
-                </div>
+            <!-- Security Settings Divider -->
+            <div class="security-divider">
+                <span><i class="fas fa-shield-alt me-2"></i>Security Settings</span>
             </div>
 
-            <!-- Change Password Form -->
-            <form method="post" action="{% url 'change_password' %}" id="passwordForm">
-                {% csrf_token %}
-                
-                <div class="alert alert-info">
-                    <i class="fas fa-info-circle me-2"></i>
-                    <strong>Password Requirements:</strong> At least 8 characters with uppercase, lowercase, numbers, and special characters for maximum security.
-                </div>
-
-                <div class="row g-3">
-                    <!-- Current Password (half-width) -->
-                    <div class="col-md-6">
-                        <div class="form-floating">
-                            <input type="password" class="form-control" id="old_password" name="old_password" 
-                                placeholder="Current Password" required>
-                            <label for="old_password">Current Password *</label>
-                        </div>
+            <!-- Security Quick Actions -->
+            <div class="security-actions-grid">
+                <a href="{% url 'change_password' %}" class="security-action-card">
+                    <div class="action-icon password-icon">
+                        <i class="fas fa-key"></i>
                     </div>
-                </div>
-
-                <div class="row g-3 mt-2">
-                    <!-- New Password -->
-                    <div class="col-md-6">
-                        <div class="form-floating">
-                            <input type="password" class="form-control" id="new_password1" name="new_password1" 
-                                placeholder="New Password" required>
-                            <label for="new_password1">New Password *</label>
-                            <div class="password-strength mt-2">
-                                <div class="strength-bar">
-                                    <div class="strength-fill"></div>
-                                </div>
-                                <div class="strength-text text-muted">Enter a password to see strength</div>
-                            </div>
-                        </div>
+                    <div class="action-content">
+                        <h5>Change Password</h5>
+                        <p>Update your account password for better security</p>
                     </div>
-
-                    <!-- Confirm New Password -->
-                    <div class="col-md-6">
-                        <div class="form-floating">
-                            <input type="password" class="form-control" id="new_password2" name="new_password2" 
-                                placeholder="Confirm New Password" required>
-                            <label for="new_password2">Confirm New Password *</label>
-                            <div class="invalid-feedback">Passwords do not match</div>
-                        </div>
+                    <div class="action-arrow">
+                        <i class="fas fa-arrow-right"></i>
                     </div>
-                </div>
+                </a>
 
-                <div class="form-actions mt-4">
-                    <button type="submit" class="btn-save">
-                        <i class="fas fa-key me-2"></i>Change Password
-                    </button>
-                </div>
-            </form>
-
-
-            <!-- Change Email Form -->
-            <form method="post" action="{% url 'change_email' %}" id="emailForm" style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #e9ecef;">
-                {% csrf_token %}
-                <h4 style="color: var(--primary-solid); margin-bottom: 1.5rem;">
-                    <i class="fas fa-envelope me-2"></i>Change Email Address
-                </h4>
-                
-                <div class="form-floating">
-                    <input type="email" class="form-control" id="new_email" name="email" 
-                           placeholder="New Email Address" value="{{ form.instance.email }}" required>
-                    <label for="new_email">New Email Address *</label>
-                </div>
-
-                <div class="alert alert-warning">
-                    <i class="fas fa-exclamation-triangle me-2"></i>
-                    We'll send a verification OTP to your new email address. Please check your inbox after submitting.
-                </div>
-
-                <div class="form-actions">
-                    <button type="submit" class="btn-secondary">
-                        <i class="fas fa-envelope me-2"></i>Send Verification OTP
-                    </button>
-                </div>
-            </form>
+                <a href="{% url 'change_email' %}" class="security-action-card">
+                    <div class="action-icon email-icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div class="action-content">
+                        <h5>Change Email</h5>
+                        <p>Update your email address with verification</p>
+                    </div>
+                    <div class="action-arrow">
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </a>
+            </div>
         </div>
-<!-- 
-        Preferences & Notifications Section
-        <div class="section-card">
-            <h3 class="section-title">
-                <i class="fas fa-cog"></i>
-                Preferences & Notifications
-            </h3>
 
-            <form method="post" id="preferencesForm">
-                {% csrf_token %}
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-floating">
-                            <select class="form-select" id="language" name="language">
-                                <option value="en" selected>English</option>
-                                <option value="hi">Hindi</option>
-                                <option value="ml">Malayalam</option>
-                                <option value="ta">Tamil</option>
-                            </select>
-                            <label for="language">Preferred Language</label>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-floating">
-                            <select class="form-select" id="currency" name="currency">
-                                <option value="INR" selected>Indian Rupee (₹)</option>
-                                <option value="USD">US Dollar ($)</option>
-                                <option value="EUR">Euro (€)</option>
-                                <option value="GBP">British Pound (£)</option>
-                            </select>
-                            <label for="currency">Preferred Currency</label>
-                        </div>
-                    </div>
-                </div> -->
 
-                <!-- Notification Preferences -->
-                <!-- <div class="notification-section">
-                    <h5 style="color: var(--primary-solid); margin-bottom: 1.5rem;">
-                        <i class="fas fa-bell me-2"></i>Notification Preferences
-                    </h5>
-
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="email_notifications" name="email_notifications" checked>
-                        <label class="form-check-label" for="email_notifications">
-                            <strong>Email Notifications</strong><br>
-                            <small class="text-muted">Receive order updates, shipping notifications, and important account information via email</small>
-                        </label>
-                    </div>
-
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="sms_notifications" name="sms_notifications" checked>
-                        <label class="form-check-label" for="sms_notifications">
-                            <strong>SMS Notifications</strong><br>
-                            <small class="text-muted">Get instant order status updates and delivery notifications via SMS</small>
-                        </label>
-                    </div>
-
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="marketing_emails" name="marketing_emails">
-                        <label class="form-check-label" for="marketing_emails">
-                            <strong>Marketing Communications</strong><br>
-                            <small class="text-muted">Receive newsletters, promotional offers, and product recommendations</small>
-                        </label>
-                    </div>
-
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="push_notifications" name="push_notifications">
-                        <label class="form-check-label" for="push_notifications">
-                            <strong>Browser Push Notifications</strong><br>
-                            <small class="text-muted">Get real-time notifications in your browser for urgent updates</small>
-                        </label>
-                    </div>
-                </div> -->
-
-                <!-- <div class="form-actions">
-                    <button type="submit" class="btn-save">
-                        <i class="fas fa-save me-2"></i>Save Preferences
-                    </button>
-                </div> -->
-            </form>
-        </div>
     </div>
 {% endblock body %}
 

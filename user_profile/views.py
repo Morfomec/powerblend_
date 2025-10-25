@@ -40,7 +40,7 @@ def user_dashboard(request):
     
     referral.refresh_from_db() 
 
-    referred_users = referral.referrals.all()
+    referred_users = referral.referrers.all()
 
     context = {
         'user': user,
@@ -52,7 +52,7 @@ def user_dashboard(request):
 
     return render(request, 'user_dashboard.html', context)
 
-   
+
 
 @login_required
 def edit_profile(request):
@@ -86,29 +86,59 @@ def change_email(request):
     """
 
     user = request.user
+    # if request.method == 'POST':
+    #     form = EditProfileForm(request.POST, request.FILES, instance=request.user)
+    # else: 
+    #     form = EditProfileForm(instance=request.user)
+
+    otp_sent = request.session.get('otp_sent', False)
+    new_email = request.session.get('new_email', '')
 
     if request.method == 'POST':
         form = EmailChangeForm(request.POST)
-        if form.is_valid():
-            new_email = form.cleaned_data['email']
+        entered_otp = request.POST.get('email_otp')
+
+        if entered_otp:
+            session_otp = request.session.get('email_otp')
+            if entered_otp == session_otp:
+                user.email = request.session.get('new_email')
+                user.save()
+
+                request.session.pop('email_otp', None)
+                request.session.pop('new_email', None)
+                request.session.pop('otp_sent', None)
+
+                messages.success(request, "Email updated successfully.")
+                return redirect('change_email')
+            else:
+                messages.error(request, "Invalid OTP. Please try again.")
+                otp_sent = True
+
+        elif form.is_valid():
+            new_email = form.cleaned_data['new_email']
             otp = get_random_string(length=6, allowed_chars='0123456789')
+
             request.session['email_otp'] = otp
             request.session['new_email'] = new_email
+            request.session['otp_sent'] = True
 
 
             # sending otp via email
             send_mail(
                 subject="Email Verifiaction OTP",
-                message=f"Hi {user.full_name},\n\nYour OTP is: {otp}",
+                message=f"Hi {user.full_name},\n\nYour OTP to update email is: {otp}",
                 from_email="muhammedshifil@gmail.com",
                 recipient_list=[user.email],
+                fail_silently = False,
             )
-            return redirect('user_dashboard')
+            messages.info(request, "An OTP has been sent to your current email. Please verify to proceed.")
+            return redirect('change_email')
     else:
         form = EmailChangeForm(initial={'email': user.email})
     
     context = {
         'form' : form,
+        'otp_sent' : otp_sent,
     }
     return render(request, 'change_email.html', context)
 
@@ -147,7 +177,7 @@ def change_password(request):
             user = form.save()
             update_session_auth_hash(request, user)
             messages.success(request, 'Password changed successfully!')
-            return redirect('user_dashboard')
+            return redirect('edit_profile')
         else:
             messages.error(request, 'Please correct the error below.')
     else:

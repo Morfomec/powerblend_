@@ -11,10 +11,13 @@ class EditProfileForm(forms.ModelForm):
         fields = ['full_name', 'profile_image', 'email', 'mobile', 'date_of_birth', 'gender', 'country']
 
 class EmailChangeForm(forms.Form):
-    email = forms.EmailField()
+    new_email = forms.EmailField()
 
 
 class AddressForm(forms.ModelForm):
     class Meta:
         model = Address
         fields = ['full_name', 'mobile', 'second_mobile', 'address', 'city', 'state', 'postal_code', 'country', 'address_type', 'is_default']
+
+class verifyOTPForm(forms.ModelForm):
+    otp = forms.CharField(max_length=6, label='Enter OTP')

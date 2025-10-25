@@ -7,9 +7,10 @@ urlpatterns = [
 
     path("dashboard/", views.user_dashboard, name='user_dashboard'),
     path("edit-profile/", views.edit_profile, name='edit_profile'),
-    path("change-email/", views.change_email, name='change_email'),
     path("verify-email-otp/", views.verify_email_otp, name='verify_email_otp'),
+
     path("change-password/", views.change_password, name='change_password'),
+    path("change-email/", views.change_email, name='change_email'),
 
     path("address/", views.address_view, name='address_list'),
     path("new/", views.address_create, name="address_create"),

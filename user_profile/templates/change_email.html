@@ -1,0 +1,897 @@
+{% extends 'user_profile_base.html' %}
+{% load static %}
+
+{% block title %}Change Email - POWERBLEND{% endblock %}
+
+{% block extra_css %}
+    <style>
+        :root {
+            --primary-color: rgba(0, 57, 66, 0.8);
+            --primary-solid: rgb(0, 57, 66);
+            --light-bg: #f8f9fa;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --info-color: #17a2b8;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* Main Container */
+        .email-container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        /* Page Header */
+        .page-header {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary-solid), var(--primary-color), var(--info-color));
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .page-title {
+            color: var(--primary-solid);
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .title-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary-solid), var(--primary-color));
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.8rem;
+            box-shadow: 0 8px 20px rgba(0, 57, 66, 0.2);
+        }
+
+        .back-btn {
+            background: transparent;
+            border: 2px solid var(--primary-solid);
+            color: var(--primary-solid);
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .back-btn:hover {
+            background: var(--primary-solid);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 57, 66, 0.2);
+            text-decoration: none;
+        }
+
+        /* Email Card */
+        .email-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            padding: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .email-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary-solid), var(--primary-color), var(--info-color));
+        }
+
+        /* Current Email Display */
+        .current-email-section {
+            background: linear-gradient(135deg, var(--primary-solid), var(--primary-color));
+            color: white;
+            padding: 2rem;
+            border-radius: 16px;
+            margin-bottom: 3rem;
+            box-shadow: 0 8px 25px rgba(0, 57, 66, 0.2);
+        }
+
+        .email-display {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .email-icon-wrapper {
+            width: 70px;
+            height: 70px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            flex-shrink: 0;
+            backdrop-filter: blur(10px);
+        }
+
+        .email-info h4 {
+            margin: 0 0 0.5rem 0;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .current-email {
+            font-size: 1.1rem;
+            opacity: 0.95;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            display: inline-block;
+            margin-top: 0.25rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .verified-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(40, 167, 69, 0.3);
+            color: white;
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin-top: 0.75rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* Form Section */
+        .form-section {
+            margin-top: 2rem;
+        }
+
+        .section-header {
+            color: var(--primary-solid);
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f8f9fa;
+        }
+
+        .section-header i {
+            color: var(--info-color);
+        }
+
+        /* Form Groups */
+        .form-group {
+            margin-bottom: 2rem;
+        }
+
+        .form-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--primary-solid);
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            font-size: 0.95rem;
+        }
+
+        .form-label i {
+            color: var(--info-color);
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-solid);
+            box-shadow: 0 0 0 0.25rem rgba(0, 57, 66, 0.1);
+            outline: none;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--info-color);
+            font-size: 1.1rem;
+            pointer-events: none;
+        }
+
+        .validation-icon {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2rem;
+        }
+
+        .form-control.is-valid {
+            border-color: var(--success-color);
+            padding-right: 3rem;
+        }
+
+        .form-control.is-invalid {
+            border-color: var(--danger-color);
+            padding-right: 3rem;
+        }
+
+        /* OTP Input Grid */
+        .otp-section {
+            background: linear-gradient(135deg, #f8f9fa, #ffffff);
+            padding: 2rem;
+            border-radius: 16px;
+            border: 2px solid #e9ecef;
+            margin-top: 2rem;
+        }
+
+        .otp-input-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin: 1.5rem 0;
+        }
+
+        .otp-input {
+            width: 55px;
+            height: 55px;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            background: white;
+            color: var(--primary-solid);
+        }
+
+        .otp-input:focus {
+            border-color: var(--primary-solid);
+            box-shadow: 0 0 0 0.25rem rgba(0, 57, 66, 0.1);
+            outline: none;
+            transform: scale(1.05);
+        }
+
+        /* Alert Styles */
+        .alert {
+            border-radius: 12px;
+            border: none;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .alert i {
+            font-size: 1.5rem;
+            margin-top: 0.1rem;
+        }
+
+        .alert-info {
+            background: linear-gradient(135deg, rgba(23, 162, 184, 0.1), rgba(23, 162, 184, 0.05));
+            color: var(--info-color);
+            border-left: 4px solid var(--info-color);
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, rgba(40, 167, 69, 0.1), rgba(40, 167, 69, 0.05));
+            color: var(--success-color);
+            border-left: 4px solid var(--success-color);
+        }
+
+        .alert-warning {
+            background: linear-gradient(135deg, rgba(255, 193, 7, 0.1), rgba(255, 193, 7, 0.05));
+            color: #856404;
+            border-left: 4px solid var(--warning-color);
+        }
+
+        .alert-danger {
+            background: linear-gradient(135deg, rgba(220, 53, 69, 0.1), rgba(220, 53, 69, 0.05));
+            color: var(--danger-color);
+            border-left: 4px solid var(--danger-color);
+        }
+
+        /* Timer Display */
+        .otp-timer {
+            text-align: center;
+            margin: 1rem 0;
+            font-weight: 600;
+            color: var(--primary-solid);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+            padding: 0.75rem;
+            background: rgba(23, 162, 184, 0.05);
+            border-radius: 8px;
+        }
+
+        .timer-expired {
+            color: var(--danger-color);
+            background: rgba(220, 53, 69, 0.05);
+        }
+
+        /* Form Actions */
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2.5rem;
+            padding-top: 2rem;
+            border-top: 2px solid #f8f9fa;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-solid), var(--primary-color));
+            color: white;
+            border: none;
+            padding: 1.1rem 2.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex: 1;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0, 57, 66, 0.2);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 57, 66, 0.3);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--primary-solid);
+            border: 2px solid var(--primary-solid);
+            padding: 1.1rem 2.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: var(--primary-solid);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 57, 66, 0.2);
+        }
+
+        .btn-secondary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            border-color: #dee2e6;
+            color: #6c757d;
+        }
+
+        .btn-outline {
+            background: white;
+            color: var(--info-color);
+            border: 2px solid var(--info-color);
+            padding: 1.1rem 2.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .btn-outline:hover {
+            background: var(--info-color);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(23, 162, 184, 0.2);
+            text-decoration: none;
+        }
+
+        /* Security Tips */
+        .security-tips {
+            background: linear-gradient(135deg, #f8f9fa, #ffffff);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-top: 2.5rem;
+            border: 2px solid #e9ecef;
+        }
+
+        .security-tips h5 {
+            color: var(--primary-solid);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.1rem;
+        }
+
+        .security-tips h5 i {
+            color: var(--info-color);
+            font-size: 1.3rem;
+        }
+
+        .tip-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+            color: #495057;
+            padding: 0.75rem;
+            background: white;
+            border-radius: 8px;
+            border-left: 3px solid var(--success-color);
+        }
+
+        .tip-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .tip-item i {
+            color: var(--success-color);
+            margin-top: 0.2rem;
+            font-size: 1rem;
+        }
+
+        .invalid-feedback {
+            display: block;
+            color: var(--danger-color);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            font-weight: 500;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .email-container {
+                padding: 0 1rem;
+            }
+
+            .page-header,
+            .email-card {
+                padding: 2rem 1.5rem;
+            }
+
+            .page-title {
+                font-size: 1.8rem;
+            }
+
+            .title-icon {
+                width: 50px;
+                height: 50px;
+                font-size: 1.5rem;
+            }
+
+            .header-content {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .back-btn {
+                justify-content: center;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .email-display {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .otp-input {
+                width: 45px;
+                height: 45px;
+                font-size: 1.2rem;
+            }
+
+            .otp-input-group {
+                gap: 0.5rem;
+            }
+
+            .otp-section {
+                padding: 1.5rem 1rem;
+            }
+        }
+    </style>
+{% endblock extra_css %}
+
+{% block body %}
+    <div class="email-container">
+        
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="header-content">
+                <h1 class="page-title">
+                    <div class="title-icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <span>Change Email Address</span>
+                </h1>
+                <a href="{% url 'edit_profile' %}" class="back-btn">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Profile
+                </a>
+            </div>
+        </div>
+
+        <!-- Messages Display -->
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' or message.tags == 'danger' %}fa-exclamation-circle{% elif message.tags == 'warning' %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %}"></i>
+                <div>{{ message }}</div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- Email Change Card -->
+        <div class="email-card">
+            
+            <!-- Current Email Display -->
+            <div class="current-email-section">
+                <div class="email-display">
+                    <div class="email-icon-wrapper">
+                        <i class="fas fa-envelope-open-text"></i>
+                    </div>
+                    <div class="email-info">
+                        <h4>Current Email Address</h4>
+                        <div class="current-email">{{ user.email }}</div>
+                        <div class="verified-badge">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Verified & Secure</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Change Email Form -->
+            <form method="post" action="{% url 'change_email' %}" id="emailForm">
+                {% csrf_token %}
+                
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    <div>
+                        <strong>Important:</strong> We will send a verification code to your <strong>current email address</strong> ({{ user.email }}) to confirm this change. Make sure you have access to it.
+                    </div>
+                </div>
+
+                <!-- New Email Input -->
+                <div class="form-section">
+                    <h4 class="section-header">
+                        <i class="fas fa-at"></i>
+                        Enter New Email Address
+                    </h4>
+
+                    <div class="form-group">
+                        <label for="new_email" class="form-label">
+                            <i class="fas fa-envelope"></i>
+                            New Email Address
+                        </label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-at input-icon"></i>
+                            <input type="email" class="form-control" id="new_email" name="new_email" 
+                                   placeholder="Enter your new email address" 
+                                   value="{{ new_email|default:'' }}">
+                            <span class="validation-icon" id="emailValidationIcon"></span>
+                        </div>
+                        <div class="invalid-feedback" id="emailFeedback"></div>
+                    </div>
+                </div>
+
+                <!-- OTP Section (Shown after sending OTP) -->
+                {% if otp_sent %}
+                <div class="otp-section">
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i>
+                        <div>
+                            <strong>Verification code sent!</strong> We've sent a 6-digit code to <strong>{{ user.email }}</strong>. Please check your inbox and spam folder.
+                        </div>
+                    </div>
+
+                    <h4 class="section-header">
+                        <i class="fas fa-key"></i>
+                        Enter Verification Code
+                    </h4>
+
+                    <div class="otp-input-group">
+                        <input type="text" class="otp-input" maxlength="1" id="otp1" data-index="0">
+                        <input type="text" class="otp-input" maxlength="1" id="otp2" data-index="1">
+                        <input type="text" class="otp-input" maxlength="1" id="otp3" data-index="2">
+                        <input type="text" class="otp-input" maxlength="1" id="otp4" data-index="3">
+                        <input type="text" class="otp-input" maxlength="1" id="otp5" data-index="4">
+                        <input type="text" class="otp-input" maxlength="1" id="otp6" data-index="5">
+                    </div>
+                    <input type="hidden" name="email_otp" id="email_otp">
+
+                    <div class="otp-timer" id="otpTimer">
+                        <i class="fas fa-clock"></i>
+                        <span>Code expires in <strong id="timerDisplay">10:00</strong></span>
+                    </div>
+                </div>
+                {% else %}
+                <div class="form-group">
+                    <label for="email_otp" class="form-label">
+                        <i class="fas fa-key"></i>
+                        Verification Code
+                    </label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-lock input-icon"></i>
+                        <input type="text" class="form-control" id="email_otp" name="email_otp" 
+                               placeholder="Enter 6-digit OTP code">
+                    </div>
+                </div>
+
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <div>
+                        We will send an OTP to your current email address <strong>{{ user.email }}</strong> for verification. Please check your inbox.
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Form Actions -->
+                <div class="form-actions">
+                    {% if not otp_sent %}
+                        <button type="submit" name="send_otp" class="btn-primary">
+                            <i class="fas fa-paper-plane"></i>
+                            Send Verification Code
+                        </button>
+                        <a href="{% url 'edit_profile' %}" class="btn-outline">
+                            <i class="fas fa-times"></i>
+                            Cancel
+                        </a>
+                    {% else %}
+                        <button type="submit" name="verify_otp" class="btn-primary" id="verifyOtpBtn">
+                            <i class="fas fa-check-circle"></i>
+                            Verify & Change Email
+                        </button>
+                        <button type="submit" name="send_otp" class="btn-secondary" id="resendOtpBtn" disabled>
+                            <i class="fas fa-sync-alt"></i>
+                            Resend Code
+                        </button>
+                    {% endif %}
+                </div>
+            </form>
+
+            <!-- Security Tips -->
+            <div class="security-tips">
+                <h5>
+                    <i class="fas fa-shield-alt"></i>
+                    Security Tips
+                </h5>
+                <div class="tip-item">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Make sure you have access to your current email before making changes</span>
+                </div>
+                <div class="tip-item">
+                    <i class="fas fa-check-circle"></i>
+                    <span>The verification code will expire in 10 minutes for security</span>
+                </div>
+                <div class="tip-item">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Check your spam folder if you don't receive the code immediately</span>
+                </div>
+                <div class="tip-item">
+                    <i class="fas fa-check-circle"></i>
+                    <span>You'll be logged out after changing your email for security purposes</span>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock body %}
+
+{% block extra_js %}
+    <script>
+        // Email validation
+        document.getElementById('new_email').addEventListener('input', function() {
+            const email = this.value;
+            const icon = document.getElementById('emailValidationIcon');
+            const feedback = document.getElementById('emailFeedback');
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            
+            if (email && emailRegex.test(email)) {
+                this.classList.remove('is-invalid');
+                this.classList.add('is-valid');
+                icon.innerHTML = '<i class="fas fa-check-circle text-success"></i>';
+                feedback.style.display = 'none';
+            } else if (email) {
+                this.classList.add('is-invalid');
+                this.classList.remove('is-valid');
+                icon.innerHTML = '<i class="fas fa-times-circle text-danger"></i>';
+                feedback.textContent = 'Please enter a valid email address';
+                feedback.style.display = 'block';
+            } else {
+                this.classList.remove('is-invalid', 'is-valid');
+                icon.innerHTML = '';
+                feedback.style.display = 'none';
+            }
+        });
+
+        {% if otp_sent %}
+        // OTP Input handling
+        const otpInputs = document.querySelectorAll('.otp-input');
+        const otpHidden = document.getElementById('email_otp');
+
+        otpInputs.forEach((input, index) => {
+            input.addEventListener('input', function(e) {
+                const value = this.value;
+                
+                // Only allow numbers
+                this.value = value.replace(/[^0-9]/g, '');
+                
+                // Move to next input
+                if (this.value.length === 1 && index < otpInputs.length - 1) {
+                    otpInputs[index + 1].focus();
+                }
+                
+                // Update hidden input
+                updateOTPValue();
+            });
+
+            input.addEventListener('keydown', function(e) {
+                // Move to previous input on backspace
+                if (e.key === 'Backspace' && !this.value && index > 0) {
+                    otpInputs[index - 1].focus();
+                }
+            });
+
+            input.addEventListener('paste', function(e) {
+                e.preventDefault();
+                const pastedData = e.clipboardData.getData('text').replace(/[^0-9]/g, '');
+                
+                for (let i = 0; i < pastedData.length && index + i < otpInputs.length; i++) {
+                    otpInputs[index + i].value = pastedData[i];
+                }
+                
+                updateOTPValue();
+                
+                // Focus last filled input
+                const lastIndex = Math.min(index + pastedData.length, otpInputs.length - 1);
+                otpInputs[lastIndex].focus();
+            });
+        });
+
+        function updateOTPValue() {
+            let otp = '';
+            otpInputs.forEach(input => {
+                otp += input.value;
+            });
+            otpHidden.value = otp;
+        }
+
+        // OTP Timer
+        let timeLeft = 600; // 10 minutes in seconds
+        const timerDisplay = document.getElementById('timerDisplay');
+        const resendBtn = document.getElementById('resendOtpBtn');
+        const verifyBtn = document.getElementById('verifyOtpBtn');
+        const timerElement = document.getElementById('otpTimer');
+
+        function updateTimer() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerDisplay.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            
+            if (timeLeft <= 0) {
+                timerElement.classList.add('timer-expired');
+                timerDisplay.textContent = 'Code expired';
+                resendBtn.disabled = false;
+                verifyBtn.disabled = true;
+                clearInterval(timerInterval);
+            } else if (timeLeft <= 60) {
+                timerElement.style.color = 'var(--danger-color)';
+            }
+            
+            timeLeft--;
+        }
+
+        const timerInterval = setInterval(updateTimer, 1000);
+        updateTimer();
+        {% endif %}
+
+        // Form submission handling
+        document.getElementById('emailForm').addEventListener('submit', function(e) {
+            const submitButton = document.activeElement;
+            
+            if (submitButton.name === 'send_otp') {
+                const email = document.getElementById('new_email').value;
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                
+                if (!email || !emailRegex.test(email)) {
+                    e.preventDefault();
+                    alert('Please enter a valid email address');
+                    return false;
+                }
+                
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending Code...';
+                submitButton.disabled = true;
+            } else if (submitButton.name === 'verify_otp') {
+                const otp = document.getElementById('email_otp').value;
+                if (otp.length !== 6) {
+                    e.preventDefault();
+                    alert('Please enter the complete 6-digit verification code');
+                    return false;
+                }
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+                submitButton.disabled = true;
+            }
+        });
+    </script>
+{% endblock extra_js %}
