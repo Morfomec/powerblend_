@@ -151,8 +151,8 @@ def generate_referral_code(length=8):
 class UserReferral(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='referral')
     referral_code = models.CharField(max_length=20, unique=True, blank=True, null=True)
-    referred_by = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='referrers')
-
+    referred_by = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='referred_users')
+    reward_given = models.BooleanField(default=False)
     def __str__(self):
         return f"{self.user.full_name or self.user.email} - {self.referral_code}"
 

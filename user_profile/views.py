@@ -40,7 +40,7 @@ def user_dashboard(request):
     
     referral.refresh_from_db() 
 
-    referred_users = referral.referrers.all()
+    referred_users = referral.referred_users.all()
 
     recent_orders = Order.objects.filter(user=user).order_by('-created_at')[:3]
 

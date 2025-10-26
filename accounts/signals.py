@@ -25,12 +25,31 @@
 # accounts/signals.py
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from decimal import Decimal
+from django.conf import settings
+
 from .models import CustomUser, UserReferral, generate_referral_code
+from wallet.models import Wallet
+
 
 @receiver(post_save, sender=CustomUser)
-def create_referral_for_user(sender, instance, created, **kwargs):
-    if created:
-        code = generate_referral_code()
-        while UserReferral.objects.filter(referral_code=code).exists():
-            code = generate_referral_code()
-        UserReferral.objects.create(user=instance, referral_code=code)
+def handle_user_referral(sender, instance, created, **kwargs):
+    """
+    Create referral record for new users.
+    If referred_by is set, reward the referrer with ₹500.
+    """
+    if not created:
+        return
+
+    # Step 1: Ensure a referral record exists
+    referral_record, created_ref = UserReferral.objects.get_or_create(user=instance)
+
+    # Step 2: If user was referred by someone → reward referrer
+    if referral_record.referred_by:
+        referrer = referral_record.referred_by.user
+        wallet, _ = Wallet.objects.get_or_create(user=referrer)
+
+        wallet.balance += Decimal("500.00")
+        wallet.save()
+
+        print(f"Referral Bonus: {referrer} earned ₹500 for referring {instance}")
