@@ -2,6 +2,11 @@ from django import forms
 from .models import Coupon
 from django.utils import timezone
 
+
+class ApplyCouponForm(forms.Form):
+    code = forms.CharField(max_length=50, label='Coupon Code')
+
+    
 class CouponForm(forms.ModelForm):
     class Meta:
         model = Coupon
@@ -10,7 +15,7 @@ class CouponForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         valid_from = cleaned_data.get('valid_from')
-        valid_to = cleaned_data.get('valid_to')
+        valid_to = ApplyCcleaned_data.get('valid_to')
         discount_amount = cleaned_data.get('discount_amount')
         minimum_amount = cleaned_data.get('minimum_amount')
 

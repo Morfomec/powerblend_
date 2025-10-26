@@ -61,7 +61,6 @@ INSTALLED_APPS = [
     "orders",
     "offers",
     "wallet",
-    "coupons",
 
     "widget_tweaks",
 

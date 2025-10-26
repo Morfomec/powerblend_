@@ -10,7 +10,7 @@ import json
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from wishlist.models import WishlistItem
-
+from user_profile.models import Address
 from offers.utils import get_best_offer_for_product, get_discount_info_for_variant
 
 
@@ -88,6 +88,8 @@ class BasketAddView(View):
             image = variant.product.images.first()
             image_url = image.image.url if image else ""
 
+            default_address = Address.objects.filter(user=request.user, is_default=True).first()
+
             return JsonResponse({
                 "success": True,
                 "product": variant.product.name,
@@ -96,6 +98,7 @@ class BasketAddView(View):
                 "basket_count": basket.total_items,  # total items in basket
                 "subtotal": str(basket.total_price),     # total price
                 "image": image_url,
+                "default_address" : default_address,
 
                 'price' : str(discount_info['price']),
                 'original_price' :str(discount_info['original_price']),
@@ -155,10 +158,12 @@ class BasketDetailView(LoginRequiredMixin, View):
             items = []
             total_price = 0
 
+        default_address = Address.objects.filter(user=request.user, is_default=True).first()
         context = {
             "basket": basket if request.user.is_authenticated else None,
             "items" : items,
             "total_price" : total_price,
+            "default_address": default_address,
             "show_login_modal" : request.GET.get('show_login_modal', False)
         }
 

@@ -1,7 +1,186 @@
 {% extends 'payment_base.html' %}
 {% load static %}
 {% block title %}Checkout - POWERBLEND{% endblock %}
-{% block extra_css %}{% endblock extra_css %}
+{% block extra_css %}
+
+
+
+<style>
+/* Base Alert Styles */
+.custom-alert {
+    color: white;
+    padding: 0.75rem 1.25rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    animation: slideDown 0.4s ease-out;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.custom-alert::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    animation: shimmer 3s infinite;
+}
+
+.custom-alert i {
+    font-size: 1.1rem;
+    animation: pulse 1.5s ease-in-out infinite;
+    flex-shrink: 0;
+}
+
+/* Error/Danger Alert */
+.alert-error {
+    background: linear-gradient(135deg, #dc3545, #c82333);
+    box-shadow: 0 4px 20px rgba(220, 53, 69, 0.3);
+}
+
+/* Success Alert */
+.alert-success {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    box-shadow: 0 4px 20px rgba(40, 167, 69, 0.3);
+}
+
+/* Warning Alert */
+.alert-warning {
+    background: linear-gradient(135deg, #ffc107, #ff9800);
+    box-shadow: 0 4px 20px rgba(255, 193, 7, 0.3);
+}
+
+/* Info Alert */
+.alert-info {
+    background: linear-gradient(135deg, #17a2b8, #138496);
+    box-shadow: 0 4px 20px rgba(23, 162, 184, 0.3);
+}
+
+/* Animations */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.15);
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        left: -100%;
+    }
+    100% {
+        left: 100%;
+    }
+}
+
+/* Solid Background Variants */
+.custom-alert.solid.alert-error {
+    background: #dc3545;
+    border: 2px solid #bd2130;
+}
+
+.custom-alert.solid.alert-success {
+    background: #28a745;
+    border: 2px solid #1e7e34;
+}
+
+.custom-alert.solid.alert-warning {
+    background: #ffc107;
+    border: 2px solid #e0a800;
+}
+
+.custom-alert.solid.alert-info {
+    background: #17a2b8;
+    border: 2px solid #117a8b;
+}
+
+/* Light Background Variants with Dark Text */
+.custom-alert.light {
+    border-left-width: 3px;
+}
+
+.custom-alert.light.alert-error {
+    background: linear-gradient(135deg, rgba(220, 53, 69, 0.1), rgba(220, 53, 69, 0.05));
+    color: #dc3545;
+    border: 2px solid #dc3545;
+    border-left-width: 3px;
+}
+
+.custom-alert.light.alert-error i {
+    color: #dc3545;
+}
+
+.custom-alert.light.alert-success {
+    background: linear-gradient(135deg, rgba(40, 167, 69, 0.1), rgba(40, 167, 69, 0.05));
+    color: #28a745;
+    border: 2px solid #28a745;
+    border-left-width: 3px;
+}
+
+.custom-alert.light.alert-success i {
+    color: #28a745;
+}
+
+.custom-alert.light.alert-warning {
+    background: linear-gradient(135deg, rgba(255, 193, 7, 0.1), rgba(255, 193, 7, 0.05));
+    color: #856404;
+    border: 2px solid #ffc107;
+    border-left-width: 3px;
+}
+
+.custom-alert.light.alert-warning i {
+    color: #856404;
+}
+
+.custom-alert.light.alert-info {
+    background: linear-gradient(135deg, rgba(23, 162, 184, 0.1), rgba(23, 162, 184, 0.05));
+    color: #17a2b8;
+    border: 2px solid #17a2b8;
+    border-left-width: 3px;
+}
+
+.custom-alert.light.alert-info i {
+    color: #17a2b8;
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+    .custom-alert {
+        padding: 1rem;
+        font-size: 0.9rem;
+        gap: 0.5rem;
+    }
+    
+    .custom-alert i {
+        font-size: 1.1rem;
+    }
+}
+</style>
+
+
+{% endblock extra_css %}
 {% block body %} 
 
 {% include 'includes/header_user_profile_base.html' %}
@@ -14,7 +193,7 @@
             <div class="col-lg-8">
                 <!-- Delivery Address Section -->
                 <div class="checkout-card">
-                    <h3 class="card-title">
+                    <h3 class="card-title">i
                         <i class="fas fa-map-marker-alt"></i>
                         Delivery Address
                     </h3>
@@ -23,14 +202,27 @@
 
                     {% if messages %}
                         {% for message in messages %}
-                            {% if 'checkout-wallet_insufficient' in message.tags or 'otp-success' in message.tags %}
-                            <div class="text-uppercase text-center mb-5 alert {% if message.tags %}alert-{{ message.tags }}{% endif %}" id="alert">
-                                {{ message }}</div>
+                            {% if 'checkout-wallet_insufficient' in message.tags or 'coupon_applied_successfull' in message.tags or 'coupon_applied_not_minimum_meet' in message.tags or 'invalid_coupon' in message.tags or 'otp-success' in message.tags %}
+                                <div class="custom-alert 
+                                    {% if 'error' in message.tags or 'danger' in message.tags or 'checkout-wallet_insufficient' in message.tags %}alert-error
+                                    {% elif 'success' in message.tags or 'otp-success' in message.tags %}alert-success
+                                    {% elif 'warning' in message.tags %}alert-warning
+                                    {% elif 'info' in message.tags %}alert-info
+                                    {% else %}alert-error{% endif %} 
+                                    text-uppercase text-center mb-5" id="alert-{{ forloop.counter }}">
+                                    <i class="fas 
+                                        {% if 'error' in message.tags or 'danger' in message.tags or 'checkout-wallet_insufficient' in message.tags %}fa-exclamation-circle
+                                        {% elif 'success' in message.tags or 'otp-success' in message.tags %}fa-check-circle
+                                        {% elif 'warning' in message.tags %}fa-exclamation-triangle
+                                        {% elif 'info' in message.tags %}fa-info-circle
+                                        {% else %}fa-exclamation-circle{% endif %}"></i>
+                                    <span>{{ message }}</span>
+                                </div>
                             {% endif %}
                         {% endfor %}
-                    {% endif %} 
-            
-                    
+                    {% endif %}
+
+                                        
                     <!-- Existing Address -->
                     {% if default_address %}
                         <div class="address-card selected" onclick="selectAddress(this)">
@@ -199,12 +391,13 @@
                             <span>Taxes</span>
                             <span>₹{{ taxes|floatformat:2  }}</span>
                         </div>
-<div class="price-row-wrapper">
+                        <div class="price-row-wrapper">
                             <div class="price-row">
                                 {% if applied_coupon %}
                                     <span>Coupon ({{ applied_coupon.code }})</span>
                                     <span class="text-warning">-₹{{ discount|floatformat:2 }}</span>
-                                {% else %}
+                                {% else %}                    
+
                                     <span>Discount</span>
                                     <span class="text-warning">₹0.00</span>
                                 {% endif %}                               
@@ -343,5 +536,23 @@ function copyCoupon(code) {
         toastr.error('Failed to copy coupon code');
     });
 }
+</script>
+
+<!-- Optional: Auto-dismiss script -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const alert = document.getElementById('alert');
+    if (alert) {
+        // Auto-dismiss after 5 seconds
+        setTimeout(function() {
+            alert.style.transition = 'opacity 0.5s ease-out, transform 0.5s ease-out';
+            alert.style.opacity = '0';
+            alert.style.transform = 'translateY(-20px)';
+            setTimeout(function() {
+                alert.remove();
+            }, 500);
+        }, 5000);
+    }
+});
 </script>
 {% endblock extra_js %}

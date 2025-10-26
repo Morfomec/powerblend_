@@ -108,8 +108,10 @@ def order_details(request, order_id):
 
     taxes = subtotal * Decimal('0.12')
 
-    shipping=0
-    discount=0
+
+
+    shipping=Decimal(0)
+    discount=order.discount_amount or Decimal(0)
 
     total = subtotal + taxes + shipping - discount
 
