@@ -124,7 +124,7 @@ def checkout_view(request):
         )
 
         #1. create order
-        order = Order.objects.create(user=request.user, shipping_address=shipping_address, subtotal=subtotal, total=total, payment_method=payment_method,discount_amount=discount_amount, coupon=applied_coupon, paid_amout=total, status='pending')
+        order = Order.objects.create(user=request.user, shipping_address=shipping_address, subtotal=subtotal, total=total, payment_method=payment_method,discount_amount=discount_amount,  status='pending')
         print('order created')
         with transaction.atomic():
             #2. creare orderitems from basket items
@@ -157,7 +157,7 @@ def checkout_view(request):
         'total_items':total_items,
         'shipping' : shipping,
         'taxes' : taxes,
-        'discount' : discount,
+        # 'discount' : discount,
         'total' : total,
         'order' : order,
         'available_coupons' : available_coupons,
@@ -182,7 +182,7 @@ def checkout_view(request):
             elif payment_method == 'wallet':
 
                 if wallet.balance < total:
-                    messages.error(request, "Insufficient wallet balance!")
+                    messages.error(request, "Insufficient wallet balance!", extra_tags='checkout-wallet_insufficient')
                     return redirect('checkout')
 
                 with transaction.atomic():

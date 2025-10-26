@@ -6,7 +6,9 @@ from .forms import BasketAddForm
 from products.models import ProductVariant
 from django.views import View
 from django.http import JsonResponse
-
+import json
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
 from wishlist.models import WishlistItem
 
 from offers.utils import get_best_offer_for_product, get_discount_info_for_variant
@@ -197,3 +199,60 @@ class BasketUpdateView(LoginRequiredMixin, View):
         }
         return redirect('basket_view')
         # return JsonResponse(data)
+
+
+@login_required
+@require_POST
+def basket_update_item(request, item_id):
+
+
+    
+
+    try:
+        data = json.loads(request.body)
+        action = data.get("action")  
+
+
+        item = BasketItem.objects.get(id=item_id, basket__user=request.user)
+
+        # ✅ Update quantity safely
+        if action == "increase" and item.quantity < item.variant.stock:
+            item.quantity += 1
+        elif action == "decrease" and item.quantity > 1:
+            item.quantity -= 1
+        item.save()
+
+        # ✅ Reapply discount info for consistent logic
+        discount_info = get_discount_info_for_variant(item.variant)
+        discounted_price = discount_info["price"]
+        original_price = discount_info.get("original_price", discounted_price)
+        discount_percent = discount_info.get("discount_percent", 0)
+        save_amount = discount_info.get("save_amount", 0)
+
+        # ✅ Calculate subtotals using the discounted price
+        discounted_subtotal = discounted_price * item.quantity
+        original_subtotal = original_price * item.quantity
+        save_subtotal = save_amount * item.quantity
+
+        # ✅ Calculate basket total with discounts applied
+        basket_items = BasketItem.objects.filter(basket__user=request.user)
+        basket_total = sum(
+            get_discount_info_for_variant(i.variant)["price"] * i.quantity for i in basket_items
+        )
+
+        return JsonResponse({
+            "success": True,
+            "new_quantity": item.quantity,
+            "item_id": item.id,
+            "basket_total": float(basket_total),
+            "item_total": float(discounted_subtotal),   # discounted total for this item
+            "per_piece_price": float(discounted_price), # constant per-piece price
+            "original_subtotal": float(original_subtotal),
+            "save_subtotal": float(save_subtotal),
+            "discount_percent": discount_percent,
+            "stock": item.variant.stock,
+        })
+    except BasketItem.DoesNotExist:
+        return JsonResponse({"success": False, "error": "Item not found"})
+    except Exception as e:
+        return JsonResponse({"success": False, "error": str(e)})

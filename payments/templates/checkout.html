@@ -5,6 +5,8 @@
 {% block body %} 
 
 {% include 'includes/header_user_profile_base.html' %}
+    <head><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css"></head>
+
 
     <div class="checkout-container">
         <div class="row">
@@ -16,6 +18,18 @@
                         <i class="fas fa-map-marker-alt"></i>
                         Delivery Address
                     </h3>
+
+
+
+                    {% if messages %}
+                        {% for message in messages %}
+                            {% if 'checkout-wallet_insufficient' in message.tags or 'otp-success' in message.tags %}
+                            <div class="text-uppercase text-center mb-5 alert {% if message.tags %}alert-{{ message.tags }}{% endif %}" id="alert">
+                                {{ message }}</div>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %} 
+            
                     
                     <!-- Existing Address -->
                     {% if default_address %}
@@ -193,7 +207,7 @@
                                 {% else %}
                                     <span>Discount</span>
                                     <span class="text-warning">₹0.00</span>
-                                {% endif %}
+                                {% endif %}                               
                             </div>
                             {% if applied_coupon %}
                                 <form method="POST" class="remove-coupon-form">
@@ -294,6 +308,8 @@ document.getElementById('rzp-button').onclick = function(e){
     e.preventDefault();
 };
 </script>
+
+
 {% endif %}
 
 <script>

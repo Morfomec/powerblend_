@@ -5,7 +5,7 @@ from django.contrib.auth.forms import PasswordChangeForm
 from django.core.mail import send_mail
 from django.utils.crypto import get_random_string
 from django.contrib.auth import update_session_auth_hash
-
+from orders.models import Order
 from .models import Address
 from .forms import AddressForm
 from django.urls import reverse
@@ -42,11 +42,14 @@ def user_dashboard(request):
 
     referred_users = referral.referrers.all()
 
+    recent_orders = Order.objects.filter(user=user).order_by('-created_at')[:3]
+
     context = {
         'user': user,
         'addresses' : addresses,
         'referral_code': referral.referral_code,
         'referred_users' : referred_users,
+        'recent_orders' : recent_orders,
         # 'orders': orders,
     }
 
@@ -86,10 +89,6 @@ def change_email(request):
     """
 
     user = request.user
-    # if request.method == 'POST':
-    #     form = EditProfileForm(request.POST, request.FILES, instance=request.user)
-    # else: 
-    #     form = EditProfileForm(instance=request.user)
 
     otp_sent = request.session.get('otp_sent', False)
     new_email = request.session.get('new_email', '')

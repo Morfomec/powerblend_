@@ -379,24 +379,42 @@
                          </div>
       
                         
-                        <div class="quantity-section">
-                            <span class="quantity-label">Quantity:</span>
+                        <!-- <div class="quantity-section">
+                            <span class="quantity-label">Quantity:</span> -->
 
                             <!-- Decrease -->
-                            <form method="get" action="{% url 'basket_update_item' item.id %}#basket" style="display:inline;">
+                            <!-- <form method="get" action="{% url 'basket_update_item' item.id %}#basket" style="display:inline;">
                                 {% csrf_token %}
                                 <input type="hidden" name="action" value="decrease">
                                 <button type="submit" class="quantity-btn" {% if item.quantity <= 1 or item.variant.stock == 0 %}disabled{% endif %}>-</button>
                             </form>
 
-                            <input type="number" value="{{ item.quantity }}" class="quantity-input">
+                            <input type="number" value="{{ item.quantity }}" class="quantity-input"> -->
 
                             <!-- Increase -->
-                            <form method="get" action="{% url 'basket_update_item' item.id %}#basket" style="display:inline;">
+                            <!-- <form method="get" action="{% url 'basket_update_item' item.id %}#basket" style="display:inline;">
                                 {% csrf_token %}
                                 <input type="hidden" name="action" value="increase">
                                 <button type="submit" class="quantity-btn" {% if item.quantity >= item.variant.stock %}disabled{% endif %}>+</button>
                             </form>
+                        </div> -->
+
+                        <div class="quantity-section" data-item-id="{{ item.id }}">
+                            <span class="quantity-label">Quantity:</span>
+
+                            <!-- Decrease -->
+                            <button 
+                                class="quantity-btn decrease-btn"
+                                {% if item.quantity <= 1 or item.variant.stock == 0 %}disabled{% endif %}
+                            >-</button>
+
+                            <input type="number" value="{{ item.quantity }}" class="quantity-input" readonly>
+
+                            <!-- Increase -->
+                            <button 
+                                class="quantity-btn increase-btn"
+                                {% if item.quantity >= item.variant.stock %}disabled{% endif %}
+                            >+</button>
                         </div>
 
                         {% if item.variant.stock == 0 %}
@@ -404,8 +422,11 @@
                         {% endif %}
                         
                         <div class="price-section">
+                          
+                                <div class="product-specs">Per Piece ₹{{ item.variant.discount_info.price }}</div>
+                            
                             {% if item.variant.discount_info and item.variant.discount_info.price < item.variant.discount_info.original_price %}
-                                <div class="product-specs" id="subtotal-{{ item.id }}">Per Piece ₹{{ item.variant.discount_info.price }}</div>
+                                
                                 <div class="current-price" id="subtotal-{{ item.id }}">₹{{ item.discounted_subtotal }}</div>
                                 <div class="price-savings">
                                     <span class="original-price">Was ₹{{ item.original_subtotal }}</span>
@@ -454,6 +475,7 @@
                 
                 <div class="summary-row">
                     <span>Subtotal</span>
+                    <!-- <span class="item-price">₹{{ item.total_price }}</span> -->
                     <span class="price-red" id="basket-total">₹{{ basket.total_price }}</span>
                 </div>
                 
@@ -521,13 +543,58 @@
 
 {% endblock body %}
 {% block extra_js %}
+
+
 <script>
-    document.querySelectorAll('.quantity-btn').forEach(btn => {
-    btn.addEventListener('click', function(e){
-        e.preventDefault(); // prevent jumping
-        this.closest('form').submit();
+document.addEventListener("DOMContentLoaded", function () {
+    const quantitySections = document.querySelectorAll(".quantity-section");
+
+    quantitySections.forEach(section => {
+        const decreaseBtn = section.querySelector(".decrease-btn");
+        const increaseBtn = section.querySelector(".increase-btn");
+        const quantityInput = section.querySelector(".quantity-input");
+        const itemId = section.dataset.itemId;
+
+        [decreaseBtn, increaseBtn].forEach(button => {
+            button.addEventListener("click", function () {
+                const action = this.classList.contains("increase-btn") ? "increase" : "decrease";
+
+                fetch("{% url 'basket_update_item' 0 %}".replace("0", itemId), {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": "{{ csrf_token }}",
+                    },
+                    body: JSON.stringify({ action: action }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update quantity
+                        quantityInput.value = data.new_quantity;
+
+                        // Update item subtotal if present
+                        const subtotalEl = document.querySelector(`#subtotal-${itemId}`);
+                        if (subtotalEl) subtotalEl.textContent = "₹" + data.item_total;
+
+                        // Update total basket value
+                        const totalEl = document.querySelector("#basket-total");
+                        if (totalEl) totalEl.textContent = "₹" + data.basket_total;
+
+                        const finalEl = document.querySelector("#basket-total-final");
+                        if (finalEl) finalEl.textContent = "₹" + data.basket_total;
+
+                        // Enable/disable buttons correctly
+                        decreaseBtn.disabled = (data.new_quantity <= 1);
+                        increaseBtn.disabled = (data.new_quantity >= data.stock);
+                    } else {
+                        console.error("Error:", data.error);
+                    }
+                })
+                .catch(error => console.error("AJAX Error:", error));
+            });
+        });
     });
 });
 </script>
-
 {% endblock extra_js %}

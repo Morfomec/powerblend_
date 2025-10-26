@@ -690,18 +690,24 @@
                         Recent Orders
                     </h3>
                     
-                    <div class="order-item">
-                        <div class="order-image">
-                            <i class="fas fa-dumbbell" style="color: var(--primary-solid);"></i>
-                        </div>
-                        <div class="order-details">
-                            <div class="order-title">Impact Whey Protein - 2.5kg</div>
-                            <div class="order-meta">Order #12345 • ₹2,999 • Dec 15, 2024</div>
-                        </div>
-                        <div class="order-status status-delivered">Delivered</div>
-                    </div>
+                    {% if recent_orders %}
+                        {% for order in recenet_orders %}
+                            <div class="order-item">
+                                <div class="order-image">
+                                    <i class="fas fa-dumbbell" style="color: var(--primary-solid);"></i>
+                                </div>
+                                <div class="order-details">
+                                    <div class="order-title"> {{ order.product.name }}</div>
+                                    <div class="order-meta">Order #{{ order.id }} • ₹{{ order.total_price }} • {{ order.created_at }}</div>
+                                </div>
+                                <div class="order-status status-delivered">{{ orders.status }}</div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted">No recent orders found.</p>
+                    {% endif %}
 
-                    <div class="order-item">
+                    <!-- <div class="order-item">
                         <div class="order-image">
                             <i class="fas fa-pills" style="color: var(--success-color);"></i>
                         </div>
@@ -721,7 +727,7 @@
                             <div class="order-meta">Order #12343 • ₹3,499 • Dec 10, 2024</div>
                         </div>
                         <div class="order-status status-processing">Processing</div>
-                    </div>
+                    </div> -->
 
                     <div class="text-center mt-3">
                         <a href="{% url 'order_list' %}" class="btn-outline-primary-custom">
