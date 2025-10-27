@@ -9,11 +9,17 @@
       <span style="color: var(--primary-teal); font-weight: bold; font-size: 24px; margin-left: 150px;" class="logo">POWERBLEND</span>
     </a>
 
-    <div class="search-container position-relative me-4 flex-grow-1" style="max-width: 400px; margin-left: 280px; ">
-        <input type="text" class="form-control search-input" placeholder="Search"
-               style="padding-left: 40px; border-radius: 25px; background: #f8f9fa; border: 1px solid #e9ecef;">
+    <div class="search-container position-relative me-4 flex-grow-1" style="max-width: 400px; margin-left: 280px;">
+        <input type="text" id="search-input" class="form-control search-input" placeholder="Search"
+            style="padding-left: 40px; border-radius: 25px; background: #f8f9fa; border: 1px solid #e9ecef;">
         <i class="fas fa-search position-absolute"
-           style="left: 15px; top: 50%; transform: translateY(-50%); color: #ff6b35;"></i>
+        style="left: 15px; top: 50%; transform: translateY(-50%); color: #ff6b35;"></i>
+
+
+         <!-- Suggestion dropdown -->
+        <div id="suggestions-box"
+            style="position:absolute; top:45px; width:100%; background:white; border:1px solid #e9ecef; border-radius:10px; display:none; z-index:1000;">
+        </div>
     </div>
 
     <div class="d-flex align-items-center ms-auto" style="margin-right: 100px; gap: 25px;">
@@ -105,3 +111,54 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const input = document.getElementById('search-input');
+    const suggestionsBox = document.getElementById('suggestions-box');
+
+    input.addEventListener('keyup', function() {
+        const query = input.value.trim();
+        
+        if (query.length > 0) {
+            fetch(`/search_suggestions/?q=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(data => {
+                    suggestionsBox.innerHTML = '';
+                    if (data.suggestions.length > 0) {
+                        data.suggestions.forEach(item => {
+                            const div = document.createElement('div');
+                            div.textContent = item.name;
+                            div.classList.add('p-2', 'search-suggestion');
+                            div.style.cursor = 'pointer';
+                            
+                            // when clicked, go to product page and hide suggestions
+                            div.addEventListener('click', () => {
+                                window.location.href = item.url;  // 🔗 redirect to product page
+                            });
+
+                            suggestionsBox.appendChild(div);
+                        });
+                        suggestionsBox.style.display = 'block';
+                    } else {
+                        suggestionsBox.style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error("Error fetching suggestions:", error);
+                    suggestionsBox.style.display = 'none';
+                });
+        } else {
+            suggestionsBox.style.display = 'none';
+        }
+    });
+
+    // optional: hide suggestions when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!suggestionsBox.contains(e.target) && e.target !== input) {
+            suggestionsBox.style.display = 'none';
+        }
+    });
+});
+</script>
+

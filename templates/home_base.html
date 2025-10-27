@@ -80,6 +80,48 @@
         toastr["{{ message.tags|default:'info' }}"]("{{ message|escapejs }}");
     {% endfor %}
 </script>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const input = document.getElementById('search-input');
+    const suggestionsBox = document.getElementById('suggestions-box');
+
+    input.addEventListener('keyup', function() {
+        const query = input.value.trim();
+        
+        if (query.length > 0) {
+            fetch(`/search_suggestions/?q=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(data => {
+                    suggestionsBox.innerHTML = '';
+                    if (data.suggestions.length > 0) {
+                        data.suggestions.forEach(item => {
+                            const div = document.createElement('div');
+                            div.textContent = item.name;
+                            div.classList.add('p-2', 'search-suggestion');
+                            div.style.cursor = 'pointer';
+                            
+                            // when clicked, fill input and hide box
+                            div.addEventListener('click', () => {
+                                input.value = item.name;
+                                suggestionsBox.style.display = 'none';
+                            });
+
+                            suggestionsBox.appendChild(div);
+                        });
+                        suggestionsBox.style.display = 'block';
+                    } else {
+                        suggestionsBox.style.display = 'none';
+                    }
+                });
+        } else {
+            suggestionsBox.style.display = 'none';
+        }
+    });
+});
+</script>
+
 {% endif %}
 
 {% block extra_js %}{% endblock extra_js %}

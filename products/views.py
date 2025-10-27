@@ -67,6 +67,7 @@ def add_product(request):
     
     current_page = request.GET.get('page', '1')
 
+
     if request.method == 'POST':
         name = request.POST.get('name')
         description = request.POST.get('description')
@@ -167,7 +168,7 @@ def add_product(request):
             "form" : {},
             "categories":categories,
             "mode":"add",
-            "active_page":"add_product"
+            "active_page":"add_product",
         }
 
         
@@ -246,55 +247,122 @@ def add_variants(request, product_id):
 
 
 
-
+from django.db import IntegrityError
 
 def edit_variant(request, variant_id):
     """
-    Handle get and post reequest for editing an existing product variant.
+    Handle GET and POST requests for editing an existing product variant.
+
+    Allows updates to price, stock, and other fields.
+    Prevents saving duplicate (product, flavor, weight) combinations.
     """
 
-    variant = get_object_or_404(ProductVariant,id=variant_id)
+    variant = get_object_or_404(ProductVariant, id=variant_id)
     product = variant.product
-
     current_page = request.GET.get('page', '1')
+
+    # Store original combo before the form modifies it
+    original_flavor = variant.flavor
+    original_weight = variant.weight
 
     if request.method == 'POST':
         form = ProductVariantForm(request.POST, instance=variant)
         if form.is_valid():
-                        
-            flavor = form.cleaned_data['flavor']
-            weight = form.cleaned_data['weight']
+            new_flavor = form.cleaned_data.get("flavor")
+            new_weight = form.cleaned_data.get("weight")
 
-            if(flavor != variant.flavor) or (weight != variant.weight):
-                exisiting_variant = ProductVariant.objects.filter(product=product, flavor=flavor, weight=weight).exclude(id=variant.id)
-            
-                if exisiting_variant.exists():
+            # Check only if flavor or weight changed
+            if (new_flavor != original_flavor) or (new_weight != original_weight):
+                duplicate = ProductVariant.objects.filter(
+                    product=product,
+                    flavor=new_flavor,
+                    weight=new_weight
+                ).exclude(id=variant.id)
+                if duplicate.exists():
                     messages.error(request, "This variant already exists!")
                     return render(request, 'add_variants.html', {
-                            'product': product,
-                            'variant': variant,
-                            'form': form,
-                            'mode': "edit",
-                        })
-            
-            updated_variant = form.save(commit=False)
-            updated_variant.product= product
-            updated_variant.save()
-            messages.success(request, f"Variant updated successfully for {product.name}")
-            # return redirect("add_variants", product_id=product.id)
-            return redirect(f"{reverse('add_variants', args=[product.id])}?page={current_page}")
-       
+                        'product': product,
+                        'variant': variant,
+                        'form': form,
+                        'mode': "edit",
+                    })
+
+            try:
+                form.save()
+                messages.success(request, f"Variant updated successfully for {product.name}")
+                return redirect(f"{reverse('add_variants', args=[product.id])}?page={current_page}")
+
+            except IntegrityError:
+                # Database-level safeguard
+                messages.error(request, "This flavor-weight combination already exists!")
+                return render(request, 'add_variants.html', {
+                    'product': product,
+                    'variant': variant,
+                    'form': form,
+                    'mode': "edit",
+                })
+
     else:
         form = ProductVariantForm(instance=variant)
 
     context = {
-        'product' : product,
-        'variant' : variant,
-        'form' : form,
-        'mode' : "edit",
-        'active_page' : 'edit_variant',
+        'product': product,
+        'variant': variant,
+        'form': form,
+        'mode': "edit",
+        'active_page': 'edit_variant',
     }
     return render(request, 'add_variants.html', context)
+
+
+
+# def edit_variant(request, variant_id):
+#     """
+#     Handle get and post reequest for editing an existing product variant.
+#     """
+
+#     variant = get_object_or_404(ProductVariant,id=variant_id)
+#     product = variant.product
+
+#     current_page = request.GET.get('page', '1')
+
+#     if request.method == 'POST':
+#         form = ProductVariantForm(request.POST, instance=variant)
+#         if form.is_valid():
+                        
+#             flavor = form.cleaned_data['flavor']
+#             weight = form.cleaned_data['weight']
+
+#             if(flavor != variant.flavor) or (weight != variant.weight):
+#                 exisiting_variant = ProductVariant.objects.filter(product=product, flavor=flavor, weight=weight).exclude(id=variant.id)
+            
+#                 if exisiting_variant.exists():
+#                     messages.error(request, "This variant already exists!")
+#                     return render(request, 'add_variants.html', {
+#                             'product': product,
+#                             'variant': variant,
+#                             'form': form,
+#                             'mode': "edit",
+#                         })
+            
+#             updated_variant = form.save(commit=False)
+#             updated_variant.product= product
+#             updated_variant.save()
+#             messages.success(request, f"Variant updated successfully for {product.name}")
+#             # return redirect("add_variants", product_id=product.id)
+#             return redirect(f"{reverse('add_variants', args=[product.id])}?page={current_page}")
+       
+#     else:
+#         form = ProductVariantForm(instance=variant)
+
+#     context = {
+#         'product' : product,
+#         'variant' : variant,
+#         'form' : form,
+#         'mode' : "edit",
+#         'active_page' : 'edit_variant',
+#     }
+#     return render(request, 'add_variants.html', context)
 
 def edit_product(request, product_id):
     """

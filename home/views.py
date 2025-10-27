@@ -11,6 +11,7 @@ from django.db.models import Q, Sum
 from offers.models import Offer
 from offers.utils import get_best_offer_for_product, get_discount_info_for_variant
 from collections import OrderedDict
+from django.http import JsonResponse
 # Create your views here.
 
 
@@ -18,8 +19,19 @@ from collections import OrderedDict
 # @never_cache
 # @login_required(login_url='login')
 def home_view(request):
+    """
+    To view the products in the home page
+    """
+
+
     products = Product.objects.filter(is_listed=True).prefetch_related("variants")
     # variant = ProductVariant.objects.all()
+
+    category_selected = request.GET.get('category')
+    
+    if category_selected:
+        products = products.filter(category__name__iexact=category_selected)
+
 
     for product in products:
         product.best_offer = get_best_offer_for_product(product)
@@ -37,10 +49,16 @@ def home_view(request):
         if wishlist:
             wishlist_variant_ids = wishlist.items.values_list('variant_id', flat=True)
 
+    categories = Category.objects.all()
+
+    category_pills = ['WHEY', 'ISOLATE', 'VITAMINS', 'CREATINE']
 
     context = {
         'products': products,
         'wishlist_variant_ids': list(wishlist_variant_ids),
+        'categories' : categories,
+        'category_selected' : category_selected,
+        'category_pills' : category_pills,
     }
     return render(request, "home.html", context)
 
@@ -301,3 +319,19 @@ def detail_product(request, id):
     }
     print("Selected variant info:", selected_variant_info)
     return render(request, "product_detail.html", context)
+
+
+
+def search_suggestions(request):
+    """
+    Handle AJAX live seacrh requests and return product name sugesstions.
+    """
+
+    query = request.GET.get('q', '')
+    suggestions = []
+
+    if query:
+        products = Product.objects.filter(name__icontains=query)[:5]
+        suggestions = [{'id': p.id, 'name': p.name, 'url': p.get_absolute_url()} for p in products]
+
+    return JsonResponse({'suggestions' : suggestions})

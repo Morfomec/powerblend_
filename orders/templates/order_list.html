@@ -663,7 +663,7 @@ body {
                         </div>
                         <div class="info-item">
                             <span class="info-label">Total</span>
-                            <span class="info-value">₹{{ order.total }}</span>
+                            <span class="info-value">₹{{ order.original_total|default:order.total }}</span>
                         </div>
                     </div>
                     

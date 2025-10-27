@@ -106,7 +106,7 @@ def order_details(request, order_id):
     
     subtotal = sum(item.price * item.quantity for item in active_items)
 
-    taxes = subtotal * Decimal('0.12')
+    taxes = subtotal * Decimal('0')
 
 
 

@@ -5,6 +5,7 @@ from django.utils.text import slugify
 from django.utils import timezone
 from django.core.exceptions import ValidationError
 from django.db.models import F, Value
+from django.urls import reverse
 
 from offers.utils import get_discount_info_for_variant
 # Create your models here.
@@ -38,6 +39,13 @@ class Product(models.Model):
                 counter += 1
             self.slug = slug
         super().save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        """
+        Returns the URL to the product detail page for this product
+        """
+
+        return reverse('detail_product', kwargs={'id' : self.pk})
         
 
 

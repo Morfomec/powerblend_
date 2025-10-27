@@ -193,7 +193,7 @@
             <div class="col-lg-8">
                 <!-- Delivery Address Section -->
                 <div class="checkout-card">
-                    <h3 class="card-title">i
+                    <h3 class="card-title">
                         <i class="fas fa-map-marker-alt"></i>
                         Delivery Address
                     </h3>
@@ -202,7 +202,7 @@
 
                     {% if messages %}
                         {% for message in messages %}
-                            {% if 'checkout-wallet_insufficient' in message.tags or 'coupon_applied_successfull' in message.tags or 'coupon_applied_not_minimum_meet' in message.tags or 'invalid_coupon' in message.tags or 'otp-success' in message.tags %}
+                            {% if 'checkout-wallet_insufficient' in message.tags or 'coupon_applied_successfull' in message.tags or 'coupon_applied_not_minimum_meet' in message.tags or 'invalid_coupon' in message.tags or 'otp-success' in message.tags or 'remove_coupon' in message.tags %}
                                 <div class="custom-alert 
                                     {% if 'error' in message.tags or 'danger' in message.tags or 'checkout-wallet_insufficient' in message.tags %}alert-error
                                     {% elif 'success' in message.tags or 'otp-success' in message.tags %}alert-success
@@ -273,7 +273,7 @@
                         <div class="row align-items-center">
                             <div class="col-md-8">
                                 <!-- input name must match form field -->
-                                <input type="text" name="code" class="coupon-input w-100" placeholder="Enter Coupon Code" value="{{ coupon_form.code.value }}">
+                                <input type="text" name="code" class="coupon-input w-100" placeholder="Enter Coupon Code" value="{{ coupon_form.code.value|default_if_none:'' }}">
                             </div>
                             <div class="col-md-4">
                                 <button type="submit" name="apply_coupon" class="btn-apply-coupon w-100">
@@ -540,19 +540,21 @@ function copyCoupon(code) {
 
 <!-- Optional: Auto-dismiss script -->
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const alert = document.getElementById('alert');
-    if (alert) {
-        // Auto-dismiss after 5 seconds
-        setTimeout(function() {
-            alert.style.transition = 'opacity 0.5s ease-out, transform 0.5s ease-out';
-            alert.style.opacity = '0';
-            alert.style.transform = 'translateY(-20px)';
-            setTimeout(function() {
-                alert.remove();
-            }, 500);
-        }, 5000);
-    }
+document.addEventListener("DOMContentLoaded", function() {
+    // Select all custom alert messages
+    const alerts = document.querySelectorAll(".custom-alert");
+    
+    alerts.forEach((alert) => {
+        // Wait 5 seconds before fading out
+        setTimeout(() => {
+            alert.style.transition = "opacity 0.6s ease, transform 0.6s ease";
+            alert.style.opacity = "0";
+            alert.style.transform = "translateY(-10px)";
+            
+            // Remove the alert completely after fade-out
+            setTimeout(() => alert.remove(), 600);
+        }, 3000);
+    });
 });
 </script>
 {% endblock extra_js %}

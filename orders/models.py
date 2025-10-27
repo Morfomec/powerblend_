@@ -50,7 +50,10 @@ class Order(models.Model):
     order_id = models.CharField(max_length=32, unique=True, default=generate_order_id, editable=False)
     payment_method = models.CharField(max_length=20, choices=PAYMENT_CHOICES, blank=True, null=True)
     status = models.CharField(max_length=20, choices=ORDER_STATUS_CHOICES, default='pending')
+
     total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    original_total = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     subtotal = models.DecimalField(max_digits=10, decimal_places=2, default=0)
@@ -67,6 +70,15 @@ class Order(models.Model):
 
     discount_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     coupon_discount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+
+    def save(self, *args, **kwargs):
+        """
+        Override the default save() method to preserve the original total amount of the order
+        """
+        if not self.original_total and self.total:
+            self.original_total = self.total
+        super().save(*args, **kwargs)
 
     @property
     def final_amount(self):

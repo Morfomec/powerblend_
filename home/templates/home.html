@@ -95,6 +95,7 @@
         display: flex;
         flex-wrap: wrap; 
         align-items: stretch; 
+        
     }
 
     .product-card {
@@ -457,6 +458,15 @@
     .product-card:hover::before {
         left: 100%;
     }
+    .pill.active {
+    background-color: #004b4b;
+    color: white;
+}
+
+
+
+
+    
 </style>
 {% endblock extra_css %}
 
@@ -467,13 +477,18 @@
 <!-- Product Categories -->
 <div class="container">
 
-    <!-- Category Pills -->
+       <!-- Category Pills (Top) -->
     <div class="category-pills">
-        <a href="#" class="pill">WHEY</a>
-        <a href="#" class="pill">ISOLATE</a>
-        <a href="#" class="pill">CLEAR</a>
-        <a href="#" class="pill">VITAMINS</a>
-        <a href="#" class="pill">CREATINE</a>
+        <a href="{% url 'home' %}" class="pill ">
+            ALL
+        </a>
+
+        <!-- Dynamic Category Pills -->
+        {% for pill in category_pills %}
+            <a href="?category={{ pill }}" class="pill {% if selected_category|upper == pill %}active{% endif %}">
+                {{ pill }}
+            </a>
+        {% endfor %}
     </div>
 
     <div class="row product-grid">
@@ -568,13 +583,21 @@
         {% endfor %}
     </div>
 
-    <!-- Category Pills (Bottom) -->
+   <!-- Category Pills (Bottom) -->
     <div class="category-pills">
-        <a href="#" class="pill">WHEY</a>
-        <a href="#" class="pill">ISOLATE</a>
-        <a href="#" class="pill">CLEAR</a>
-        <a href="#" class="pill">VITAMINS</a>
-        <a href="#" class="pill">CREATINE</a>
+        <!-- "All" Button -->
+        <a href="{% url 'home' %}" 
+        class="pill ">
+            ALL
+        </a>
+
+        <!-- Dynamic Category Pills -->
+        {% for pill in category_pills %}
+            <a href="?category={{ pill }}" 
+            class="pill {% if selected_category|upper == pill %}active{% endif %}">
+                {{ pill }}
+            </a>
+        {% endfor %}
     </div>
 
     <!-- View All Button -->

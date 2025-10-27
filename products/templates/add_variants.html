@@ -404,8 +404,9 @@
                 <form id="variantForm" method="POST" action="{% url 'add_variants' product.id %}">
                     {% csrf_token %}
                     <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-1"></i>
-                        Create different variants of your product based on flavors, weights, or both. Each combination must be unique.
+                        <!-- <i class="fas fa-info-circle me-1"></i> -->
+
+                        PRODUCT: {{ product.name }}
                     </div>
 
 

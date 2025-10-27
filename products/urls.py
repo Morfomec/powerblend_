@@ -14,4 +14,5 @@ urlpatterns = [
     path("toggle/<int:variant_id>/", views.toggle_variant_listing, name="toggle_variant_listing"),
     path("<int:image_id>/delete-image/", views.delete_product_image, name='delete_product_image'),
     path('upload-product-images', views.upload_product_images, name='upload_product_images'),
+
 ]
