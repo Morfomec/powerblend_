@@ -12,7 +12,7 @@ from offers.utils import get_discount_info_for_variant
 class Product(models.Model):
     name = models.CharField(max_length=500)
     description = models.TextField()
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products')
     slug = models.SlugField(max_length=200, unique=True, blank=True)
     max_quantity_per_order = models.PositiveIntegerField(default=5)
     created_at = models.DateTimeField(auto_now_add=True)

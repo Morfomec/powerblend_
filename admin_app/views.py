@@ -9,11 +9,15 @@ from utils.pagination import get_pagination
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.sessions.models import Session
 from django.utils import timezone
-from django.db.models import Sum, Count
+from django.db.models import Sum, Count, F
 from datetime import date, timedelta
 from orders.models import Order
 from .models import Coupon
 from django.core.paginator import Paginator
+
+from accounts.models import CustomUser
+from products.models import Product
+from category.models import Category
 
 from django.http import HttpResponse
 from reportlab.lib.pagesizes import letter
@@ -25,7 +29,8 @@ from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, PageBreak
 from .forms import CouponForm
-
+from django.db.models.functions import TruncMonth, TruncDate
+import json
 
 
 User = get_user_model ()
@@ -56,10 +61,145 @@ def admin_login(request):
 
     return render(request, 'admin_login.html')
 
+# @staff_member_required
+# def admin_dashboard(request):
+
+#     total_users = CustomUser.objects.count()
+#     total_orders = Order.objects.count()
+#     total_products = Product.objects.count()
+#     total_categories = Category.objects.count()
+
+#     top_products = Product.objects.annotate(
+#         total_quantity_sold=Sum('variants__orderitems__quantity'),
+#         total_revenue=Sum(F('variants__orderitems__quantity') * F('variants__orderitems__price')),
+#         order_count=Count('variants__orderitems')
+#     ).order_by('-total_quantity_sold')[:5]
+
+
+#     top_categories = Category.objects.annotate(
+#         total_quantity_sold=Sum('products__variants__orderitems__quantity'),
+#         total_revenue=Sum(F('products__variants__orderitems__quantity') * F('products__variants__orderitems__price')),
+#         order_count=Count('products__variants__orderitems')
+#     ).order_by('-total_quantity_sold')[:5]
+
+
+#     monthly_data = (
+#         Order.objects
+#         .annotate(month=TruncMonth('created_at'))
+#         .values('month')
+#         .annotate(total_sales=Sum('total'))
+#         .order_by('month')
+#     )
+
+
+#     chart_labels = [data['month'].strftime('%b %Y') for data in monthly_data if data['month']]
+#     chart_total_sales = [float(data['total_sales']) if data['total_sales'] else 0 for data in monthly_data]
+#     chart_total_users = [CustomUser.objects.filter(date_joined__month=data['month'].month).count() for data in monthly_data if data['month']]
+    
+
+#     context = {
+#         'total_users' : total_users,
+#         'total_orders' : total_orders,
+#         'total_products' : total_products,
+#         'total_categories' : total_categories,
+#         'users' : request.user,
+#         'active_page':'dashboard',
+#         'top_products' : top_products,
+#         'top_categories' : top_categories,
+#         'chart_labels' : chart_labels,
+#         'chart_total_sales' : chart_total_sales,
+#         'chart_total_users' : chart_total_users,
+#     }
+
+    
+
+#     return render(request, 'dashboard.html', context)
+
 @staff_member_required
 def admin_dashboard(request):
-    return render(request, 'dashboard.html', {'users' : request.user, 'active_page':'dashboard'})
-    # return render(request, 'admin/dashboard.html', {'users' : request.user})
+
+    # Basic Stats
+
+    total_users = CustomUser.objects.count()
+    total_orders = Order.objects.count()
+    total_products = Product.objects.count()
+    total_categories = Category.objects.count()
+
+ 
+    # Top Selling Products 
+
+    products_page = request.GET.get('products_page', 1)
+    top_products_queryset = Product.objects.annotate(
+        total_quantity_sold=Sum('variants__orderitems__quantity'),
+        total_revenue=Sum(F('variants__orderitems__quantity') * F('variants__orderitems__price')),
+        order_count=Count('variants__orderitems__id', distinct=True)
+    ).filter(
+        total_quantity_sold__isnull=False
+    ).order_by('-total_quantity_sold')
+
+    products_paginator = Paginator(top_products_queryset, 10)
+    top_products = products_paginator.get_page(products_page)
+
+
+    # Top Selling Categories (Paginated)
+
+    categories_page = request.GET.get('categories_page', 1)
+    top_categories_queryset = Category.objects.annotate(
+        total_quantity_sold=Sum('products__variants__orderitems__quantity'),
+        total_revenue=Sum(F('products__variants__orderitems__quantity') * F('products__variants__orderitems__price')),
+        order_count=Count('products__variants__orderitems__id', distinct=True)
+    ).filter(
+        total_quantity_sold__isnull=False
+    ).order_by('-total_quantity_sold')
+
+    categories_paginator = Paginator(top_categories_queryset, 10)
+    top_categories = categories_paginator.get_page(categories_page)
+
+
+    # Chart Data: Last 7 Days
+
+    today = timezone.now().date()
+    last_days = 7
+    date_list = [today - timedelta(days=i) for i in range(last_days - 1, -1, -1)]
+
+    chart_labels = [d.strftime('%b %d') for d in date_list]
+    chart_total_sales = []
+    chart_total_users = []
+
+    for date in date_list:
+        # Total sales for the day
+        total_sales = (
+            Order.objects.filter(created_at__date=date)
+            .aggregate(total=Sum('total'))['total'] or 0
+        )
+        chart_total_sales.append(float(total_sales))
+
+        # New users registered that day
+        user_count = CustomUser.objects.filter(date_joined__date=date).count()
+        chart_total_users.append(user_count)
+
+
+    context = {
+        'total_users': total_users,
+        'total_orders': total_orders,
+        'total_products': total_products,
+        'total_categories': total_categories,
+        'users': request.user,
+        'active_page': 'dashboard',
+
+        'top_products': top_products,
+        'top_categories': top_categories,
+
+        # Chart data (for Chart.js)
+        'chart_labels': json.dumps(chart_labels),
+        'chart_total_sales': json.dumps(chart_total_sales),
+        'chart_total_users': json.dumps(chart_total_users),
+    }
+
+    return render(request, 'dashboard.html', context)
+
+
+
     
 @login_required
 def admin_logout(request):

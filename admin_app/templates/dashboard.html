@@ -1,176 +1,687 @@
 {% extends "admin_base.html" %}
 {% block body %} 
 {% load static %}
-  <!-- Welcome Section -->
-                <div class="welcome-banner">
-                    <div class="row align-items-center">
-                        <div class="col-md-8">
-                            <h2 class="welcome-title">Welcome, {{request.user}}</h2>
-                            <p class="welcome-subtitle">Here's What happening on your store today. See the statistics at once.</p>
-                            <!-- <button class="btn btn-add-product">
-                                <i class="fas fa-plus me-2"></i><a href="{% url 'add_product' %}">Add Product</a>
-                            </button> -->
-                            <a href="{% url 'add_product' %}" class="btn btn-add-product">
-                                <i class="fas fa-plus me-2"></i> Add Product
-                            </a>
-                        </div>
-                        <div class="col-md-4 text-end">
-                            <div class="welcome-illustration">
-                                <img src="{% static 'images/dashboard.avif' %}" alt="Dashboard Illustration" class="img-fluid">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                    <!-- Stats Cards -->
-                    <div class="stats-section">
-                        <div class="row mb-4">
-                        <div class="col-md-3">
-                            <div class="stats-card card-green">
-                                <div class="icon"><i class="fas fa-users"></i></div>
-                                <div class="number">2554</div>
-                                <div class="label">Total Users</div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="stats-card card-blue">
-                                <div class="icon"><i class="fas fa-shopping-cart"></i></div>
-                                <div class="number">801</div>
-                                <div class="label">Total Orders</div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="stats-card card-purple">
-                                <div class="icon"><i class="fas fa-box"></i></div>
-                                <div class="number">50</div>
-                                <div class="label">Total Products</div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="stats-card card-red">
-                                <div class="icon"><i class="fas fa-tags"></i></div>
-                                <div class="number">1</div>
-                                <div class="label">Total Category</div>
-                            </div>
-                        </div>
-                        </div>
-                    </div>
 
-                    <!-- Content Cards Section -->
-                    <div class="content-section" style="padding: 0 2rem;">
-                        <!-- Top Selling Products -->
-                    <div class="content-card">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <span>Top Selling Products</span>
-                        </div>
-                        <div class="card-body">
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <div class="d-flex align-items-center">
-                                        <label class="me-2">Category By</label>
-                                        <select class="form-select" style="width: auto;">
-                                            <option>All Categories</option>
-                                        </select>
-                                    </div>
+
+{% block extra_css %}
+<style>
+:root {
+    --primary-color: rgba(0, 57, 66, 0.8);
+    --primary-solid: rgb(0, 57, 66);
+    --success-color: #28a745;
+    --info-color: #17a2b8;
+}
+
+/* Content Cards */
+.content-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    margin-bottom: 2rem;
+    overflow: hidden;
+}
+
+.content-card .card-header {
+    background: linear-gradient(135deg, var(--primary-solid), var(--primary-color));
+    color: white;
+    padding: 1.25rem 1.5rem;
+    font-weight: 600;
+    font-size: 1.1rem;
+    border: none;
+}
+
+.content-card .card-body {
+    padding: 1.5rem;
+}
+
+/* Table Styling */
+.table-responsive {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.table {
+    margin-bottom: 0;
+}
+
+.table thead {
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+}
+
+.table thead th {
+    border: none;
+    color: var(--primary-solid);
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    padding: 1rem;
+    letter-spacing: 0.5px;
+}
+
+.table tbody tr {
+    border-bottom: 1px solid #f0f0f0;
+    transition: all 0.3s ease;
+}
+
+.table tbody tr:hover {
+    background: linear-gradient(135deg, rgba(0, 57, 66, 0.02), rgba(0, 57, 66, 0.05));
+    transform: scale(1.005);
+}
+
+.table tbody td {
+    padding: 1rem;
+    vertical-align: middle;
+    color: #495057;
+    font-weight: 500;
+}
+
+.table tbody tr:last-child {
+    border-bottom: none;
+}
+
+/* Product Name Styling */
+.product-name {
+    font-weight: 600;
+    color: var(--primary-solid);
+}
+
+/* Category Badge */
+.category-badge {
+    background: linear-gradient(135deg, var(--info-color), rgba(23, 162, 184, 0.8));
+    color: white;
+    padding: 0.3rem 0.8rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: inline-block;
+}
+
+/* Revenue Highlight */
+.revenue-amount {
+    color: var(--success-color);
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+/* Quantity Badge */
+.quantity-badge {
+    background: rgba(0, 57, 66, 0.1);
+    color: var(--primary-solid);
+    padding: 0.3rem 0.8rem;
+    border-radius: 12px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+/* Pagination */
+.pagination-info {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.pagination {
+    gap: 0.5rem;
+}
+
+.page-link {
+    border: 2px solid #e9ecef;
+    color: var(--primary-solid);
+    border-radius: 8px;
+    padding: 0.5rem 0.75rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.page-link:hover {
+    background: var(--primary-solid);
+    color: white;
+    border-color: var(--primary-solid);
+}
+
+.page-item.active .page-link {
+    background: linear-gradient(135deg, var(--primary-solid), var(--primary-color));
+    border-color: var(--primary-solid);
+}
+
+.page-item.disabled .page-link {
+    background: #f8f9fa;
+    border-color: #e9ecef;
+}
+
+/* Filter Select */
+.form-select {
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-select:focus {
+    border-color: var(--primary-solid);
+    box-shadow: 0 0 0 0.25rem rgba(0, 57, 66, 0.1);
+}
+
+/* Chart Container */
+.chart-container {
+    position: relative;
+    height: 400px;
+    margin-top: 1.5rem;
+}
+
+/* Legend */
+.legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-right: 1.5rem;
+    font-weight: 600;
+    color: #495057;
+}
+
+.legend-color {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+}
+
+/* Download Report Button */
+.btn-outline-secondary {
+    border: 2px solid var(--primary-solid);
+    color: var(--primary-solid);
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-secondary:hover {
+    background: var(--primary-solid);
+    color: white;
+    border-color: var(--primary-solid);
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #6c757d;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.3;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .table thead th,
+    .table tbody td {
+        padding: 0.75rem 0.5rem;
+        font-size: 0.85rem;
+    }
+    
+    .chart-container {
+        height: 300px;
+    }
+}
+</style>
+
+<style>
+.chart-toggle-group {
+    display: inline-flex;
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 4px;
+    gap: 4px;
+}
+
+.chart-toggle-btn {
+    background: transparent;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    color: #6c757d;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chart-toggle-btn:hover {
+    background: rgba(0, 57, 66, 0.1);
+    color: rgb(0, 57, 66);
+}
+
+.chart-toggle-btn.active {
+    background: rgb(0, 57, 66);
+    color: white;
+    box-shadow: 0 2px 8px rgba(0, 57, 66, 0.3);
+}
+
+.chart-toggle-btn i {
+    font-size: 1rem;
+}
+
+/* Chart container animation */
+.chart-container {
+    position: relative;
+    height: 400px;
+    transition: opacity 0.3s ease;
+}
+
+.chart-container.updating {
+    opacity: 0.6;
+}
+
+@media (max-width: 768px) {
+    .card-header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start !important;
+    }
+    
+    .d-flex.gap-2 {
+        width: 100%;
+        justify-content: space-between;
+    }
+}
+</style>
+
+{% endblock extra_css %}
+<!-- Welcome Section -->
+<div class="welcome-banner">
+    <div class="row align-items-center">
+        <div class="col-md-8">
+            <h2 class="welcome-title">Welcome, {{request.user}}</h2>
+            <p class="welcome-subtitle">Here's what's happening on your store today. See the statistics at once.</p>
+            <a href="{% url 'add_product' %}" class="btn-add-product">
+                <i class="fas fa-plus me-2"></i> Add Product
+            </a>
+        </div>
+        <div class="col-md-4 text-end">
+            <div class="welcome-illustration">
+                <img src="{% static 'images/dashboard.avif' %}" alt="Dashboard Illustration" class="img-fluid">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="stats-section">
+    <div class="row mb-4">
+        <div class="col-md-3">
+        <a href="{% url 'admin_user' %}"  style="text-decoration: none; color: inherit;">
+        
+            <div class="stats-card card-green">
+                <div class="icon"><i class="fas fa-users"></i></div>
+                <div class="number">{{ total_users }}</div>
+                <div class="label">Total Users</div>
+            </div>
+        
+        </a>
+        </div>
+        <div class="col-md-3">
+            <a href="{% url 'admin_order_list' %}" style="text-decoration: none; color: inherit;">
+            <div class="stats-card card-blue">
+                <div class="icon"><i class="fas fa-shopping-cart"></i></div>
+                <div class="number">{{ total_orders }}</div>
+                <div class="label">Total Orders</div>
+            </div>
+            </a>     
+        </div>
+        <div class="col-md-3">
+            <a href="{% url 'admin_products' %}" style="text-decoration: none; color: inherit;">
+            <div class="stats-card card-purple">
+                <div class="icon"><i class="fas fa-box"></i></div>
+                <div class="number">{{ total_products }}</div>
+                <div class="label">Total Products</div>
+            </div>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="{% url 'admin_category' %}" style="text-decoration: none; color: inherit;">
+            <div class="stats-card card-red">
+                <div class="icon"><i class="fas fa-tags"></i></div>
+                <div class="number">{{ total_categories }}</div>
+                <div class="label">Total Categories</div>
+            </div>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Content Cards Section -->
+<div class="content-section" style="padding: 0 2rem;">
+    <!-- Top Selling Products -->
+    <div class="content-card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span><i class="fas fa-trophy me-2"></i>Top Selling Products</span>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>PRODUCT NAME</th>
+                            <th>CATEGORY</th>
+                            <th>QTY SOLD</th>
+                            <th>REVENUE</th>
+                            <th>ORDERS</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in top_products %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td class="product-name">{{ product.name }}</td>
+                            <td><span class="category-badge">{{ product.category }}</span></td>
+                            <td><span class="quantity-badge">{{ product.total_quantity_sold|default:"0" }}</span></td>
+                            <td class="revenue-amount">₹{{ product.total_revenue|floatformat:2|default:"0.00" }}</td>
+                            <td>{{ product.order_count|default:"0" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6">
+                                <div class="empty-state">
+                                    <i class="fas fa-box-open"></i>
+                                    <p>No products sold yet</p>
                                 </div>
-                            </div>
-                            <div class="table-responsive">
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                            <th>PRODUCT NAME</th>
-                                            <th>CATEGORY</th>
-                                            <th>TOTAL QUANTITY SOLD</th>
-                                            <th>TOTAL REVENUE</th>
-                                            <th>ORDER COUNT</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <!-- Empty table for now -->
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center mt-3">
-                                <div class="pagination-info">Rows per page: 10 - 1-10 of 10</div>
-                                <nav>
-                                    <ul class="pagination pagination-sm mb-0">
-                                        <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
-                                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                                        <li class="page-item disabled"><a class="page-link" href="#">Next</a></li>
-                                    </ul>
-                                </nav>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Top Selling Categories -->
-                    <div class="content-card">
-                        <div class="card-header">
-                            <span>Top Selling Categories</span>
-                        </div>
-                        <div class="card-body">
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <div class="d-flex align-items-center">
-                                        <label class="me-2">Category By</label>
-                                        <select class="form-select" style="width: auto;">
-                                            <option>All Categories</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="table-responsive">
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                            <th>CATEGORY</th>
-                                            <th>TOTAL QUANTITY SOLD</th>
-                                            <th>TOTAL REVENUE</th>
-                                            <th>ORDER COUNT</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <!-- Empty table for now -->
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center mt-3">
-                                <div class="pagination-info">Rows per page: 10 - 1-10 of 10</div>
-                                <nav>
-                                    <ul class="pagination pagination-sm mb-0">
-                                        <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
-                                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                                        <li class="page-item disabled"><a class="page-link" href="#">Next</a></li>
-                                    </ul>
-                                </nav>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Chart Section -->
-                    <div class="content-card">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <span>Total Users & Total Sales</span>
-                            <button class="btn btn-outline-secondary btn-sm">
-                                <i class="fas fa-download me-1"></i>Report
-                            </button>
-                        </div>
-                        <div class="card-body">
-                            <div class="mb-3">
-                                <span class="legend-item">
-                                    <span class="legend-color" style="background-color: #28a745;"></span>
-                                    Total Users
-                                </span>
-                                <span class="legend-item">
-                                    <span class="legend-color" style="background-color: #20c997;"></span>
-                                    Total Sales
-                                </span>
-                            </div>
-                            <div class="chart-container">
-                                <canvas id="salesChart"></canvas>
-                            </div>
-                            </div>
-                        </div>
-                    </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            {% if top_products %}
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <div class="pagination-info">
+                    Showing {{ top_products|length }} products
                 </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
 
-{% endblock%}
+    <!-- Top Selling Categories -->
+    <div class="content-card">
+        <div class="card-header">
+            <span><i class="fas fa-star me-2"></i>Top Selling Categories</span>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>CATEGORY</th>
+                            <th>QTY SOLD</th>
+                            <th>REVENUE</th>
+                            <th>ORDERS</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for category in top_categories %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td class="product-name">{{ category.name }}</td>
+                            <td><span class="quantity-badge">{{ category.total_quantity_sold|default:"0" }}</span></td>
+                            <td class="revenue-amount">₹{{ category.total_revenue|floatformat:2|default:"0.00" }}</td>
+                            <td>{{ category.order_count|default:"0" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5">
+                                <div class="empty-state">
+                                    <i class="fas fa-tags"></i>
+                                    <p>No categories found</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            {% if top_categories %}
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <div class="pagination-info">
+                    Showing {{ top_categories|length }} categories
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Chart Section with Toggle -->
+    <div class="content-card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span><i class="fas fa-chart-line me-2"></i>Total Users & Total Sales</span>
+            <div class="d-flex gap-2 align-items-center">
+                <!-- Chart Type Toggle -->
+                <div class="chart-toggle-group">
+                    <button class="chart-toggle-btn active" data-chart-type="line" title="Line Chart">
+                        <i class="fas fa-chart-line"></i>
+                    </button>
+                    <button class="chart-toggle-btn" data-chart-type="bar" title="Bar Chart">
+                        <i class="fas fa-chart-bar"></i>
+                    </button>
+                </div>
+                <!-- <button class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-download me-1"></i>Report
+                </button> -->
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <span class="legend-item">
+                    <span class="legend-color" style="background: linear-gradient(135deg, #28a745, #20c997);"></span>
+                    Total Users
+                </span>
+                <span class="legend-item">
+                    <span class="legend-color" style="background: linear-gradient(135deg, rgb(0, 57, 66), rgba(0, 57, 66, 0.8));"></span>
+                    Total Sales
+                </span>
+            </div>
+            <div class="chart-container">
+                <canvas id="salesChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+!-- Chart.js Script -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('salesChart');
+    
+    if (!ctx) {
+        console.error('Canvas element not found!');
+        return;
+    }
+    
+    // Parse chart data from Django template
+    const chartLabels = {{ chart_labels|safe }};
+    const chartTotalSales = {{ chart_total_sales|safe }};
+    const chartTotalUsers = {{ chart_total_users|safe }};
+    
+    console.log('Chart Labels:', chartLabels);
+    console.log('Chart Sales:', chartTotalSales);
+    console.log('Chart Users:', chartTotalUsers);
+    
+    // Initial chart type
+    let currentChartType = 'line';
+    let chartInstance = null;
+    
+    // Chart configuration generator
+    function getChartConfig(type) {
+        const isBar = type === 'bar';
+        
+        return {
+            type: type,
+            data: {
+                labels: chartLabels.length > 0 ? chartLabels : ['No Data'],
+                datasets: [
+                    {
+                        label: 'Total Users',
+                        data: chartTotalUsers.length > 0 ? chartTotalUsers : [0],
+                        borderColor: '#28a745',
+                        backgroundColor: isBar ? 'rgba(40, 167, 69, 0.8)' : 'rgba(40, 167, 69, 0.1)',
+                        borderWidth: isBar ? 0 : 3,
+                        fill: !isBar,
+                        tension: 0.4,
+                        pointRadius: isBar ? 0 : 5,
+                        pointHoverRadius: isBar ? 0 : 7,
+                        pointBackgroundColor: '#28a745',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        barThickness: isBar ? 30 : undefined,
+                        borderRadius: isBar ? 6 : undefined
+                    },
+                    {
+                        label: 'Total Sales (₹)',
+                        data: chartTotalSales.length > 0 ? chartTotalSales : [0],
+                        borderColor: 'rgb(0, 57, 66)',
+                        backgroundColor: isBar ? 'rgba(0, 57, 66, 0.8)' : 'rgba(0, 57, 66, 0.1)',
+                        borderWidth: isBar ? 0 : 3,
+                        fill: !isBar,
+                        tension: 0.4,
+                        pointRadius: isBar ? 0 : 5,
+                        pointHoverRadius: isBar ? 0 : 7,
+                        pointBackgroundColor: 'rgb(0, 57, 66)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        barThickness: isBar ? 30 : undefined,
+                        borderRadius: isBar ? 6 : undefined
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: {
+                    duration: 750,
+                    easing: 'easeInOutQuart'
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 12,
+                        titleFont: {
+                            size: 14,
+                            weight: 'bold'
+                        },
+                        bodyFont: {
+                            size: 13
+                        },
+                        borderColor: 'rgba(255, 255, 255, 0.1)',
+                        borderWidth: 1,
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.datasetIndex === 1) {
+                                    label += '₹' + context.parsed.y.toLocaleString('en-IN');
+                                } else {
+                                    label += context.parsed.y;
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            font: {
+                                size: 12
+                            },
+                            color: '#6c757d',
+                            callback: function(value) {
+                                return value.toLocaleString('en-IN');
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false,
+                            drawBorder: false
+                        },
+                        ticks: {
+                            font: {
+                                size: 12
+                            },
+                            color: '#6c757d'
+                        }
+                    }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                }
+            }
+        };
+    }
+    
+    // Initialize chart
+    function initChart(type) {
+        if (chartInstance) {
+            chartInstance.destroy();
+        }
+        chartInstance = new Chart(ctx, getChartConfig(type));
+        console.log(`Chart initialized as ${type} chart`);
+    }
+    
+    // Update chart with smooth transition
+    function updateChartType(newType) {
+        const container = document.querySelector('.chart-container');
+        
+        // Add updating class for visual feedback
+        container.classList.add('updating');
+        
+        setTimeout(() => {
+            currentChartType = newType;
+            initChart(newType);
+            container.classList.remove('updating');
+        }, 150);
+    }
+    
+    // Initialize with line chart
+    initChart(currentChartType);
+    
+    // Toggle button event listeners
+    const toggleButtons = document.querySelectorAll('.chart-toggle-btn');
+    
+    toggleButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const chartType = this.getAttribute('data-chart-type');
+            
+            // Update active state
+            toggleButtons.forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Update chart if type changed
+            if (chartType !== currentChartType) {
+                updateChartType(chartType);
+            }
+        });
+    });
+    
+    console.log('Chart with toggle initialized successfully!');
+});
+</script>
+
+{% endblock %}
