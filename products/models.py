@@ -90,7 +90,7 @@ class ProductVariant(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     stock = models.PositiveIntegerField(default=0)
     is_listed = models.BooleanField(default=True)
-    max_quantity_per_order = models.PositiveIntegerField(default=5)
+    max_quantity_per_order = models.PositiveIntegerField(default=10)
     
 
     # def clean(self):

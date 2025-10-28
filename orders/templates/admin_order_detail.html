@@ -710,7 +710,7 @@
     <!-- Status Update Form -->
     <div class="details-card">
         <h3 style="color: var(--primary-solid); margin-bottom: 1rem;">Update Order Status</h3>
-        <form method="post" action="{% url 'admin_update_order_status' id=order.id %}" class="status-update-form" onsubmit="return confirm('Are you sure you want to update the order status?');">
+        <form method="post" action="{% url 'admin_update_order_status' id=order.id %}" class="status-update-form">
             {% csrf_token %}
             
             <div class="form-group">

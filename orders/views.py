@@ -186,7 +186,7 @@ def cancel_order(request, order_id):
 
                 order.save(update_fields=['status', 'total'])
             
-            messages.success(request, "Order cancelled and stock updated.")
+            messages.success(request, "Order cancelled.")
             # return redirect('order_details')
     else:
         form = CancelOrderForm()

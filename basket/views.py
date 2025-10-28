@@ -16,102 +16,155 @@ from offers.utils import get_best_offer_for_product, get_discount_info_for_varia
 
 # Create your views here.
 
-# adding items to basket
 class BasketAddView(View):
     def post(self, request, *args, **kwargs):
         form = BasketAddForm(request.POST)
 
-        print("-" * 50)
-        print("Received POST Data:", request.POST) # Is variant_id here?
-        print("User Authenticated:", request.user.is_authenticated)
-        
-
         if not request.user.is_authenticated:
-            return JsonResponse({"success": False, "error": "login_required"}, status=403)
+            messages.warning(request, "Please log in to add items to your basket.")
+            return redirect("account_login")  # or your login URL name
 
         if form.is_valid():
-            variant_id = form.cleaned_data['variant_id']
-            quantity = form.cleaned_data['quantity']
+            variant_id = form.cleaned_data["variant_id"]
+            quantity = form.cleaned_data["quantity"]
 
             variant = get_object_or_404(ProductVariant, id=variant_id)
             product = variant.product
 
-
-            # to prevent blocked/unlisted products
+            # Prevent unlisted or blocked products
             if not product.is_listed or not product.category.is_active:
-                return JsonResponse({
-                    "success":False,
-                    "error": "This product cannot be added to the cart."
-                }, status=403)
-
-            #remove from whishlist if exists and mark from_wishlist
-
-            wishlist_item = WishlistItem.objects.filter(wishlist__user=request.user, variant=variant).first()
-            if wishlist_item:
-                wishlist_item.delete()
-                from_wishlist = True
-            else:
-                from_wishlist = False
-
-            # Get or create basket
-            basket, _ = Basket.objects.get_or_create(user=request.user)
-
-            # Add or update item
-            item, created = BasketItem.objects.get_or_create(
-                basket=basket,
-                variant=variant,
-                defaults={"quantity": quantity, "from_wishlist": from_wishlist},
-            )
-
-            if not created:
-
-                # to limit the maximum quantity to add
-                new_quantity = item.quantity + quantity
-                if  new_quantity > variant.stock:
-                    return JsonResponse({
-                        "success" : False,
-                        "error" :f"Only {variant.stock} items available in stock."
-                    }, status=400)
-                if new_quantity > variant.max_quantity_per_order:
-                    return JsonResponse({
-                        "success": False,
-                        "error" : f"Maximum {variant.max_quantity_per_order} allowed per order."
-                    }, status=400)
-                item.quantity += quantity
-                item.save()
-
-            discount_info = get_discount_info_for_variant(variant)
+                messages.error(request, "This product cannot be added to the basket.")
+                return redirect("detail_product",id=product.id)
 
             # Remove from wishlist if exists
             WishlistItem.objects.filter(wishlist__user=request.user, variant=variant).delete()
 
-            image = variant.product.images.first()
-            image_url = image.image.url if image else ""
+            basket, _ = Basket.objects.get_or_create(user=request.user)
+            item, created = BasketItem.objects.get_or_create(
+                basket=basket,
+                variant=variant,
+                defaults={"quantity": quantity},
+            )
 
-            default_address = Address.objects.filter(user=request.user, is_default=True).first()
+            if not created:
+                new_quantity = item.quantity + quantity
+                if new_quantity > variant.stock:
+                    messages.error(request, f"Only {variant.stock} items available in stock.")
+                    return redirect("detail_product", id=product.id)
 
-            return JsonResponse({
-                "success": True,
-                "product": variant.product.name,
-                "variant": str(variant),
-                "quantity": item.quantity,
-                "basket_count": basket.total_items,  # total items in basket
-                "subtotal": str(basket.total_price),     # total price
-                "image": image_url,
-                "default_address" : default_address,
+                # if new_quantity > variant.max_quantity_per_order:
+                #     messages.error(request, f"Maximum {variant.max_quantity_per_order} allowed per order.")
+                #     return redirect("detail_product", id=product.id)
 
-                'price' : str(discount_info['price']),
-                'original_price' :str(discount_info['original_price']),
-                'save_price' : str(discount_info['save_price']),
-                'discount_percent' : str(discount_info['discount_percent']),
-                'offer_name' : str(discount_info['offer_name']),
-            })
-        else:
-            
-            print("!!! FORM VALIDATION FAILED !!!")
-            print("Form Errors (as_json):", form.errors.as_json())
+                item.quantity = new_quantity
+                item.save()
+
+            messages.success(request, f"{product.name} ({variant}) added to your basket!")
+            return redirect("basket_view")  # Redirect to basket page
+
+        # Invalid form case
+        messages.error(request, "Invalid data. Please try again.")
+        return HttpResponseBadRequest("Form validation failed.")
+
+# # adding items to basket
+# class BasketAddView(View):
+#     def post(self, request, *args, **kwargs):
+#         form = BasketAddForm(request.POST)
+
+#         print("-" * 50)
+#         print("Received POST Data:", request.POST) # Is variant_id here?
+#         print("User Authenticated:", request.user.is_authenticated)
         
-            return HttpResponseBadRequest(f"Form Validation Failed. Errors: {form.errors.as_text()}", content_type="text/plain")
+
+#         if not request.user.is_authenticated:
+#             return JsonResponse({"success": False, "error": "login_required"}, status=403)
+
+#         if form.is_valid():
+#             variant_id = form.cleaned_data['variant_id']
+#             quantity = form.cleaned_data['quantity']
+
+#             variant = get_object_or_404(ProductVariant, id=variant_id)
+#             product = variant.product
+
+
+#             # to prevent blocked/unlisted products
+#             if not product.is_listed or not product.category.is_active:
+#                 return JsonResponse({
+#                     "success":False,
+#                     "error": "This product cannot be added to the cart."
+#                 }, status=403)
+
+#             #remove from whishlist if exists and mark from_wishlist
+
+#             wishlist_item = WishlistItem.objects.filter(wishlist__user=request.user, variant=variant).first()
+#             if wishlist_item:
+#                 wishlist_item.delete()
+#                 from_wishlist = True
+#             else:
+#                 from_wishlist = False
+
+#             # Get or create basket
+#             basket, _ = Basket.objects.get_or_create(user=request.user)
+
+#             # Add or update item
+#             item, created = BasketItem.objects.get_or_create(
+#                 basket=basket,
+#                 variant=variant,
+#                 defaults={"quantity": quantity, "from_wishlist": from_wishlist},
+#             )
+
+#             if not created:
+
+#                 # to limit the maximum quantity to add
+#                 new_quantity = item.quantity + quantity
+#                 if  new_quantity > variant.stock:
+#                     return JsonResponse({
+#                         "success" : False,
+#                         "error" :f"Only {variant.stock} items available in stock."
+#                     }, status=400)
+#                 if new_quantity > variant.max_quantity_per_order:
+#                     return JsonResponse({
+#                         "success": False,
+#                         "error" : f"Maximum {variant.max_quantity_per_order} allowed per order."
+#                     }, status=400)
+#                 item.quantity += quantity
+#                 item.save()
+
+#             discount_info = get_discount_info_for_variant(variant)
+
+#             # Remove from wishlist if exists
+#             WishlistItem.objects.filter(wishlist__user=request.user, variant=variant).delete()
+
+#             image = variant.product.images.first()
+#             image_url = image.image.url if image else ""
+
+#             default_address = Address.objects.filter(user=request.user, is_default=True).first()
+
+#             return JsonResponse({
+#                 "success": True,
+#                 "product": variant.product.name,
+#                 "variant": str(variant),
+#                 "quantity": item.quantity,
+#                 "basket_count": basket.total_items,  # total items in basket
+#                 "subtotal": str(basket.total_price),     # total price
+#                 "image": image_url,
+#                 "default_address": default_address,
+
+#                 'price' : str(discount_info['price']),
+#                 'original_price' :str(discount_info['original_price']),
+#                 'save_price' : str(discount_info['save_price']),
+#                 'discount_percent' : str(discount_info['discount_percent']),
+#                 'offer_name' : str(discount_info['offer_name']),
+#             })
+#         else:
+#             print("!!! FORM VALIDATION FAILED !!!")
+#             print("Form Errors (as_json):", form.errors.as_json())
+#             print("Form Errors:", form.errors)
+#             print("Form Cleaned Data (if any):", getattr(form, "cleaned_data", {}))
+#             return HttpResponseBadRequest(
+#                 f"Form Validation Failed. Errors: {form.errors.as_text()}",
+#                 content_type="text/plain"
+#             )
 
 #removing item from basket
 

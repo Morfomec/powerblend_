@@ -30,7 +30,7 @@ class WishlistAddView(LoginRequiredMixin, View):
         
         else:
             item.delete()
-            messages.info(request, f"{variant.product.name} is already in your wishlists.")
+            messages.info(request, f"{variant.product.name} removed from wishlists.")
 
         return redirect(request.META.get("HTTP_REFERER", "wishlist_view"))
 
@@ -115,4 +115,3 @@ class WishlistDetailView(LoginRequiredMixin, View):
 #         return render(request, 'wishlist.html', {'wishlist_items': wishlist_items})
        
 
-       

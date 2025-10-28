@@ -1070,13 +1070,16 @@
                         </div>
                         <div class="col-2">
                             {% if user.is_authenticated %}
-                                <button class="wishlist-btn w-100">
-                                    {% if selected_variant.id in wishlist_variant_ids %}
-                                        <i class="fas fa-heart" style="color: #dc3545;"></i>
-                                    {% else %}
-                                        <i class="far fa-heart"></i>
-                                    {% endif %}
-                                </button>
+                                <form method="post" action="{% url 'wishlist_add' selected_variant.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="wishlist-btn w-100">
+                                        {% if selected_variant.id in wishlist_variant_ids %}
+                                            <i class="fas fa-heart" style="color: #dc3545;"></i>
+                                        {% else %}
+                                            <i class="far fa-heart"></i>
+                                        {% endif %}
+                                    </button>
+                                </form>
                             {% else %}
                                 <button class="wishlist-btn w-100" onclick="openAuthModal()">
                                     <i class="far fa-heart"></i>
@@ -1479,35 +1482,48 @@ document.addEventListener("DOMContentLoaded", function () {
         };
     }
 
-    /* -------------------- Add to Basket AJAX (Optional) -------------------- */
-    const addToBasketForm = document.getElementById("add-to-basket-form");
-    if (addToBasketForm) {
-        addToBasketForm.addEventListener("submit", function (e) {
-            e.preventDefault();
-            let form = this;
 
-            fetch(form.action, {
+/* -------------------- Add to Basket AJAX (Improved) -------------------- */
+const basketForms = document.querySelectorAll(".add-to-basket-form");
+
+basketForms.forEach(form => {
+    form.addEventListener("submit", async function (event) {
+        event.preventDefault();
+        const csrfToken = form.querySelector("[name=csrfmiddlewaretoken]").value;
+
+        try {
+            const response = await fetch(form.action, {
                 method: "POST",
                 body: new FormData(form),
-                headers: { "X-CSRFToken": form.querySelector("[name=csrfmiddlewaretoken]").value }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    document.getElementById("basket-product-name").textContent = data.product + " - " + data.variant;
-                    document.getElementById("basket-quantity").textContent = data.quantity;
-                    document.getElementById("basket-subtotal").textContent = data.subtotal;
-                    document.getElementById("basket-count").textContent = data.basket_count;
-                    document.getElementById("basket-product-image").src = data.image || "";
-
-                    let modal = new bootstrap.Modal(document.getElementById("basketModal"));
-                    modal.show();
-                }
+                headers: { "X-CSRFToken": csrfToken },
             });
-        });
-    }
-});
 
+            let data;
+            try {
+                data = await response.json();
+            } catch {
+                const text = await response.text();
+                console.error("Non-JSON response:", text);
+                return;
+            }
+
+            if (response.ok && data.success) {
+                document.getElementById("basket-product-name").textContent = `${data.product} - ${data.variant}`;
+                document.getElementById("basket-quantity").textContent = data.quantity;
+                document.getElementById("basket-subtotal").textContent = data.subtotal;
+                document.getElementById("basket-count").textContent = data.basket_count;
+                document.getElementById("basket-product-image").src = data.image || "";
+
+                const modal = new bootstrap.Modal(document.getElementById("basketModal"));
+                modal.show();
+            } else {
+                console.warn("Server Error:", data);
+            }
+        } catch (error) {
+            console.error("Fetch Error:", error);
+        }
+    });
+});
 /* -------------------- Auth Modal Functions -------------------- */
 function openAuthModal() {
     document.getElementById('authModal').classList.add('active');
@@ -1524,6 +1540,41 @@ document.getElementById('authModal')?.addEventListener('click', function (e) {
 });
 </script>
 
+<!-- <script>
+document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".wishlist-btn").forEach(btn => {
+        btn.addEventListener("click", async (e) => {
+            e.preventDefault();
+
+            const variantId = btn.getAttribute("data-variant-id");
+            const csrftoken = document.querySelector("[name=csrfmiddlewaretoken]").value;
+
+            const response = await fetch(`/wishlist/toggle/${variantId}/`, {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": csrftoken,
+                    "X-Requested-With": "XMLHttpRequest",
+                },
+            });
+
+            const data = await response.json();
+
+            if (data.status === "success") {
+                const icon = btn.querySelector("i");
+                if (data.action === "added") {
+                    icon.classList.remove("far");
+                    icon.classList.add("fas");
+                    icon.style.color = "#dc3545";
+                } else if (data.action === "removed") {
+                    icon.classList.remove("fas");
+                    icon.classList.add("far");
+                    icon.style.color = "";
+                }
+            }
+        });
+    });
+});
+</script> -->
 {% endblock extra_js %}
 
 

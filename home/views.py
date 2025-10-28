@@ -341,3 +341,25 @@ def search_suggestions(request):
         suggestions = [{'id': p.id, 'name': p.name, 'url': p.get_absolute_url()} for p in products]
 
     return JsonResponse({'suggestions' : suggestions})
+
+
+
+# def toggle_wishlist(request, variant_id):
+
+#     """
+#     add or remove a variant from the user's wishlist
+#     """
+
+#     variant = get_object_or_404(ProductVariant, id=variant_id)
+#     wishlist, created = Wishlist.objects.get_or_create(user=request.user)
+
+
+#     exisiting_item = WishlistItem.objects.filter(wishlist=wishlist, variant=variant).first()
+
+#     if exisiting_item:
+#         exisiting_item.delete()
+#         return JsonResponse({"status":"success", "action": "removed"})
+#     else:
+#         WishlistItem.objects.create(wishlist=wishlist, variant=variant)
+#         return JsonResponse({"status":"success", "action" : "added"})
+

@@ -256,28 +256,6 @@ def add_variants(request, product_id):
 
     return render(request, "add_variants.html", context)
 
-    #         #check for duplicates
-    #         if ProductVariant.objects.filter(product=product, flavor=flavor, weight=weight).exists():
-    #             messages.error(request, "This variant already exists.")
-    #         else:
-    #             new_variant = form.save(commit=False)
-    #             new_variant.product = product
-    #             new_variant.save()
-    #             messages.success(request, "Variant added successfully.")
-    #             return redirect("add_variants", product_id=product_id)
-    # else: 
-    #     form = ProductVariantForm()
-
-    # context = {
-    #     "product": product,
-    #     "form" : form,
-    #     "page_obj" : page_obj,
-    #     "variants" : page_obj,
-    #     "product_id" : product.id,
-    # }
-
-    # return render(request, "add_variants.html", context)
-
 
 
 from django.db import IntegrityError
