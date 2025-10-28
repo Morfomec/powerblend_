@@ -283,7 +283,7 @@
         }
 
         .wishlist-btn {
-            border: 1px solid #ddd;
+            border: 1px solid #016663;
             background-color: white;
             padding: 15px;
             border-radius: 6px;
@@ -740,11 +740,145 @@
             }
         }
     </style>
+
+    <style>
+    /* Modern Breadcrumb Section */
+    .modern-breadcrumb-section {
+        background: rgba(248, 249, 250, 0.4);
+        padding: 1.5rem 0;
+        margin-bottom: 2rem;
+    }
+
+    .modern-breadcrumb {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+        background:  rgba(248, 249, 250, 0.4);
+        padding: 0;
+        border-radius: 50px;
+        /* box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06); */
+        margin: 0 auto;
+        list-style: none;
+        gap: 0.5rem;
+        max-width: fit-content;
+    }
+    
+    .modern-breadcrumb-section .container {
+        text-align: center;
+    }
+
+    .modern-breadcrumb .breadcrumb-item {
+        display: flex;
+        align-items: center;
+        font-size: 0.9rem;
+        font-weight: 500;
+        position: relative;
+    }
+
+    .modern-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
+        content: "";
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        background: var(--primary-teal);
+        border-radius: 50%;
+        margin: 0 1rem;
+        opacity: 0.5;
+    }
+
+    .modern-breadcrumb .breadcrumb-item a {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        color: var(--primary-teal);
+        text-decoration: none;
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .modern-breadcrumb .breadcrumb-item a:hover {
+        background: var(--primary-teal);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 57, 66, 0.2);
+    }
+
+    .modern-breadcrumb .breadcrumb-item a i {
+        font-size: 0.85rem;
+    }
+
+    .modern-breadcrumb .breadcrumb-item.active {
+        color: #6c757d;
+        padding: 0.4rem 0.8rem;
+        background: rgba(248, 249, 250, 0.6);
+        border-radius: 20px;
+    }
+
+    .modern-breadcrumb .breadcrumb-item.active span {
+        max-width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .modern-breadcrumb-section {
+            padding: 1rem 0;
+            margin-bottom: 1.5rem;
+        }
+
+        .modern-breadcrumb {
+            padding: 0.75rem 1rem;
+            font-size: 0.85rem;
+        }
+
+        .modern-breadcrumb .breadcrumb-item a,
+        .modern-breadcrumb .breadcrumb-item.active {
+            padding: 0.4rem 0.75rem;
+        }
+
+        .modern-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
+            margin: 0 0.5rem;
+            width: 5px;
+            height: 5px;
+        }
+
+        .modern-breadcrumb .breadcrumb-item.active span {
+            max-width: 150px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .modern-breadcrumb {
+            border-radius: 25px;
+            padding: 0.5rem 0.75rem;
+        }
+
+        .modern-breadcrumb .breadcrumb-item a span,
+        .modern-breadcrumb .breadcrumb-item.active span {
+            display: none;
+        }
+
+        .modern-breadcrumb .breadcrumb-item a i {
+            font-size: 1rem;
+        }
+
+        .modern-breadcrumb .breadcrumb-item a,
+        .modern-breadcrumb .breadcrumb-item.active {
+            padding: 0.5rem;
+        }
+    }
+</style>
+
 {% endblock extra_css %}
 
 {% block body %}
 
-    <!-- Breadcrumb -->
+    <!-- Breadcrumb
     <div class="breadcrumb-section">
         <div class="container">
             <nav aria-label="breadcrumb">
@@ -752,6 +886,33 @@
                     <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
                     <li class="breadcrumb-item"><a href="{% url 'list_products' %}">Shop</a></li>
                     <li class="breadcrumb-item active" aria-current="page">{{ product.name }}</li>
+                </ol>
+            </nav>
+        </div>
+    </div> -->
+
+
+
+    <!-- Modern Breadcrumb Section -->
+    <div class="modern-breadcrumb-section">
+        <div class="container">
+            <nav aria-label="breadcrumb">
+                <ol class="modern-breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'home' %}">
+                            <i class="fas fa-home"></i>
+                            <span>Home</span>
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'list_products' %}">
+                            <i class="fas fa-shopping-bag"></i>
+                            <span>Shop</span>
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">
+                        <span>{{ product.name }}</span>
+                    </li>
                 </ol>
             </nav>
         </div>
@@ -909,7 +1070,7 @@
                         </div>
                         <div class="col-2">
                             {% if user.is_authenticated %}
-                                <button class="wishlist-btn w-100" onclick="alert('Wishlist feature coming soon!')">
+                                <button class="wishlist-btn w-100">
                                     {% if selected_variant.id in wishlist_variant_ids %}
                                         <i class="fas fa-heart" style="color: #dc3545;"></i>
                                     {% else %}

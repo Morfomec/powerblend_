@@ -7,11 +7,12 @@ from django.views.decorators.cache import cache_control, never_cache
 from products.models import Product, ProductVariant
 from category.models import Category
 from wishlist.models import Wishlist, WishlistItem
-from django.db.models import Q, Sum
+from django.db.models import Q, Sum, Min, Max 
 from offers.models import Offer
 from offers.utils import get_best_offer_for_product, get_discount_info_for_variant
 from collections import OrderedDict
 from django.http import JsonResponse
+
 # Create your views here.
 
 
@@ -104,11 +105,16 @@ def list_products(request):
     #sorting
 
     sort_option = request.GET.get("sort")
-    if sort_option == "variant.price_low":
-        products = products.order_by("variants__price")
-        messages.success(request, "Items in price low to high")
-    elif sort_option == "variant.price_high":
-        products = products.order_by("-variants__price")
+
+    products = products.annotate(
+    min_price=Min("variants__price"),
+    max_price=Max("variants__price")
+    )
+
+    if sort_option == "price_low":
+        products = products.order_by("min_price")
+    elif sort_option == "price_high":
+        products = products.order_by("-max_price")
     elif sort_option == "az":
         products = products.order_by("name")
     elif sort_option == "za":

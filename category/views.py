@@ -243,26 +243,46 @@ def toggle_category_listing(request, category_id):
   return redirect('admin_category')
 
 
-def delete_category(request, category_id):
-  """
-  Handle deleting an exisiting category
-  """
+# def delete_category(request, category_id):
+#   """
+#   Handle deleting an exisiting category
+#   """
 
-  category = get_object_or_404(Category, id=category_id)
-  current_page = request.GET.get('page', '1')
+#   category = get_object_or_404(Category, id=category_id)
+#   current_page = request.GET.get('page', '1')
 
-  if request.method == 'POST':
+#   if request.method == 'POST':
 
-    category_name = category.name
-    category.delete()
-    messages.success(request, f"Category '{category_name}' has deleted successfully.")
+#     category_name = category.name
+#     category.delete()
+#     messages.success(request, f"Category '{category_name}' has deleted successfully.")
     
-    return redirect(f"{reverse('admin_category')}?page={current_page}")
+#     return redirect(f"{reverse('admin_category')}?page={current_page}")
 
-  context = {
-      "category": category,
-      "category_name": category.name,
-  }
-  return render(request, "confirm_delete.html", context)
+#   context = {
+#       "category": category,
+#       "category_name": category.name,
+#   }
+#   return render(request, "confirm_delete.html", context)
 
 
+def delete_category(request, category_id):
+    """
+    Handle deleting an existing category using the reusable confirm_delete.html
+    """
+    category = get_object_or_404(Category, id=category_id)
+    current_page = request.GET.get("page", "1")
+
+    if request.method == "POST":
+        category_name = category.name
+        category.delete()
+        messages.success(request, f"Category '{category_name}' has been deleted successfully.")
+        return redirect(f"{reverse('admin_category')}?page={current_page}")
+
+    context = {
+        "object_name": "category",  # for {{ object_name }}
+        "object_display": category.name,  # for {{ object_display }}
+        "confirm_url": reverse("delete_category", args=[category.id]),  # for the <form action="">
+        "cancel_url": f"{reverse('admin_category')}?page={current_page}",  # for the cancel button
+    }
+    return render(request, "confirm_delete.html", context)

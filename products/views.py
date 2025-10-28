@@ -529,10 +529,36 @@ def delete_product_image(request, image_id):
 
 
 
+# def delete_product(request, product_id):
+#     """
+#     Handle deleting an exisiting product
+#     """
+
+#     product = get_object_or_404(Product, id=product_id)
+#     current_page = request.GET.get('page', '1')
+
+#     if request.method == 'POST':
+
+#         product_name = product.name
+#         product.delete()
+#         messages.success(request, f"Product '{product_name}' and its variants has been deleted successfully.")
+
+#         return redirect(f"{reverse('admin_products')}?page={current_page}")
+#     context = {
+#         "product" : product,
+#         # "product_name" : product_name,
+#     }
+#     # return render(request, "confirm_delete.html", context)
+#     return confirm_delete_product(request, model=Product, object_id=product_id, object_name="product", redirect_url_name="admin_products")
+
 def delete_product(request, product_id):
-    return confirm_delete(request, model=Product, object_id=product_id, object_name="product", redirect_url_name="admin_products")
-
-
+    return confirm_delete(
+        request,
+        model=Product,
+        object_id=product_id,
+        object_name="product",
+        redirect_url_name="admin_products",
+    )
 
 def delete_variant(request, variant_id):
     variant = get_object_or_404(ProductVariant, id=variant_id)
