@@ -222,28 +222,61 @@ def add_variants(request, product_id):
         if form.is_valid():
             flavor = form.cleaned_data.get("flavor")
             weight = form.cleaned_data.get("weight")
+            price = form.cleaned_data.get("price")
+            stock = form.cleaned_data.get("stock")
 
-            #check for duplicates
-            if ProductVariant.objects.filter(product=product, flavor=flavor, weight=weight).exists():
-                messages.error(request, "This variant already exists.")
+
+            variant, created = ProductVariant.objects.get_or_create(
+                product = product,
+                flavor = flavor,
+                weight = weight,
+                defaults = {'price':price, 'stock':stock},
+            )
+
+            if created:
+                messages.success(request, f"New variant added for  {product.name}.")
             else:
-                new_variant = form.save(commit=False)
-                new_variant.product = product
-                new_variant.save()
-                messages.success(request, "Variant added successfully.")
-                return redirect("add_variants", product_id=product_id)
-    else: 
+                variant.price = price
+                variant.stock = stock
+                variant.save(update_fields=["price", "stock"])
+                messages.success(request, f"Updated existing variant for {product.name}.")
+            return redirect("add_variants", product_id=product_id)
+        else: 
+            messages.error(request, "Please correct the errors below.")
+    else:
         form = ProductVariantForm()
 
     context = {
-        "product": product,
+        "product" : product,
         "form" : form,
         "page_obj" : page_obj,
         "variants" : page_obj,
-        "product_id" : product.id,
+        "product_id" : product.id, 
     }
 
     return render(request, "add_variants.html", context)
+
+    #         #check for duplicates
+    #         if ProductVariant.objects.filter(product=product, flavor=flavor, weight=weight).exists():
+    #             messages.error(request, "This variant already exists.")
+    #         else:
+    #             new_variant = form.save(commit=False)
+    #             new_variant.product = product
+    #             new_variant.save()
+    #             messages.success(request, "Variant added successfully.")
+    #             return redirect("add_variants", product_id=product_id)
+    # else: 
+    #     form = ProductVariantForm()
+
+    # context = {
+    #     "product": product,
+    #     "form" : form,
+    #     "page_obj" : page_obj,
+    #     "variants" : page_obj,
+    #     "product_id" : product.id,
+    # }
+
+    # return render(request, "add_variants.html", context)
 
 
 
