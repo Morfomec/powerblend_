@@ -181,10 +181,10 @@ def login_view(request):
 
         if user is not None:
             login(request, user)
-            messages.success(request, "Logged in successfully!")
+            messages.success(request, "Logged in successfully!", extra_tags='logged_successfully')
             return redirect("home")
         else:
-            messages.error(request, "Invalid credentials!!")
+            messages.error(request, "Invalid credentials!!", extra_tags='invalid_credentials')
             return redirect("login")
     return render(request, "login.html")
 
@@ -345,3 +345,10 @@ def resend_otp(request):
         "A new OTP has been sent to your email. Please verify your account within 5 minutes.",
     )
     return redirect("verify_otp")
+
+
+def account_inactive(request):
+    """
+    Render the custom 'Account Inactive' page.
+    """
+    return render(request, "account_inactive_custom.html")

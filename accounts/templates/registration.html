@@ -102,4 +102,49 @@
     Already got an account? <a href="{% url 'login' %}">Log in here</a>
 </div>
 </form>
+
+
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+        <!-- jQuery (required for Toastr) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+    <!-- Toastr JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+    <!-- Toastr Config + Django Messages -->
+    <script>
+        toastr.options = {
+            "closeButton": true,
+            "progressBar": true,
+            "positionClass": "toast-bottom-right",
+            "timeOut": "3000"
+        };
+
+    {% if messages %}
+
+       {% for message in messages %}
+            toastr["{{ message.tags|default:'info' }}"]("{{ message|escapejs }}");
+        {% endfor %}
+    
+    {% endif %}
+
+    {% block scripts %}{% endblock %}
+    
+    let countdown = 300;
+    function startCountdown() {
+        const timerEl = document.getElementById("timer");
+        const interval = setInterval(() => {
+            let minutes = Math.floor(countdown / 60);
+            let seconds = countdown % 60;
+            timerEl.innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            countdown--;
+            if (countdown < 0) {
+                clearInterval(interval);
+                timerEl.innerText = "00:00";
+                toastr.error("Your OTP has expired. Please request a new one.");
+            }
+        }, 1000);
+    }
+    window.onload = startCountdown;
+    </script>  
 {% endblock %}

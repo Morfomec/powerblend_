@@ -13,6 +13,7 @@ from django.urls import reverse
 from .forms import EditProfileForm, EmailChangeForm
 
 from accounts.models import UserReferral
+from allauth.socialaccount.models import SocialAccount
 
 # from .model import 
 
@@ -64,6 +65,7 @@ def edit_profile(request):
     """
 
     user = request.user
+    social_user = SocialAccount.objects.filter(user=user).first()
 
     if request.method == 'POST':
         form = EditProfileForm(request.POST, request.FILES, instance=request.user)
@@ -78,6 +80,7 @@ def edit_profile(request):
 
     context ={
         'form' : form,
+        'social_user' : social_user,
     }
     return render(request, "edit_profile.html", context)
 

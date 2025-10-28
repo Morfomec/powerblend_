@@ -80,23 +80,48 @@ class CustomSocialAccountAdapter(DefaultSocialAccountAdapter):
     #         messages.error(request, "This account is not registered. Please sign up first.")
     #         return redirect('login')
 
-    def pre_social_login(self, request, sociallogin):
-        """Prevent auto-signup and handle login/register cases"""
-        email = sociallogin.account.extra_data.get('email')
-        User = get_user_model()
+    # def pre_social_login(self, request, sociallogin):
+    #     """Prevent auto-signup and handle login/register cases"""
+    #     email = sociallogin.account.extra_data.get('email')
+    #     User = get_user_model()
 
-        if not email:
-            messages.error(request, "Google did not return an email.")
-            raise ImmediateHttpResponse(redirect("login"))
+    #     if not email:
+    #         messages.error(request, "Google did not return an email.")
+    #         raise ImmediateHttpResponse(redirect("login"))
 
-        user_exists = User.objects.filter(email=email).exists()
+    #     user_exists = User.objects.filter(email=email).exists()
 
-        # If the user already exists → connect and log in
-        if user_exists:
-            existing_user = User.objects.get(email=email)
-            sociallogin.connect(request, existing_user)
-            return  
+    #     # If the user already exists → connect and log in
+    #     if user_exists:
+    #         existing_user = User.objects.get(email=email)
+    #         sociallogin.connect(request, existing_user)
+    #         return  
 
-        # If the user does not exist → redirect to register
-        messages.error(request, "This Google account is not registered. Please sign up first.")
-        raise ImmediateHttpResponse(redirect("register"))
+    #     # If the user does not exist → redirect to register
+    #     messages.error(request, "This Google account is not registered. Please sign up first.")
+    #     raise ImmediateHttpResponse(redirect("register"))
+
+
+
+def pre_social_login(self, request, sociallogin):
+
+    """Automatically connect or create users from Google login"""
+    email = sociallogin.account.extra_data.get('email')
+    User = get_user_model()
+
+    if not email:
+        messages.error(request, "Google did not return an email.")
+        raise ImmediateHttpResponse(redirect("login"))
+
+    try:
+        existing_user = User.objects.get(email=email)
+        # Connect existing user
+        sociallogin.connect(request, existing_user)
+        return
+    except User.DoesNotExist:
+        # Auto-create a new user
+        data = sociallogin.account.extra_data
+        name = data.get('name') or " ".join(n for n in [data.get('given_name'), data.get('family_name')] if n)
+        user = User.objects.create_user(email=email, full_name=name or email.split('@')[0])
+        sociallogin.connect(request, user)
+        return

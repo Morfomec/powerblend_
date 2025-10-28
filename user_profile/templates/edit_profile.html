@@ -828,39 +828,42 @@
                 </div>
             </form>
 
-            <!-- Security Settings Divider -->
-            <div class="security-divider">
-                <span><i class="fas fa-shield-alt me-2"></i>Security Settings</span>
-            </div>
 
-            <!-- Security Quick Actions -->
-            <div class="security-actions-grid">
-                <a href="{% url 'change_password' %}" class="security-action-card">
-                    <div class="action-icon password-icon">
-                        <i class="fas fa-key"></i>
-                    </div>
-                    <div class="action-content">
-                        <h5>Change Password</h5>
-                        <p>Update your account password for better security</p>
-                    </div>
-                    <div class="action-arrow">
-                        <i class="fas fa-arrow-right"></i>
-                    </div>
-                </a>
+            {% if not social_user %}
+                <!-- Security Settings Divider -->
+                <div class="security-divider">
+                    <span><i class="fas fa-shield-alt me-2"></i>Security Settings</span>
+                </div>
 
-                <a href="{% url 'change_email' %}" class="security-action-card">
-                    <div class="action-icon email-icon">
-                        <i class="fas fa-envelope"></i>
-                    </div>
-                    <div class="action-content">
-                        <h5>Change Email</h5>
-                        <p>Update your email address with verification</p>
-                    </div>
-                    <div class="action-arrow">
-                        <i class="fas fa-arrow-right"></i>
-                    </div>
-                </a>
-            </div>
+                <!-- Security Quick Actions -->
+                <div class="security-actions-grid">
+                    <a href="{% url 'change_password' %}" class="security-action-card">
+                        <div class="action-icon password-icon">
+                            <i class="fas fa-key"></i>
+                        </div>
+                        <div class="action-content">
+                            <h5>Change Password</h5>
+                            <p>Update your account password for better security</p>
+                        </div>
+                        <div class="action-arrow">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </a>
+
+                    <a href="{% url 'change_email' %}" class="security-action-card">
+                        <div class="action-icon email-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="action-content">
+                            <h5>Change Email</h5>
+                            <p>Update your email address with verification</p>
+                        </div>
+                        <div class="action-arrow">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </a>
+                </div>
+            {% endif %}
         </div>
 
 
