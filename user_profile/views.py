@@ -225,17 +225,23 @@ def address_create(request):
             messages.success(request, "Address added successfully!")
             return redirect('address_list')
         else:
-            messages.error(request, "Please fix the errors below.")
+            # messages.error(request, "Please fix the errors.")
+            context = {
+                'form' : form,
+                'is_update' : False,
+            }
+            return render(request, 'address_create.html', context)
+
     else:
         # to prefill full name from Customuser 
-        # form = AddressForm(initial={'full_name': request.user.full_name})
-        form = AddressForm()
+        form = AddressForm(initial={'full_name': request.user.full_name})
+        # form = AddressForm()
     
-    context = {
-        'form' : form,
-        'is_update' : False,
-    }
-    return render(request, 'address_create.html')
+        context = {
+            'form' : form,
+            'is_update' : False,
+        }
+        return render(request, 'address_create.html', context)
 
 @login_required
 def address_delete(request, id):

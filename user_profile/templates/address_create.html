@@ -471,20 +471,41 @@
                 action="{% if is_update %}{% url 'address_update' address.id %}{% else %}{% url 'address_create' %}{% endif %}" novalidate>
                 {% csrf_token %}
                 <input type="hidden" name="next" value="{{ next }}">
+
+
+            {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                {% for error in form.non_field_errors %}
+                <div>{{ error }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            
                 <!-- Personal Information Row -->
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
                             <label class="form-label" for="full_Name">Full Name</label>
-                            <input type="text" class="form-control" name="full_name" id="full_name" value="{{ form.full_name.value|default_if_none:''}}"  required>
-                            <div class="invalid-feedback">Please enter your full name</div>
+                            <input type="text" class="form-control {% if form.full_name.errors %}is-invalid{% endif %}" name="full_name" id="full_name" value="{{ form.full_name.value|default_if_none:''}}"  required>
+
+                            <!-- to show django validation error if exists -->
+                            {% for error in form.full_name.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
                             <label class="form-label" for="mobile">Mobile</label>
-                            <input type="tel" class="form-control" name="mobile" value="{{ form.mobile.value|default_if_none:'' }}" required>
-                            <div class="invalid-feedback">Please enter a valid mobile number</div>
+                            <input type="tel" class="form-control {% if form.mobile.errors %}is-invalid{% endif %}" 
+                                    name="mobile" 
+                                    value="{{ form.mobile.value|default_if_none:'' }}" 
+                                    required>
+                            
+                            {% for error in form.mobile.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
                         </div>
                     </div>
                 </div>
@@ -494,15 +515,21 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             <label class="form-label" for="second_mobile">Second Number</label>
-                            <input type="tel" class="form-control" name="second_mobile" value="{{ form.second_mobile.value|default_if_none:'' }}">
-                            <div class="invalid-feedback">Please enter a valid second number</div>
+                            <input type="tel" class="form-control {% if form.second_mobile.errors %}is-invalid{% endif %}" name="second_mobile" value="{{ form.second_mobile.value|default_if_none:'' }}">
+                            
+                            {% for error in form.second_mobile.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
                             <label class="form-label" for="address">Address</label>
-                            <input type="text" class="form-control" name="address" value="{{ form.address.value|default_if_none:'' }}" required>
-                            <div class="invalid-feedback">Please enter your address</div>
+                            <input type="text" class="form-control {% if form.address.errors %}is-invalid{% endif %}" name="address" value="{{ form.address.value|default_if_none:'' }}" required>
+                            
+                            {% for error in form.address.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
                         </div>
                     </div>
                 </div>
@@ -512,15 +539,20 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             <label class="form-label" for="city">City</label>
-                            <input type="text" class="form-control" name="city" value="{{ form.city.value|default_if_none:'' }}" required>
-                            <div class="invalid-feedback">Please enter your city</div>
+                            <input type="text" class="form-control {% if form.city.errors %}is-invalid{% endif %}" name="city" value="{{ form.city.value|default_if_none:'' }}" required>
+                            
+                            {% for error in form.city.errors %}
+                                <div class="invalid-feedback">Please enter your city</div>
+                            {% endfor %}
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
                             <label class="form-label" for="state">State</label>
-                            <input type="text" class="form-control" name="state" value="{{ form.state.value|default_if_none:'' }}" required>
-                            <div class="invalid-feedback">Please enter your state</div>
+                            <input type="text" class="form-control {% if form.state.errors %}is-invalid{% endif %}" name="state" value="{{ form.state.value|default_if_none:'' }}" required>
+                            {% for error in form.state.errors %}
+                                <div class="invalid-feedback">Please enter your state</div>
+                            {% endfor %}
                         </div>
                     </div>
                 </div>
@@ -530,15 +562,20 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             <label class="form-label" for="postal_code">Postal Code</label>
-                            <input type="text" class="form-control" name="postal_code" value="{{ form.postal_code.value|default_if_none:'' }}" required>
-                            <div class="invalid-feedback">Please enter a valname postal code</div>
+                            <input type="text" class="form-control {% if form.postal_code.errors %}is-invalid{% endif %}" name="postal_code" value="{{ form.postal_code.value|default_if_none:'' }}" required>
+                            {% for error in form.postal_code.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
                             <label class="form-label" for="country">Country</label>
-                            <input type="text" class="form-control" name="country" value="{{ form.country.value|default_if_none:'India' }}" required>
-                            <div class="invalid-feedback">Please enter your country</div>
+                            <input type="text" class="form-control {% if form.country.errors %}is-invalid{% endif %}" name="country" value="{{ form.country.value|default_if_none:'India' }}" required>
+                            
+                            {% for error in form.country.errors %}
+                                <div class="invalid-feedback">Please enter your country</div>
+                            {% endfor %}
                         </div>
                     </div>
                </div>

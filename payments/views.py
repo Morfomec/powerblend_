@@ -155,6 +155,11 @@ def checkout_view(request):
         # --- Payment handling ---
         try:
             if payment_method == 'cod':
+
+                # basket.items.all().delete()
+                # basket.is_active = False
+                # basket.save()
+
                 return redirect('order_success', order_id=order.id)
 
             elif payment_method == 'wallet':
@@ -167,6 +172,11 @@ def checkout_view(request):
                     order.status = 'confirmed'
                     order.payment_status = 'paid'
                     order.save()
+
+                    # basket.items.all().delete()
+                    # basket.is_active = False
+                    # basket.save()
+
                 return redirect('order_success', order_id=order.id)
 
             elif payment_method == 'razorpay':
@@ -182,6 +192,11 @@ def checkout_view(request):
                 order.payment_status = 'paid'
                 order.razorpay_order_id = razorpay_order_id
                 order.save()
+
+                # basket.items.all().delete()
+                # basket.is_active = False
+                # basket.save()
+
                 callback_url = 'paymenthandler/'
 
                 context = {

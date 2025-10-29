@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     "wallet",
 
     "widget_tweaks",
+    "phonenumber_field",
 
      # Django Allauth
     "allauth",
@@ -71,6 +72,14 @@ INSTALLED_APPS = [
     "allauth.socialaccount.providers.google",
 ]
 
+PHONENUMBER_DEFAULT_REGION = "IN"
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "unique-snowflake",
+    }
+}
 
 # User model
 AUTH_USER_MODEL = "accounts.CustomUser"

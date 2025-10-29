@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from phonenumber_field.modelfields import PhoneNumberField
 
 # Create your models here.
 
@@ -12,12 +13,12 @@ class Address(models.Model):
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="addresses")
     full_name = models.CharField(max_length=255)
-    mobile = models.CharField(max_length=15)
+    mobile = PhoneNumberField(region="IN") 
     second_mobile = models.CharField(max_length=15, blank=True, null=True)
     address = models.TextField()
     city = models.CharField(max_length=100)
     state = models.CharField(max_length=100)
-    postal_code = models.CharField(max_length=20)
+    postal_code = models.CharField(max_length=6)
     country = models.CharField(max_length=100, default="INDIA")
     address_type = models.CharField(max_length=20, choices=ADDRESS_TYPES, default='HOME')
     is_default = models.BooleanField(default=False)
