@@ -824,6 +824,48 @@
         white-space: nowrap;
     }
 
+
+    .product-image-container {
+        position: relative;
+        width: 100%;
+        max-width: 450px;
+        overflow: hidden;
+        }
+
+        .zoom-image {
+        width: 100%;
+        height: auto;
+        transition: transform 0.2s ease;
+        cursor: crosshair;
+        }
+
+        /* .zoom-lens {
+        position: absolute;
+        border: 2px solid #007bff;
+        width: 120px;
+        height: 120px;
+        display: none;
+        pointer-events: none;
+        background-repeat: no-repeat;
+        background-size: 200%;
+        border-radius: 4px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.15);
+        } */
+
+        .zoom-lens {
+        position: absolute;
+        border: 2px solid #ffffff;
+        width: 250px;          /* 🔸 increase from 120px → 200px */
+        height: 300px;         /* 🔸 makes rectangle bigger */
+        display: none;
+        pointer-events: none;
+        background-repeat: no-repeat;
+        background-size: 500%; /* 🔸 increase zoom strength (200% → 300%) */
+        border-radius: 6px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.25);
+        transition: background-size 0.2s ease;
+        }
+
     /* Responsive Design */
     @media (max-width: 768px) {
         .modern-breadcrumb-section {
@@ -922,6 +964,8 @@
     <div class="container">
         <div class="product-container">
             <div class="row">
+
+                
                 <!-- Product Images -->
                 <div class="col-lg-6 col-md-12">
                     <div class="text-end mb-3">
@@ -930,11 +974,18 @@
                     
                     <div class="product-image-container">
                         {% if product.images.all %}
-                            <img id="main-product-image" src="{{ product.images.first.image.url }}" alt="{{ product.name }}" class="product-image" style="cursor: zoom-in;">
+                            <img id="main-product-image" 
+                                src="{{ product.images.first.image.url }}" 
+                                alt="{{ product.name }}" 
+                                class="zoom-image">
+                            <div class="zoom-lens"></div>
                         {% else %}
-                            <img id="main-product-image" src="https://via.placeholder.com/400x400?text=No+Image" alt="No image available" class="product-image">
+                            <img src="https://via.placeholder.com/400x400?text=No+Image" 
+                                alt="No image available" 
+                                class="zoom-image">
                         {% endif %}
                     </div>
+
 
                 <!-- #for thumbnail -->
                     <div class="product-thumbnails">
@@ -966,19 +1017,19 @@
                     
                     <!-- price -->
 
-{% if selected_variant_info %}
-    <div class="price-section">
-        <span class="current-price">₹{{ selected_variant_info.price }}</span>
+                    {% if selected_variant_info %}
+                        <div class="price-section">
+                            <span class="current-price">₹{{ selected_variant_info.price }}</span>
 
-        {% if selected_variant_info.has_discount and selected_variant_info.original_price %}
-            <span class="original-price">Was ₹{{ selected_variant_info.original_price }}</span>
-        {% endif %}
+                            {% if selected_variant_info.has_discount and selected_variant_info.original_price %}
+                                <span class="original-price">Was ₹{{ selected_variant_info.original_price }}</span>
+                            {% endif %}
 
-        {% if selected_variant_info.save_amount and selected_variant_info.save_amount > 0 %}
-            <span class="savings">Save ₹{{ selected_variant_info.save_amount }}</span>
-        {% endif %}
-    </div>
-{% endif %}
+                            {% if selected_variant_info.save_amount and selected_variant_info.save_amount > 0 %}
+                                <span class="savings">Save ₹{{ selected_variant_info.save_amount }}</span>
+                            {% endif %}
+                        </div>
+                    {% endif %}
 
                     
 
@@ -1465,22 +1516,22 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    /* -------------------- Image Modal -------------------- */
-    const modal = document.getElementById("imageModal");
-    const modalImg = document.getElementById("enlarged-image");
-    const closeBtn = document.querySelector(".close");
+    // /* -------------------- Image Modal -------------------- */
+    // const modal = document.getElementById("imageModal");
+    // const modalImg = document.getElementById("enlarged-image");
+    // const closeBtn = document.querySelector(".close");
 
-    if (mainImage && modal && modalImg) {
-        mainImage.onclick = function () {
-            modal.style.display = "block";
-            modalImg.src = this.src;
-        };
-    }
-    if (closeBtn) {
-        closeBtn.onclick = function () {
-            modal.style.display = "none";
-        };
-    }
+    // if (mainImage && modal && modalImg) {
+    //     mainImage.onclick = function () {
+    //         modal.style.display = "block";
+    //         modalImg.src = this.src;
+    //     };
+    // }
+    // if (closeBtn) {
+    //     closeBtn.onclick = function () {
+    //         modal.style.display = "none";
+    //     };
+    // }
 
 
 /* -------------------- Add to Basket AJAX (Improved) -------------------- */
@@ -1575,6 +1626,40 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 </script> -->
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const container = document.querySelector('.product-image-container');
+  const img = container.querySelector('.zoom-image');
+  const lens = container.querySelector('.zoom-lens');
+
+  function moveLens(e) {
+    const rect = container.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    lens.style.display = 'block';
+    lens.style.left = `${x - lens.offsetWidth / 2}px`;
+    lens.style.top = `${y - lens.offsetHeight / 2}px`;
+    lens.style.backgroundImage = `url(${img.src})`;
+
+    const fx = (x / rect.width) * 100;
+    const fy = (y / rect.height) * 100;
+    lens.style.backgroundPosition = `${fx}% ${fy}%`;
+  }
+
+  img.addEventListener('mousemove', moveLens);
+  img.addEventListener('mouseenter', () => lens.style.display = 'block');
+  img.addEventListener('mouseleave', () => lens.style.display = 'none');
+
+  // ✅ Re-enable thumbnail switching
+  document.querySelectorAll('.thumbnail').forEach(thumbnail => {
+    thumbnail.addEventListener('click', e => {
+      img.src = e.target.src;
+    });
+  });
+});
+</script>
 {% endblock extra_js %}
 
 

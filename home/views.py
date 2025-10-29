@@ -114,7 +114,7 @@ def list_products(request):
     if sort_option == "price_low":
         products = products.order_by("min_price")
     elif sort_option == "price_high":
-        products = products.order_by("-max_price")
+        products = products.order_by("-min_price")
     elif sort_option == "az":
         products = products.order_by("name")
     elif sort_option == "za":

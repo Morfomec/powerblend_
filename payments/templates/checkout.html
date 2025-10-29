@@ -3,9 +3,257 @@
 {% block title %}Checkout - POWERBLEND{% endblock %}
 {% block extra_css %}
 
+<style>
+/* Modal Specific Styles - Extends Address Page CSS */
+#addAddressModal .modal-content {
+    border: 1px solid #e9ecef;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+}
 
+#addAddressModal .form-label {
+    color: var(--primary-solid);
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+#addAddressModal .form-control, 
+#addAddressModal .form-select {
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    padding: 1rem 1.2rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: white;
+    color: var(--primary-solid);
+    font-weight: 500;
+}
+
+#addAddressModal .form-control:focus, 
+#addAddressModal .form-select:focus {
+    border-color: var(--primary-solid);
+    box-shadow: 0 0 0 0.2rem rgba(0, 57, 66, 0.25);
+    outline: none;
+}
+
+#addAddressModal .form-control::placeholder {
+    color: #6c757d;
+    font-weight: normal;
+}
+
+#addAddressModal .form-group {
+    margin-bottom: 1.5rem;
+}
+
+/* Address Type in Modal */
+#addAddressModal .address-type-group {
+    margin-bottom: 2rem;
+}
+
+#addAddressModal .address-type-options {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+#addAddressModal .address-type-option {
+    flex: 1;
+    position: relative;
+}
+
+#addAddressModal .address-type-radio {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+#addAddressModal .address-type-label {
+    display: block;
+    background: var(--light-bg);
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    padding: 0rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    color: var(--primary-solid);
+    height: 80px;
+}
+
+#addAddressModal .address-type-label:hover {
+    border-color: var(--primary-color);
+    background: rgba(0, 57, 66, 0.05);
+}
+
+#addAddressModal .address-type-radio:checked + .address-type-label {
+    border-color: var(--primary-solid);
+    background: var(--primary-solid);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 57, 66, 0.3);
+}
+
+#addAddressModal .address-type-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+/* Default Checkbox in Modal */
+#addAddressModal .default-checkbox-group {
+    background: var(--light-bg);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 1.5rem 0 0 0;
+    border: 1px solid #e9ecef;
+}
+
+#addAddressModal .default-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    cursor: pointer;
+}
+
+#addAddressModal .checkbox-input {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--primary-solid);
+    border-radius: 4px;
+    appearance: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+#addAddressModal .checkbox-input:checked {
+    background: var(--primary-solid);
+}
+
+#addAddressModal .checkbox-input:checked::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+#addAddressModal .checkbox-label {
+    color: var(--primary-solid);
+    font-weight: 600;
+    margin: 0;
+    cursor: pointer;
+}
+
+/* Modal Buttons */
+#addAddressModal .btn-add-address {
+    background: var(--primary-solid);
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+}
+
+#addAddressModal .btn-add-address:hover {
+    background: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 57, 66, 0.3);
+}
+
+#addAddressModal .btn-cancel {
+    background: transparent;
+    color: var(--primary-solid);
+    border: 2px solid var(--primary-solid);
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+#addAddressModal .btn-cancel:hover {
+    background: var(--primary-solid);
+    color: white;
+    transform: translateY(-2px);
+}
+
+/* Validation Messages in Modal */
+#addAddressModal .invalid-feedback {
+    display: block;
+    width: 100%;
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--danger-color);
+    font-weight: 500;
+}
+
+/* Responsive Modal */
+@media (max-width: 768px) {
+    #addAddressModal .modal-body {
+        padding: 1.5rem;
+    }
+    
+    #addAddressModal .address-type-options {
+        flex-direction: column;
+    }
+    
+    #addAddressModal .address-type-label {
+        padding: 1rem;
+    }
+    
+    #addAddressModal .modal-footer {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    #addAddressModal .modal-footer button {
+        width: 100%;
+    }
+}
+</style>
 
 <style>
+
+
+.btn-add-address {
+    width: 100%;
+    padding: 15px;
+    border: 2px dashed var(--primary-solid);
+    background: var(--light-bg);
+    color: var(--primary-solid);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-weight: 600;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-add-address:hover {
+    background: var(--primary-solid);
+    color: white;
+    border-color: var(--primary-solid);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 57, 66, 0.3);
+}
+
+
+
 /* Base Alert Styles */
 .custom-alert {
     color: white;
@@ -202,7 +450,7 @@
 
                     {% if messages %}
                         {% for message in messages %}
-                            {% if 'checkout-wallet_insufficient' in message.tags or 'coupon_applied_successfull' in message.tags or 'coupon_applied_not_minimum_meet' in message.tags or 'invalid_coupon' in message.tags or 'otp-success' in message.tags or 'remove_coupon' in message.tags %}
+                            {% if 'checkout-wallet_insufficient' in message.tags or 'coupon_applied_successfull' in message.tags or 'coupon_applied_not_minimum_meet' in message.tags or 'address_added' in message.tags or 'invalid_coupon' in message.tags or 'otp-success' in message.tags or 'remove_coupon' in message.tags %}
                                 <div class="custom-alert 
                                     {% if 'error' in message.tags or 'danger' in message.tags or 'checkout-wallet_insufficient' in message.tags %}alert-error
                                     {% elif 'success' in message.tags or 'otp-success' in message.tags %}alert-success
@@ -256,9 +504,16 @@
                     {% endif %}
 
                     <!-- Add New Address Button -->
-                     <a href="{% url 'address_create' %}?next={{ request.path }}" class="btn-add-address">
+                     <!-- <a href="{% url 'address_create' %}?next={{ request.path }}" class="btn-add-address">
                         <i class="fas fa-plus me-2"></i> ADD NEW ADDRESS
-                     </a>
+                     </a> -->
+                     <button type="button" class="btn-add-address" data-bs-toggle="modal" data-bs-target="#addAddressModal">
+                        <i class="fas fa-plus me-2"></i> ADD NEW ADDRESS
+                    </button>
+
+
+
+                    
                 </div>
 
                 <!-- Apply Coupon Section -->
@@ -456,6 +711,161 @@
                     </div>
                 </div>
             </div>
+
+
+            <!-- Add Address Modal (Adding address from the checkout page itself with out leaving)-->
+            <div class="modal fade" id="addAddressModal" tabindex="-1" aria-labelledby="addAddressModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered">
+                    <div class="modal-content" style="border-radius: 12px; border: 1px solid #e9ecef;">
+                        <div class="modal-header" style="background: var(--primary-solid); color: white; border-radius: 12px 12px 0 0;">
+                            <h5 class="modal-title" id="addAddressModalLabel" style="font-weight: 600; font-size: 1.5rem;">
+                                <i class="fas fa-map-marker-alt me-2"></i>Add New Address
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form method="POST" action="{% url 'checkout' %}" id="addressModalForm">
+                            {% csrf_token %}
+                            <div class="modal-body" style="padding: 2rem;">
+
+                                {% if address_form.non_field_errors %}
+                                <div class="alert alert-danger">
+                                    {% for error in address_form.non_field_errors %}
+                                    <div>{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+
+                                
+                                <!-- Address Type Selection -->
+                                <div class="address-type-group">
+                                    <label class="form-label">ADDRESS TYPE *</label>
+                                    <div class="address-type-options">
+                                        <div class="address-type-option">
+                                            <input type="radio" name="address_type" value="HOME" id="modal_type_home" class="address-type-radio" checked>
+                                            <label for="modal_type_home" class="address-type-label">
+                                                <span class="address-type-icon">🏠</span>
+                                                Home
+                                            </label>
+                                        </div>
+                                        <div class="address-type-option">
+                                            <input type="radio" name="address_type" value="OFFICE" id="modal_type_office" class="address-type-radio">
+                                            <label for="modal_type_office" class="address-type-label">
+                                                <span class="address-type-icon">🏢</span>
+                                                Office
+                                            </label>
+                                        </div>
+                                        <div class="address-type-option">
+                                            <input type="radio" name="address_type" value="OTHER" id="modal_type_other" class="address-type-radio">
+                                            <label for="modal_type_other" class="address-type-label">
+                                                <span class="address-type-icon">📍</span>
+                                                Other
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Contact Information -->
+                                <div class="row">
+                                    <div class="col-md-6 form-group">
+                                        <label for="modal_{{ address_form.full_name.id_for_label }}" class="form-label">FULL NAME *</label>
+                                        <input type="text" name="full_name" id="modal_full_name" class="form-control {% if form.full_name.errors %}is-invalid{% endif %}" placeholder="Enter your full name"
+                                                value="{{ address_form.full_name.value|default_if_none:'' }}" required>
+                                        {% if address_form.full_name.errors %}
+                                            <div class="invalid-feedback">{{ address_form.full_name.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-6 form-group">
+                                        <label for="modal_mobile" class="form-label">MOBILE  *</label>
+                                        <input type="tel" name="mobile" id="modal_mobile" class="form-control {% if form.mobile.errors %}is-invalid{% endif %}" placeholder="10-digit mobile number"
+                                                value="{{ address_form.mobile.value|default_if_none:'' }}" required>
+                                        {% if address_form.mobile.errors %}
+                                            <div class="invalid-feedback">{{ address_form.mobile.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-12 form-group">
+                                        <label for="modal_second_mobile" class="form-label">SECOND NUMBER</label>
+                                        <input type="tel" name="second_mobile" id="modal_second_mobile" class="form-control {% if form.second_mobile.errors %}is-invalid{% endif %}" placeholder="10-digit alternate number (optional)"
+                                                value="{{ address_form.second_mobile.value|default_if_none:'' }}">
+                                    </div>
+                                </div>
+
+                                <!-- Address Details -->
+                                <div class="form-group">
+                                    <label for="modal_address" class="form-label">ADDRESS (HOUSE NO, BUILDING, STREET) *</label>
+                                    <textarea name="address" id="modal_address" class="form-control {% if address_form.address.errors %}is-invalid{% endif %}" rows="2" placeholder="Enter your complete address" required>{{ address_form.address.value|default_if_none:'' }}</textarea>
+                                    {% if address_form.address.errors %}
+                                        <div class="invalid-feedback">{{ address_form.address.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="modal_address_line2" class="form-label">LOCALITY / AREA</label>
+                                    <input type="text" name="address_line2" id="modal_address_line2" class="form-control" placeholder="Locality, Landmark (optional)">
+                                </div>
+
+                                <!-- Location Details -->
+                                <div class="row">
+                                    <div class="col-md-4 form-group">
+                                        <label for="modal_city" class="form-label">CITY *</label>
+                                        <input type="text" name="city" id="modal_city" class="form-control {% if form.city.errors %}is-invalid{% endif %}" placeholder="City" 
+                                                value="{{ address_form.city.value|default_if_none:'' }}"required>
+                                        {% if address_form.city.errors %}
+                                            <div class="invalid-feedback">{{ address_form.city.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-4 form-group">
+                                        <label for="modal_state" class="form-label">STATE *</label>
+                                        <input type="text" name="state" id="modal_state" class="form-control {% if form.state.errors %}is-invalid{% endif %}" placeholder="State"
+                                                value="{{ address_form.state.value|default_if_none:'' }}" required>
+                                        {% if address_form.state.errors %}
+                                            <div class="invalid-feedback">{{ address_form.state.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-4 form-group">
+                                        <label for="modal_postal_code" class="form-label">POSTAL CODE *</label>
+                                        <input type="text" name="postal_code" id="modal_postal_code" class="form-control {% if form.postal_code.errors %}is-invalid{% endif %}"" placeholder="6-digit PIN" 
+                                                value="{{ address_form.postal_code.value|default_if_none:'' }}" required>
+                                        {% if address_form.postal_code.errors %}
+                                            <div class="invalid-feedback">{{ address_form.postal_code.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="modal_country" class="form-label">COUNTRY *</label>
+                                    <input type="text" name="country" id="modal_country" class="form-control {% if form.country.errors %}is-invalid{% endif %}"" placeholder="Country"  value="{{ address_form.country.value|default_if_none:'India' }}" required>
+                                    {% if address_form.country.errors %}
+                                        <div class="invalid-feedback">{{ address_form.country.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Set as Default -->
+                                <div class="default-checkbox-group">
+                                    <label class="default-checkbox">
+                                        <input type="checkbox" name="is_default" id="modal_is_default" class="checkbox-input">
+                                        <span class="checkbox-label">
+                                            <i class="fas fa-star me-2"></i>Set as default and use for current order
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="modal-footer" style="border-top: 1px solid #e9ecef; padding: 1.5rem;">
+                                <button type="button" class="btn btn-cancel" data-bs-dismiss="modal" style="flex: 1;">
+                                    <i class="fas fa-times me-2"></i>CANCEL
+                                </button>
+                                <button type="submit" name="address_create" class="btn-add-address" style="flex: 1; margin-bottom: 0;">
+                                    <i class="fas fa-save me-2"></i>SAVE ADDRESS
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+
         </div>
     </div>
 {% endblock body %}
@@ -555,6 +965,46 @@ document.addEventListener("DOMContentLoaded", function() {
             setTimeout(() => alert.remove(), 600);
         }, 3000);
     });
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if there are form errors
+    const addressForm = document.querySelector('#addAddressModal form');
+    const hasErrors = addressForm && addressForm.querySelector('.text-danger');
+    
+    // If there are errors, show the modal
+    if (hasErrors) {
+        const modal = new bootstrap.Modal(document.getElementById('addAddressModal'));
+        modal.show();
+    }
+});
+</script>
+
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if there are form errors and reopen modal
+    {% if address_form.errors %}
+        var addressModal = new bootstrap.Modal(document.getElementById('addAddressModal'));
+        addressModal.show();
+    {% endif %}
+    
+    // Optional: Auto-hide success message after 3 seconds
+    setTimeout(function() {
+        var alerts = document.querySelectorAll('.alert');
+        alerts.forEach(function(alert) {
+            if (alert.classList.contains('alert-success')) {
+                alert.style.transition = 'opacity 0.5s';
+                alert.style.opacity = '0';
+                setTimeout(function() {
+                    alert.remove();
+                }, 500);
+            }
+        });
+    }, 3000);
 });
 </script>
 {% endblock extra_js %}

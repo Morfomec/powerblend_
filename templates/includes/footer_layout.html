@@ -1,77 +1,476 @@
 
-<!-- Footer -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Footer</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-teal: rgb(0 57 66 / 1);
+            --light-teal: #4a9b96;
+            --orange: #ff6b35;
+            --dark-gray: #333;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+        }
+
+        /* Enhanced Footer Styles */
+        .footer-section {
+            background: linear-gradient(135deg, var(--primary-teal) 0%, #1a3d44 100%);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .footer-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--orange), var(--light-teal), var(--orange));
+        }
+
+        .footer-top {
+            padding: 4rem 0 3rem;
+            position: relative;
+        }
+
+        .footer-brand {
+            margin-bottom: 2rem;
+        }
+
+        .footer-brand h3 {
+            font-size: 2rem;
+            font-weight: 900;
+            color: white;
+            margin-bottom: 1rem;
+            letter-spacing: 2px;
+        }
+
+        .footer-brand p {
+            color: #b8e6e1;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            max-width: 350px;
+        }
+
+        .footer-heading {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: white);
+            margin-bottom: 1.5rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+
+        .footer-heading::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 2px;
+            background: var(--orange);
+        }
+
+        .footer-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.75rem;
+        }
+
+        .footer-links a {
+            color: #b8e6e1;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        .footer-links a:hover {
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .footer-links a::before {
+            content: '›';
+            margin-right: 8px;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .footer-links a:hover::before {
+            opacity: 1;
+        }
+
+        .social-section {
+            margin-top: 2rem;
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .social-icon {
+            width: 45px;
+            height: 45px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            backdrop-filter: blur(10px);
+        }
+
+        .social-icon:hover {
+            background: var(--orange);
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(255, 107, 53, 0.4);
+        }
+
+        .newsletter-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-top: 2rem;
+        }
+
+        .newsletter-box h5 {
+            color: white;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .newsletter-box p {
+            color: #b8e6e1;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        .newsletter-form {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .newsletter-input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: none;
+            border-radius: 25px;
+            background: white;
+            color: var(--dark-gray);
+            font-size: 0.9rem;
+        }
+
+        .newsletter-input:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.3);
+        }
+
+        .newsletter-btn {
+            background: var(--orange);
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 25px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .newsletter-btn:hover {
+            background: #e55a2b;
+            transform: scale(1.05);
+        }
+
+        .footer-middle {
+            padding: 2rem 0;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .trust-item {
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .trust-icon {
+            font-size: 2.5rem;
+            color: var(--orange);
+            margin-bottom: 1rem;
+        }
+
+        .trust-item h6 {
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: white;
+        }
+
+        .trust-item p {
+            font-size: 0.85rem;
+            color: #b8e6e1;
+            margin: 0;
+        }
+
+        .footer-bottom {
+            padding: 2rem 0;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .footer-bottom-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .copyright {
+            color: #b8e6e1;
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        .payment-methods {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .payment-icon {
+            background: white;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            font-size: 1.5rem;
+            color: var(--dark-gray);
+        }
+
+        .footer-policies {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-policies a {
+            color: #b8e6e1;
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: color 0.3s ease;
+        }
+
+        .footer-policies a:hover {
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .footer-top {
+                padding: 3rem 0 2rem;
+            }
+
+            .newsletter-form {
+                flex-direction: column;
+            }
+
+            .newsletter-btn {
+                width: 100%;
+            }
+
+            .footer-bottom-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .payment-methods {
+                justify-content: center;
+            }
+
+            .footer-policies {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Enhanced Footer -->
 <footer class="footer-section">
-    <!-- App Download Section -->
-<!-- <section class="app-download">
-    <div class="container">
-        <div class="row align-items-center">
-            <div class="col-lg-8">
-                <h3>EXTRA 5% OFF IN THE APP</h3>
-                <h2 style="color: white; margin-bottom: 1rem;">Download our app for exclusive offers</h2>
-                <p>Use code: MYAPP</p>
-                <div class="d-flex gap-3">
-                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjQ0IiB2aWV3Qm94PSIwIDAgMTUwIDQ0IiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxNTAiIGhlaWdodD0iNDQiIHJ4PSI4IiBmaWxsPSJibGFjayIvPjx0ZXh0IHg9IjUwIiB5PSIyOCIgZmlsbD0id2hpdGUiIGZvbnQtc2l6ZT0iMTQiPkFwcCBTdG9yZTwvdGV4dD48L3N2Zz4=" alt="Download on App Store" class="img-fluid" style="max-height: 50px;">
-                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjQ0IiB2aWV3Qm94PSIwIDAgMTUwIDQ0IiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxNTAiIGhlaWdodD0iNDQiIHJ4PSI4IiBmaWxsPSJibGFjayIvPjx0ZXh0IHg9IjQwIiB5PSIyOCIgZmlsbD0id2hpdGUiIGZvbnQtc2l6ZT0iMTQiPkdvb2dsZSBQbGF5PC90ZXh0Pjwvc3ZnPg==" alt="Get it on Google Play" class="img-fluid" style="max-height: 50px;">
+    <!-- Top Section -->
+    <div class="footer-top">
+        <div class="container">
+            <div class="row">
+                <!-- Brand Column -->
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="footer-brand">
+                        <h3>POWERBLEND</h3>
+                        <p>Your trusted partner in fitness and nutrition. We provide premium supplements to help you achieve your health and fitness goals.</p>
+                    </div>
+                    <div class="social-section">
+                        <h6 class="footer-heading">Follow Us</h6>
+                        <div class="social-icons">
+                            <a href="#" class="social-icon" aria-label="Facebook">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                            <a href="#" class="social-icon" aria-label="Instagram">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                            <a href="#" class="social-icon" aria-label="Twitter">
+                                <i class="fab fa-twitter"></i>
+                            </a>
+                            <a href="#" class="social-icon" aria-label="YouTube">
+                                <i class="fab fa-youtube"></i>
+                            </a>
+                            <a href="#" class="social-icon" aria-label="LinkedIn">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="col-lg-4 text-center">
-                <div style="background: white; border-radius: 20px; padding: 2rem; max-width: 200px; margin: 0 auto;">
-                    <i class="fas fa-mobile-alt" style="font-size: 4rem; color: var(--primary-teal);"></i>
-                    <p style="color: var(--dark-gray); margin-top: 1rem;">Mobile App Preview</p>
+
+                <!-- Company Links -->
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h6 class="footer-heading">Company</h6>
+                    <ul class="footer-links">
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Careers</a></li>
+                        <li><a href="#">Press</a></li>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Contact</a></li>
+                    </ul>
+                </div>
+
+                <!-- Support Links -->
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h6 class="footer-heading">Support</h6>
+                    <ul class="footer-links">
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Delivery Info</a></li>
+                        <li><a href="#">Returns</a></li>
+                        <li><a href="#">Track Order</a></li>
+                        <li><a href="#">FAQs</a></li>
+                    </ul>
+                </div>
+
+                <!-- Product Links -->
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h6 class="footer-heading">Products</h6>
+                    <ul class="footer-links">
+                        <li><a href="#">Protein</a></li>
+                        <li><a href="#">Vitamins</a></li>
+                        <li><a href="#">Pre-Workout</a></li>
+                        <li><a href="#">Creatine</a></li>
+                        <li><a href="#">Weight Loss</a></li>
+                    </ul>
+                </div>
+
+                <!-- Newsletter -->
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <div class="newsletter-box">
+                        <h5>Newsletter</h5>
+                        <p>Get exclusive offers and updates!</p>
+                        <form class="newsletter-form" onsubmit="return false;">
+                            <input type="email" class="newsletter-input" placeholder="Your email" required>
+                            <button type="submit" class="newsletter-btn">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</section> -->
 
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-3 col-md-6 mb-4">
-                <h5>OUR COMPANY</h5>
-                <div class="footer-links">
-                    <a href="#">About Us</a>
-                    <a href="#">Careers</a>
-                    <a href="#">Press</a>
-                    <a href="#">Blog</a>
-                    <a href="#">Contact</a>
+    <!-- Middle Section - Trust Badges -->
+    <div class="footer-middle">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3 col-md-6">
+                    <div class="trust-item">
+                        <div class="trust-icon">
+                            <i class="fas fa-shipping-fast"></i>
+                        </div>
+                        <h6>Free Shipping</h6>
+                        <p>On orders over $50</p>
+                    </div>
                 </div>
-            </div>
-            <div class="col-lg-3 col-md-6 mb-4">
-                <h5>HELP & SUPPORT</h5>
-                <div class="footer-links">
-                    <a href="#">Customer Service</a>
-                    <a href="#">Delivery Information</a>
-                    <a href="#">Returns Policy</a>
-                    <a href="#">Track Your Order</a>
-                    <a href="#">FAQs</a>
+                <div class="col-lg-3 col-md-6">
+                    <div class="trust-item">
+                        <div class="trust-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h6>Secure Payment</h6>
+                        <p>100% secure transactions</p>
+                    </div>
                 </div>
-            </div>
-            <div class="col-lg-3 col-md-6 mb-4">
-                <h5>PRODUCTS</h5>
-                <div class="footer-links">
-                    <a href="#">Protein</a>
-                    <a href="#">Vitamins</a>
-                    <a href="#">Pre-Workout</a>
-                    <a href="#">Creatine</a>
-                    <a href="#">Weight Loss</a>
+                <div class="col-lg-3 col-md-6">
+                    <div class="trust-item">
+                        <div class="trust-icon">
+                            <i class="fas fa-undo"></i>
+                        </div>
+                        <h6>Easy Returns</h6>
+                        <p>30-day return policy</p>
+                    </div>
                 </div>
-            </div>
-            <div class="col-lg-3 col-md-6 mb-4">
-                <h5>FOLLOW US</h5>
-                <div class="social-icons mb-3">
-                    <a href="#"><i class="fab fa-facebook"></i></a>
-                    <a href="#"><i class="fab fa-instagram"></i></a>
-                    <a href="#"><i class="fab fa-twitter"></i></a>
-                    <a href="#"><i class="fab fa-youtube"></i></a>
+                <div class="col-lg-3 col-md-6">
+                    <div class="trust-item">
+                        <div class="trust-icon">
+                            <i class="fas fa-headset"></i>
+                        </div>
+                        <h6>24/7 Support</h6>
+                        <p>Always here to help</p>
+                    </div>
                 </div>
-                <p>Stay connected for updates and offers</p>
             </div>
         </div>
-        <hr style="border-color: rgba(255,255,255,0.2);">
-        <div class="row">
-            <div class="col-12 text-center">
-                <p>&copy; 2025 POWERBLEND. All rights reserved.</p>
+    </div>
+
+    <!-- Bottom Section -->
+    <div class="footer-bottom">
+        <div class="container">
+            <div class="footer-bottom-content">
+                <p class="copyright">&copy; 2025 POWERBLEND. All rights reserved.</p>
+                
+                <div class="payment-methods">
+                    <i class="fab fa-cc-visa payment-icon"></i>
+                    <i class="fab fa-cc-mastercard payment-icon"></i>
+                    <i class="fab fa-cc-paypal payment-icon"></i>
+                    <i class="fab fa-cc-amex payment-icon"></i>
+                </div>
+
+                <div class="footer-policies">
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                    <a href="#">Cookie Policy</a>
+                </div>
             </div>
         </div>
     </div>
 </footer>
+
+</body>
+</html>

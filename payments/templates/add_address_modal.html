@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Address Modal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: rgba(0, 57, 66, 0.8);
+            --primary-solid: rgb(0, 57, 66);
+            --light-bg: #f8f9fa;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--light-bg);
+            padding: 2rem;
+        }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 9998;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: block;
+        }
+
+        /* Modal Container */
+        .address-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            width: 95%;
+            max-width: 900px;
+            max-height: 90vh;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            z-index: 9999;
+            overflow: hidden;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .address-modal.active {
+            display: block;
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        /* Modal Header */
+        .modal-header-custom {
+            background: linear-gradient(135deg, var(--primary-solid) 0%, rgba(0, 57, 66, 0.9) 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid #ff6b35;
+        }
+
+        .modal-title-custom {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin: 0;
+        }
+
+        .modal-close-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.2rem;
+        }
+
+        .modal-close-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(90deg);
+        }
+
+        /* Modal Body */
+        .modal-body-custom {
+            padding: 2rem;
+            overflow-y: auto;
+            max-height: calc(90vh - 180px);
+        }
+
+        .modal-body-custom::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .modal-body-custom::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .modal-body-custom::-webkit-scrollbar-thumb {
+            background: var(--primary-solid);
+            border-radius: 10px;
+        }
+
+        /* Form Labels */
+        .form-label {
+            color: var(--primary-solid);
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Form Inputs */
+        .form-control {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 0.85rem 1rem;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            background: white;
+            color: var(--primary-solid);
+            font-weight: 500;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-solid);
+            box-shadow: 0 0 0 0.2rem rgba(0, 57, 66, 0.25);
+            outline: none;
+        }
+
+        .form-control::placeholder {
+            color: #6c757d;
+            font-weight: normal;
+        }
+
+        /* Form Groups */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        /* Address Type Selection */
+        .address-type-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .address-type-options {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .address-type-option {
+            flex: 1;
+            position: relative;
+        }
+
+        .address-type-radio {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .address-type-label {
+            display: block;
+            background: var(--light-bg);
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            color: var(--primary-solid);
+            font-size: 0.9rem;
+        }
+
+        .address-type-label:hover {
+            border-color: var(--primary-color);
+            background: rgba(0, 57, 66, 0.05);
+            transform: translateY(-2px);
+        }
+
+        .address-type-radio:checked + .address-type-label {
+            border-color: var(--primary-solid);
+            background: var(--primary-solid);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 57, 66, 0.3);
+        }
+
+        .address-type-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        /* Set as Default */
+        .default-checkbox-group {
+            background: var(--light-bg);
+            border-radius: 8px;
+            padding: 1.25rem;
+            margin: 1.5rem 0;
+            border: 1px solid #e9ecef;
+        }
+
+        .default-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+        }
+
+        .checkbox-input {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--primary-solid);
+            border-radius: 4px;
+            appearance: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .checkbox-input:checked {
+            background: var(--primary-solid);
+        }
+
+        .checkbox-input:checked::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .checkbox-label {
+            color: var(--primary-solid);
+            font-weight: 600;
+            margin: 0;
+            cursor: pointer;
+        }
+
+        /* Modal Footer */
+        .modal-footer-custom {
+            padding: 1.5rem 2rem;
+            background: var(--light-bg);
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            gap: 1rem;
+        }
+
+        /* Buttons */
+        .btn-add-address {
+            background: var(--primary-solid);
+            color: white;
+            border: none;
+            padding: 0.9rem 2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-add-address:hover {
+            background: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 57, 66, 0.3);
+        }
+
+        .btn-cancel {
+            background: transparent;
+            color: var(--primary-solid);
+            border: 2px solid var(--primary-solid);
+            padding: 0.9rem 2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-cancel:hover {
+            background: var(--primary-solid);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Validation Messages */
+        .invalid-feedback {
+            display: block;
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--danger-color);
+            font-weight: 500;
+        }
+
+        /* Demo Button */
+        .demo-btn {
+            background: var(--primary-solid);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .demo-btn:hover {
+            background: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .address-modal {
+                width: 98%;
+                max-height: 95vh;
+            }
+
+            .modal-header-custom {
+                padding: 1.25rem 1.5rem;
+            }
+
+            .modal-title-custom {
+                font-size: 1.25rem;
+            }
+
+            .modal-body-custom {
+                padding: 1.5rem;
+                max-height: calc(95vh - 180px);
+            }
+
+            .address-type-options {
+                flex-direction: column;
+            }
+
+            .modal-footer-custom {
+                flex-direction: column-reverse;
+                padding: 1.25rem 1.5rem;
+            }
+
+            .btn-add-address,
+            .btn-cancel {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .modal-title-custom {
+                font-size: 1.1rem;
+            }
+
+            .form-control {
+                padding: 0.75rem 0.85rem;
+                font-size: 0.9rem;
+            }
+
+            .address-type-label {
+                padding: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Demo Trigger Button -->
+    <div class="text-center">
+        <button class="demo-btn" onclick="openAddressModal()">
+            <i class="fas fa-plus me-2"></i> ADD NEW ADDRESS
+        </button>
+    </div>
+
+    <!-- Modal Overlay -->
+    <div class="modal-overlay" id="modalOverlay" onclick="closeAddressModal()"></div>
+
+    <!-- Address Modal -->
+    <div class="address-modal" id="addressModal">
+        <!-- Modal Header -->
+        <div class="modal-header-custom">
+            <h2 class="modal-title-custom">
+                <i class="fas fa-home"></i>
+                Add New Address
+            </h2>
+            <button class="modal-close-btn" onclick="closeAddressModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="modal-body-custom">
+            <form id="addressForm" onsubmit="handleSubmit(event)">
+                <!-- Personal Information Row -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label" for="full_name">Full Name *</label>
+                            <input type="text" class="form-control" id="full_name" name="full_name" placeholder="Enter your full name" required>
+                            <div class="invalid-feedback">Please enter your full name</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label" for="mobile">Mobile *</label>
+                            <input type="tel" class="form-control" id="mobile" name="mobile" placeholder="Enter mobile number" required>
+                            <div class="invalid-feedback">Please enter a valid mobile number</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Second Number and Address Row -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label" for="second_mobile">Second Number</label>
+                            <input type="tel" class="form-control" id="second_mobile" name="second_mobile" placeholder="Alternate number (optional)">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label" for="address">Address *</label>
+                            <input type="text" class="form-control" id="address" name="address" placeholder="House no., Building name" required>
+                            <div class="invalid-feedback">Please enter your address</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Location Details Row -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label" for="city">City *</label>
+                            <input type="text" class="form-control" id="city" name="city" placeholder="Enter city" required>
+                            <div class="invalid-feedback">Please enter your city</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label" for="state">State *</label>
+                            <input type="text" class="form-control" id="state" name="state" placeholder="Enter state" required>
+                            <div class="invalid-feedback">Please enter your state</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Postal Code and Country Row -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label" for="postal_code">Postal Code *</label>
+                            <input type="text" class="form-control" id="postal_code" name="postal_code" placeholder="Enter postal code" required>
+                            <div class="invalid-feedback">Please enter your postal code</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label" for="country">Country *</label>
+                            <input type="text" class="form-control" id="country" name="country" value="India" required>
+                            <div class="invalid-feedback">Please enter your country</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Address Type Selection -->
+                <div class="address-type-group">
+                    <label class="form-label">Address Type</label>
+                    <div class="address-type-options">
+                        <div class="address-type-option">
+                            <input type="radio" class="address-type-radio" id="home" name="address_type" value="HOME" checked>
+                            <label class="address-type-label" for="home">
+                                <i class="fas fa-home address-type-icon"></i>
+                                HOME
+                            </label>
+                        </div>
+                        <div class="address-type-option">
+                            <input type="radio" class="address-type-radio" id="office" name="address_type" value="OFFICE">
+                            <label class="address-type-label" for="office">
+                                <i class="fas fa-building address-type-icon"></i>
+                                OFFICE
+                            </label>
+                        </div>
+                        <div class="address-type-option">
+                            <input type="radio" class="address-type-radio" id="other" name="address_type" value="OTHER">
+                            <label class="address-type-label" for="other">
+                                <i class="fas fa-map-marker-alt address-type-icon"></i>
+                                OTHER
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Set as Default -->
+                <div class="default-checkbox-group">
+                    <div class="default-checkbox">
+                        <input type="checkbox" class="checkbox-input" id="is_default" name="is_default">
+                        <label class="checkbox-label" for="is_default">Set as Default Address</label>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="modal-footer-custom">
+            <button type="button" class="btn-cancel" onclick="closeAddressModal()">
+                <i class="fas fa-times"></i>
+                Cancel
+            </button>
+            <button type="submit" form="addressForm" class="btn-add-address">
+                <i class="fas fa-plus"></i>
+                Add Address
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function openAddressModal() {
+            const modal = document.getElementById('addressModal');
+            const overlay = document.getElementById('modalOverlay');
+            
+            overlay.classList.add('active');
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeAddressModal() {
+            const modal = document.getElementById('addressModal');
+            const overlay = document.getElementById('modalOverlay');
+            
+            modal.classList.remove('active');
+            overlay.classList.remove('active');
+            document.body.style.overflow = 'auto';
+            
+            // Reset form
+            document.getElementById('addressForm').reset();
+        }
+
+        function handleSubmit(event) {
+            event.preventDefault();
+            
+            const form = event.target;
+            const formData = new FormData(form);
+            
+            // Get form values
+            const addressData = {};
+            formData.forEach((value, key) => {
+                addressData[key] = value;
+            });
+            
+            console.log('Address Data:', addressData);
+            
+            // Here you would typically send the data to your Django backend
+            // Example:
+            // fetch('/address/create/', {
+            //     method: 'POST',
+            //     headers: {
+            //         'X-CSRFToken': getCookie('csrftoken'),
+            //         'Content-Type': 'application/json'
+            //     },
+            //     body: JSON.stringify(addressData)
+            // })
+            // .then(response => response.json())
+            // .then(data => {
+            //     if (data.success) {
+            //         closeAddressModal();
+            //         // Refresh address list or update UI
+            //     }
+            // });
+            
+            // For demo purposes, just close the modal
+            alert('Address submitted! Check console for data.');
+            closeAddressModal();
+        }
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeAddressModal();
+            }
+        });
+
+        // Prevent modal from closing when clicking inside it
+        document.getElementById('addressModal').addEventListener('click', function(event) {
+            event.stopPropagation();
+        });
+    </script>
+
+</body>
+</html>

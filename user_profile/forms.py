@@ -2,7 +2,6 @@ from django import forms
 from .models import Address
 from django.conf import settings
 from django.contrib.auth import get_user_model
-
 from phonenumber_field.formfields import PhoneNumberField
 # from phonenumber_field.widgets import PhoneNumberPrefixWidget
 

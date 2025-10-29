@@ -16,7 +16,10 @@ from admin_app.forms import ApplyCouponForm
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponseBadRequest
+from user_profile.forms import AddressForm
 import razorpay
+
+
 
 # authorize razorpay client with API Keys.
 razorpay_client = razorpay.Client(
@@ -30,11 +33,44 @@ def checkout_view(request):
     Checkout page with default address, basket, coupon, wallet, COD, Razorpay handling.
     """
     
+
+
+
+    #address handling from the checkout page itself
+    addresses = Address.objects.filter(user=request.user).order_by('-is_default')
+
+
+    #flag to re open modal if there is vlaidation error
+
+    reopen_modal = False
+
+
+    if request.method == 'POST' and 'address_create' in request.POST:
+        address_form = AddressForm(request.POST)
+        if address_form.is_valid():
+            new_address = address_form.save(commit=False)
+            new_address.user = request.user
+            new_address.save()
+            messages.success(request, "New address added successfully!", extra_tags='address_added')
+            return redirect('checkout')
+        else:
+            # Form has errors - they'll be displayed in the modal
+            messages.error(request, "Please correct the errors in the address form.")
+            reopen_modal = True
+    else:
+        address_form = AddressForm()
+
+
     # --- Default address ---
     default_address = Address.objects.filter(user=request.user, is_default=True).first()
-    if not default_address:
-        messages.error(request, "Please choose a default address before checkout.")
-        return redirect('checkout')
+    if not default_address and addresses.exists():
+        default_address =addresses.first()
+    elif not default_address:
+        default_address = None
+        # messages.error(request, "Please choose a default address before checkout.")
+        # return redirect('checkout')
+
+
 
     # --- Basket ---
     basket = getattr(request.user, 'basket', None)
@@ -230,6 +266,9 @@ def checkout_view(request):
     # --- Default context for rendering page ---
     context = {
         'default_address': default_address,
+        'addresses' : addresses,
+        'address_form' : address_form,
+        'reopen_modal' : reopen_modal,
         'basket_items': basket_items,
         'subtotal': subtotal,
         'total_items': total_items,

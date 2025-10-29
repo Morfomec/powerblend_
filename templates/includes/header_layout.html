@@ -1,110 +1,13 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm py-3">
-  
-  <div class="container-fluid d-flex align-items-center">
-    
-    <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
-      <span class="logo">POWERBLEND</span>
-    </a>
+{% load static %}
 
-    <div class="search-container position-relative me-4 flex-grow-1">
-        <input type="text" id="search-input" class="form-control search-input" placeholder="Search products..."
-            style="padding-left: 40px; border-radius: 25px; background: #f8f9fa;  border: 2px solid #016663; outline: none;">
-        <i class="fas fa-search position-absolute"
-        style="left: 15px; top: 50%; transform: translateY(-50%); color: var(--primary-teal);"></i>
+<head>
+<link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+<link href="{% static 'css/custom.css' %}" rel="stylesheet">
 
-         <!-- Suggestion dropdown -->
-        <div id="suggestions-box"
-            style="position:absolute; top:45px; width:100%; background:white; border:1px solid #e9ecef; border-radius:10px; display:none; z-index:1000; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-        </div>
-    </div>
 
-    <div class="navbar-actions d-flex align-items-center ms-auto">
-        {% if user.is_authenticated %}
-            
-            <!-- User Account Dropdown -->
-            <div class="dropdown user-dropdown">
-                <button class="user-account-btn dropdown-toggle d-flex align-items-center"
-                   type="button"
-                   id="userMenu"
-                   data-bs-toggle="dropdown"
-                   aria-expanded="false">
-                    <div class="user-avatar">
-                        <i class="fas fa-user"></i>
-                    </div>
-                    <span class="user-name d-none d-md-inline">{{ user.full_name|default:'My Account' }}</span>
-                </button>
-                
-                <ul class="dropdown-menu dropdown-menu-end modern-dropdown" aria-labelledby="userMenu">
-                    <li><a class="dropdown-item" href="{% url 'user_profile_view' %}">
-                        <i class="fas fa-user-circle me-2"></i>My Account
-                    </a></li>
-                    <li><a class="dropdown-item" href="{% url 'wishlist_view' %}">
-                        <i class="far fa-heart me-2"></i>Wishlist
-                    </a></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="{% url 'admin_login' %}">
-                        <i class="fas fa-cog me-2"></i>Admin
-                    </a></li>
-                    <li><a class="dropdown-item text-danger" href="{% url 'logout' %}">
-                        <i class="fas fa-sign-out-alt me-2"></i>Logout
-                    </a></li>
-                </ul>
-            </div>
-            
-            <!-- Wishlist Icon -->
-            <a href="{% url 'wishlist_view' %}" class="icon-btn">
-                <i class="far fa-heart"></i>
-            </a>
-
-        {% else %}
-            <!-- Auth Buttons -->
-            <div class="auth-buttons d-flex align-items-center">
-                <a href="{% url 'login' %}" class="auth-btn auth-btn-login">Login</a>
-                <a href="{% url 'register' %}" class="auth-btn auth-btn-register">Register</a>
-                <a href="{% url 'admin_login' %}" class="auth-btn auth-btn-admin">Admin</a>
-            </div>
-        {% endif %}
-
-        <!-- Cart Icon -->
-        <a href="{% url 'basket_view' %}" class="icon-btn cart-btn">
-            <i class="fas fa-shopping-basket"></i>
-            <span class="cart-badge">0</span>
-        </a>
-    </div>
-    
-  </div>
-</nav>
-
-<!-- Promotional Banner -->
-<div class="container-fluid promo-bar">
-    <div class="container">
-        <div class="row text-center">
-            <div class="col-md-3 promo-item">
-                <i class="fas fa-truck"></i>
-                <span>Free delivery above ₹5,000</span>
-            </div>
-            <div class="col-md-3 promo-item">
-                <i class="fas fa-users"></i>
-                <span>20M+ customers worldwide</span>
-            </div>
-            <div class="col-md-3 promo-item">
-                <i class="fas fa-mobile-alt"></i>
-                <span>Extra 5% off on APP</span>
-            </div>
-            <div class="col-md-3 promo-item">
-                <i class="fas fa-bell"></i>
-                <span>Sign up for latest deals</span>
-            </div>
-        </div>
-    </div>
-</div>
-
+</head>
 <style>
 
-    .py-3 {
-    padding-top: 3rem !important;  /* example */
-    padding-bottom: 3rem !important;
-    }
 
     /* Logo Styling */
     .navbar-brand .logo {
@@ -356,6 +259,110 @@
         }
     }
 </style>
+
+
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm py-5">
+  
+  <div class="container-fluid d-flex align-items-center">
+    
+    <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
+      <span class="logo">POWERBLEND</span>
+    </a>
+
+    <div class="search-container position-relative me-4 flex-grow-1">
+        <input type="text" id="search-input" class="form-control search-input" placeholder="Search products..."
+            style="padding-left: 40px; border-radius: 25px; background: #f8f9fa;  border: 2px solid #016663; outline: none;">
+        <i class="fas fa-search position-absolute"
+        style="left: 15px; top: 50%; transform: translateY(-50%); color: var(--primary-teal);"></i>
+
+         <!-- Suggestion dropdown -->
+        <div id="suggestions-box"
+            style="position:absolute; top:45px; width:100%; background:white; border:1px solid #e9ecef; border-radius:10px; display:none; z-index:1000; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+        </div>
+    </div>
+
+    <div class="navbar-actions d-flex align-items-center ms-auto">
+        {% if user.is_authenticated %}
+            
+            <!-- User Account Dropdown -->
+            <div class="dropdown user-dropdown">
+                <button class="user-account-btn dropdown-toggle d-flex align-items-center"
+                   type="button"
+                   id="userMenu"
+                   data-bs-toggle="dropdown"
+                   aria-expanded="false">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <span class="user-name d-none d-md-inline">{{ user.full_name|default:'My Account' }}</span>
+                </button>
+                
+                <ul class="dropdown-menu dropdown-menu-end modern-dropdown" aria-labelledby="userMenu">
+                    <li><a class="dropdown-item" href="{% url 'user_profile_view' %}">
+                        <i class="fas fa-user-circle me-2"></i>My Account
+                    </a></li>
+                    <li><a class="dropdown-item" href="{% url 'wishlist_view' %}">
+                        <i class="far fa-heart me-2"></i>Wishlist
+                    </a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="{% url 'admin_login' %}">
+                        <i class="fas fa-cog me-2"></i>Admin
+                    </a></li>
+                    <li><a class="dropdown-item text-danger" href="{% url 'logout' %}">
+                        <i class="fas fa-sign-out-alt me-2"></i>Logout
+                    </a></li>
+                </ul>
+            </div>
+            
+            <!-- Wishlist Icon -->
+            <a href="{% url 'wishlist_view' %}" class="icon-btn">
+                <i class="far fa-heart"></i>
+            </a>
+
+        {% else %}
+            <!-- Auth Buttons -->
+            <div class="auth-buttons d-flex align-items-center">
+                <a href="{% url 'login' %}" class="auth-btn auth-btn-login">Login</a>
+                <a href="{% url 'register' %}" class="auth-btn auth-btn-register">Register</a>
+                <a href="{% url 'admin_login' %}" class="auth-btn auth-btn-admin">Admin</a>
+            </div>
+        {% endif %}
+
+        <!-- Cart Icon -->
+        <a href="{% url 'basket_view' %}" class="icon-btn cart-btn">
+            <i class="fas fa-shopping-basket"></i>
+            <span class="cart-badge">0</span>
+        </a>
+    </div>
+    
+  </div>
+</nav>
+
+<!-- Promotional Banner -->
+<div class="container-fluid promo-bar">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-md-3 promo-item">
+                <i class="fas fa-truck"></i>
+                <span>Free delivery above ₹5,000</span>
+            </div>
+            <div class="col-md-3 promo-item">
+                <i class="fas fa-users"></i>
+                <span>20M+ customers worldwide</span>
+            </div>
+            <div class="col-md-3 promo-item">
+                <i class="fas fa-mobile-alt"></i>
+                <span>Extra 5% off on APP</span>
+            </div>
+            <div class="col-md-3 promo-item">
+                <i class="fas fa-bell"></i>
+                <span>Sign up for latest deals</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
