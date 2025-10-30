@@ -15,5 +15,5 @@ def refund_to_wallet(user, amount: Decimal, reason='Order/Item refund'):
 
     wallet,_ = Wallet.objects.get_or_create(user=user)
     with transaction.atomic():
-        wallet.credit(amount)
+        wallet.credit(amount, description=reason)
         wallet.transactions.create(amount=amount, transaction_type='credit', description=reason)

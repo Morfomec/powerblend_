@@ -58,6 +58,7 @@ class Order(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     subtotal = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     shipping_address = models.TextField(blank=True, null=True)
+    is_refunded = models.BooleanField(default=False)
 
     is_returned = models.BooleanField(default=False)
     return_reason = models.TextField(blank=True, null=True)

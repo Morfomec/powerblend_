@@ -154,7 +154,7 @@ def cancel_order(request, order_id):
         messages.error(request, "This oder can't be cancelled at this stage.")
         return redirect('order_details', order_id=order.id)
 
-    print("Order status:", order.status)
+    # print("Order status:", order.status)
 
 
     if request.method == 'POST':
@@ -176,9 +176,10 @@ def cancel_order(request, order_id):
                     item.save(update_fields=['is_cancelled', 'cancelled_reason', 'cancelled_at'])
                     print(f"Cancelling item {item.id} ({item.variant})")
 
-                    if order.payment_method in ['razorpay', 'wallet']:
-                        refund_to_wallet(order.user, order.total, reason=f"Refund for cancelled order {order.id}")
+                order.recalc_total()
+
                 
+
                 order.status = 'cancelled'
                 print("Before recalc:", order.total)
                 order.recalc_total()
@@ -470,7 +471,7 @@ def admin_update_order_status(request, id):
                 item.returned_at = timezone.now()
                 item.save(update_fields=['is_returned', 'returned_reason','returned_at'])
 
-            total_refund = sum(item.price * item.quantity for item in order.items.fitler(is_cancelled=False, is_returned=True))
+            total_refund = sum(item.price * item.quantity for item in order.items.filter(is_cancelled=False, is_returned=True))
             if order.payment_method in ['razorpay', 'wallet']:
                 refund_to_wallet(order.user, total_refund, reason=f"Refund for returned order {order.order_id}")
 
