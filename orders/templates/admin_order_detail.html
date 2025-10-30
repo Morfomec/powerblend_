@@ -137,6 +137,7 @@
         padding: 0.8rem;
         border-bottom: 1px solid #f0f0f0;
         font-size: 0.9rem;
+        vertical-align: middle;
     }
 
     .product-image {
@@ -172,6 +173,51 @@
         font-weight: 700;
         color: var(--primary-solid);
         margin-right: 50px;
+    }
+
+    /* Item Status Update Styles */
+    .item-status-form {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+
+    .item-status-select {
+        padding: 0.5rem;
+        border: 2px solid #e9ecef;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        min-width: 140px;
+        background: white;
+    }
+
+    .item-status-select:focus {
+        outline: none;
+        border-color: var(--primary-solid);
+    }
+
+    .btn-update-item {
+        padding: 0.5rem 1rem;
+        background: var(--primary-solid);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+    }
+
+    .btn-update-item:hover {
+        background: var(--primary-color);
+        transform: translateY(-1px);
+    }
+
+    .btn-update-item:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
     }
 
     /* Return Management Styles */
@@ -407,6 +453,11 @@
         color: #d39e00;
     }
 
+    .item-active {
+        background: rgba(40, 167, 69, 0.1);
+        color: var(--success-color);
+    }
+
     .no-returns {
         text-align: center;
         padding: 2rem;
@@ -456,37 +507,6 @@
         min-height: 100px;
     }
 
-    .tabs {
-        display: flex;
-        gap: 0.5rem;
-        margin-bottom: 1.5rem;
-        border-bottom: 2px solid #e9ecef;
-    }
-
-    .tab-btn {
-        padding: 1rem 1.5rem;
-        background: transparent;
-        border: none;
-        color: #6c757d;
-        font-weight: 600;
-        cursor: pointer;
-        border-bottom: 3px solid transparent;
-        transition: all 0.3s ease;
-    }
-
-    .tab-btn.active {
-        color: var(--primary-solid);
-        border-bottom-color: var(--primary-solid);
-    }
-
-    .tab-content {
-        display: none;
-    }
-
-    .tab-content.active {
-        display: block;
-    }
-
     @media (max-width: 768px) {
         .return-header {
             flex-direction: column;
@@ -504,6 +524,16 @@
         .info-grid {
             grid-template-columns: 1fr;
         }
+
+        .item-status-form {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .item-status-select,
+        .btn-update-item {
+            width: 100%;
+        }
     }
 </style>
 {% endblock %}
@@ -515,7 +545,7 @@
         <div class="card-header d-flex justify-content-between align-items-center">
             <div>
                 <h4 class="mb-1" style="color: var(--primary-solid); font-weight: 700;">Order Management</h4>
-                <p class="mb-0 text-muted" style="font-size: 0.9rem;">View and manage order details and return requests</p>
+                <p class="mb-0 text-muted" style="font-size: 0.9rem;">View and manage order details and item statuses</p>
             </div>
             <a href="{% url 'admin_order_list' %}" class="btn btn-secondary">
                 <i class="fas fa-arrow-left me-2"></i>Back to Orders
@@ -563,7 +593,7 @@
             </div>
         </div>
 
-        <!-- Order Items -->
+        <!-- Order Items with Individual Status Update -->
         <h3 style="color: var(--primary-solid); margin-bottom: 1rem;">Order Items</h3>
         <table class="items-table">
             <thead>
@@ -574,7 +604,7 @@
                     <th>Quantity</th>
                     <th>Price</th>
                     <th>Subtotal</th>
-                    <th>Status</th>
+                    <th style="min-width: 250px;">Status & Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -590,20 +620,23 @@
                         </div>
                     </td>
                     <td><strong>{{ item.variant.product.name }}</strong></td>
-                    <td>{{ item.variant.name|default:"Standard" }}</td>
+                    <td>{{ item.variant|default:"Standard" }}</td>
                     <td>{{ item.quantity }}</td>
                     <td>₹{{ item.price|floatformat:2 }}</td>
                     <td><strong>₹{{ item.subtotal|floatformat:2 }}</strong></td>
                     <td>
-                        {% if item.status == 'cancelled' %}
-                            <span class="item-status item-cancelled">❌ Cancelled</span>
-                        {% elif item.status == 'returned' %}
-                            <span class="item-status item-returned">↩️ Returned</span>
-                        {% elif item.status == 'return_rejected' %}
-                            <span class="item-status item-cancelled">❌ Return Rejected</span>
-                        {% else %}
-                            <span style="color: var(--success-color); font-weight: 600;">✓ Active</span>
-                        {% endif %}
+                        <form method="post" action="#" class="item-status-form">
+                            {% csrf_token %}
+                            <select name="status" class="item-status-select" required>
+                                <option value="active" {% if item.status == 'active' %}selected{% endif %}>✓ Active</option>
+                                <option value="cancelled" {% if item.status == 'cancelled' %}selected{% endif %}>❌ Cancelled</option>
+                                <option value="returned" {% if item.status == 'returned' %}selected{% endif %}>↩️ Returned</option>
+                                <option value="return_rejected" {% if item.status == 'return_rejected' %}selected{% endif %}>❌ Return Rejected</option>
+                            </select>
+                            <button type="submit" class="btn-update-item" onclick="return confirm('Update status for this item?')">
+                                <i class="fas fa-check"></i> Update
+                            </button>
+                        </form>
                     </td>
                 </tr>
                 {% endfor %}
@@ -618,7 +651,8 @@
             </div>
         </div>
     </div>
-<!-- Return Requests Section (Only show if order is delivered) -->
+
+    <!-- Return Requests Section -->
     {% if order.status == 'delivered' %}
     <div class="details-card">
         <div class="return-section">
@@ -626,11 +660,10 @@
                 <i class="fas fa-undo"></i> Return Requests
             </div>
 
-            <!-- Check if any item has a return_status other than pending -->
             {% with return_items=order.items.all|dictsort:"id" %}
                 {% if return_items %}
                     {% for item in return_items %}
-                        {% if item.return_status != 'pending' and item.return_status != 'pending' %}
+                        {% if item.return_status != 'pending' %}
                         <div class="return-item {% if item.return_status == 'return_approved' %}approved{% elif item.return_status == 'return_rejected' %}rejected{% endif %}">
                             <div class="return-header">
                                 <div class="return-product-info">
@@ -638,9 +671,8 @@
                                     <div class="return-product-qty">Quantity: {{ item.quantity }}</div>
                                 </div>
 
-                                <!--  Status Badge -->
                                 <span class="return-status-badge return-status-{{ item.return_status }}">
-                                    {% if item.return_status == 'return_items' %}
+                                    {% if item.return_status == 'return_requested' %}
                                         ⏳ Return Requested
                                     {% elif item.return_status == 'return_approved' %}
                                         ✅ Return Approved
@@ -650,7 +682,6 @@
                                 </span>
                             </div>
 
-                            <!-- Details -->
                             <div class="return-details">
                                 <div class="detail-row">
                                     <strong>Requested On:</strong>
@@ -662,13 +693,11 @@
                                 </div>
                             </div>
 
-                            <!--  Return Reason -->
                             <div class="return-reason">
-                                <strong>Reason:</strong>
-                                <p>{{ item.return_reason|default:"(No reason provided)" }}</p>
+                                <div class="return-reason-label">Reason:</div>
+                                <div class="return-reason-text">{{ item.return_reason|default:"(No reason provided)" }}</div>
                             </div>
 
-                            <!--  Admin Action Buttons -->
                             {% if item.return_status == 'return_requested' %}
                             <div class="return-actions">
                                 <form method="post" action="{% url 'admin_return_process' item.id %}" style="display:inline;">
@@ -707,14 +736,14 @@
     </div>
     {% endif %}
 
-    <!-- Status Update Form -->
+    <!-- Global Order Status Update Form -->
     <div class="details-card">
-        <h3 style="color: var(--primary-solid); margin-bottom: 1rem;">Update Order Status</h3>
+        <h3 style="color: var(--primary-solid); margin-bottom: 1rem;">Update Overall Order Status</h3>
         <form method="post" action="{% url 'admin_update_order_status' id=order.id %}" class="status-update-form">
             {% csrf_token %}
             
             <div class="form-group">
-                <label class="form-label">Change Status:</label>
+                <label class="form-label">Change Order Status:</label>
                 {{ form.status }}
             </div>
 
@@ -724,7 +753,7 @@
             </div>
 
             <button type="submit" class="btn btn-primary">
-                <i class="fas fa-check"></i> Update Status
+                <i class="fas fa-check"></i> Update Order Status
             </button>
         </form>
     </div>

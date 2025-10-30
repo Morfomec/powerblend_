@@ -949,19 +949,18 @@ textarea::placeholder {
                             <span class="item-status cancelled">
                                 <i class="fas fa-ban"></i> Cancelled
                             </span>
-                        {% elif order.return_status == 'return_approved' %}
-                            <span class="item-status return-approved">
-                                <i class="fas fa-check-circle"></i> Return Approved
-                            </span>
-                                                                  
-                        
-                        
-                        {% else %}
+
+                        {% elif item.status in 'pending,processing,confirmed' %}
                             <button class="cancel-item-btn"
                                 onclick="openActionModal('cancel', 'item', {{ item.id }}, '{{ item.variant.product.name|escapejs }}', '{% url 'cancel_item' order.id %}')">
                                 <i class="fas fa-times-circle"></i> Cancel Item
                             </button>
+                        {% else %}
+                            <span class="item-status return-approved">
+                                <i class="fas fa-check-circle"></i> {{ item.status|title }}
+                            </span>
                         {% endif %}
+                        
                             
                         
                     </div>

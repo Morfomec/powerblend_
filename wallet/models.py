@@ -22,12 +22,12 @@ class Wallet(models.Model):
         if amount <= 0:
             raise ValueError("Credit amount must be positive.")
         with transaction.atomic():
-            WalletTransaction.objects.create(wallet=self, amount=amount, transaction_type='Credit', description=description, order=order)
+            WalletTransaction.objects.create(wallet=self, amount=amount, transaction_type='credit', description=description, order=order)
             self.balance += amount
             self.save(update_fields=['balance'])
 
     
-    def debit(self, amount: Decimal, description="Payment from wallet", order=None):
+    def debit(self, amount: Decimal, description=None, order=None):
         """
         deduct money if enough balance and record the transitions
         """
@@ -35,8 +35,16 @@ class Wallet(models.Model):
             raise ValueError("Debit amount must be positive.")
         if self.balance < amount:
             raise ValueError("Insufficient wallet balance")
+
+
+        if order:
+            description = description or f"Payment for order #{order.id}"
+        else:
+            description = description or "Payment from wallet"
+
+            
         with transaction.atomic():
-            WalletTransaction.objects.create(wallet=self, amount=amount, transaction_type='Debit', description=description, order=order)
+            WalletTransaction.objects.create(wallet=self, amount=amount, transaction_type='debit', description=description, order=order)
             self.balance -= amount
             self.save(update_fields=['balance'])
 

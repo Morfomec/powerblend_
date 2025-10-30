@@ -156,6 +156,12 @@ def cancel_order(request, order_id):
 
     # print("Order status:", order.status)
 
+    print("Order:", order.id)
+    print("Order status:", order.status)
+    print("Payment method:", order.payment_method)
+    print("Refund condition met?", order.payment_method.lower() in ['razorpay', 'wallet'])
+
+
 
     if request.method == 'POST':
         print("POST data:", request.POST)
@@ -164,6 +170,8 @@ def cancel_order(request, order_id):
             reason = form.cleaned_data.get('reason')
 
             with transaction.atomic():
+                
+                orginal_paid_amount = order.total
 
                 # cancel every ative (non-cancelled/non-returned) items in the order
                 for item in order.items.filter(is_cancelled=False, is_returned=False):
@@ -176,21 +184,46 @@ def cancel_order(request, order_id):
                     item.save(update_fields=['is_cancelled', 'cancelled_reason', 'cancelled_at'])
                     print(f"Cancelling item {item.id} ({item.variant})")
 
-                order.recalc_total()
-
                 
+                # order.recalc_total()
+                # print("Now is :", {order.recalc_total})
+                # order.status = 'cancelled'
+                # order.is_returned = False
+                # order.save(update_fields=['status', 'total', 'is_returned'])
 
+                if order.payment_method.lower() in ['razorpay', 'wallet']:
+                    from wallet.models import WalletTransaction
+
+                    refund_desc = f"Refund for cancelled order #{order.id}"
+                    already_refunded = WalletTransaction.objects.filter(
+                        wallet__user=order.user,
+                        description__icontains=f"order #{order.id}"
+                    ).exists()
+
+                    if not already_refunded:
+                        refund_to_wallet(order.user, order.total, reason=refund_desc)
+                        print(f"Refund issued for order {order.id}")
+                    else:
+                        print(f"Skipping duplicate refund for order {order.id}")
+
+                order.recalc_total()
                 order.status = 'cancelled'
                 print("Before recalc:", order.total)
-                order.recalc_total()
+                order.is_returned = False
                 print("After recalc:", order.total)
 
-                order.save(update_fields=['status', 'total'])
+                order.save(update_fields=['status', 'total', 'is_returned'])
             
             messages.success(request, "Order cancelled.")
             # return redirect('order_details')
     else:
         form = CancelOrderForm()
+
+
+    print("Order:", order.id)
+    print("Order status:", order.status)
+    print("Payment method:", order.payment_method)
+    print("Refund condition met?", order.payment_method.lower() in ['razorpay', 'wallet'])
 
     context = {
         'order' : order,
@@ -243,7 +276,7 @@ def return_order(request, order_id):
 @login_required
 def cancel_item(request, order_id):
     """
-    cancel a single item in an order
+    cancel a single item in an order and issue the refund if applicable
     """
     order = get_object_or_404(Order, id=order_id, user=request.user)
 
@@ -270,7 +303,19 @@ def cancel_item(request, order_id):
                 item.save(update_fields=['is_cancelled', 'status' ,'cancelled_reason', 'cancelled_at'])
 
                 if order.payment_method in ['wallet', 'razorpay']:
-                    refund_to_wallet(order.user, item.price * item.quantity, reason=f"Refund for cancelled item {item.variant}")
+
+                    from wallet.models import WalletTransaction
+
+                    #unique identifier for the order item to refund
+                    refund_reason = f"Cancelled Order Item #{item.id} (Order #{order.id})"
+                    refund_amount = item.price * item.quantity
+
+
+                    
+                    already_refunded = WalletTransaction.objects.filter(wallet__user=order.user, description__icontains=refund_reason).exists()
+
+                    if not already_refunded:
+                        refund_to_wallet(order.user, refund_amount, reason=refund_reason)
 
                 #update order total
                 order.recalc_total()
@@ -322,7 +367,7 @@ ALLOWED_TRANSITIONS = {
     'pending' : ['confirmed', 'cancelled'],
     'confirmed' : ['shipped', 'out_for_delivery', 'cancelled'],
     'shipped' : ['out_for_delivery', 'delivered'],
-    'out_for_delivery' : ['delivered'],
+    'out_for_delivery' : ['delivered', 'cancelled'],
     'delivered' : ['returned'],
     'cancelled' : [],
     'returned' : [],
@@ -545,6 +590,43 @@ def admin_return_process(request, item_id):
     item.order.update_return_status()
 
     return redirect('admin_order_detail', id=item.order.id)
+
+
+@staff_member_required
+def admin_update_item_status(request, item_id):
+    """
+    Admin can update individual OrderItems status
+    """
+
+    item = get_object_or_404(OrderItem, id=item_id)
+    order = item.order
+    user = order.user
+
+    if request.method == 'POST':
+        messages.error(request, " Invalid request method")
+        return redirect('admin_order_detail', id=order.id)
+
+    new_status = request.POST.get("status")
+    new_return_status = request.POST.get("return_status")
+    reason = request.POST.get("reason", "").strip()
+
+    #handling return_status updates
+
+    if new_return_status:
+        current_return = item.return_status
+        if not is_return_transition_allowed(curren_return, new_return_status):
+            messages.error(request, f"Invalid return transition")
+            return redirect('admin_order_detail', id=order.id)
+
+        
+        item.return_status = new_return_status
+
+        if new_return_status == 'return_approved':
+            item.is_returned = True
+            item.return_at = timezone.now()
+            item.status = "returned"
+            increment_stock(item.variant, item.quantity)
+            refund_to_wallet(user, item.item_total, reason=f"Refund for returned item {item.variant}")
 
 
 
