@@ -26,20 +26,6 @@
         padding: 20px;
     }
 
-    .back-link {
-        color: var(--primary-solid);
-        text-decoration: none;
-        font-weight: 600;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        margin-bottom: 1rem;
-    }
-
-    .back-link:hover {
-        text-decoration: underline;
-    }
-
     .details-card {
         background: white;
         border-radius: 12px;
@@ -47,6 +33,12 @@
         padding: 2rem;
         margin-bottom: 1.5rem;
         border: 1px solid #e9ecef;
+        animation: fadeIn 0.4s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 
     .order-header {
@@ -104,6 +96,7 @@
         font-weight: 700;
         text-transform: uppercase;
         display: inline-block;
+        transition: all 0.3s ease;
     }
 
     .status-pending { background: rgba(255, 193, 7, 0.15); color: #d39e00; }
@@ -134,10 +127,18 @@
     }
 
     .items-table td {
-        padding: 0.8rem;
+        padding: 1rem 0.8rem;
         border-bottom: 1px solid #f0f0f0;
         font-size: 0.9rem;
         vertical-align: middle;
+    }
+
+    .items-table tbody tr {
+        transition: background-color 0.3s ease;
+    }
+
+    .items-table tbody tr:hover {
+        background-color: rgba(0, 57, 66, 0.02);
     }
 
     .product-image {
@@ -150,6 +151,11 @@
         justify-content: center;
         overflow: hidden;
         border: 1px solid #e9ecef;
+        transition: transform 0.3s ease;
+    }
+
+    .product-image:hover {
+        transform: scale(1.1);
     }
 
     .product-image img {
@@ -158,60 +164,141 @@
         object-fit: cover;
     }
 
-    .total-section {
-        background: var(--light-bg);
-        padding: 1rem;
-        border-radius: 8px;
-        margin-top: 1rem;
+    /* Enhanced Status Badges */
+    .status-badge-container {
+        margin-bottom: 0.75rem;
     }
 
-    .total-row {
-        display: flex;
-        justify-content: space-between;
-        padding: 0.5rem 0;
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: var(--primary-solid);
-        margin-right: 50px;
-    }
-
-    /* Item Status Update Styles */
-    .item-status-form {
-        display: flex;
-        gap: 0.5rem;
+    .status-badge {
+        display: inline-flex;
         align-items: center;
+        gap: 0.4rem;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .status-badge:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+
+    .status-badge.active {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+    }
+
+    .status-badge.cancelled {
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        color: white;
+    }
+
+    .status-badge.returned {
+        background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+        color: #333;
+    }
+
+    .status-badge.return_rejected {
+        background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+        color: white;
+    }
+
+    .status-badge.return_requested {
+        background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+        color: white;
+    }
+
+    .status-badge i {
+        font-size: 0.9rem;
+    }
+
+    /* Enhanced Item Status Update Form */
+    .item-status-update {
+        background: linear-gradient(135deg, rgba(0, 57, 66, 0.03) 0%, rgba(0, 57, 66, 0.01) 100%);
+        padding: 1rem;
+        border-radius: 10px;
+        border: 2px solid #e9ecef;
+        transition: all 0.3s ease;
+    }
+
+    .item-status-update:hover {
+        border-color: var(--primary-solid);
+        box-shadow: 0 4px 12px rgba(0, 57, 66, 0.1);
+    }
+
+    .status-select-wrapper {
+        position: relative;
+        margin-bottom: 0.75rem;
+    }
+
+    .status-select-wrapper::after {
+        content: '▼';
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: none;
+        color: var(--primary-solid);
+        font-size: 0.8rem;
     }
 
     .item-status-select {
-        padding: 0.5rem;
+        width: 100%;
+        padding: 0.75rem 2.5rem 0.75rem 1rem;
         border: 2px solid #e9ecef;
-        border-radius: 6px;
-        font-size: 0.85rem;
-        min-width: 140px;
+        border-radius: 8px;
+        font-size: 0.9rem;
         background: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        appearance: none;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .item-status-select:hover {
+        border-color: var(--primary-solid);
+        background: rgba(0, 57, 66, 0.02);
     }
 
     .item-status-select:focus {
         outline: none;
         border-color: var(--primary-solid);
+        box-shadow: 0 0 0 4px rgba(0, 57, 66, 0.1);
     }
 
     .btn-update-item {
-        padding: 0.5rem 1rem;
-        background: var(--primary-solid);
+        width: 100%;
+        padding: 0.75rem 1.5rem;
+        background: linear-gradient(135deg, var(--primary-solid) 0%, var(--primary-color) 100%);
         color: white;
         border: none;
-        border-radius: 6px;
-        font-size: 0.85rem;
-        font-weight: 600;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 700;
         cursor: pointer;
-        transition: all 0.3s ease;
-        white-space: nowrap;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        box-shadow: 0 4px 6px rgba(0, 57, 66, 0.2);
     }
 
     .btn-update-item:hover {
-        background: var(--primary-color);
-        transform: translateY(-1px);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0, 57, 66, 0.3);
+    }
+
+    .btn-update-item:active {
+        transform: translateY(0);
     }
 
     .btn-update-item:disabled {
@@ -220,7 +307,53 @@
         transform: none;
     }
 
-    /* Return Management Styles */
+    /* Return Action Buttons */
+    .return-action-buttons {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 0.75rem;
+    }
+
+    .btn-return-action {
+        flex: 1;
+        padding: 0.6rem 1rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.4rem;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+
+    .btn-approve-return {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        box-shadow: 0 3px 6px rgba(40, 167, 69, 0.3);
+    }
+
+    .btn-approve-return:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 10px rgba(40, 167, 69, 0.4);
+    }
+
+    .btn-reject-return {
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        color: white;
+        box-shadow: 0 3px 6px rgba(220, 53, 69, 0.3);
+    }
+
+    .btn-reject-return:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 10px rgba(220, 53, 69, 0.4);
+    }
+
+    /* Return Section */
     .return-section {
         background: linear-gradient(135deg, rgba(255, 193, 7, 0.05) 0%, rgba(255, 193, 7, 0.02) 100%);
         border-left: 4px solid var(--warning-color);
@@ -242,9 +375,15 @@
     .return-item {
         background: white;
         border: 2px solid #e9ecef;
-        border-radius: 8px;
+        border-radius: 12px;
         padding: 1.5rem;
         margin-bottom: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .return-item:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
     }
 
     .return-item.approved {
@@ -282,33 +421,42 @@
     }
 
     .return-status-badge {
-        padding: 0.4rem 1rem;
+        padding: 0.5rem 1rem;
         border-radius: 20px;
         font-size: 0.75rem;
         font-weight: 700;
         text-transform: uppercase;
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+
+    .return-status-badge:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
     }
 
     .return-status-pending {
-        background: rgba(255, 193, 7, 0.2);
-        color: #d39e00;
+        background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+        color: #333;
     }
 
     .return-status-approved {
-        background: rgba(40, 167, 69, 0.2);
-        color: var(--success-color);
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
     }
 
     .return-status-rejected {
-        background: rgba(220, 53, 69, 0.2);
-        color: var(--danger-color);
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        color: white;
     }
 
     .return-details {
         background: #f8f9fa;
         padding: 1rem;
-        border-radius: 6px;
+        border-radius: 8px;
         margin-bottom: 1rem;
     }
 
@@ -331,17 +479,17 @@
         font-weight: 600;
         color: var(--primary-solid);
         font-size: 0.9rem;
-        margin-bottom: 0.3rem;
+        margin-bottom: 0.5rem;
     }
 
     .return-reason-text {
         background: white;
-        padding: 0.8rem;
+        padding: 1rem;
         border-left: 3px solid var(--warning-color);
         border-radius: 4px;
         color: #666;
         font-size: 0.9rem;
-        line-height: 1.5;
+        line-height: 1.6;
     }
 
     .return-actions {
@@ -352,12 +500,13 @@
         border-top: 1px solid #e9ecef;
     }
 
+    /* Button Styles */
     .btn {
         padding: 0.75rem 1.5rem;
         border-radius: 8px;
         font-weight: 600;
         cursor: pointer;
-        transition: all 0.3s ease;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         border: none;
         font-size: 0.9rem;
         display: inline-flex;
@@ -366,43 +515,51 @@
     }
 
     .btn-primary {
-        background: var(--primary-solid);
+        background: linear-gradient(135deg, var(--primary-solid) 0%, var(--primary-color) 100%);
         color: white;
+        box-shadow: 0 4px 6px rgba(0, 57, 66, 0.2);
     }
 
     .btn-primary:hover {
-        background: var(--primary-color);
         transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0, 57, 66, 0.3);
     }
 
     .btn-success {
-        background: var(--success-color);
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
         color: white;
+        box-shadow: 0 4px 6px rgba(40, 167, 69, 0.2);
     }
 
     .btn-success:hover {
-        background: #218838;
         transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(40, 167, 69, 0.3);
     }
 
     .btn-danger {
-        background: var(--danger-color);
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
         color: white;
+        box-shadow: 0 4px 6px rgba(220, 53, 69, 0.2);
     }
 
     .btn-danger:hover {
-        background: #c82333;
         transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(220, 53, 69, 0.3);
     }
 
     .btn-secondary {
-        background: #6c757d;
+        background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
         color: white;
+        box-shadow: 0 4px 6px rgba(108, 117, 125, 0.2);
     }
 
     .btn-secondary:hover {
-        background: #5a6268;
         transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(108, 117, 125, 0.3);
+    }
+
+    .btn:active {
+        transform: translateY(0);
     }
 
     .btn:disabled {
@@ -411,100 +568,141 @@
         transform: none;
     }
 
+    /* Alert Styles */
     .alert {
-        padding: 1rem;
-        border-radius: 8px;
+        padding: 1rem 1.5rem;
+        border-radius: 10px;
         margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        animation: slideIn 0.4s ease-out;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    @keyframes slideIn {
+        from { transform: translateX(-20px); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+
+    .alert::before {
+        font-family: 'Font Awesome 5 Free';
+        font-weight: 900;
+        font-size: 1.2rem;
     }
 
     .alert-success {
-        background: rgba(40, 167, 69, 0.1);
+        background: linear-gradient(135deg, rgba(40, 167, 69, 0.1) 0%, rgba(40, 167, 69, 0.05) 100%);
         color: var(--success-color);
         border-left: 4px solid var(--success-color);
     }
 
+    .alert-success::before {
+        content: '\f058';
+    }
+
     .alert-error {
-        background: rgba(220, 53, 69, 0.1);
+        background: linear-gradient(135deg, rgba(220, 53, 69, 0.1) 0%, rgba(220, 53, 69, 0.05) 100%);
         color: var(--danger-color);
         border-left: 4px solid var(--danger-color);
     }
 
+    .alert-error::before {
+        content: '\f06a';
+    }
+
     .alert-warning {
-        background: rgba(255, 193, 7, 0.1);
+        background: linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, rgba(255, 193, 7, 0.05) 100%);
         color: #d39e00;
         border-left: 4px solid var(--warning-color);
     }
 
-    .item-status {
-        font-size: 0.75rem;
-        padding: 0.25rem 0.5rem;
+    .alert-warning::before {
+        content: '\f071';
+    }
+
+    .total-section {
+        background: linear-gradient(135deg, var(--light-bg) 0%, rgba(0, 57, 66, 0.02) 100%);
+        padding: 1.5rem;
         border-radius: 10px;
-        display: inline-block;
-        margin-top: 0.25rem;
+        margin-top: 1rem;
+        border: 2px solid #e9ecef;
     }
 
-    .item-cancelled {
-        background: rgba(220, 53, 69, 0.1);
-        color: var(--danger-color);
-    }
-
-    .item-returned {
-        background: rgba(255, 193, 7, 0.1);
-        color: #d39e00;
-    }
-
-    .item-active {
-        background: rgba(40, 167, 69, 0.1);
-        color: var(--success-color);
+    .total-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.5rem 0;
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--primary-solid);
     }
 
     .no-returns {
         text-align: center;
-        padding: 2rem;
+        padding: 3rem 2rem;
         color: #6c757d;
     }
 
     .no-returns-icon {
-        font-size: 2rem;
-        margin-bottom: 0.5rem;
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
     }
 
+    /* Order Status Update Form */
     .status-update-form {
-        background: var(--light-bg);
-        padding: 1.5rem;
-        border-radius: 8px;
+        background: linear-gradient(135deg, rgba(0, 57, 66, 0.03) 0%, rgba(0, 57, 66, 0.01) 100%);
+        padding: 2rem;
+        border-radius: 12px;
         border: 2px solid #e9ecef;
+        transition: all 0.3s ease;
+    }
+
+    .status-update-form:hover {
+        border-color: var(--primary-solid);
+        box-shadow: 0 4px 12px rgba(0, 57, 66, 0.1);
     }
 
     .form-group {
-        margin-bottom: 1rem;
+        margin-bottom: 1.5rem;
     }
 
     .form-label {
-        font-weight: 600;
+        font-weight: 700;
         color: var(--primary-solid);
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.75rem;
         display: block;
+        font-size: 0.95rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
 
     .form-select, .form-input, textarea {
         width: 100%;
-        padding: 0.75rem;
+        padding: 0.9rem 1rem;
         border: 2px solid #e9ecef;
         border-radius: 8px;
         font-size: 0.95rem;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        transition: all 0.3s ease;
+        background: white;
+    }
+
+    .form-select:hover, .form-input:hover, textarea:hover {
+        border-color: var(--primary-solid);
     }
 
     .form-select:focus, .form-input:focus, textarea:focus {
         outline: none;
         border-color: var(--primary-solid);
-        box-shadow: 0 0 0 3px rgba(0, 57, 66, 0.1);
+        box-shadow: 0 0 0 4px rgba(0, 57, 66, 0.1);
     }
 
     textarea {
         resize: vertical;
-        min-height: 100px;
+        min-height: 120px;
+        line-height: 1.6;
     }
 
     @media (max-width: 768px) {
@@ -512,11 +710,11 @@
             flex-direction: column;
         }
 
-        .return-actions {
+        .return-actions, .return-action-buttons {
             flex-direction: column;
         }
 
-        .btn {
+        .btn, .btn-return-action {
             width: 100%;
             justify-content: center;
         }
@@ -525,14 +723,8 @@
             grid-template-columns: 1fr;
         }
 
-        .item-status-form {
-            flex-direction: column;
-            align-items: stretch;
-        }
-
-        .item-status-select,
-        .btn-update-item {
-            width: 100%;
+        .item-status-update {
+            padding: 0.75rem;
         }
     }
 </style>
@@ -548,7 +740,7 @@
                 <p class="mb-0 text-muted" style="font-size: 0.9rem;">View and manage order details and item statuses</p>
             </div>
             <a href="{% url 'admin_order_list' %}" class="btn btn-secondary">
-                <i class="fas fa-arrow-left me-2"></i>Back to Orders
+                <i class="fas fa-arrow-left"></i>Back to Orders
             </a>
         </div>
     </div>
@@ -594,7 +786,7 @@
         </div>
 
         <!-- Order Items with Individual Status Update -->
-        <h3 style="color: var(--primary-solid); margin-bottom: 1rem;">Order Items</h3>
+        <h3 style="color: var(--primary-solid); margin-bottom: 1rem; font-weight: 700;">Order Items</h3>
         <table class="items-table">
             <thead>
                 <tr>
@@ -604,7 +796,7 @@
                     <th>Quantity</th>
                     <th>Price</th>
                     <th>Subtotal</th>
-                    <th style="min-width: 250px;">Status & Actions</th>
+                    <th style="min-width: 280px;">Status & Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -625,18 +817,75 @@
                     <td>₹{{ item.price|floatformat:2 }}</td>
                     <td><strong>₹{{ item.subtotal|floatformat:2 }}</strong></td>
                     <td>
-                        <form method="post" action="#" class="item-status-form">
-                            {% csrf_token %}
-                            <select name="status" class="item-status-select" required>
-                                <option value="active" {% if item.status == 'active' %}selected{% endif %}>✓ Active</option>
-                                <option value="cancelled" {% if item.status == 'cancelled' %}selected{% endif %}>❌ Cancelled</option>
-                                <option value="returned" {% if item.status == 'returned' %}selected{% endif %}>↩️ Returned</option>
-                                <option value="return_rejected" {% if item.status == 'return_rejected' %}selected{% endif %}>❌ Return Rejected</option>
-                            </select>
-                            <button type="submit" class="btn-update-item" onclick="return confirm('Update status for this item?')">
-                                <i class="fas fa-check"></i> Update
-                            </button>
-                        </form>
+                        <div class="item-status-update">
+                            <!-- Current Status Badge -->
+                            <div class="status-badge-container">            
+                                {% if item.status == 'confirmed' %}
+                                    <span class="status-badge active">
+                                        <i class="fas fa-check-circle"></i> Confirmed
+                                    </span>
+                                {% elif item.status == 'cancelled' %}
+                                    <span class="status-badge cancelled">
+                                        <i class="fas fa-times-circle"></i> Cancelled
+                                    </span>
+                                {% elif item.status == 'returned' %}
+                                    <span class="status-badge returned">
+                                        <i class="fas fa-undo"></i> Returned
+                                    </span>
+                                {% elif item.status == 'return_rejected' %}
+                                    <span class="status-badge return_rejected">
+                                        <i class="fas fa-ban"></i> Return Rejected
+                                    </span>
+                                {% elif item.status == 'return_requested' %}
+                                    <span class="status-badge return_requested">
+                                        <i class="fas fa-clock"></i> Return Requested
+                                    </span>
+                                {% else %}
+                                    <span class="status-badge" style="background: #6c757d; color: white;">
+                                        <i class="fas fa-question-circle"></i> pending
+                                    </span>
+                                {% endif %}
+                            </div>
+
+                            <!-- Status Update Form -->
+                            <form method="post" action="{% url 'admin_update_item_status' item.id %}">
+                                {% csrf_token %}
+                                <div class="status-select-wrapper">
+                                    <select name="status" class="item-status-select" required>
+                                        <option value="">Change status...</option>
+                                        {% for value, label in item.STATUS_CHOICES %}
+                                            
+                                                <option value="{{ value }}" {% if value == item.status %}selected{% endif %}>{{ label }}</option>
+                                            
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn-update-item" >
+                                    <i class="fas fa-check-circle"></i> Update Status
+                                </button>
+                            </form>
+
+                            <!-- Return Action Buttons (if return requested) -->
+                            {% if item.return_status == 'return_requested' %}
+                            <div class="return-action-buttons">
+                                <form method="post" action="{% url 'admin_update_item_status' item.id %}" style="flex: 1;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="return_status" value="return_approved">
+                                    <button type="submit" class="btn-return-action btn-approve-return">
+                                        <i class="fas fa-check"></i> Approve
+                                    </button>
+                                </form>
+
+                                <form method="post" action="{% url 'admin_update_item_status' item.id %}" style="flex: 1;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="return_status" value="return_rejected">
+                                    <button type="submit" class="btn-return-action btn-reject-return" >
+                                        <i class="fas fa-times"></i> Reject
+                                    </button>
+                                </form>
+                            </div>
+                            {% endif %}
+                        </div>
                     </td>
                 </tr>
                 {% endfor %}
@@ -646,7 +895,7 @@
         <!-- Total -->
         <div class="total-section">
             <div class="total-row">
-                <span>Total Amount:</span>
+                <span><i class="fas fa-calculator"></i> Total Amount:</span>
                 <span>₹{{ order_total|floatformat:2 }}</span>
             </div>
         </div>
@@ -671,48 +920,48 @@
                                     <div class="return-product-qty">Quantity: {{ item.quantity }}</div>
                                 </div>
 
-                                <span class="return-status-badge return-status-{{ item.return_status }}">
+                                <span class="return-status-badge {% if item.return_status == 'return_requested' %}return-status-pending{% elif item.return_status == 'return_approved' %}return-status-approved{% elif item.return_status == 'return_rejected' %}return-status-rejected{% endif %}">
                                     {% if item.return_status == 'return_requested' %}
-                                        ⏳ Return Requested
+                                        <i class="fas fa-clock"></i> Return Requested
                                     {% elif item.return_status == 'return_approved' %}
-                                        ✅ Return Approved
+                                        <i class="fas fa-check-circle"></i> Return Approved
                                     {% elif item.return_status == 'return_rejected' %}
-                                        ❌ Return Rejected
+                                        <i class="fas fa-times-circle"></i> Return Rejected
                                     {% endif %}
                                 </span>
                             </div>
 
                             <div class="return-details">
                                 <div class="detail-row">
-                                    <strong>Requested On:</strong>
+                                    <strong><i class="fas fa-calendar-alt"></i> Requested On:</strong>
                                     <span>{{ item.return_at|date:"F d, Y H:i" }}</span>
                                 </div>
                                 <div class="detail-row">
-                                    <strong>Refund Amount:</strong>
+                                    <strong><i class="fas fa-money-bill-wave"></i> Refund Amount:</strong>
                                     <span>₹{{ item.item_total|floatformat:2 }}</span>
                                 </div>
                             </div>
 
                             <div class="return-reason">
-                                <div class="return-reason-label">Reason:</div>
+                                <div class="return-reason-label"><i class="fas fa-comment-alt"></i> Reason:</div>
                                 <div class="return-reason-text">{{ item.return_reason|default:"(No reason provided)" }}</div>
                             </div>
 
                             {% if item.return_status == 'return_requested' %}
                             <div class="return-actions">
-                                <form method="post" action="{% url 'admin_return_process' item.id %}" style="display:inline;">
+                                <form method="post" action="{% url 'admin_return_process' item.id %}" style="flex: 1;">
                                     {% csrf_token %}
                                     <input type="hidden" name="action" value="approve">
-                                    <button type="submit" class="btn btn-success" onclick="return confirm('Approve this return request?')">
-                                        <i class="fas fa-check"></i> Approve
+                                    <button type="submit" class="btn btn-success" style="width: 100%;">
+                                        <i class="fas fa-check-circle"></i> Approve Return
                                     </button>
                                 </form>
 
-                                <form method="post" action="{% url 'admin_return_process' item.id %}" style="display:inline;">
+                                <form method="post" action="{% url 'admin_return_process' item.id %}" style="flex: 1;">
                                     {% csrf_token %}
                                     <input type="hidden" name="action" value="reject">
-                                    <button type="submit" class="btn btn-danger" onclick="return confirm('Reject this return request?')">
-                                        <i class="fas fa-times"></i> Reject
+                                    <button type="submit" class="btn btn-danger"  style="width: 100%;">
+                                        <i class="fas fa-times-circle"></i> Reject Return
                                     </button>
                                 </form>
                             </div>
@@ -722,13 +971,13 @@
                     {% empty %}
                         <div class="no-returns">
                             <div class="no-returns-icon">📦</div>
-                            <p>No return requests for this order.</p>
+                            <p style="font-size: 1rem; margin: 0;">No return requests for this order.</p>
                         </div>
                     {% endfor %}
                 {% else %}
                     <div class="no-returns">
                         <div class="no-returns-icon">📦</div>
-                        <p>No return requests for this order.</p>
+                        <p style="font-size: 1rem; margin: 0;">No return requests for this order.</p>
                     </div>
                 {% endif %}
             {% endwith %}
@@ -738,24 +987,53 @@
 
     <!-- Global Order Status Update Form -->
     <div class="details-card">
-        <h3 style="color: var(--primary-solid); margin-bottom: 1rem;">Update Overall Order Status</h3>
+        <h3 style="color: var(--primary-solid); margin-bottom: 1.5rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
+            <i class="fas fa-edit"></i> Update Overall Order Status
+        </h3>
         <form method="post" action="{% url 'admin_update_order_status' id=order.id %}" class="status-update-form">
             {% csrf_token %}
             
             <div class="form-group">
-                <label class="form-label">Change Order Status:</label>
+                <label class="form-label"><i class="fas fa-shipping-fast"></i> Change Order Status:</label>
                 {{ form.status }}
             </div>
 
             <div class="form-group">
-                <label class="form-label">Reason (optional, for cancellations/returns):</label>
-                <textarea name="reason" placeholder="Enter reason for status change..."></textarea>
+                <label class="form-label"><i class="fas fa-comment-dots"></i> Reason (optional):</label>
+                <textarea name="reason" placeholder="Enter reason for status change (optional for cancellations/returns)..."></textarea>
             </div>
 
-            <button type="submit" class="btn btn-primary">
-                <i class="fas fa-check"></i> Update Order Status
+            <button type="submit" class="btn btn-primary" style="padding: 1rem 2rem; font-size: 1rem;">
+                <i class="fas fa-save"></i> Update Order Status
             </button>
         </form>
     </div>
 </div>
+
+<script>
+// Add smooth scrolling and visual feedback
+document.addEventListener('DOMContentLoaded', function() {
+    // Animate alerts
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(alert => {
+        setTimeout(() => {
+            alert.style.opacity = '0';
+            alert.style.transform = 'translateX(20px)';
+            setTimeout(() => alert.remove(), 300);
+        }, 5000);
+    });
+
+    // Add loading state to form submissions
+    const forms = document.querySelectorAll('form');
+    forms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            const submitBtn = this.querySelector('button[type="submit"]');
+            if (submitBtn && !submitBtn.disabled) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            }
+        });
+    });
+});
+</script>
 {% endblock %}

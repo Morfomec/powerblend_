@@ -32,6 +32,10 @@ class BasketItem(models.Model):
     #     return self.variant.price * self.quantity
 
     @property
+    def price(self):
+        return self.variant.price
+        
+    @property
     def subtotal(self):
         from offers.utils import get_discount_info_for_variant
         discount_info = get_discount_info_for_variant(self.variant)
@@ -40,3 +44,4 @@ class BasketItem(models.Model):
     def __str__(Self):
         return f"{self.variant} x {self.quantity}"
     
+

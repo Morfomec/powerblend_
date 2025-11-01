@@ -25,6 +25,7 @@ class Order(models.Model):
         ('delivered', 'Delivered'),
         ('cancelled', 'Cancelled'),
         ('returned', 'Returned'),
+        ('partially_cancelled', 'Partially cancelled'),
     ]
 
     PAYMENT_CHOICES = [
@@ -147,6 +148,33 @@ class Order(models.Model):
         self.save()
 
 
+    def update_order_status(self):
+        """
+        Sync order status based on all its item statuses.
+        """
+        item_statuses = list(self.items.values_list('status', flat=True))
+
+        if all(s == 'delivered' for s in item_statuses):
+            self.status = 'delivered'
+
+        elif all(s == 'cancelled' for s in item_statuses):
+            self.status = 'cancelled'
+
+        elif any(s in ['shipped', 'out_for_delivery'] for s in item_statuses):
+            self.status = 'out_for_delivery' if 'out_for_delivery' in item_statuses else 'shipped'
+
+        elif any(s == 'confirmed' for s in item_statuses):
+            self.status = 'confirmed'
+
+        elif any(s in ['cancelled', 'returned'] for s in item_statuses):
+            self.status = 'partially_cancelled'
+
+        else:
+            self.status = 'pending'
+
+        self.save(update_fields=['status'])
+
+
 # OrderItems Model , links each order to a ProductVariant
 class OrderItem(models.Model):
 
@@ -193,3 +221,23 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"{self.variant} x {self.quantity} ({self.order.order_id})"
+
+
+    @property
+    def variant_total(self):
+        """
+        Returns the total price for the variant
+        """
+        return self.price * self.quantity
+
+
+
+
+
+    # @property
+    # def original_subtotal(self):
+    #     """
+    #     original price subtotal before discount
+    #     """
+    #     if hasttr(self.variant, "discount_info") and self.variant.discount_info:
+    #         return self.variant.discount_info.original_price * self.quantity

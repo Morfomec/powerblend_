@@ -545,7 +545,7 @@
                                     <span class="savings">Save ₹{{ item.save_subtotal }} ({{ item.variant.discount_info.discount_percent }}%)</span>
                                 </div>
                             {% else %}
-                                <div class="current-price">₹{{ item.variant.price }}</div>
+                                <div class="current-price">₹{{ item.total_each_price }}</div>
                             {% endif %}
                         </div>
 

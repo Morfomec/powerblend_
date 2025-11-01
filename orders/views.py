@@ -24,6 +24,7 @@ from weasyprint import HTML
 import tempfile
 
 from wallet.utils import refund_to_wallet
+from django.db import transaction
 # Create your views here.
 
 
@@ -363,10 +364,10 @@ def return_item(request, order_id, item_id):
 ######################### ADMIN SIDE #########################
 
 
-ALLOWED_TRANSITIONS = {
-    'pending' : ['confirmed', 'cancelled'],
-    'confirmed' : ['shipped', 'out_for_delivery', 'cancelled'],
-    'shipped' : ['out_for_delivery', 'delivered'],
+ADMIN_ALLOWED_TRANSITIONS = {
+    'pending' : ['confirmed', 'shipped', 'out_for_delivery', 'delivered', 'cancelled', 'partially_cancelled'],
+    'confirmed' : ['shipped', 'out_for_delivery', 'delivered', 'cancelled', 'partially_cancelled'],
+    'shipped' : ['out_for_delivery', 'cancelled', 'delivered'],
     'out_for_delivery' : ['delivered', 'cancelled'],
     'delivered' : ['returned'],
     'cancelled' : [],
@@ -374,8 +375,18 @@ ALLOWED_TRANSITIONS = {
 }
 
 
-def is_transition_allowed(current, target):
-    return target in ALLOWED_TRANSITIONS.get(current, [])
+RETURN_TRANSITION_ALLOWED = {
+    'pending' : ['return_requested'],
+    'return_requested' : ['return_approved', 'return_rejected'],
+    'return_approved' : [],
+    'return_rejected' : [],
+}
+
+def is_return_transition_allowed(current, target):
+    return target in RETURN_TRANSITION_ALLOWED.get(current, [])
+
+def is_admin_transition_allowed(current, target):
+    return target in ADMIN_ALLOWED_TRANSITIONS.get(current, [])
 
 
 @staff_member_required
@@ -480,7 +491,7 @@ def admin_update_order_status(request, id):
 
     # checking if transition allowed or not
 
-    if not is_transition_allowed(current_status, new_status):
+    if not is_admin_transition_allowed(current_status, new_status):
         messages.error(request, f"Transition not allowed: {current_status}")
         return redirect('admin_order_detail', id=order.id)
 
@@ -592,6 +603,51 @@ def admin_return_process(request, item_id):
     return redirect('admin_order_detail', id=item.order.id)
 
 
+
+# def update_order_status(self):
+#     """
+#     to sync order status based on all item status
+#     """
+
+#     # order = self.order
+#     item_statuses = list(order.items.values_list('status', flat=True))
+
+#     if all(s == 'delivered' for s in item_statuses):
+#         order.status = 'delivered'
+
+#     elif all(s == 'cancelled' for s in item_statuses):
+#         order.status = 'cancelled'
+
+#     elif any(s in ['shipped', 'out_for_delivery'] for s in item_statuses):
+#         order.status = 'out_for_delivery' if 'out_for_delivery' in item_statuses else 'shipped'
+    
+#     elif any(s == 'confirmed' for s in item_statuses):
+#         order.status = 'confirmed'
+    
+#     elif any(s in ['cancelled', 'returned'] for s in item_statuses):
+#         order.status = 'partially_cancelled'
+    
+#     else:
+#         order.status = 'pending'
+    
+#     order.save(update_fields=['status'])
+
+
+# def cancel(self, reason=None):
+#     """
+#     cancel a single item and restore stock
+#     """
+
+#     if not self.is_cancelled:
+#         self.is_cancelled = True
+#         self.status = 'cancelled'
+#         self.cancelled_reason = reason
+#         self.cancelled_at = timezone.now()
+#         self.variant.stock += self.quantity
+#         self.variant.save(update_fields=['stock'])
+#         self.save()
+
+@transaction.atomic
 @staff_member_required
 def admin_update_item_status(request, item_id):
     """
@@ -602,7 +658,7 @@ def admin_update_item_status(request, item_id):
     order = item.order
     user = order.user
 
-    if request.method == 'POST':
+    if request.method != 'POST':
         messages.error(request, " Invalid request method")
         return redirect('admin_order_detail', id=order.id)
 
@@ -614,7 +670,7 @@ def admin_update_item_status(request, item_id):
 
     if new_return_status:
         current_return = item.return_status
-        if not is_return_transition_allowed(curren_return, new_return_status):
+        if not is_return_transition_allowed(current_return, new_return_status):
             messages.error(request, f"Invalid return transition")
             return redirect('admin_order_detail', id=order.id)
 
@@ -627,8 +683,58 @@ def admin_update_item_status(request, item_id):
             item.status = "returned"
             increment_stock(item.variant, item.quantity)
             refund_to_wallet(user, item.item_total, reason=f"Refund for returned item {item.variant}")
+            messages.success(request, f"Return approved and refunded for  {item.variant}.")
 
+        elif new_return_status == 'return_rejected':
+            messages.info(request, f"Return rejected for {item.variant}.")
 
+        item.save(update_fields=['return_status', 'is_returned', 'return_at', 'status'])
+        return redirect('admin_order_detail', id=order.id)
+
+    
+    # handle normal statu updates
+    current_status = item.status
+    if not is_admin_transition_allowed(current_status, new_status):
+        messages.error(request, f"Invalid status transition")
+        return redirect('admin_order_detail', id=order.id)
+
+    if new_status == 'cancelled':
+        item.is_cancelled = True
+        item.cancelled_at = timezone.now()
+        item.cancelled_reason = reason
+        increment_stock(item.variant, item.quantity)
+
+        if order.payment_method in ['wallet', 'razorpay']:
+            refund_to_wallet(user, item.item_total, reason=f"Refund for cancelled item {item.variant}")
+        messages.success(request, f"Item {item.variant} cancelled and refunded.")
+
+    elif new_status == 'returned':
+        item.is_returned = True
+        item.return_at = timezone.now()
+        item.return_reason = reason
+        increment_stock(item.variant, item.quantity)
+        if order.payment_method in ['wallet', 'razorpay']:
+            refund_to_wallet(user, item.item_total, reason= f"Refund for cancelled item {item.variant}")
+        messages.success(request, f"Item {item.variant} returned.")
+    
+    elif new_status == 'delivered':
+        messages.success(request, f"Item {item.variant} marked as delivered.")
+
+    item.status = new_status
+    
+    item.save(update_fields=['status', 'is_cancelled', 'cancelled_reason', 'cancelled_at', 'is_returned', 'return_reason', 'return_at'])
+
+    # remaining = order.items.exclude(status__in=['cancelled', 'returned']).count()
+    # if remaining == 0:
+    #     order.status = "cancelled"
+    # elif all(i.status == 'delivered' for i in order.items.all()):
+    #     order.status = "delivered"
+    # order.save(update_fields=['status'])
+
+    order.update_order_status()
+    order.refresh_from_db()
+    messages.success(request, f"{item.variant} status updated to {new_status}.")
+    return redirect('admin_order_detail', id=order.id)
 
 @login_required
 def download_invoice(request, order_id):

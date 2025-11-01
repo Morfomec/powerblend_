@@ -203,8 +203,9 @@ class BasketDetailView(LoginRequiredMixin, View):
                 item.discounted_subtotal = item.variant.discount_info['price'] * item.quantity
                 item.original_subtotal = item.variant.discount_info['original_price'] * item.quantity
                 item.save_subtotal = item.variant.discount_info['save_price'] * item.quantity
+                item.total_each_price = item.price * item.quantity
 
-            total_price = sum(item.subtotal for item in items)
+            total_price = sum(item.discounted_subtotal for item in items)
 
         else:
             basket = None
