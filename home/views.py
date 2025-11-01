@@ -12,7 +12,7 @@ from offers.models import Offer
 from offers.utils import get_best_offer_for_product, get_discount_info_for_variant
 from collections import OrderedDict
 from django.http import JsonResponse
-
+from decimal import Decimal, InvalidOperation
 # Create your views here.
 
 
@@ -93,11 +93,23 @@ def list_products(request):
 
     min_price = request.GET.get("min_price")
     max_price = request.GET.get("max_price")
-
-    if min_price:
-        products = products.filter(variants__price__gte=min_price)
-    if max_price:
-        products = products.filter(variants__price__lte=max_price)
+    
+    try:
+        if min_price:
+            min_price_decimal = Decimal(min_price)
+            if min_price_decimal < 0:
+                messages.warning(request, "Minimum price cannot be negative.")
+            else:
+                products = products.filter(variants__price__gte=min_price_decimal)
+        if max_price:
+            max_price_decimal = Decimal(max_price)   
+            if max_price_decimal < 0:
+                messages.warning(request, "Maximum price cannot be negative.")
+            else:
+                products = products.filter(variants_price_lte=max_price_decimal)
+            # products = products.filter(variants__price__lte=max_price)
+    except InvalidOperation:
+        messages.warning(request, "Price filter must contain positive numbers only.")
 
     
 

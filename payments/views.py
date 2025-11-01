@@ -209,6 +209,8 @@ def checkout_view(request):
                     order.payment_status = 'paid'
                     order.save()
 
+                    order.items.update(status='confirmed')
+
                     # basket.items.all().delete()
                     # basket.is_active = False
                     # basket.save()
@@ -229,12 +231,14 @@ def checkout_view(request):
                 order.razorpay_order_id = razorpay_order_id
                 order.save()
 
+
+                
                 # basket.items.all().delete()
                 # basket.is_active = False
                 # basket.save()
 
                 callback_url = 'paymenthandler/'
-
+                order.item.update(status='confirmed')
                 context = {
                     'default_address': default_address,
                     'basket_items': basket_items,

@@ -776,6 +776,14 @@
                 <span class="status-tag status-{{ order.status }}">{{ order.get_status_display }}</span>
             </div>
             <div class="info-item">
+                <span class="info-label">Actual Amount</span>
+                <span class="info-value">₹{{ order_total|floatformat:2 }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Discount Applied</span>
+                <span class="info-value">₹{{ discount_applied }}</span>
+            </div>
+            <div class="info-item">
                 <span class="info-label">Total Amount</span>
                 <span class="info-value">₹{{ order.total|floatformat:2 }}</span>
             </div>
@@ -814,8 +822,8 @@
                     <td><strong>{{ item.variant.product.name }}</strong></td>
                     <td>{{ item.variant|default:"Standard" }}</td>
                     <td>{{ item.quantity }}</td>
-                    <td>₹{{ item.price|floatformat:2 }}</td>
-                    <td><strong>₹{{ item.subtotal|floatformat:2 }}</strong></td>
+                    <td>₹{{ item.single_price|floatformat:2 }}</td>
+                    <td><strong>₹{{ item.price|floatformat:2 }}</strong></td>
                     <td>
                         <div class="item-status-update">
                             <!-- Current Status Badge -->
@@ -896,7 +904,7 @@
         <div class="total-section">
             <div class="total-row">
                 <span><i class="fas fa-calculator"></i> Total Amount:</span>
-                <span>₹{{ order_total|floatformat:2 }}</span>
+                <span>₹{{ order.total|floatformat:2 }}</span>
             </div>
         </div>
     </div>

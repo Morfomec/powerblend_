@@ -9,7 +9,7 @@ from orders.models import Order
 from .models import Address
 from .forms import AddressForm
 from django.urls import reverse
-
+from django.db.models import Sum
 from .forms import EditProfileForm, EmailChangeForm
 
 from accounts.models import UserReferral
@@ -45,12 +45,18 @@ def user_dashboard(request):
 
     recent_orders = Order.objects.filter(user=user).order_by('-created_at')[:3]
 
+    total_orders = Order.objects.filter(user=user).count()
+    total_addresses = Address.objects.filter(user=user).count()
+    total_spend = Order.objects.filter(user=user, status='delivered').aggregate(total=Sum('total'))['total'] or 0
     context = {
         'user': user,
         'addresses' : addresses,
         'referral_code': referral.referral_code,
         'referred_users' : referred_users,
         'recent_orders' : recent_orders,
+        'total_orders' : total_orders,
+        'total_addresses' : total_addresses,
+        'total_spend' : total_spend,
         # 'orders': orders,
     }
 
@@ -74,6 +80,8 @@ def edit_profile(request):
             form.save()
             messages.success(request, "Profile updated successfully!")
             return redirect("user_dashboard")
+        else:
+            print("Form errors:", form.errors)
     
     else:
         form = EditProfileForm(instance=request.user)

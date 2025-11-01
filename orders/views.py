@@ -101,11 +101,19 @@ def order_details(request, order_id):
 
 
     active_items = order.items.filter(is_cancelled=False, is_returned=False)
-    
+
+    # for item in order_items:
+    #     item.subtotal = item.price
+    #     item.single_price = item.price / item.quantity
+
+    # order_total = sum(item.subtotal for item in order_items)
+
     for item in order_items:
         item.total_price = item.price * item.quantity
     
     subtotal = sum(item.price * item.quantity for item in active_items)
+
+    # subtotal = sum(item.subtotal for item in active_items)
 
     taxes = subtotal * Decimal('0')
 
@@ -439,13 +447,14 @@ def admin_order_detail(request, id):
 
     #to get subtotal for each items (if there are 2 * product)
     for item in order_items:
-        item.subtotal = item.price * item.quantity
+        item.subtotal = item.price
+        item.single_price = item.price / item.quantity
 
     order_total = sum(item.subtotal for item in order_items)
 
     #prepare form prefilled with current status
     form = AdminOrderStatusForm(initial={'status' : order.status})
-
+    discount_applied = order.discount_amount or 0
     return_items = order.items.filter(return_status__in=['return_requested', 'return_approved', 'return_rejected'])
 
 
@@ -458,6 +467,7 @@ def admin_order_detail(request, id):
         'form' : form,
         # 'return_requests' : return_requests
         'return_items': return_items,
+        'discount_applied' : discount_applied,
     }
 
     return render(request, 'admin_order_detail.html', context)

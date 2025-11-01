@@ -15,9 +15,11 @@ INVALID_PINCODES = {f"{d}{d}{d}{d}{d}{d}" for d in "0123456789"}
 
 
 class EditProfileForm(forms.ModelForm):
+    profile_image = forms.ImageField(required=False)
+
     class Meta:
         model = User
-        fields = ['full_name', 'profile_image', 'email', 'mobile', 'date_of_birth', 'gender', 'country']
+        fields = ['full_name', 'profile_image', 'mobile', 'date_of_birth', 'gender', 'country']
 
 class EmailChangeForm(forms.Form):
     new_email = forms.EmailField()

@@ -819,9 +819,9 @@ textarea::placeholder {
                     </div>
                     <div class="product-info">
                         <div class="product-name">{{ item.variant.product.name }}</div>
-                        <div class="product-qty">Qty: {{ item.quantity }}</div>
+                        <div class="product-qty">Qty: {{ item.single_price }}</div>
                     </div>
-                    <div class="product-price">₹{{ item.price }}</div>
+                    <div class="product-price">₹{{ item.subtotal }}</div>
                 </div> 
             </div>
             {% endfor %} 
