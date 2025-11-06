@@ -185,7 +185,7 @@
         color: var(--success-color);
     }
 
-    .status-cancelled {
+    .status-cancelled, .status-partially_cancelled {
         background: rgba(220, 53, 69, 0.15);
         color: var(--danger-color);
     }
@@ -311,6 +311,7 @@
                 <option value="delivered" {% if status == 'delivered' %}selected{% endif %}>Delivered</option>
                 <option value="cancelled" {% if status == 'cancelled' %}selected{% endif %}>Cancelled</option>
                 <option value="returned" {% if status == 'returned' %}selected{% endif %}>Returned</option>
+                <option value="partially_cancelled" {% if status == 'partially_cancelled' %}selected{% endif %}>Partially Cancelled</option>
             </select>
             
             <button type="submit" class="btn-search">
@@ -330,6 +331,7 @@
                     <th>User</th>
                     <th>Items</th>
                     <th>Total</th>
+                    <th>Payment</th>
                     <th>Status</th>
                     <th>Created</th>
                     <th>Actions</th>
@@ -346,6 +348,8 @@
                     </td>
                     <td>{{ order.items.count }}</td>
                     <td><strong>₹{{ order.total|floatformat:2 }}</strong></td>
+                    <td><strong>{{ order.payment_method|upper }}</strong></td>
+
                     <td>
                         <span class="status-tag status-{{ order.status }}">
                             {{ order.get_status_display }}

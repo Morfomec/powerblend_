@@ -1,0 +1,753 @@
+{% extends 'home_base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="home-container">
+    <div class="welcome-header mb-4">
+        <h1 class="welcome-title">Welcome, {{ request.user.username }}!</h1>
+    </div>
+</div>
+{% endblock content %}
+
+{% block extra_css %}
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-teal: rgb(0 57 66 / 1);
+            --light-teal: #4a9b96;
+            --dark-gray: #333;
+            --off-white: #f8f9fa;
+            --white: #ffffff;
+            --text-dark: #2c3e50;
+            --text-gray: #6c757d;
+            --border-light: #e9ecef;
+            --accent-gold: #d4af37;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--off-white);
+            color: var(--text-dark);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+            background: 
+                linear-gradient(135deg, rgba(0, 57, 66, 0.95), rgba(74, 155, 150, 0.9)),
+                url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridMove 20s linear infinite;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        .hero-content {
+            max-width: 900px;
+            z-index: 1;
+            position: relative;
+            animation: fadeInUp 1s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero-badge {
+            display: inline-block;
+            padding: 0.5rem 1.5rem;
+            border: 2px solid var(--white);
+            color: var(--white);
+            background: rgba(255, 255, 255, 0.1);
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 2rem;
+            animation: glowPulse 2s ease-in-out infinite;
+            backdrop-filter: blur(10px);
+        }
+
+        @keyframes glowPulse {
+            0%, 100% { box-shadow: 0 0 10px rgba(255, 255, 255, 0.3); }
+            50% { box-shadow: 0 0 25px rgba(255, 255, 255, 0.6); }
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 8vw, 5.5rem);
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: -2px;
+            color: var(--white);
+        }
+
+        .hero h1 .highlight {
+            background: linear-gradient(135deg, var(--accent-gold), #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1rem, 2vw, 1.3rem);
+            color: rgba(255, 255, 255, 0.9);
+            max-width: 600px;
+            margin: 0 auto 3rem;
+            font-weight: 300;
+            letter-spacing: 0.5px;
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            color: var(--white);
+            font-size: 2rem;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(10px); }
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Section Styling */
+        section {
+            padding: 6rem 0;
+            position: relative;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+            animation: fadeIn 1s ease;
+        }
+
+        .section-tag {
+            color: var(--light-teal);
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+        }
+
+        .section-title {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 800;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: -1px;
+            color: var(--primary-teal);
+        }
+
+        .section-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-gray);
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.8;
+        }
+
+        /* Story Section */
+        .story {
+            background: var(--white);
+            position: relative;
+        }
+
+        .story::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, var(--primary-teal), transparent);
+        }
+
+        .story-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .story-text p {
+            font-size: 1.1rem;
+            color: var(--text-gray);
+            line-height: 1.9;
+            margin-bottom: 1.5rem;
+        }
+
+        .story-highlight {
+            background: var(--off-white);
+            border-left: 4px solid var(--primary-teal);
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .story-highlight p {
+            color: var(--primary-teal);
+            font-weight: 600;
+            font-size: 1.2rem;
+            margin: 0;
+            font-style: italic;
+        }
+
+        .story-image {
+            position: relative;
+            height: 500px;
+            overflow: hidden;
+            border: 3px solid var(--primary-teal);
+            box-shadow: 0 10px 40px rgba(0, 57, 66, 0.15);
+        }
+
+        .story-image::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, var(--primary-teal) 0%, transparent 50%);
+            opacity: 0.1;
+            z-index: 1;
+        }
+
+        .story-image-placeholder {
+            width: 100%;
+            height: 100%;
+            background: var(--off-white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: var(--primary-teal);
+        }
+
+        /* Mission Vision */
+        .mission-vision {
+            background: var(--off-white);
+        }
+
+        .mv-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            margin-top: 3rem;
+        }
+
+        .mv-card {
+            background: var(--white);
+            padding: 3rem;
+            border-top: 4px solid var(--primary-teal);
+            box-shadow: 0 4px 20px rgba(0, 57, 66, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .mv-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 57, 66, 0.15);
+        }
+
+        .mv-card h3 {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--primary-teal);
+        }
+
+        .mv-card h3 i {
+            color: var(--light-teal);
+            margin-right: 1rem;
+        }
+
+        .mv-card p {
+            font-size: 1.1rem;
+            color: var(--text-gray);
+            line-height: 1.8;
+        }
+
+        /* Values Section */
+        .values {
+            background: var(--white);
+        }
+
+        .values-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 4rem;
+        }
+
+        .value-card {
+            background: var(--off-white);
+            padding: 3rem 2rem;
+            text-align: center;
+            border: 2px solid var(--border-light);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .value-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 57, 66, 0.05), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .value-card:hover::before {
+            left: 100%;
+        }
+
+        .value-card:hover {
+            border-color: var(--primary-teal);
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(0, 57, 66, 0.15);
+            background: var(--white);
+        }
+
+        .value-icon {
+            font-size: 3rem;
+            color: var(--primary-teal);
+            margin-bottom: 1.5rem;
+            display: inline-block;
+            transition: transform 0.3s ease;
+        }
+
+        .value-card:hover .value-icon {
+            transform: scale(1.2);
+            color: var(--light-teal);
+        }
+
+        .value-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--primary-teal);
+        }
+
+        .value-card p {
+            color: var(--text-gray);
+            line-height: 1.7;
+        }
+
+        /* Promise Section */
+        .promise {
+            background: var(--off-white);
+            position: relative;
+        }
+
+        .promise::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary-teal), transparent);
+        }
+
+        .promise-content {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .promise-box {
+            background: var(--white);
+            padding: 4rem 3rem;
+            border: 3px solid var(--primary-teal);
+            position: relative;
+            margin-top: 3rem;
+            box-shadow: 0 10px 40px rgba(0, 57, 66, 0.1);
+        }
+
+        .promise-box::before,
+        .promise-box::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--light-teal);
+        }
+
+        .promise-box::before {
+            top: -3px;
+            left: -3px;
+            border-right: none;
+            border-bottom: none;
+        }
+
+        .promise-box::after {
+            bottom: -3px;
+            right: -3px;
+            border-left: none;
+            border-top: none;
+        }
+
+        .promise-box p {
+            font-size: 1.2rem;
+            line-height: 2;
+            color: var(--text-dark);
+            margin-bottom: 1.5rem;
+        }
+
+        .promise-signature {
+            font-size: 1.5rem;
+            color: var(--primary-teal);
+            font-weight: 700;
+            margin-top: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        /* CTA Section */
+        .cta {
+            background: linear-gradient(135deg, var(--primary-teal), var(--light-teal));
+            text-align: center;
+            padding: 8rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        .cta-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .cta h2 {
+            font-size: clamp(2rem, 5vw, 4rem);
+            font-weight: 900;
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+            letter-spacing: -1px;
+            color: var(--white);
+        }
+
+        .cta p {
+            font-size: 1.3rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 3rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 1.2rem 3rem;
+            font-size: 1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            border-radius: 4px;
+        }
+
+        .btn-primary {
+            background: var(--white);
+            color: var(--primary-teal);
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: var(--accent-gold);
+            transition: width 0.6s ease, height 0.6s ease;
+            transform: translate(-50%, -50%);
+            z-index: 0;
+        }
+
+        .btn-primary:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-primary:hover {
+            color: var(--white);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-primary span {
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--white);
+            border: 2px solid var(--white);
+        }
+
+        .btn-secondary:hover {
+            background: var(--white);
+            color: var(--primary-teal);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.3);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .story-content,
+            .mv-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .story-image {
+                height: 300px;
+            }
+
+            .values-grid {
+                grid-template-columns: 1fr;
+            }
+
+            section {
+                padding: 4rem 0;
+            }
+
+            .promise-box {
+                padding: 2rem 1.5rem;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+{% endblock extra_css %}
+
+{% block body %}
+    <!-- Hero Section -->
+    <!-- <section class="hero">
+        <div class="hero-content">
+            <div class="hero-badge">Science-Backed Performance</div>
+            <h1>
+                Built for <span class="highlight">Champions</span><br>
+                Trusted by <span class="highlight">Athletes</span>
+            </h1>
+            <p class="hero-subtitle">
+                Real supplements. Real results. No shortcuts. Just pure, powerful nutrition designed to push your limits and redefine your potential.
+            </p>
+        </div>
+        <div class="scroll-indicator">
+            <i class="fas fa-chevron-down"></i>
+        </div>
+    </section> -->
+
+    <!-- Story Section -->
+    <section class="story">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-tag">Our Story</div>
+                <h2 class="section-title">Where It All Began</h2>
+            </div>
+            <div class="story-content">
+                <div class="story-text">
+                    <p>
+                        POWERBLEND was born from frustration. As athletes ourselves, we were tired of supplements filled with empty promises, artificial ingredients, and marketing hype. We wanted something different—something real.
+                    </p>
+                    <p>
+                        In 2020, a small team of fitness enthusiasts, nutritionists, and scientists came together with one mission: create supplements that actually work. No filler. No fluff. Just research-backed formulas designed to fuel performance, recovery, and results.
+                    </p>
+                    <div class="story-highlight">
+                        <p>"Every scoop, every capsule, every formula is crafted with integrity. We don't cut corners because your goals don't deserve shortcuts."</p>
+                    </div>
+                    <p>
+                        Today, POWERBLEND stands as a testament to what happens when passion meets science. We're not just selling supplements—we're building a movement of athletes who demand more from their nutrition and from themselves.
+                    </p>
+                </div>
+                <div class="story-image">
+                    <div class="story-image-placeholder">
+                        <i class="fas fa-dumbbell"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mission & Vision -->
+    <section class="mission-vision">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-tag">What Drives Us</div>
+                <h2 class="section-title">Mission & Vision</h2>
+            </div>
+            <div class="mv-grid">
+                <div class="mv-card">
+                    <h3><i class="fas fa-bullseye"></i> Our Mission</h3>
+                    <p>
+                        To empower athletes and fitness enthusiasts with scientifically formulated, transparently sourced supplements that deliver measurable results—without compromise.
+                    </p>
+                </div>
+                <div class="mv-card">
+                    <h3><i class="fas fa-rocket"></i> Our Vision</h3>
+                    <p>
+                        To become the most trusted name in performance nutrition by setting new standards for quality, transparency, and innovation in the supplement industry.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Values Section -->
+    <section class="values">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-tag">What We Stand For</div>
+                <h2 class="section-title">Our Core Values</h2>
+                <p class="section-subtitle">
+                    These principles guide every decision we make, from formulation to packaging.
+                </p>
+            </div>
+            <div class="values-grid">
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="fas fa-flask"></i>
+                    </div>
+                    <h3>Purity</h3>
+                    <p>Every ingredient is rigorously tested. No fillers, no artificial additives—just clean, effective nutrition your body deserves.</p>
+                </div>
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h3>Performance</h3>
+                    <p>Designed for results. Our formulas are crafted to enhance strength, endurance, and recovery—backed by science, proven in the gym.</p>
+                </div>
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Trust</h3>
+                    <p>Transparency isn't optional. We list every ingredient, every dosage, and every source. You deserve to know exactly what you're putting in your body.</p>
+                </div>
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+                    <h3>Innovation</h3>
+                    <p>We stay ahead of the science. Constant research and development ensure our formulas evolve with the latest breakthroughs in sports nutrition.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Promise Section -->
+    <section class="promise">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-tag">Our Commitment</div>
+                <h2 class="section-title">The POWERBLEND Promise</h2>
+            </div>
+            <div class="promise-content">
+                <div class="promise-box">
+                    <p>
+                        We promise you supplements that are third-party tested, manufactured in certified facilities, and formulated by experts who understand performance nutrition inside and out.
+                    </p>
+                    <p>
+                        Every product undergoes rigorous quality control to ensure purity, potency, and safety. We don't just meet industry standards—we exceed them.
+                    </p>
+                    <p>
+                        Your trust is everything. That's why we stand behind every product with a 100% satisfaction guarantee. If it doesn't perform, neither will we.
+                    </p>
+                    <div class="promise-signature">— Team POWERBLEND</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+{% endblock body %}
+
+{% block extra_js %}
+
+
+{% endblock extra_js %}

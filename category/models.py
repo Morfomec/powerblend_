@@ -12,6 +12,7 @@ class Category(models.Model):
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    promo_image = models.ImageField( upload_to = 'featured_promo/', blank=True, null=True)
 
     # discount_percentage = models.PositiveIntegerField(default=0)
     discount = models.DecimalField(default=0,max_digits=5, decimal_places=2, blank=True, null=True, help_text = "Discount (eg: 10.50 for 10.5%)")

@@ -430,7 +430,7 @@
                                     <div class="action-buttons">
 
                                     <!-- List & Unlist toggle -->
-
+<!-- 
                                         <form action="{% url 'toggle_variant_listing' variant.id %}" method="POST" style="display:inline;">
                                             {% csrf_token %}
                                             <button type="submit" class="btn btn-sm btn-action {% if variant.is_listed %}btn-block{% else %}btn-unblock{% endif %}">
@@ -440,7 +440,7 @@
                                                     <i class="fas fa-check me-1"></i>List
                                                 {% endif %}
                                             </button>
-                                        </form>
+                                        </form> -->
 
                                         <!-- Edit -->
                                         <a href="{% url 'edit_variant' variant.id %}?page={{ page_obj.number }}" 

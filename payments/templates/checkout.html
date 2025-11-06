@@ -450,7 +450,7 @@
 
                     {% if messages %}
                         {% for message in messages %}
-                            {% if 'checkout-wallet_insufficient' in message.tags or 'coupon_applied_successfull' in message.tags or 'coupon_applied_not_minimum_meet' in message.tags or 'address_added' in message.tags or 'invalid_coupon' in message.tags or 'otp-success' in message.tags or 'remove_coupon' in message.tags %}
+                            {% if 'checkout-wallet_insufficient' in message.tags or 'coupon_applied_successfull' in message.tags or 'coupon_applied_not_minimum_meet' in message.tags or 'address_added' in message.tags or 'invalid_coupon' in message.tags or 'otp-success' in message.tags or 'remove_coupon' in message.tags  or  'cod_1000' in message.tags %}
                                 <div class="custom-alert 
                                     {% if 'error' in message.tags or 'danger' in message.tags or 'checkout-wallet_insufficient' in message.tags %}alert-error
                                     {% elif 'success' in message.tags or 'otp-success' in message.tags %}alert-success
@@ -679,7 +679,7 @@
                             <input type="hidden" name="payment_method" value="wallet">
                             <button type="submit" class="payment-button" >
                                 <i class="fas fa-wallet"></i>
-                                WALLET
+                                WALLET (Balance: ₹{{ wallet_balance }})
                             </button>
                         </form>
 

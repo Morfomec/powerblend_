@@ -356,11 +356,11 @@
                 <div class="col-lg-2 col-md-6 mb-4">
                     <h6 class="footer-heading">Company</h6>
                     <ul class="footer-links">
-                        <li><a href="#">About Us</a></li>
+                        <li><a href="{% url 'about_us' %}">About Us</a></li>
                         <li><a href="#">Careers</a></li>
                         <li><a href="#">Press</a></li>
                         <li><a href="#">Blog</a></li>
-                        <li><a href="#">Contact</a></li>
+                        <li><a href="{% url 'contact_us' %}">Contact</a></li>
                     </ul>
                 </div>
 
@@ -370,8 +370,8 @@
                     <ul class="footer-links">
                         <li><a href="#">Help Center</a></li>
                         <li><a href="#">Delivery Info</a></li>
-                        <li><a href="#">Returns</a></li>
-                        <li><a href="#">Track Order</a></li>
+                        <li><a href="{% url 'order_list' %}">Returns</a></li>
+                        <li><a href="{% url 'order_list' %}">Track Order</a></li>
                         <li><a href="#">FAQs</a></li>
                     </ul>
                 </div>
@@ -386,9 +386,18 @@
                         <li><a href="#">Creatine</a></li>
                         <li><a href="#">Weight Loss</a></li>
                     </ul>
+                    <!-- <ul class="footer-links">
+                    {% for product in product_link %}
+                       <li><a href="?category={{ product }}" class="{% if request.GET.category == product %}active{% endif %}" >
+                            {{ product }}
+                        </a></li>
+                    {% endfor %}
+                    </ul>
+                    <ul> -->
+              
                 </div>
 
-                <!-- Newsletter -->
+                 <!-- Newsletter -->
                 <div class="col-lg-2 col-md-6 mb-4">
                     <div class="newsletter-box">
                         <h5>Newsletter</h5>

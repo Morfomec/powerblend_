@@ -101,9 +101,10 @@
 
     .status-pending { background: rgba(255, 193, 7, 0.15); color: #d39e00; }
     .status-confirmed { background: rgba(23, 162, 184, 0.15); color: var(--info-color); }
-    .status-shipped { background: rgba(108, 117, 125, 0.15); color: #495057; }
+    .status-shipped { background: rgba(108, 117, 125, 0.15); color: #1776d5; }
     .status-delivered { background: rgba(40, 167, 69, 0.15); color: var(--success-color); }
     .status-cancelled { background: rgba(220, 53, 69, 0.15); color: var(--danger-color); }
+    .status-partially_cancelled { background: rgba(220, 53, 69, 0.15); color: var(--danger-color); }
     .status-returned { background: rgba(220, 53, 69, 0.15); color: var(--danger-color); }
 
     .items-table {
@@ -762,6 +763,7 @@
                 <span><i class="fas fa-calendar"></i> {{ order.created_at|date:"F d, Y H:i" }}</span>
                 <span><i class="fas fa-user"></i> {{ order.user.full_name }}</span>
                 <span><i class="fas fa-envelope"></i> {{ order.user.email }}</span>
+                <span><i class="fas fa-credit-card"></i> {{ order.payment_method }}</span>
             </div>
         </div>
 
@@ -777,7 +779,7 @@
             </div>
             <div class="info-item">
                 <span class="info-label">Actual Amount</span>
-                <span class="info-value">₹{{ order_total|floatformat:2 }}</span>
+                <span class="info-value">₹{{ actual_amount |floatformat:2 }}</span>
             </div>
             <div class="info-item">
                 <span class="info-label">Discount Applied</span>
@@ -785,7 +787,7 @@
             </div>
             <div class="info-item">
                 <span class="info-label">Total Amount</span>
-                <span class="info-value">₹{{ order.total|floatformat:2 }}</span>
+                <span class="info-value">₹{{ total_amount |floatformat:2 }}</span>
             </div>
             <div class="info-item">
                 <span class="info-label">Last Updated</span>
@@ -832,10 +834,19 @@
                                     <span class="status-badge active">
                                         <i class="fas fa-check-circle"></i> Confirmed
                                     </span>
+                                {% elif item.status == 'shipped' %}
+                                    <span class="status-badge active">
+                                        <i class="fas fa-check-circle"></i> Shipped
+                                    </span>
+                                {% elif item.status == 'delivered' %}
+                                <span class="status-badge active">
+                                    <i class="fas fa-check-circle"></i> Delivered
+                                </span>
                                 {% elif item.status == 'cancelled' %}
                                     <span class="status-badge cancelled">
                                         <i class="fas fa-times-circle"></i> Cancelled
                                     </span>
+                                
                                 {% elif item.status == 'returned' %}
                                     <span class="status-badge returned">
                                         <i class="fas fa-undo"></i> Returned
@@ -901,12 +912,12 @@
         </table>
 
         <!-- Total -->
-        <div class="total-section">
+        <!-- <div class="total-section">
             <div class="total-row">
                 <span><i class="fas fa-calculator"></i> Total Amount:</span>
                 <span>₹{{ order.total|floatformat:2 }}</span>
             </div>
-        </div>
+        </div> -->
     </div>
 
     <!-- Return Requests Section -->
@@ -957,7 +968,7 @@
 
                             {% if item.return_status == 'return_requested' %}
                             <div class="return-actions">
-                                <form method="post" action="{% url 'admin_return_process' item.id %}" style="flex: 1;">
+                                <form method="post" action="{% url 'admin_update_item_status' item.id %}" style="flex: 1;">
                                     {% csrf_token %}
                                     <input type="hidden" name="action" value="approve">
                                     <button type="submit" class="btn btn-success" style="width: 100%;">
@@ -965,7 +976,7 @@
                                     </button>
                                 </form>
 
-                                <form method="post" action="{% url 'admin_return_process' item.id %}" style="flex: 1;">
+                                <form method="post" action="{% url 'admin_update_item_status' item.id %}" style="flex: 1;">
                                     {% csrf_token %}
                                     <input type="hidden" name="action" value="reject">
                                     <button type="submit" class="btn btn-danger"  style="width: 100%;">

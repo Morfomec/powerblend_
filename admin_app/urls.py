@@ -12,6 +12,7 @@ urlpatterns = [
     path('sales-report', views.sales_report, name='sales_report'), 
     path('sales-report/pdf/', views.download_pdf, name='download_pdf'),
     path('sales-report/excel/', views.download_excel, name='download_excel'),
+    
 
     path('coupons/', views.coupon_list, name='coupon_list'),
     path('coupons/create/', views.add_coupon, name='add_coupon'),

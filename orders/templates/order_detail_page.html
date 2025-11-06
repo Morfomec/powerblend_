@@ -753,6 +753,9 @@ textarea::placeholder {
         <div class="header_order_detail_page">
             <div class="header-top">
                 <div class="order-id">Order ID: {{ order.order_id }}</div>
+                <a href="{% url 'download_invoice' order_id=order.id %}" style="background: var(--primary-solid); color: white; padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none;">
+                    <i class="fas fa-download me-2"></i>Download Invoice
+                </a>
             </div>
             <div class="order-meta">
                 <span class="delivery-date text-red-600 font-semibold">📅 Order Cancelled</span>
@@ -797,6 +800,9 @@ textarea::placeholder {
         <div class="header_order_detail_page">
             <div class="header-top">
                 <div class="order-id">Order ID: {{ order.order_id }}</div>
+                <a href="{% url 'download_invoice' order_id=order.id %}" style="background: var(--primary-solid); color: white; padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none;">
+                    <i class="fas fa-download me-2"></i>Download Invoice
+                </a>
             </div>
             <div class="order-meta">
                 <span class="delivery-date text-red-600 font-semibold">📅 Order Returned</span>
@@ -895,7 +901,7 @@ textarea::placeholder {
                 <div class="product-info">
                 <div class="product-name">{{ item.variant.product.name }}</div>
                 <div class="product-qty">Qty: {{ item.quantity }}</div>
-                <div class="product-price">₹{{ item.price }}</div>
+                <div class="product-price">₹{{ item.single_price }}</div>
                 
                 <!-- Show Return Details if applicable -->
                 {% if item.status in 'return_requested,return_approved,return_rejected,returned' %}
@@ -923,7 +929,7 @@ textarea::placeholder {
                     <!-- Actions area - shows total and appropriate button/badge -->
 
                     <div class="product-actions">
-                        <div class="product-total">₹{{ item.total_price }}</div>
+                        <div class="product-total">₹{{ item.price }}</div>
                         {% if item.status == 'delivered' %}
                             {% if item.return_status == 'pending' %}
                                 <button class="return-item-btn"

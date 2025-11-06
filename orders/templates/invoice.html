@@ -175,6 +175,67 @@
             color: var(--primary-teal);
         }
 
+        /* Status Alert Banners */
+        .status-alert {
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 9.5pt;
+            font-weight: 600;
+        }
+
+        .status-alert-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 12pt;
+            flex-shrink: 0;
+        }
+
+        .status-alert.alert-cancelled {
+            background: rgba(220, 53, 69, 0.1);
+            border: 2px solid rgba(220, 53, 69, 0.3);
+            color: #dc3545;
+        }
+
+        .status-alert.alert-cancelled .status-alert-icon {
+            background: #dc3545;
+            color: white;
+        }
+
+        .status-alert.alert-returned {
+            background: rgba(255, 152, 0, 0.1);
+            border: 2px solid rgba(255, 152, 0, 0.3);
+            color: #ff9800;
+        }
+
+        .status-alert.alert-returned .status-alert-icon {
+            background: #ff9800;
+            color: white;
+        }
+
+        .status-alert-content {
+            flex: 1;
+        }
+
+        .status-alert-title {
+            font-size: 10pt;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+
+        .status-alert-message {
+            font-size: 8.5pt;
+            opacity: 0.9;
+        }
+
         /* Products Table */
         .table-wrapper {
             margin-bottom: 25px;
@@ -202,7 +263,8 @@
 
         .products-table thead th:nth-child(2),
         .products-table thead th:nth-child(3),
-        .products-table thead th:nth-child(4) {
+        .products-table thead th:nth-child(4),
+        .products-table thead th:nth-child(5) {
             text-align: center;
         }
 
@@ -225,7 +287,8 @@
 
         .products-table tbody td:nth-child(2),
         .products-table tbody td:nth-child(3),
-        .products-table tbody td:nth-child(4) {
+        .products-table tbody td:nth-child(4),
+        .products-table tbody td:nth-child(5) {
             text-align: center;
         }
 
@@ -244,6 +307,45 @@
         .product-variant {
             font-size: 8pt;
             color: var(--text-muted);
+        }
+
+        .item-status-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 7.5pt;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .item-status-returned {
+            background: rgba(255, 152, 0, 0.15);
+            color: #ff9800;
+        }
+
+        .item-status-cancelled {
+            background: rgba(220, 53, 69, 0.15);
+            color: #dc3545;
+        }
+
+        .item-status-delivered {
+            background: rgba(40, 167, 69, 0.15);
+            color: #28a745;
+        }
+
+        /* Row styling for returned/cancelled items */
+        .products-table tbody tr.item-returned {
+            background: rgba(255, 152, 0, 0.03);
+        }
+
+        .products-table tbody tr.item-cancelled {
+            background: rgba(220, 53, 69, 0.03);
+        }
+
+        .products-table tbody tr.item-returned td,
+        .products-table tbody tr.item-cancelled td {
+            opacity: 0.7;
         }
 
         /* Totals Section */
@@ -279,6 +381,15 @@
             color: var(--text-dark);
         }
 
+        .total-row.refund-row {
+            color: #dc3545;
+        }
+
+        .total-row.refund-row .total-label,
+        .total-row.refund-row .total-value {
+            color: #dc3545;
+        }
+
         .total-row.grand-total {
             background: var(--primary-teal);
             color: white;
@@ -300,39 +411,47 @@
             margin-top: 40px;
             padding-top: 20px;
             border-top: 2px solid var(--border-color);
+            width: 100%;
         }
 
         .thank-you-box {
             background: var(--primary-teal-light);
-            padding: 15px;
+            padding: 20px;
             border-radius: 8px;
             text-align: center;
             margin-bottom: 15px;
+            width: 100%;
         }
 
         .thank-you-text {
-            font-size: 11pt;
-            font-weight: 600;
+            font-size: 12pt;
+            font-weight: 700;
             color: var(--primary-teal);
-            margin-bottom: 5px;
+            margin-bottom: 8px;
         }
 
         .thank-you-subtext {
-            font-size: 8.5pt;
+            font-size: 9pt;
             color: var(--text-muted);
         }
 
         .footer-contact {
             text-align: center;
-            font-size: 8pt;
-            color: var(--text-muted);
-            padding: 10px 0;
+            font-size: 9pt;
+            color: var(--text-dark);
+            padding: 15px 0;
+            width: 100%;
+            line-height: 1.8;
         }
 
         .footer-contact a {
             color: var(--primary-teal);
             text-decoration: none;
-            font-weight: 600;
+            font-weight: 700;
+        }
+
+        .footer-contact a:hover {
+            text-decoration: underline;
         }
 
         /* Decorative Elements */
@@ -386,6 +505,11 @@
             color: #dc3545;
         }
 
+        .status-returned {
+            background: rgba(255, 152, 0, 0.15);
+            color: #ff9800;
+        }
+
         @media print {
             body {
                 print-color-adjust: exact;
@@ -418,6 +542,33 @@
                     <div class="invoice-number">#{{ order.order_id }}</div>
                 </div>
             </div>
+
+            <!-- Order Status Alerts -->
+            {% if order.status == 'cancelled' or order.status == 'CANCELLED' %}
+            <div class="status-alert alert-cancelled">
+                <div class="status-alert-icon">✕</div>
+                <div class="status-alert-content">
+                    <div class="status-alert-title">ORDER CANCELLED</div>
+                    <div class="status-alert-message">
+                        This order was cancelled on {{ order.updated_at|date:"d M Y" }}.
+                        {% if order.cancellation_reason %}Reason: {{ order.cancellation_reason }}{% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if order.status == 'returned' or order.status == 'RETURNED' %}
+            <div class="status-alert alert-returned">
+                <div class="status-alert-icon">↻</div>
+                <div class="status-alert-content">
+                    <div class="status-alert-title">ORDER RETURNED</div>
+                    <div class="status-alert-message">
+                        This order was returned on {{ order.updated_at|date:"d M Y" }}.
+                        {% if order.return_reason %}Reason: {{ order.return_reason }}{% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
 
             <!-- Customer & Company Info -->
             <div class="info-grid">
@@ -468,15 +619,16 @@
                 <table class="products-table">
                     <thead>
                         <tr>
-                            <th style="width: 45%;">Product</th>
-                            <th style="width: 15%;">Qty</th>
-                            <th style="width: 20%;">Unit Price</th>
-                            <th style="width: 20%;">Total</th>
+                            <th style="width: 40%;">Product</th>
+                            <th style="width: 12%;">Qty</th>
+                            <th style="width: 18%;">Unit Price</th>
+                            <th style="width: 15%;">Status</th>
+                            <th style="width: 15%;">Total</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for item in order_items %}
-                        <tr>
+                        <tr class="{% if item.status == 'returned' or item.status == 'RETURNED' %}item-returned{% elif item.status == 'cancelled' or item.status == 'CANCELLED' %}item-cancelled{% endif %}">
                             <td>
                                 <div class="product-name">{{ item.variant.product.name }}</div>
                                 {% if item.variant.flavor or item.variant.weight %}
@@ -487,7 +639,16 @@
                                 {% endif %}
                             </td>
                             <td>{{ item.quantity }}</td>
-                            <td>₹{{ item.price|floatformat:2 }}</td>
+                            <td>₹{{ item.unit_price|floatformat:2 }}</td>
+                            <td>
+                                {% if item.status == 'returned' or item.status == 'RETURNED' %}
+                                    <span class="item-status-badge item-status-returned">RETURNED</span>
+                                {% elif item.status == 'cancelled' or item.status == 'CANCELLED' %}
+                                    <span class="item-status-badge item-status-cancelled">CANCELLED</span>
+                                {% else %}
+                                    <span class="item-status-badge item-status-delivered">{{ item.get_status_display|upper }}</span>
+                                {% endif %}
+                            </td>
                             <td>₹{{ item.subtotal|floatformat:2 }}</td>
                         </tr>
                         {% endfor %}
@@ -502,17 +663,25 @@
                         <span class="total-label">Subtotal</span>
                         <span class="total-value">₹{{ subtotal|floatformat:2 }}</span>
                     </div>
+                    {% if discount > 0 %}
                     <div class="total-row">
-                        <span class="total-label">GST (18%)</span>
-                        <span class="total-value">₹{{ tax_amount|floatformat:2 }}</span>
+                        <span class="total-label">Discount</span>
+                        <span class="total-value">- ₹{{ discount|floatformat:2 }}</span>
                     </div>
+                    {% endif %}
                     <div class="total-row">
                         <span class="total-label">Shipping</span>
                         <span class="total-value">{% if shipping > 0 %}₹{{ shipping|floatformat:2 }}{% else %}FREE{% endif %}</span>
                     </div>
+                    {% if refund_amount > 0 %}
+                    <div class="total-row refund-row">
+                        <span class="total-label">Refund Amount</span>
+                        <span class="total-value">- ₹{{ refund_amount|floatformat:2 }}</span>
+                    </div>
+                    {% endif %}
                     <div class="total-row grand-total">
-                        <span class="total-label">TOTAL</span>
-                        <span class="total-value">₹{{ order.total|floatformat:2 }}</span>
+                        <span class="total-label">{% if order.status == 'cancelled' or order.status == 'returned' %}REFUNDED{% else %}TOTAL{% endif %}</span>
+                        <span class="total-value">₹{{ total|floatformat:2 }}</span>
                     </div>
                 </div>
             </div>

@@ -156,29 +156,80 @@ def admin_dashboard(request):
     top_categories = categories_paginator.get_page(categories_page)
 
 
-    # Chart Data: Last 7 Days
+    # Chart Data 
 
+    filter_type = request.GET.get('filter', 'weekly')  # default to weekly
     today = timezone.now().date()
-    last_days = 7
-    date_list = [today - timedelta(days=i) for i in range(last_days - 1, -1, -1)]
 
-    chart_labels = [d.strftime('%b %d') for d in date_list]
+    date_list = []
+    chart_labels = []
+
+    if filter_type == 'daily':
+        last_days = 7
+        date_list = [today - timedelta(days=i) for i in range(last_days - 1, -1, -1)]
+        chart_labels = [d.strftime('%b %d') for d in date_list]
+
+    elif filter_type == 'weekly':
+        weeks = 8
+        date_list = [today - timedelta(weeks=i) for i in range(weeks - 1, -1, -1)]
+        chart_labels = [f"Week {d.isocalendar().week}" for d in date_list]
+
+    elif filter_type == 'monthly':
+        months = 6
+        date_list = [today.replace(day=1) - timedelta(days=30 * i) for i in range(months - 1, -1, -1)]
+        chart_labels = [d.strftime('%b %Y') for d in date_list]
+
+    elif filter_type == 'yearly':
+        years = 5
+        date_list = [today.replace(month=1, day=1).replace(year=today.year - i) for i in range(years - 1, -1, -1)]
+        chart_labels = [str(d.year) for d in date_list]
+
+    else:
+        # fallback = last 7 days
+        last_days = 7
+        date_list = [today - timedelta(days=i) for i in range(last_days - 1, -1, -1)]
+        chart_labels = [d.strftime('%b %d') for d in date_list]
+
     chart_total_sales = []
     chart_total_users = []
 
-    for date in date_list:
-        # Total sales for the day
-        total_sales = (
-            Order.objects.filter(created_at__date=date)
-            .aggregate(total=Sum('total'))['total'] or 0
-        )
-        chart_total_sales.append(float(total_sales))
+    # Generate chart data according to filter_type
+    for i, d in enumerate(date_list):
+        if filter_type == 'daily':
+            next_d = d
+            total_sales = Order.objects.filter(created_at__date=next_d).aggregate(total=Sum('total'))['total'] or 0
+            user_count = CustomUser.objects.filter(date_joined__date=next_d).count()
 
-        # New users registered that day
-        user_count = CustomUser.objects.filter(date_joined__date=date).count()
+        elif filter_type == 'weekly':
+            start = d - timedelta(days=d.weekday())  # Monday of that week
+            end = start + timedelta(days=6)
+            total_sales = Order.objects.filter(created_at__date__range=[start, end]).aggregate(total=Sum('total'))['total'] or 0
+            user_count = CustomUser.objects.filter(date_joined__date__range=[start, end]).count()
+
+        elif filter_type == 'monthly':
+            start = d.replace(day=1)
+            # end of month
+            next_month = (start.replace(day=28) + timedelta(days=4)).replace(day=1)
+            end = next_month - timedelta(days=1)
+            total_sales = Order.objects.filter(created_at__date__range=[start, end]).aggregate(total=Sum('total'))['total'] or 0
+            user_count = CustomUser.objects.filter(date_joined__date__range=[start, end]).count()
+
+        elif filter_type == 'yearly':
+            start = d.replace(month=1, day=1)
+            end = start.replace(year=start.year + 1) - timedelta(days=1)
+            total_sales = Order.objects.filter(created_at__date__range=[start, end]).aggregate(total=Sum('total'))['total'] or 0
+            user_count = CustomUser.objects.filter(date_joined__date__range=[start, end]).count()
+
+        else:
+            total_sales = 0
+            user_count = 0
+
+        chart_total_sales.append(float(total_sales))
         chart_total_users.append(user_count)
 
-
+    # ---------------------------
+    # CONTEXT
+    # ---------------------------
     context = {
         'total_users': total_users,
         'total_orders': total_orders,
@@ -194,6 +245,9 @@ def admin_dashboard(request):
         'chart_labels': json.dumps(chart_labels),
         'chart_total_sales': json.dumps(chart_total_sales),
         'chart_total_users': json.dumps(chart_total_users),
+
+        # Current chart filter
+        'filter_type': filter_type,
     }
 
     return render(request, 'dashboard.html', context)
@@ -247,6 +301,8 @@ def admin_user(request):
     }
 
     return render(request, 'user_management.html', context)
+
+
 @staff_member_required
 @login_required
 def toggle_user_status(request, user_id):

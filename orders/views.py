@@ -13,7 +13,7 @@ from django.contrib import messages
 
 from .models import Order, OrderItem
 from .forms import CancelItemForm, CancelOrderForm, ReturnItemForm, AdminOrderStatusForm
-from .utils import increment_stock, decrement_stock
+from .utils import increment_stock, decrement_stock, calculate_strict_voucher_refund
 
 from django.urls import reverse
 from django.core.paginator import Paginator
@@ -24,6 +24,7 @@ from weasyprint import HTML
 import tempfile
 
 from wallet.utils import refund_to_wallet
+from wallet.models import WalletTransaction
 from django.db import transaction
 # Create your views here.
 
@@ -46,6 +47,22 @@ def order_success(request, order_id):
     return render(request, 'order_success.html', context)
 
 
+@login_required
+def order_failure(request):
+    # Get error message from session or query parameter
+    error_message = request.session.get('payment_error', 'Payment could not be completed')
+    
+    # Clear the error from session
+    if 'payment_error' in request.session:
+        del request.session['payment_error']
+    
+    context = {
+        'error_message': error_message,
+    }
+    return render(request, 'order_failure.html', context)
+
+
+
 # order list with search and filter 
 @login_required 
 def order_list(request):
@@ -66,8 +83,17 @@ def order_list(request):
     if status:
         orders = orders.filter(status=status)
 
+    # pagination
+
+    paginator = Paginator(orders, 10)
+    page_no = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_no)
+
     context = {
-        'orders' : orders,
+        'orders' : page_obj,
+        'page_obj' : page_obj,
+        'q' : q or '',
+        'status' : status or '',
     }
 
     return render(request, "order_list.html", context)
@@ -93,6 +119,8 @@ def order_details(request, order_id):
     order_items = order.items.select_related('variant', 'variant__product').prefetch_related('variant__product__images').all()    
     estimated_delivery = order.created_at + timedelta(days=7)
 
+    for item in order_items:
+        item.single_price = item.price /item.quantity
     #only allow owner or stff to view
 
     if order.user != request.user and not request.user.is_staff:
@@ -102,18 +130,18 @@ def order_details(request, order_id):
 
     active_items = order.items.filter(is_cancelled=False, is_returned=False)
 
-    # for item in order_items:
-    #     item.subtotal = item.price
-    #     item.single_price = item.price / item.quantity
+    for item in order_items:
+        item.subtotal = item.price
+        item.single_price = item.price / item.quantity
 
     # order_total = sum(item.subtotal for item in order_items)
 
-    for item in order_items:
-        item.total_price = item.price * item.quantity
+    # for item in order_items:
+    #     item.total_price = item.price * item.quantity
     
-    subtotal = sum(item.price * item.quantity for item in active_items)
+    # subtotal = sum(item.price * item.quantity for item in active_items)
 
-    # subtotal = sum(item.subtotal for item in active_items)
+    subtotal = sum(item.price for item in active_items)
 
     taxes = subtotal * Decimal('0')
 
@@ -139,6 +167,7 @@ def order_details(request, order_id):
         'discount' : discount,
         'taxes' : taxes,
         'total' : total,
+        # 'single_price' : single_price,
     }
 
     return render(request, "order_detail_page.html", context)
@@ -179,69 +208,79 @@ def cancel_order(request, order_id):
             reason = form.cleaned_data.get('reason')
 
             with transaction.atomic():
-                
-                orginal_paid_amount = order.total
-
-                # cancel every ative (non-cancelled/non-returned) items in the order
-                for item in order.items.filter(is_cancelled=False, is_returned=False):
+                # --- STEP 1: Cancel items and restock ---
+                active_items = order.items.filter(is_cancelled=False, is_returned=False)
+                for item in active_items:
                     increment_stock(item.variant, item.quantity)
-
-                    # mark items as cancelled
                     item.is_cancelled = True
                     item.cancelled_reason = reason
                     item.cancelled_at = timezone.now()
-                    item.save(update_fields=['is_cancelled', 'cancelled_reason', 'cancelled_at'])
-                    print(f"Cancelling item {item.id} ({item.variant})")
+                    item.status = "cancelled"
+                    item.save(update_fields=["is_cancelled", "cancelled_reason", "cancelled_at", "status"])
 
-                
-                # order.recalc_total()
-                # print("Now is :", {order.recalc_total})
-                # order.status = 'cancelled'
-                # order.is_returned = False
-                # order.save(update_fields=['status', 'total', 'is_returned'])
+                # --- STEP 2: Prepare refund variables ---
+                amount_paid = Decimal(order.amount_paid or 0)
+                refunded_so_far = Decimal(order.refunded_amount or 0)
+                refundable_balance = amount_paid - refunded_so_far  # ✅ FIXED: must be defined here
 
-                if order.payment_method.lower() in ['razorpay', 'wallet']:
-                    from wallet.models import WalletTransaction
+                refund_amount = Decimal("0.00")
+                discount_revoked = False
+                remaining_total = Decimal("0.00")
 
-                    refund_desc = f"Refund for cancelled order #{order.id}"
+                # --- STEP 3: Refund logic ---
+                if order.payment_method and order.payment_method.lower() in ["razorpay", "wallet"] and refundable_balance > 0:
+                    # Collect cancelled items
+                    cancelled_items = list(order.items.filter(is_cancelled=True))
+
+                    # Apply strict rule
+                    refund_amount, discount_revoked, remaining_total = calculate_strict_voucher_refund(order, cancelled_items)
+                    refund_amount = Decimal(refund_amount).quantize(Decimal("0.01"))
+
+                    # Cap refund to available refundable balance
+                    refund_amount = min(refund_amount, refundable_balance)
+
+                    # Check if refund already exists for this order
                     already_refunded = WalletTransaction.objects.filter(
                         wallet__user=order.user,
                         description__icontains=f"order #{order.id}"
                     ).exists()
 
-                    if not already_refunded:
-                        refund_to_wallet(order.user, order.total, reason=refund_desc)
-                        print(f"Refund issued for order {order.id}")
-                    else:
-                        print(f"Skipping duplicate refund for order {order.id}")
+                    if refund_amount > 0 and not already_refunded:
+                        refund_reason = f"Refund for cancelled order #{order.id}"
+                        if discount_revoked:
+                            refund_reason += " [Coupon Revoked]"
 
+                        # Refund to wallet
+                        refund_to_wallet(order.user, refund_amount, reason=refund_reason)
+
+                        # Update refunded amount
+                        order.refunded_amount = refunded_so_far + refund_amount
+
+                        # If coupon revoked, reset discounts and total
+                        if discount_revoked:
+                            order.coupon_discount = Decimal("0.00")
+                            order.discount_amount = Decimal("0.00")
+                            order.total = remaining_total
+
+                        order.save(update_fields=["refunded_amount", "coupon_discount", "discount_amount", "total"])
+
+                # --- STEP 4: Update order status ---
                 order.recalc_total()
-                order.status = 'cancelled'
-                print("Before recalc:", order.total)
+                order.status = "cancelled"
                 order.is_returned = False
-                print("After recalc:", order.total)
+                order.save(update_fields=["status", "total", "is_returned"])
 
-                order.save(update_fields=['status', 'total', 'is_returned'])
-            
-            messages.success(request, "Order cancelled.")
-            # return redirect('order_details')
+            messages.success(request, f"Order #{order.order_id} cancelled successfully.")
+            return redirect("order_details", order_id=order.id)
     else:
         form = CancelOrderForm()
 
-
-    print("Order:", order.id)
-    print("Order status:", order.status)
-    print("Payment method:", order.payment_method)
-    print("Refund condition met?", order.payment_method.lower() in ['razorpay', 'wallet'])
-
     context = {
-        'order' : order,
-        'form' : form,
-        'user_email' : user_email,
+        "order": order,
+        "form": form,
+        "user_email": user_email,
     }
-
-    return render(request, 'order_cancel_confirm.html', context)
-
+    return render(request, "order_cancel_confirm.html", context)
 
 
 @login_required
@@ -278,10 +317,6 @@ def return_order(request, order_id):
     return redirect('order_details', order_id=order.id)
 
 
-
-
-
-
 @login_required
 def cancel_item(request, order_id):
     """
@@ -311,31 +346,41 @@ def cancel_item(request, order_id):
                 item.cancelled_at = timezone.now()
                 item.save(update_fields=['is_cancelled', 'status' ,'cancelled_reason', 'cancelled_at'])
 
-                if order.payment_method in ['wallet', 'razorpay']:
+                affected_items = [item]
+                refund_amount, discount_revoked, remaining_total = calculate_strict_voucher_refund(order, affected_items)
 
+
+                if refund_amount > 0 and order.payment_method in ['wallet', 'razorpay']:
                     from wallet.models import WalletTransaction
 
-                    #unique identifier for the order item to refund
                     refund_reason = f"Cancelled Order Item #{item.id} (Order #{order.id})"
-                    refund_amount = item.price * item.quantity
-
-
-                    
-                    already_refunded = WalletTransaction.objects.filter(wallet__user=order.user, description__icontains=refund_reason).exists()
+                    already_refunded = WalletTransaction.objects.filter(
+                        wallet__user=order.user,
+                        description__icontains=refund_reason
+                    ).exists()
 
                     if not already_refunded:
                         refund_to_wallet(order.user, refund_amount, reason=refund_reason)
 
-                #update order total
+                # Recalculate order total and update order status
                 order.recalc_total()
-
-                #update overall order status
                 order.update_status()
 
-            messages.success(request, f"{item.variant} has been cancelled successfully.")
-            return redirect('order_details',order_id=order.id)
+                # If coupon is revoked, remove it from the order
+                if discount_revoked:
+                    order.coupon_code = None
+                    order.coupon_discount = Decimal("0.00")
+                    order.save(update_fields=['coupon_code', 'coupon_discount'])
+                    messages.info(request, "The coupon has been revoked due to order value falling below the threshold.")
 
-    return redirect('order_details', order_id = order.id)
+            messages.success(request, f"{item.variant} has been cancelled successfully.")
+            return redirect('order_details', order_id=order.id)
+
+    return redirect('order_details', order_id=order.id)
+
+
+
+
 
 @login_required
 def return_item(request, order_id, item_id): 
@@ -410,7 +455,7 @@ def admin_order_list(request):
     q = request.GET.get('q')
 
     if q:
-        orders = orders.filter(Q(order_id__icontains=q) | Q(user__email__icontains=q) | Q(items__variant__products__name__icontains=q)).distinct()
+        orders = orders.filter(Q(order_id__icontains=q) | Q(user__email__icontains=q) | Q(items__variant__product__name__icontains=q)).distinct()
 
     #filter based on status
     status = request.GET.get('status')
@@ -450,11 +495,13 @@ def admin_order_detail(request, id):
         item.subtotal = item.price
         item.single_price = item.price / item.quantity
 
-    order_total = sum(item.subtotal for item in order_items)
-
+    actual_amount = sum(item.subtotal for item in order_items) 
+    
     #prepare form prefilled with current status
     form = AdminOrderStatusForm(initial={'status' : order.status})
     discount_applied = order.discount_amount or 0
+
+    total_amount = actual_amount - discount_applied
     return_items = order.items.filter(return_status__in=['return_requested', 'return_approved', 'return_rejected'])
 
 
@@ -463,7 +510,9 @@ def admin_order_detail(request, id):
     context = {
         'order' : order,
         'order_items' : order_items,
-        'order_total' : order_total,
+        # 'order_total' : order_total,
+        'actual_amount' : actual_amount,
+        'total_amount' : total_amount,
         'form' : form,
         # 'return_requests' : return_requests
         'return_items': return_items,
@@ -581,81 +630,6 @@ def admin_update_order_status(request, id):
 
 
 
-@staff_member_required
-def admin_return_process(request, item_id):
-    """
-    Admin approves or rejects a return request.
-    """
-    item = get_object_or_404(OrderItem, id=item_id)
-    action = request.POST.get('action')
-
-    if action == 'approve':
-        item.return_status = 'return_approved'
-        item.is_returned = True
-        item.status = 'returned'
-        item.returned_at = timezone.now()
-        increment_stock(item.variant, item.quantity)
-        messages.success(request, f"Return approved for {item.variant.product.name}.")
-
-        if item.order.payment_method in ['razorpay', 'wallet']:
-            refund_to_wallet(item.order.user, item.price * item.quantity, reason=f"Refund for returned item {item.variant}")
-    elif action == 'reject':
-        item.return_status = 'return_rejected'
-        messages.warning(request, f"Return rejected for {item.variant.product.name}.")
-    else:
-        messages.error(request, "Invalid action.")
-        return redirect('admin_order_detail', id=item.order.id)
-
-    item.save(update_fields=['return_status', 'is_returned', 'status', 'return_at'])
-
-    item.order.update_return_status()
-
-    return redirect('admin_order_detail', id=item.order.id)
-
-
-
-# def update_order_status(self):
-#     """
-#     to sync order status based on all item status
-#     """
-
-#     # order = self.order
-#     item_statuses = list(order.items.values_list('status', flat=True))
-
-#     if all(s == 'delivered' for s in item_statuses):
-#         order.status = 'delivered'
-
-#     elif all(s == 'cancelled' for s in item_statuses):
-#         order.status = 'cancelled'
-
-#     elif any(s in ['shipped', 'out_for_delivery'] for s in item_statuses):
-#         order.status = 'out_for_delivery' if 'out_for_delivery' in item_statuses else 'shipped'
-    
-#     elif any(s == 'confirmed' for s in item_statuses):
-#         order.status = 'confirmed'
-    
-#     elif any(s in ['cancelled', 'returned'] for s in item_statuses):
-#         order.status = 'partially_cancelled'
-    
-#     else:
-#         order.status = 'pending'
-    
-#     order.save(update_fields=['status'])
-
-
-# def cancel(self, reason=None):
-#     """
-#     cancel a single item and restore stock
-#     """
-
-#     if not self.is_cancelled:
-#         self.is_cancelled = True
-#         self.status = 'cancelled'
-#         self.cancelled_reason = reason
-#         self.cancelled_at = timezone.now()
-#         self.variant.stock += self.quantity
-#         self.variant.save(update_fields=['stock'])
-#         self.save()
 
 @transaction.atomic
 @staff_member_required
@@ -688,12 +662,42 @@ def admin_update_item_status(request, item_id):
         item.return_status = new_return_status
 
         if new_return_status == 'return_approved':
+            from wallet.models import WalletTransaction
+            from .utils import calculate_strict_voucher_refund
+            from decimal import Decimal
+
             item.is_returned = True
             item.return_at = timezone.now()
             item.status = "returned"
             increment_stock(item.variant, item.quantity)
-            refund_to_wallet(user, item.item_total, reason=f"Refund for returned item {item.variant}")
-            messages.success(request, f"Return approved and refunded for  {item.variant}.")
+            item.save(update_fields=['return_status', 'is_returned', 'status', 'return_at'])
+
+            # --- Voucher-aware refund ---
+            order.recalc_total()  # keep totals fresh
+            affected_items = [item]
+            refund_amount, discount_revoked, remaining_total = calculate_strict_voucher_refund(order, affected_items)
+
+            refund_reason = f"Refund for returned item #{item.id} (Order #{order.id})"
+            already_refunded = WalletTransaction.objects.filter(
+                wallet__user=order.user,
+                description__icontains=f"returned item #{item.id}"
+            ).exists()
+
+            if refund_amount > 0 and order.payment_method in ['wallet', 'razorpay'] and not already_refunded:
+                refund_to_wallet(order.user, refund_amount, reason=refund_reason)
+                messages.success(request, f"Refund of ₹{refund_amount} processed to wallet.")
+            elif already_refunded:
+                messages.info(request, "Refund already processed previously for this item.")
+
+            # If coupon revoked, clear it
+            if discount_revoked:
+                order.coupon_code = None
+                order.coupon_discount = Decimal("0.00")
+                order.coupon_min_amount = Decimal("0.00")
+                order.save(update_fields=['coupon_code', 'coupon_discount', 'coupon_min_amount'])
+                messages.info(request, "Coupon revoked — remaining order value fell below threshold.")
+
+            messages.success(request, f"Return approved for {item.variant}.")
 
         elif new_return_status == 'return_rejected':
             messages.info(request, f"Return rejected for {item.variant}.")
@@ -746,33 +750,37 @@ def admin_update_item_status(request, item_id):
     messages.success(request, f"{item.variant} status updated to {new_status}.")
     return redirect('admin_order_detail', id=order.id)
 
+
+
+
 @login_required
 def download_invoice(request, order_id):
-    """
-    to generate and download PDF invoice for an order
-    """
-
-    #getting order first
     order = get_object_or_404(Order, id=order_id, user=request.user)
 
-    #gertting orders itam
-    order_items = order.items.select_related('variant', 'variant__product').prefetch_related('variant__product__images').all()
+    # Show ALL items in table (including cancelled/returned)
+    order_items = order.items.all()
 
-    #tax and shipping calculation
-    subtotal = sum(item.price * item.quantity for item in order_items)
+    # Only count non-cancelled for totals
+    active_items = order.items.filter(is_cancelled=False, is_returned=False)
 
+    # Add unit_price and subtotal fields
+    for item in order_items:
+        item.unit_price = item.price / item.quantity
+        item.subtotal = item.price
+
+    # Totals
+    subtotal = sum(item.price for item in active_items)
+    discount = (order.discount_amount or Decimal('0')) + (order.coupon_discount or Decimal('0'))
     shipping = Decimal('0')
-    discount = Decimal('0')
-    taxes = subtotal * Decimal('0.12')
-    total = subtotal + taxes + shipping - discount
-
+    total = subtotal + shipping - discount
 
     context = {
-        'order' : order,
-        'order_items' : order_items,
-        'subtotal' : subtotal,
-        'tax_amount' : taxes,
-        'shipping' : shipping,
+        "order": order,
+        "order_items": order_items,
+        "subtotal": subtotal,
+        "discount": discount,
+        "shipping": shipping,
+        "total": total,
         'company_name' : 'POWERBLEND',
         'company_address' : 'Ottapalam, Palakkad. Kerala - 679102',
         'company_phone' : '+91 9061752197',
@@ -780,19 +788,94 @@ def download_invoice(request, order_id):
         'company_website': 'www.powerblend.com',
     }
 
-    #render HTML template
-    html_string = render_to_string('invoice.html', context)
-
-    #generate pdf
+    html_string = render_to_string("invoice.html", context)
     html = HTML(string=html_string, base_url=request.build_absolute_uri())
-    result = html.write_pdf()
+    pdf = html.write_pdf()
 
-    #create HTTP response
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="POWERBLEND_Invoice_{order.order_id}.pdf"'
-    response['Content-Transfer-Encoding'] = 'binary'
-    response.write(result)
-
+    response = HttpResponse(pdf, content_type="application/pdf")
+    response["Content-Disposition"] = f'attachment; filename="POWERBLEND_Invoice_{order.order_id}.pdf"'
     return response
+
+
+
+
+
+# @staff_member_required
+# def admin_return_process(request, item_id):
+#     """
+#     Admin approves or rejects a return request with voucher-aware refund handling.
+#     """
+#     item = get_object_or_404(OrderItem, id=item_id)
+#     order = item.order
+#     action = request.POST.get("action")
+
+#     if action not in ["approve", "reject"]:
+#         messages.error(request, "Invalid action.")
+#         return redirect("admin_order_detail", id=order.id)
+
+#     # run the real work inside a transaction
+#     with transaction.atomic():
+#         if action == 'approve':
+#             # Mark item returned
+#             item.return_status = "return_approved"
+#             item.is_returned = True
+#             item.status = "returned"
+#             item.returned_at = timezone.now()
+#             item.save(update_fields=['return_status', 'is_returned', 'status', 'returned_at'])
+
+#             # Restock the item
+#             increment_stock(item.variant, item.quantity)
+
+#             # --- Calculate refund using the shared helper ---
+#             affected_items = [item]
+
+
+#             print(f"DEBUG return: item.id={item.id}, price={item.price}, qty={item.quantity}, subtotal={item.price * item.quantity}")
+
+#             refund_amount, discount_revoked, remaining_total = calculate_strict_voucher_refund(order, affected_items)
+
+#             # Prevent duplicate refunds by checking WalletTransaction with a unique description
+#             refund_reason = f"Refund for returned item #{item.id} (Order #{order.id})"
+
+#             print(
+#                     f"RETURN DEBUG item.id={item.id}, price={item.price}, qty={item.quantity}, "
+#                     f"order_total={order.original_total}, order_total_now={order.total}, "
+#                     f"already_refunded={WalletTransaction.objects.filter(description__icontains=f'item #{item.id}').exists()}"
+#                 )
+
+#             if refund_amount > 0 and order.payment_method in ['wallet', 'razorpay']:
+#                 already_refunded = WalletTransaction.objects.filter(
+#                     wallet__user=order.user,
+#                     description__icontains=f"returned item #{item.id}"
+#                 ).exists()
+
+#                 if not already_refunded:
+#                     refund_to_wallet(order.user, refund_amount, reason=refund_reason)
+#                     messages.success(request, f"Refund of ₹{refund_amount} processed to wallet.")
+#                 else:
+#                     # Log/notify that refund already exists
+#                     messages.info(request, "Refund already processed previously for this returned item.")
+
+#             # If coupon must be revoked, clear coupon fields
+#             if discount_revoked:
+#                 order.coupon_code = None
+#                 order.coupon_discount = Decimal("0.00")
+#                 order.coupon_min_amount = Decimal("0.00")
+#                 order.save(update_fields=['coupon_code', 'coupon_discount', 'coupon_min_amount'])
+#                 messages.info(request, "Coupon revoked — remaining order value dropped below the threshold.")
+
+#             messages.success(request, f"Return approved for {item.variant.product.name}.")
+
+#         elif action == 'reject':
+#             item.return_status = 'return_rejected'
+#             item.save(update_fields=['return_status'])
+#             messages.warning(request, f"Return rejected for {item.variant.product.name}.")
+
+#         # Recalculate order totals and statuses after change
+#         order.recalc_total()
+#         order.update_status()
+#         order.update_return_status()
+
+#     return redirect('admin_order_detail', id=order.id)
 
 

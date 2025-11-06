@@ -258,7 +258,8 @@ body {
 }
 
 .status-processing,
-.status-out_for_delivery {
+.status-out_for_delivery,
+.status-shipped {
     background: rgba(255, 193, 7, 0.15);
     color: #23985c;
 }
@@ -484,6 +485,87 @@ body {
     box-shadow: 0 4px 12px rgba(0, 57, 66, 0.2);
 }
 
+
+
+
+/* Pagination Styles */
+.pagination-container {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 1rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.pagination {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    gap: 0.5rem;
+}
+
+.page-item {
+    display: inline-block;
+}
+
+.page-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    height: 40px;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    color: #333;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.page-link:hover {
+    background-color: rgba(0, 57, 66, 0.05);
+    border-color: var(--primary-solid);
+    color: var(--primary-solid);
+}
+
+.page-item.active .page-link {
+    background-color: var(--primary-solid);
+    border-color: var(--primary-solid);
+    color: white;
+    font-weight: 600;
+}
+
+.page-item.disabled .page-link {
+    color: #6c757d;
+    pointer-events: none;
+    background-color: #f8f9fa;
+    border-color: #ddd;
+}
+
+.pagination-info {
+    color: #666;
+    font-size: 0.9rem;
+    margin-left: auto;
+}
+
+@media (max-width: 768px) {
+    .pagination-container {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .pagination-info {
+        order: -1;
+        margin-bottom: 0.5rem;
+    }
+}
+
 /* Responsive */
 @media (max-width: 992px) {
     .order-info {
@@ -627,9 +709,10 @@ body {
                     <option value="processing" {% if request.GET.status == 'processing' %}selected{% endif %}>Processing</option>
                     <option value="delivered" {% if request.GET.status == 'delivered' %}selected{% endif %}>Delivered</option>
                     <option value="cancelled" {% if request.GET.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
-                    <option value="partially_caancelled" {% if request.GET.status == 'partially_cancelled' %}selected{% endif %}>Partially Cancelled</option>
+                    <option value="partially_cancelled" {% if request.GET.status == 'partially_cancelled' %}selected{% endif %}>Partially Cancelled</option>
                     <option value="return_requested" {% if request.GET.status == 'return_requested' %}selected{% endif %}>Return Requested</option>
                 </select>
+
                 <button type="submit" class="btn-search">
                     <i class="fas fa-search me-1"></i>Search
                 </button>
@@ -664,27 +747,26 @@ body {
                         <div class="info-item">
                             <span class="info-label">Total</span>
                             <span class="info-value">₹{{ order.original_total|default:order.total }}</span>
+                        </div>                  
+                        <div class="info-item">
+                            <span class="info-label">Payment</span>
+                            <span class="info-value">{{  order.get_payment_method_display }}</span>
                         </div>
                     </div>
                     
                         <div class="order-actions">
                             
                             
-                                {% if item.return_status and item.return_status != 'pending' %}
-                                    {% if item.return_status == 'return_requested' %}
-                                        <span class="status-badge return-status-return_requested">RETURNING PROCESS</span>
-                                    {% elif item.return_status == 'return_approved' %}
-                                        <span class="status-badge return-status-return_approved">RETURN ACCEPTED</span>
-                                    {% elif item.return_status == 'return_rejected' %}
-                                        <span class="status-badge return-status-return_rejected">RETURN REJECTED</span>
+                                    {# ORDER LEVEL STATUS BADGE #}
+                                    {% if order.status == 'partially_cancelled' %}
+                                        <span class="status-badge status-partially_cancelled">PARTIALLY CANCELLED</span>
+                                    {% elif order.status == 'cancelled' %}
+                                        <span class="status-badge status-cancelled">CANCELLED</span>
                                     {% else %}
-                                        <span class="status-badge return-status-unknown">UNKNOWN RETURN STATUS</span>
+                                        <span class="status-badge status-{{ order.status|lower }}">
+                                            {{ order.get_status_display|upper }}
+                                        </span>
                                     {% endif %}
-                                {% else %}
-                                    <span class="status-badge status-{{ order.status|lower }}">
-                                        {{ order.status|upper }}
-                                    </span>
-                                {% endif %}
 
                             <button class="toggle-btn" onclick="toggleOrderDetails({{ forloop.counter }})">
                                 <i class="fas fa-chevron-down" id="toggle-icon-{{ forloop.counter }}"></i>
@@ -734,13 +816,15 @@ body {
                                             {% if item.return_status == 'return_rejected' %}RETURN REJECTED{% endif %}
                                         </span>                                       
                                     {% else %}
-                                         <span class="status-badge status-{{ order.status|lower }}" >{{ order.status|upper }}</span>
+                                         <span class="status-badge status-{{ item.status|lower }}" >{{ item.status|upper }}</span>
                                     {% endif %}
                                 </td>
                             </tr>
                             {% endfor %}
                         </tbody>
                     </table>
+
+                    
 
                     <!-- View More Button -->
                     <div class="order-footer">
@@ -751,6 +835,60 @@ body {
                 </div>
             </div>
             {% endfor %}
+
+
+            <!-- Pagination Controls -->
+            {% if page_obj.has_other_pages %}
+            <div class="pagination-container">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination">
+                        <!-- Previous Button -->
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if q %}&q={{ q }}{% endif %}{% if status %}&status={{ status }}{% endif %}" aria-label="Previous">
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link"><i class="fas fa-chevron-left"></i></span>
+                            </li>
+                        {% endif %}
+
+                        <!-- Page Numbers -->
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ num }}{% if q %}&q={{ q }}{% endif %}{% if status %}&status={{ status }}{% endif %}">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        <!-- Next Button -->
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if q %}&q={{ q }}{% endif %}{% if status %}&status={{ status }}{% endif %}" aria-label="Next">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link"><i class="fas fa-chevron-right"></i></span>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                
+                <div class="pagination-info">
+                    Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ page_obj.paginator.count }} orders
+                </div>
+            </div>
+            {% endif %}
+
+
+            
         {% else %}
             <!-- Empty State -->
             <div class="empty-state">

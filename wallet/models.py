@@ -49,12 +49,22 @@ class Wallet(models.Model):
             self.save(update_fields=['balance'])
 
 class WalletTransaction(models.Model):
+
+    WALLET_STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('success', 'Success'),
+        ('failed', 'Failed'),
+    ]
+
+
     wallet = models.ForeignKey(Wallet, on_delete=models.CASCADE, related_name='transactions')
     order = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True, blank=True)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     transaction_type = models.CharField(max_length=10, choices=[('credit', 'Credit'), ('debit', 'Debit')])
     description = models.CharField(max_length=255, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    status = models.CharField(max_length=20, choices=WALLET_STATUS_CHOICES, default='success')
 
     def save(self, *args, **kwargs):
         if not self.description:

@@ -7,12 +7,14 @@ from django.views.decorators.cache import cache_control, never_cache
 from products.models import Product, ProductVariant
 from category.models import Category
 from wishlist.models import Wishlist, WishlistItem
-from django.db.models import Q, Sum, Min, Max 
+from django.db.models import Q, Sum, Min, Max, Value
 from offers.models import Offer
 from offers.utils import get_best_offer_for_product, get_discount_info_for_variant
 from collections import OrderedDict
 from django.http import JsonResponse
 from decimal import Decimal, InvalidOperation
+from django.db.models.functions import Coalesce
+from django.templatetags.static import static
 # Create your views here.
 
 
@@ -29,7 +31,17 @@ def home_view(request):
     # variant = ProductVariant.objects.all()
 
     category_selected = request.GET.get('category')
-    
+
+    best_selling_products = (
+        Product.objects.filter(is_listed=True, variants__stock__gt=0)
+        .annotate(total_sold=Coalesce(Sum("variants__orderitems__quantity"), Value(0)))
+        .filter(total_sold__gt=0)
+        .order_by('-total_sold')
+        .prefetch_related('images', 'variants')[:4]
+    )
+
+    print("Fetched products:", best_selling_products)
+
     if category_selected:
         products = products.filter(category__name__iexact=category_selected)
 
@@ -54,12 +66,27 @@ def home_view(request):
 
     category_pills = ['WHEY', 'ISOLATE', 'VITAMINS', 'CREATINE']
 
+    promo_images = {
+        "WHEY": "images/promo/whey-promo.avif",
+        "ISOLATE": "images/promo/isolate-promo.avif",
+        "VITAMINS": "images/promo/vitamins-promo.avif",
+        "CREATINE": "images/promo/creatine-promo.avif",
+    }
+    
+    for product in best_selling_products:
+        cat_name = product.category.name.upper()
+        relative_path = promo_images.get(cat_name, "images/default-category.jpg")
+        product.category_image = static(relative_path)
+
     context = {
         'products': products,
         'wishlist_variant_ids': list(wishlist_variant_ids),
         'categories' : categories,
         'category_selected' : category_selected,
         'category_pills' : category_pills,
+        'best_selling_products' : best_selling_products,
+        'promo_images' : promo_images,
+        #  'product_link': ['Whey', 'Isolate', 'Vitamins', 'Creatine'],
     }
     return render(request, "home.html", context)
 
@@ -95,19 +122,26 @@ def list_products(request):
     max_price = request.GET.get("max_price")
     
     try:
+        price_filter = Q()
         if min_price:
             min_price_decimal = Decimal(min_price)
             if min_price_decimal < 0:
                 messages.warning(request, "Minimum price cannot be negative.")
             else:
-                products = products.filter(variants__price__gte=min_price_decimal)
+                # products = products.filter(variants__price__gte=min_price_decimal)
+                price_filter &= Q(variants__price__gte=min_price_decimal)
         if max_price:
             max_price_decimal = Decimal(max_price)   
             if max_price_decimal < 0:
                 messages.warning(request, "Maximum price cannot be negative.")
             else:
-                products = products.filter(variants_price_lte=max_price_decimal)
+                # products = products.filter(variants__price__lte=max_price_decimal)
+                price_filter &= Q(variants__price__lte=max_price_decimal)
             # products = products.filter(variants__price__lte=max_price)
+
+        if price_filter:
+            products = products.filter(price_filter).distinct()
+
     except InvalidOperation:
         messages.warning(request, "Price filter must contain positive numbers only.")
 
@@ -375,3 +409,20 @@ def search_suggestions(request):
 #         WishlistItem.objects.create(wishlist=wishlist, variant=variant)
 #         return JsonResponse({"status":"success", "action" : "added"})
 
+
+def about_us(request):
+    return render(request, 'about_us.html')
+
+def contact_us(request):
+    # product_link = ['Whey', 'Isolate', 'Vitamins', 'Creatine']
+    # context = {
+    #     'product_link' : product_link,
+    # }
+    return render(request, 'contact_us.html')
+
+def footer(request):
+    product_link = ['Whey', 'Isolate', 'Vitamins', 'Creatine']
+    context = {
+        'product_link' : product_link,
+    }
+    return render(request, 'includes/footer_layout.html', context)

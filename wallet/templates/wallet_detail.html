@@ -419,6 +419,94 @@
         color: #dc3545;
         font-weight: 600;
     }
+
+
+
+
+    .transaction-serial {
+        width: 35px;
+        height: 35px;
+        background: rgba(0, 57, 66, 0.08);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 10px;
+    }
+
+    .serial-number {
+        color: var(--primary-solid);
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    /* Pagination Styles */
+    .pagination-container {
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 2px solid #e9ecef;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .pagination {
+        display: flex;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        gap: 0.5rem;
+    }
+
+    .page-item {
+        display: inline-block;
+    }
+
+    .page-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 40px;
+        height: 40px;
+        padding: 0.5rem 0.75rem;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        color: #333;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .page-link:hover {
+        background-color: rgba(0, 57, 66, 0.05);
+        border-color: var(--primary-solid);
+        color: var(--primary-solid);
+    }
+
+    .page-item.active .page-link {
+        background-color: var(--primary-solid);
+        border-color: var(--primary-solid);
+        color: white;
+        font-weight: 600;
+    }
+
+    .page-item.disabled .page-link {
+        color: #6c757d;
+        pointer-events: none;
+        background-color: #f8f9fa;
+        border-color: #ddd;
+    }
+
+    .pagination-info {
+        color: #666;
+        font-size: 0.9rem;
+        margin-left: auto;
+    }
+
+
+
+
     /* Responsive */
     @media (max-width: 768px) {
         .wallet-container {
@@ -531,6 +619,7 @@
         </div>
     </div>
 
+
     <!-- Transaction History -->
     <div class="transaction-section">
         <div class="section-header">
@@ -545,8 +634,11 @@
 
         {% if transactions %}
             {% for transaction in transactions %}
-            <div class="transaction-item" data-type="{{ transaction.transaction_type }}">
+            <div class="transaction-item" data-type="{{ transaction.transaction_type }}" data-status="{{ transaction.status }}">
                 <div class="transaction-left">
+                    <div class="transaction-serial">
+                        <span class="serial-number">{{ forloop.counter|add:page_obj.start_index|add:"-1" }}</span>
+                    </div>
                     <div class="transaction-icon {% if transaction.transaction_type == 'credit' %}credit{% else %}debit{% endif %}">
                         {% if transaction.transaction_type == 'credit' %}
                             <i class="fas fa-arrow-down"></i>
@@ -566,10 +658,61 @@
                     <div class="transaction-amount {% if transaction.transaction_type == 'credit' %}credit{% else %}debit{% endif %}">
                         {% if transaction.transaction_type == 'credit' %}+{% else %}-{% endif %}₹{{ transaction.amount }}
                     </div>
-                    <span class="transaction-status {{ transaction.status }}">{{ transaction.status }}</span>
+                    <!-- <span class="transaction-status {{ transaction.status }}">{{ transaction.status }}</span> -->
                 </div>
             </div>
             {% endfor %}
+
+            <!-- Pagination Controls -->
+            {% if page_obj.has_other_pages %}
+            <div class="pagination-container">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination">
+                        <!-- Previous Button -->
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link"><i class="fas fa-chevron-left"></i></span>
+                            </li>
+                        {% endif %}
+
+                        <!-- Page Numbers -->
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        <!-- Next Button -->
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link"><i class="fas fa-chevron-right"></i></span>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                
+                <div class="pagination-info">
+                    Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ page_obj.paginator.count }} transactions
+                </div>
+            </div>
+            {% endif %}
+
         {% else %}
             <div class="empty-state">
                 <div class="empty-icon">
@@ -588,19 +731,22 @@
 {% block extra_js %}
 <script>
     function filterTransactions(filterType) {
-        const transactions = document.querySelectorAll('.transaction-item');
+    const transactions = document.querySelectorAll('.transaction-item');
+    
+    transactions.forEach(transaction => {
+        const type = transaction.getAttribute('data-type');
+        const status = transaction.getAttribute('data-status');
         
-        transactions.forEach(transaction => {
-            const type = transaction.getAttribute('data-type');
-            
-            if (filterType === 'all') {
-                transaction.style.display = 'flex';
-            } else if (filterType === type) {
-                transaction.style.display = 'flex';
-            } else {
-                transaction.style.display = 'none';
-            }
-        });
-    }
+        if (filterType === 'all') {
+            transaction.style.display = 'flex';
+        } else if (filterType === 'pending' && status === 'pending') {
+            transaction.style.display = 'flex';
+        } else if (filterType === type) {
+            transaction.style.display = 'flex';
+        } else {
+            transaction.style.display = 'none';
+        }
+    });
+}
 </script>
 {% endblock extra_js %}

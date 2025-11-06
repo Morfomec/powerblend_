@@ -25,6 +25,7 @@ class Order(models.Model):
         ('delivered', 'Delivered'),
         ('cancelled', 'Cancelled'),
         ('returned', 'Returned'),
+        ('return_requested', 'Return Requested'),
         ('partially_cancelled', 'Partially cancelled'),
     ]
 
@@ -72,6 +73,13 @@ class Order(models.Model):
 
     discount_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     coupon_discount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    coupon_code = models.CharField(max_length=50, blank=True, null=True)
+    coupon_min_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+
+
+    amount_paid = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    refunded_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
 
     def save(self, *args, **kwargs):
@@ -185,6 +193,7 @@ class OrderItem(models.Model):
         ('delivered', 'Delivered'),
         ('cancelled', 'Cancelled'),
         ('returned', 'Returned'),
+        ('return_requested', 'Return Requested'),
         ('out_for_delivery', 'Out for delivery'),
         ('partially_cancelled', 'Partially Cancelled'),
     ]
@@ -208,9 +217,15 @@ class OrderItem(models.Model):
     cancelled_reason = models.TextField(blank=True, null=True)
     cancelled_at = models.DateTimeField(blank=True, null=True)
 
+    # paid_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    # discount_share = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    # refunded_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
 
     # returns fields
     is_returned = models.BooleanField(default=False)
+    is_refunded = models.BooleanField(default=False)
+
     return_reason = models.TextField(blank=True, null=True)
     return_at = models.DateTimeField(blank=True, null=True)
     return_status = models.CharField(max_length=20, choices=RETURN_CHOICES, default='pending')

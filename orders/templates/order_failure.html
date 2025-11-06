@@ -1,0 +1,454 @@
+{% extends 'payment_base.html' %}
+{% load static %}
+
+{% block title %}Payment Failed - POWERBLEND{% endblock %}
+
+{% block extra_css %}
+    <style>
+        :root {
+            --primary-color: rgba(0, 57, 66, 0.8);
+            --primary-solid: rgb(0, 57, 66);
+            --light-bg: #f8f9fa;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--light-bg);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+        }
+
+        /* Failure Container */
+        .failure-container {
+            max-width: 600px;
+            width: 100%;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            padding: 3rem 2rem;
+            text-align: center;
+            animation: fadeInUp 0.6s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Failure Icon */
+        .failure-icon {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 2rem;
+            position: relative;
+            animation: scaleIn 0.5s ease 0.3s both;
+        }
+
+        @keyframes scaleIn {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .failure-icon svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .badge-circle {
+            fill: var(--danger-color);
+            opacity: 0.2;
+        }
+
+        .badge-inner {
+            fill: var(--danger-color);
+        }
+
+        .crossmark {
+            stroke: white;
+            stroke-width: 3;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            animation: crossmark 0.5s ease-out 0.3s forwards;
+            stroke-dasharray: 50;
+            stroke-dashoffset: 50;
+        }
+
+        @keyframes crossmark {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        .failure-badge::before {
+            content: '';
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            background: rgba(220, 53, 69, 0.1);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1.3);
+                opacity: 0;
+            }
+        }
+
+        /* Failure Message */
+        .failure-title {
+            color: var(--danger-color);
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .failure-message {
+            color: #6c757d;
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 0.5rem;
+        }
+
+        .error-reason {
+            color: var(--danger-color);
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background: rgba(220, 53, 69, 0.05);
+            border-radius: 8px;
+            border-left: 4px solid var(--danger-color);
+        }
+
+        /* Info Box */
+        .info-box {
+            background: var(--light-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border: 1px solid #e9ecef;
+            text-align: left;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-icon {
+            color: var(--primary-solid);
+            margin-right: 1rem;
+            font-size: 1.2rem;
+            margin-top: 0.2rem;
+        }
+
+        .info-text {
+            color: #6c757d;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            background: var(--primary-solid);
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            min-width: 200px;
+            justify-content: center;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 57, 66, 0.2);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--primary-solid);
+            border: 2px solid var(--primary-solid);
+            padding: 0.8rem 2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            min-width: 200px;
+            justify-content: center;
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary-solid);
+            color: white;
+            text-decoration: none;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: var(--danger-color);
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            min-width: 200px;
+            justify-content: center;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+            color: white;
+            text-decoration: none;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+        }
+
+        .support-box {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px dashed #dee2e6;
+        }
+
+        .support-title {
+            color: var(--primary-solid);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .support-text {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .support-contact {
+            color: var(--primary-solid);
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .failure-container {
+                padding: 2rem 1.5rem;
+            }
+
+            .failure-title {
+                font-size: 1.6rem;
+            }
+
+            .failure-icon {
+                width: 80px;
+                height: 80px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+
+            .btn-primary,
+            .btn-secondary,
+            .btn-danger {
+                width: 100%;
+            }
+        }
+    </style>
+{% endblock extra_css %}
+
+{% block body %}
+    <div class="failure-container">
+        
+        <!-- Failure Icon -->
+        <div class="failure-icon">
+            <svg viewBox="0 0 100 100">
+                <circle class="badge-circle" cx="50" cy="50" r="45"/>
+                <circle class="badge-inner" cx="50" cy="50" r="35"/>
+                <path class="crossmark" d="M35 35 L65 65 M65 35 L35 65"/>
+            </svg>
+        </div>
+
+        <!-- Failure Message -->
+        <h1 class="failure-title">Payment Failed</h1>
+        <p class="failure-message">We're sorry, but your payment could not be processed.</p>
+        
+        {% if error_message %}
+        <div class="error-reason">
+            <i class="fas fa-exclamation-circle"></i> {{ error_message }}
+        </div>
+        {% endif %}
+
+        <!-- Information Box -->
+        <div class="info-box">
+            <div class="info-item">
+                <i class="fas fa-info-circle info-icon"></i>
+                <div class="info-text">
+                    <strong>Common reasons for payment failure:</strong><br>
+                    Insufficient funds, incorrect card details, expired card, or bank declined the transaction.
+                </div>
+            </div>
+            <div class="info-item">
+                <i class="fas fa-shield-alt info-icon"></i>
+                <div class="info-text">
+                    <strong>Your data is safe:</strong><br>
+                    No charges were made to your account. You can try again with the same or different payment method.
+                </div>
+            </div>
+            <div class="info-item">
+                <i class="fas fa-clock info-icon"></i>
+                <div class="info-text">
+                    <strong>Basket items saved:</strong><br>
+                    Your items are still in your Basket and waiting for you.
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <a href="{% url 'checkout' %}" class="btn-danger">
+                <i class="fas fa-redo"></i>
+                Try Again
+            </a>
+            <a href="{% url 'basket_view' %}" class="btn-secondary">
+                <i class="fas fa-shopping-cart"></i>
+                View Basket
+            </a>
+        </div>
+
+        <div class="action-buttons" style="margin-top: 1rem;">
+            <a href="{% url 'home' %}" class="btn-primary">
+                <i class="fas fa-home"></i>
+                Continue Shopping
+            </a>
+        </div>
+
+        <!-- Support Box -->
+        <div class="support-box">
+            <div class="support-title">Need Help?</div>
+            <p class="support-text">If you continue to experience issues, please contact our support team.</p>
+            <div class="support-contact">
+                <i class="fas fa-envelope"></i> support@powerblend.com<br>
+                <i class="fas fa-phone"></i> +91 9061752197
+            </div>
+        </div>
+    </div>
+{% endblock body %}
+
+{% block extra_js %}
+    <script>
+        // Optional: Auto-redirect to cart after 60 seconds
+        // setTimeout(function() {
+        //     window.location.href = "{% url 'basket_view' %}";
+        // }, 60000);
+    </script>
+{% endblock extra_js %}
+
+{# 
+Sample Django View for this page:
+
+@login_required
+def order_failure(request):
+    # Get error message from session or query parameter
+    error_message = request.session.get('payment_error', 'Payment could not be completed')
+    
+    # Clear the error from session
+    if 'payment_error' in request.session:
+        del request.session['payment_error']
+    
+    context = {
+        'error_message': error_message,
+    }
+    return render(request, 'order_failure.html', context)
+
+
+# In your payment processing view:
+def process_payment(request):
+    try:
+        # Your payment logic here
+        if payment_failed:
+            request.session['payment_error'] = 'Insufficient funds in your account'
+            return redirect('order_failure')
+    except Exception as e:
+        request.session['payment_error'] = str(e)
+        return redirect('order_failure')
+
+
+# URLs.py
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('order/success/<str:order_id>/', views.order_success, name='order_success'),
+    path('order/failure/', views.order_failure, name='order_failure'),
+    path('checkout/', views.checkout, name='checkout'),
+    path('cart/', views.cart, name='cart'),
+    path('', views.home, name='home'),
+    path('invoice/download/<int:order_id>/', views.download_invoice, name='download_invoice'),
+    path('order/list/', views.order_list, name='order_list'),
+]
+#}

@@ -154,11 +154,16 @@
     border-radius: 8px;
     padding: 0.5rem 1rem;
     transition: all 0.3s ease;
+    background-color: white;
+    color: var(--primary-solid);
+    font-weight: 600;
+    min-width: 150px;
 }
 
 .form-select:focus {
     border-color: var(--primary-solid);
     box-shadow: 0 0 0 0.25rem rgba(0, 57, 66, 0.1);
+    outline: none;
 }
 
 /* Chart Container */
@@ -212,6 +217,49 @@
     opacity: 0.3;
 }
 
+/* Chart Toggle Group */
+.chart-toggle-group {
+    display: inline-flex;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 4px;
+    gap: 4px;
+}
+
+.chart-toggle-btn {
+    background: transparent;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chart-toggle-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.chart-toggle-btn.active {
+    background: white;
+    color: var(--primary-solid);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.chart-toggle-btn i {
+    font-size: 1rem;
+}
+
+/* Chart container animation */
+.chart-container.updating {
+    opacity: 0.6;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .table thead th,
@@ -223,59 +271,7 @@
     .chart-container {
         height: 300px;
     }
-}
-</style>
 
-<style>
-.chart-toggle-group {
-    display: inline-flex;
-    background: #f8f9fa;
-    border-radius: 8px;
-    padding: 4px;
-    gap: 4px;
-}
-
-.chart-toggle-btn {
-    background: transparent;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 6px;
-    color: #6c757d;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-size: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.chart-toggle-btn:hover {
-    background: rgba(0, 57, 66, 0.1);
-    color: rgb(0, 57, 66);
-}
-
-.chart-toggle-btn.active {
-    background: rgb(0, 57, 66);
-    color: white;
-    box-shadow: 0 2px 8px rgba(0, 57, 66, 0.3);
-}
-
-.chart-toggle-btn i {
-    font-size: 1rem;
-}
-
-/* Chart container animation */
-.chart-container {
-    position: relative;
-    height: 400px;
-    transition: opacity 0.3s ease;
-}
-
-.chart-container.updating {
-    opacity: 0.6;
-}
-
-@media (max-width: 768px) {
     .card-header {
         flex-direction: column;
         gap: 1rem;
@@ -285,11 +281,18 @@
     .d-flex.gap-2 {
         width: 100%;
         justify-content: space-between;
+        flex-wrap: wrap;
+    }
+
+    .form-select {
+        min-width: 120px;
+        font-size: 0.9rem;
     }
 }
 </style>
 
 {% endblock extra_css %}
+
 <!-- Welcome Section -->
 <div class="welcome-banner">
     <div class="row align-items-center">
@@ -312,41 +315,39 @@
 <div class="stats-section">
     <div class="row mb-4">
         <div class="col-md-3">
-        <a href="{% url 'admin_user' %}"  style="text-decoration: none; color: inherit;">
-        
-            <div class="stats-card card-green">
-                <div class="icon"><i class="fas fa-users"></i></div>
-                <div class="number">{{ total_users }}</div>
-                <div class="label">Total Users</div>
-            </div>
-        
-        </a>
+            <a href="{% url 'admin_user' %}" style="text-decoration: none; color: inherit;">
+                <div class="stats-card card-green">
+                    <div class="icon"><i class="fas fa-users"></i></div>
+                    <div class="number">{{ total_users }}</div>
+                    <div class="label">Total Users</div>
+                </div>
+            </a>
         </div>
         <div class="col-md-3">
             <a href="{% url 'admin_order_list' %}" style="text-decoration: none; color: inherit;">
-            <div class="stats-card card-blue">
-                <div class="icon"><i class="fas fa-shopping-cart"></i></div>
-                <div class="number">{{ total_orders }}</div>
-                <div class="label">Total Orders</div>
-            </div>
+                <div class="stats-card card-blue">
+                    <div class="icon"><i class="fas fa-shopping-cart"></i></div>
+                    <div class="number">{{ total_orders }}</div>
+                    <div class="label">Total Orders</div>
+                </div>
             </a>     
         </div>
         <div class="col-md-3">
             <a href="{% url 'admin_products' %}" style="text-decoration: none; color: inherit;">
-            <div class="stats-card card-purple">
-                <div class="icon"><i class="fas fa-box"></i></div>
-                <div class="number">{{ total_products }}</div>
-                <div class="label">Total Products</div>
-            </div>
+                <div class="stats-card card-purple">
+                    <div class="icon"><i class="fas fa-box"></i></div>
+                    <div class="number">{{ total_products }}</div>
+                    <div class="label">Total Products</div>
+                </div>
             </a>
         </div>
         <div class="col-md-3">
             <a href="{% url 'admin_category' %}" style="text-decoration: none; color: inherit;">
-            <div class="stats-card card-red">
-                <div class="icon"><i class="fas fa-tags"></i></div>
-                <div class="number">{{ total_categories }}</div>
-                <div class="label">Total Categories</div>
-            </div>
+                <div class="stats-card card-red">
+                    <div class="icon"><i class="fas fa-tags"></i></div>
+                    <div class="number">{{ total_categories }}</div>
+                    <div class="label">Total Categories</div>
+                </div>
             </a>
         </div>
     </div>
@@ -456,11 +457,19 @@
         </div>
     </div>
 
-    <!-- Chart Section with Toggle -->
+    <!-- Chart Section with Toggle and Filter -->
     <div class="content-card">
         <div class="card-header d-flex justify-content-between align-items-center">
             <span><i class="fas fa-chart-line me-2"></i>Total Users & Total Sales</span>
             <div class="d-flex gap-2 align-items-center">
+                <!-- Time Period Filter -->
+                <select class="form-select" id="chartFilter" onchange="this.form.submit()">
+                    <option value="daily" {% if filter_type == 'daily' %}selected{% endif %}>Daily</option>
+                    <option value="weekly" {% if filter_type == 'weekly' %}selected{% endif %}>Weekly</option>
+                    <option value="monthly" {% if filter_type == 'monthly' %}selected{% endif %}>Monthly</option>
+                    <option value="yearly" {% if filter_type == 'yearly' %}selected{% endif %}>Yearly</option>
+                </select>
+                
                 <!-- Chart Type Toggle -->
                 <div class="chart-toggle-group">
                     <button class="chart-toggle-btn active" data-chart-type="line" title="Line Chart">
@@ -470,9 +479,6 @@
                         <i class="fas fa-chart-bar"></i>
                     </button>
                 </div>
-                <!-- <button class="btn btn-outline-secondary btn-sm">
-                    <i class="fas fa-download me-1"></i>Report
-                </button> -->
             </div>
         </div>
         <div class="card-body">
@@ -492,7 +498,13 @@
         </div>
     </div>
 </div>
-!-- Chart.js Script -->
+
+<!-- Hidden form for filter submission -->
+<form id="filterForm" method="GET" style="display: none;">
+    <input type="hidden" name="filter" id="filterInput" value="{{ filter_type }}">
+</form>
+
+<!-- Chart.js Script -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -502,6 +514,16 @@ document.addEventListener('DOMContentLoaded', function() {
         console.error('Canvas element not found!');
         return;
     }
+    
+    // Filter change handler
+    const chartFilter = document.getElementById('chartFilter');
+    const filterForm = document.getElementById('filterForm');
+    const filterInput = document.getElementById('filterInput');
+    
+    chartFilter.addEventListener('change', function() {
+        filterInput.value = this.value;
+        filterForm.submit();
+    });
     
     // Parse chart data from Django template
     const chartLabels = {{ chart_labels|safe }};
@@ -680,7 +702,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    console.log('Chart with toggle initialized successfully!');
+    console.log('Chart with toggle and filter initialized successfully!');
 });
 </script>
 
