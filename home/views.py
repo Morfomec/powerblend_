@@ -216,6 +216,150 @@ def list_products(request):
 
 
 
+# def detail_product(request, id):
+#     """
+#     Return a single product detail page with variants, consistent with home discount logic.
+#     """
+#     try:
+#         single_product = get_object_or_404(
+#             Product.objects.prefetch_related('variants').annotate(total_stock=Sum('variants__stock')),
+#             id=id,
+#             is_listed=True
+#         )
+
+#         variants = single_product.variants.all().order_by('weight')
+
+#         if not variants.exists():
+#             messages.warning(request, "No variants available for this product.")
+#             return redirect('list_products')
+
+#         # Apply discount info just like home view
+#         for variant in variants:
+#             variant.discount_info = get_discount_info_for_variant(variant)
+
+#         # Apply best product-level offer
+#         best_offer = get_best_offer_for_product(single_product)
+
+#         # Update each variant's price after considering best offer
+#         for variant in variants:
+#             base_price = variant.discount_info['price']
+#             if best_offer:
+#                 variant.offer_price = variant.discount_info['price']
+#             else:
+#                 variant.offer_price = base_price
+
+#         # Handle unique weights & flavors
+#         unique_weights = {}
+#         unique_flavors = {}
+
+#         for variant in variants:
+#             if variant.weight and variant.weight not in unique_weights:
+#                 unique_weights[variant.weight] = {
+#                     'available': variant.stock > 0,
+#                     'variant_id': variant.id,
+#                     'price': variant.offer_price,
+#                     'original_price': variant.discount_info.get('original_price'),
+#                     'save_amount': variant.discount_info.get('save_amount'),
+#                     'stock': variant.stock,
+#                 }
+
+#             if variant.flavor and variant.flavor not in unique_flavors:
+#                 unique_flavors[variant.flavor] = {
+#                     'available': variant.stock > 0,
+#                     'variant_id': variant.id,
+#                     'price': variant.offer_price,
+#                     'original_price': variant.discount_info.get('original_price'),
+#                     'save_amount': variant.discount_info.get('save_amount'),
+#                     'stock': variant.stock,
+#                 }
+
+#         # Get selected flavor and weight from URL parameters
+#         selected_weight = request.GET.get('weight')
+#         selected_flavor = request.GET.get('flavor')
+        
+#         # ✅ REPLACE ALL THE OLD VARIANT SELECTION LOGIC WITH THIS:
+#         # Build a complete variant map for accurate lookups
+#         variant_map = {}
+#         for variant in variants:
+#             flavor_name = variant.flavor.flavor if variant.flavor else None
+#             weight_name = variant.weight.weight if variant.weight else None
+            
+#             if flavor_name and weight_name:
+#                 variant_map[f"{flavor_name}_{weight_name}"] = variant
+
+#         # Find selected variant based on flavor and weight
+#         selected_variant = None
+#         if selected_flavor and selected_weight:
+#             key = f"{selected_flavor}_{selected_weight}"
+#             selected_variant = variant_map.get(key)
+
+#         # Fallback to first available variant if no match found
+#         if not selected_variant:
+#             selected_variant = variants.first()
+#         # ✅ END OF REPLACEMENT
+
+#         selected_variant_info = {
+#             'id': selected_variant.id,
+#             'price': selected_variant.offer_price,
+#             'original_price': selected_variant.discount_info.get('original_price'),
+#             'save_amount': selected_variant.discount_info.get('save_amount'),
+#             'weight': selected_variant.weight,
+#             'flavor': selected_variant.flavor,
+#             'stock': selected_variant.stock,
+#             'has_discount': bool(selected_variant.discount_info.get('save_amount', 0) > 0),
+#         }
+
+#         # Related variant groupings
+#         variants_by_weight = [v for v in variants if v.weight == selected_variant.weight]
+#         variants_by_flavor = [v for v in variants if v.flavor == selected_variant.flavor]
+
+#         available_flavors = OrderedDict()
+#         for variant in variants:
+#             if variant.flavor and variant.flavor.flavor not in available_flavors:
+#                 available_flavors[variant.flavor.flavor] = {
+#                     'variant_id': variant.id,
+#                     'available': variant.stock > 0,
+#                     'weight': variant.weight,
+#                     'flavor_obj': variant.flavor,
+#                 }
+
+#         available_weights = OrderedDict()
+#         for variant in variants:
+#             if variant.weight and variant.weight.weight not in available_weights:
+#                 available_weights[variant.weight.weight] = {
+#                     'variant_id': variant.id,
+#                     'available': variant.stock > 0,
+#                     'weight_obj': variant.weight,
+#                     'flavor': variant.flavor,
+#                 }
+
+#     except Exception as e:
+#         raise e
+
+#     wishlist_variant_ids = []
+#     if request.user.is_authenticated:
+#         wishlist = getattr(request.user, 'wishlist', None)
+#         if wishlist:
+#             wishlist_variant_ids = list(wishlist.items.values_list('variant_id', flat=True))
+
+#     context = {
+#         "product": single_product,
+#         "variants": variants,
+#         "selected_variant": selected_variant,
+#         "selected_variant_info": selected_variant_info,
+#         "unique_flavors": unique_flavors,
+#         "unique_weights": unique_weights,
+#         "available_flavors": available_flavors if available_flavors else unique_flavors,
+#         "available_weights": available_weights if available_weights else unique_weights,
+#         "best_offer": best_offer,
+#         "wishlist_variant_ids": wishlist_variant_ids,
+#     }
+    
+#     return render(request, "product_detail.html", context)
+
+
+
+
 
 
 def detail_product(request, id):
@@ -331,7 +475,7 @@ def detail_product(request, id):
             if variant.flavor and variant.flavor.flavor not in available_flavors:
                 available_flavors[variant.flavor.flavor] = {
                     'variant_id': variant.id,
-                    'available': variant.stock > 0,
+                    'available': any(v.stock > 0 for v in variants if v.flavor == variant.flavor),
                     'weight': variant.weight,
                     'flavor_obj': variant.flavor,  # keep object if needed
                 }

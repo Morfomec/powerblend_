@@ -108,7 +108,9 @@ ACCOUNT_LOGOUT_REDIRECT_URL = '/'
 
 
 
-
+CSRF_TRUSTED_ORIGINS = [
+    'https://dashiest-robt-vixenishly.ngrok-free.dev'
+]
 
 MIDDLEWARE = [
     "powerblend.middleware.DynamicLoginRedirectMiddleware",

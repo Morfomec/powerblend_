@@ -108,8 +108,8 @@ def checkout_view(request):
     total_items = basket.total_items
 
     # --- Tax, shipping ---
-    shipping = Decimal('0')
-    taxes = subtotal * Decimal('0')
+    shipping = Decimal('0.00')
+    taxes = subtotal * Decimal('0.00')
 
     # --- Coupon form & available coupons ---
     coupon_form = ApplyCouponForm()

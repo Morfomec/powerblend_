@@ -21,7 +21,7 @@
             color: var(--dark-gray);
             margin: 0;
             padding: 0;
-            background-color: #fff;
+            background-color: #fffrgb(0 57 66 / 1);;
         }
 
         /* Header */
@@ -699,9 +699,77 @@
     opacity: 0.6;
 }
 
+
 .selector-btn:not(.active):not(.disabled):hover {
     border-color: var(--primary-teal);
     background-color: rgba(0, 57, 66, 0.1);
+}
+
+/* Size Dropdown with Teal Color - Enhanced */
+.size-dropdown {
+    max-width: 300px;
+    padding: 12px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: white;
+    
+    /* Custom dropdown arrow */
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2314b8a6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 20px;
+    padding-right: 40px;
+}
+
+.size-dropdown:hover {
+    border-color: #035349;
+    background-color: #f0fdfa;
+}
+
+.size-dropdown:focus {
+    border-color: #14b8a6;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.15);
+    background-color: white;
+}
+
+/* Dropdown options - Teal selection */
+.size-dropdown option {
+    padding: 12px;
+    font-weight: 500;
+    background: white;
+    color: #333;
+}
+
+.size-dropdown option:checked {
+    background: linear-gradient(#14b8a6, #14b8a6) !important;
+    background-color: #7f9492 !important;
+    color: white !important;
+}
+
+.size-dropdown option:hover {
+    background: #0d9488 !important;
+    color: white !important;
+}
+
+.size-dropdown option:disabled {
+    color: #999;
+    background: #f5f5f5 !important;
+}
+
+/* Firefox specific override */
+@-moz-document url-prefix() {
+    .size-dropdown option:checked {
+        background: #14b8a6 !important;
+        color: white !important;
+    }
 }
 
         @media (max-width: 576px) {
@@ -1042,7 +1110,7 @@
                     {% endif %}
                     
                     <!-- Flavor Selector -->
-                    <div class="flavor-selector">
+                    <!-- <div class="flavor-selector">
                         <div class="section-label">Flavour:</div>
                         <div class="selector-buttons">
                             {% for flavor_name, data in available_flavors.items %}
@@ -1057,10 +1125,10 @@
                                 {% endif %}
                             {% endfor %}
                         </div>
-                    </div>
+                    </div> -->
                     
                     <!-- Size Selector -->
-                    <div class="amount-selector">
+                    <!-- <div class="amount-selector">
                         <div class="section-label">Size:</div>
                         <div class="selector-buttons">
                             {% for weight, data in available_weights.items %}
@@ -1080,7 +1148,7 @@
                             {% endfor %}
                         </div>
                     </div>
-                    
+                     -->
                     <div class="promo-banner">
                         <strong>PROTEIN SALE</strong> | GET EXTRA 15% OFF ON CREATINE | Use code: <strong>CREATINE15</strong>
                     </div>
@@ -1093,6 +1161,37 @@
                             <button type="button" class="qty-btn">+</button>
                         </div>
                     </div> -->
+
+
+                    <!-- Flavor Selector (Buttons) -->
+                    <div class="flavor-selector mb-3">
+                        <div class="section-label mb-2">Flavour:</div>
+                        <div class="selector-buttons d-flex flex-wrap gap-2">
+                            {% for flavor_name, data in available_flavors.items %}
+                                <button 
+                                    class="selector-btn {% if selected_variant_info.flavor.flavor == flavor_name %}active{% endif %} {% if not data.available %}disabled{% endif %}"
+                                    data-flavor="{{ flavor_name }}"
+                                    {% if not data.available %}disabled{% endif %}>
+                                    {{ flavor_name }}
+                                </button>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Size Selector (Dropdown) -->
+                    <div class="amount-selector mb-3">
+                        <div class="section-label mb-2">Size:</div>
+                        <select id="sizeDropdown" class="form-select size-dropdown">
+                            <option value="">Select a size</option>
+                        </select>
+                    </div>
+
+                    <!-- Hidden form to submit selection -->
+                    <form id="variantSelectionForm" method="GET">
+                        <input type="hidden" name="flavor" id="selectedFlavorInput">
+                        <input type="hidden" name="weight" id="selectedWeightInput">
+                    </form>
+
 
                     <!-- Add to Basket Form -->
                     
@@ -1490,7 +1589,7 @@
     {% endblock body %}
 {% block extra_js %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-<script>
+<!-- <script>
 
 
 
@@ -1626,7 +1725,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 </script> -->
-
+<!-- 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
   const container = document.querySelector('.product-image-container');
@@ -1659,25 +1758,349 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   });
 });
+</script> -->
+<!-- <script>
+    
+document.addEventListener("DOMContentLoaded", function() {
+    // Prepare variant data from Django template
+    const variantsData = [
+        {% for variant in variants %}
+        {
+            id: {{ variant.id }},
+            flavor: "{{ variant.flavor.flavor|escapejs }}",
+            weight: "{{ variant.weight.weight|escapejs }}",
+            stock: {{ variant.stock }},
+            price: {{ variant.offer_price }},
+            available: {{ variant.stock|yesno:"true,false" }}
+        },
+        {% endfor %}
+    ];
+
+    const flavorButtons = document.querySelectorAll('.selector-btn[data-flavor]');
+    const sizeDropdown = document.getElementById('sizeDropdown');
+    const selectedFlavorInput = document.getElementById('selectedFlavorInput');
+    const selectedWeightInput = document.getElementById('selectedWeightInput');
+    const variantForm = document.getElementById('variantSelectionForm');
+
+    let currentFlavor = "{{ selected_variant_info.flavor.flavor|escapejs }}";
+    let currentWeight = "{{ selected_variant_info.weight.weight|escapejs }}";
+
+    // Initialize: populate sizes based on current flavor
+    updateSizeDropdown(currentFlavor);
+
+    // Flavor button click handler
+    flavorButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            if (this.classList.contains('disabled')) return;
+            
+            // Remove active class from all buttons
+            flavorButtons.forEach(btn => btn.classList.remove('active'));
+            
+            // Add active class to clicked button
+            this.classList.add('active');
+            
+            // Get selected flavor
+            currentFlavor = this.getAttribute('data-flavor');
+            
+            // Update size dropdown
+            updateSizeDropdown(currentFlavor);
+        });
+    });
+
+    // Size dropdown change handler
+    sizeDropdown.addEventListener('change', function() {
+        currentWeight = this.value;
+        
+        if (currentFlavor && currentWeight) {
+            // Update hidden inputs and submit
+            selectedFlavorInput.value = currentFlavor;
+            selectedWeightInput.value = currentWeight;
+            variantForm.submit();
+        }
+    });
+
+    // Function to update size dropdown based on selected flavor
+    function updateSizeDropdown(flavor) {
+        // Clear existing options
+        sizeDropdown.innerHTML = '<option value="">Select a size</option>';
+        
+        // Get unique weights for the selected flavor
+        const availableSizes = new Map();
+        
+        variantsData.forEach(variant => {
+            if (variant.flavor === flavor) {
+                if (!availableSizes.has(variant.weight)) {
+                    availableSizes.set(variant.weight, {
+                        weight: variant.weight,
+                        available: variant.available,
+                        stock: variant.stock
+                    });
+                }
+            }
+        });
+        
+        // Populate dropdown with available sizes
+        availableSizes.forEach((data, weight) => {
+            const option = document.createElement('option');
+            option.value = weight;
+            option.textContent = weight.toUpperCase();
+            
+            if (!data.available) {
+                option.disabled = true;
+                option.textContent += ' (Out of Stock)';
+            }
+            
+            // Pre-select current weight if it matches
+            if (weight === currentWeight) {
+                option.selected = true;
+            }
+            
+            sizeDropdown.appendChild(option);
+        });
+        
+        // If no sizes available, show message
+        if (availableSizes.size === 0) {
+            const option = document.createElement('option');
+            option.value = "";
+            option.textContent = "No sizes available";
+            option.disabled = true;
+            sizeDropdown.appendChild(option);
+        }
+    }
+});
+</script>  -->
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+console.log("🚀 Script loading...");
+
+document.addEventListener("DOMContentLoaded", function () {
+    console.log("✅ DOM Ready");
+
+    /* ==================== VARIANT SELECTOR ==================== */
+    
+    const variantsData = [
+        {% for variant in variants %}
+        {
+            id: {{ variant.id }},
+            flavor: "{{ variant.flavor.flavor|escapejs }}",
+            weight: "{{ variant.weight.weight|escapejs }}",
+            stock: {{ variant.stock }},
+            price: {{ variant.offer_price }},
+            available: {{ variant.stock|yesno:"true,false" }}
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+    console.log("📦 Variants loaded:", variantsData.length);
+
+    const flavorButtons = document.querySelectorAll('.selector-btn[data-flavor]');
+    const sizeDropdown = document.getElementById('sizeDropdown');
+    const selectedFlavorInput = document.getElementById('selectedFlavorInput');
+    const selectedWeightInput = document.getElementById('selectedWeightInput');
+    const variantForm = document.getElementById('variantSelectionForm');
+
+    console.log("🔘 Flavor buttons:", flavorButtons.length);
+    console.log("📋 Size dropdown:", sizeDropdown ? "Found" : "NOT FOUND");
+
+    let currentFlavor = "{{ selected_variant_info.flavor.flavor|escapejs }}";
+    let currentWeight = "{{ selected_variant_info.weight.weight|escapejs }}";
+    let isInitialLoad = true;
+
+    console.log("🎯 Initial - Flavor:", currentFlavor, "Weight:", currentWeight);
+
+    // Initialize dropdown
+    if (currentFlavor && sizeDropdown) {
+        updateSizeDropdown(currentFlavor);
+        isInitialLoad = false;
+    }
+
+    // Flavor button click handler
+    flavorButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            console.log("👆 Flavor clicked:", this.getAttribute('data-flavor'));
+            
+            if (this.classList.contains('disabled')) {
+                console.log("⚠️ Button disabled");
+                return;
+            }
+            
+            flavorButtons.forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            
+            currentFlavor = this.getAttribute('data-flavor');
+            currentWeight = ""; // ⭐ RESET WEIGHT
+            isInitialLoad = false;
+            
+            console.log("🔄 Updating dropdown for:", currentFlavor);
+            updateSizeDropdown(currentFlavor);
+        });
+    });
+
+    // Size dropdown change handler
+    if (sizeDropdown) {
+        sizeDropdown.addEventListener('change', function() {
+            console.log("📏 Size selected:", this.value);
+            currentWeight = this.value;
+            
+            if (currentFlavor && currentWeight) {
+                console.log("✅ Submitting:", currentFlavor, currentWeight);
+                selectedFlavorInput.value = currentFlavor;
+                selectedWeightInput.value = currentWeight;
+                variantForm.submit();
+            }
+        });
+    }
+
+    // Update size dropdown function
+    function updateSizeDropdown(flavor) {
+        console.log("🔧 updateSizeDropdown called for:", flavor);
+        
+        sizeDropdown.innerHTML = '<option value="">Select a size</option>';
+        
+        const availableSizes = new Map();
+        
+        variantsData.forEach(variant => {
+            if (variant.flavor === flavor) {
+                if (!availableSizes.has(variant.weight)) {
+                    availableSizes.set(variant.weight, {
+                        weight: variant.weight,
+                        available: variant.available,
+                        stock: variant.stock
+                    });
+                }
+            }
+        });
+        
+        console.log("📦 Available sizes:", availableSizes.size);
+        
+        availableSizes.forEach((data, weight) => {
+            const option = document.createElement('option');
+            option.value = weight;
+            option.textContent = weight.toUpperCase();
+            
+            if (!data.available) {
+                option.disabled = true;
+                option.textContent += ' (Out of Stock)';
+            }
+            
+            // ⭐ Only pre-select on initial load
+            if (isInitialLoad && weight === currentWeight) {
+                option.selected = true;
+                console.log("✅ Pre-selected:", weight);
+            }
+            
+            sizeDropdown.appendChild(option);
+        });
+        
+        if (availableSizes.size === 0) {
+            const option = document.createElement('option');
+            option.value = "";
+            option.textContent = "No sizes available";
+            option.disabled = true;
+            sizeDropdown.appendChild(option);
+        }
+        
+        // ⭐ Force reset if not initial load
+        if (!isInitialLoad) {
+            sizeDropdown.value = "";
+            console.log("🔄 Dropdown reset to 'Select a size'");
+        }
+    }
+
+    /* ==================== THUMBNAILS ==================== */
+    const mainImage = document.getElementById("main-product-image");
+    const thumbnails = document.querySelectorAll(".product-thumbnails .thumbnail");
+
+    if (mainImage && thumbnails.length > 0) {
+        thumbnails.forEach(thumbnail => {
+            thumbnail.addEventListener("click", function () {
+                mainImage.src = this.src;
+                thumbnails.forEach(t => t.classList.remove("active"));
+                this.classList.add("active");
+            });
+        });
+    }
+
+    /* ==================== ADD TO BASKET ==================== */
+    const basketForm = document.getElementById("add-to-basket-form");
+    
+    if (basketForm) {
+        basketForm.addEventListener("submit", async function (event) {
+            event.preventDefault();
+            const csrfToken = this.querySelector("[name=csrfmiddlewaretoken]").value;
+
+            try {
+                const response = await fetch(this.action, {
+                    method: "POST",
+                    body: new FormData(this),
+                    headers: { "X-CSRFToken": csrfToken },
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    document.getElementById("basket-product-name").textContent = `${data.product} - ${data.variant}`;
+                    document.getElementById("basket-quantity").textContent = data.quantity;
+                    document.getElementById("basket-subtotal").textContent = data.subtotal;
+                    document.getElementById("basket-count").textContent = data.basket_count;
+                    document.getElementById("basket-product-image").src = data.image || "";
+
+                    const modal = new bootstrap.Modal(document.getElementById("basketModal"));
+                    modal.show();
+                }
+            } catch (error) {
+                console.error("Basket error:", error);
+            }
+        });
+    }
+
+    /* ==================== AUTH MODAL ==================== */
+    window.openAuthModal = function() {
+        document.getElementById('authModal').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    window.closeAuthModal = function() {
+        document.getElementById('authModal').classList.remove('active');
+        document.body.style.overflow = 'auto';
+    }
+
+    document.getElementById('authModal')?.addEventListener('click', function (e) {
+        if (e.target === this) closeAuthModal();
+    });
+
+    /* ==================== IMAGE ZOOM ==================== */
+    const container = document.querySelector('.product-image-container');
+    if (container) {
+        const img = container.querySelector('.zoom-image');
+        const lens = container.querySelector('.zoom-lens');
+
+        if (img && lens) {
+            function moveLens(e) {
+                const rect = container.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                lens.style.display = 'block';
+                lens.style.left = `${x - lens.offsetWidth / 2}px`;
+                lens.style.top = `${y - lens.offsetHeight / 2}px`;
+                lens.style.backgroundImage = `url(${img.src})`;
+
+                const fx = (x / rect.width) * 100;
+                const fy = (y / rect.height) * 100;
+                lens.style.backgroundPosition = `${fx}% ${fy}%`;
+            }
+
+            img.addEventListener('mousemove', moveLens);
+            img.addEventListener('mouseenter', () => lens.style.display = 'block');
+            img.addEventListener('mouseleave', () => lens.style.display = 'none');
+        }
+    }
+
+    console.log("✅ All scripts initialized");
+});
 </script>
 {% endblock extra_js %}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
