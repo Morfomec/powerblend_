@@ -24,7 +24,7 @@
         </div>
     </section> -->
 
-<a href="{% url 'list_products' %}" style="text-decoration: none; color: inherit;">
+<!-- <a href="{% url 'list_products' %}" style="text-decoration: none; color: inherit;">
     <section class="hero-section d-flex align-items-center" 
             style="background-image: url('/static/images/banner2.avif'); 
                    background-size: cover; 
@@ -33,12 +33,234 @@
                    min-height: 600px; 
                    color: white;">
     </section>
-</a>
+</a> -->
 
     <!-- Featured Products Banner -->
-    <div class="container-fluid" style="background: var(--primary-teal); color: white; padding: 1rem 0;">
+    <!-- <div class="container-fluid" style="background: var(--primary-teal); color: white; padding: 1rem 0;">
         <div class="container text-center">
             <h4 style="margin: 0;">OUR BEST SELLING IMPACT WHEY PROTEIN FOR FREE</h4>
             <p style="margin: 0; font-size: 0.9rem;">TRY FOR FREE OR GET 67% OFF YOUR FIRST ORDER</p>
         </div>
+    </div> -->
+
+
+{% load static %}
+
+<!-- Dynamic Hero Banner Section -->
+{% if active_banners %}
+    <!-- Carousel for multiple banners -->
+    {% if active_banners.count > 1 %}
+        <div id="heroBannerCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000">
+            <!-- Indicators -->
+            <div class="carousel-indicators">
+                {% for banner in active_banners %}
+                    <button type="button" 
+                            data-bs-target="#heroBannerCarousel" 
+                            data-bs-slide-to="{{ forloop.counter0 }}" 
+                            {% if forloop.first %}class="active"{% endif %}
+                            aria-label="Slide {{ forloop.counter }}">
+                    </button>
+                {% endfor %}
+            </div>
+
+            <!-- Carousel Items -->
+            <div class="carousel-inner">
+                {% for banner in active_banners %}
+                    <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                        <a href="{% url 'list_products' %}" style="text-decoration: none; color: inherit;">
+                            <section class="hero-section d-flex align-items-center" 
+                                    style="background-image: url('{{ banner.image.url }}'); 
+                                           background-size: cover; 
+                                           background-position: center; 
+                                           background-repeat: no-repeat;
+                                           min-height: 600px; 
+                                           color: white;
+                                           position: relative;
+                                           transition: transform 0.3s ease;">
+                                
+                                
+                            </section>
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Controls -->
+            <button class="carousel-control-prev" type="button" data-bs-target="#heroBannerCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#heroBannerCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+        </div>
+    {% else %}
+        <!-- Single Banner -->
+        <a href="{% url 'list_products' %}" style="text-decoration: none; color: inherit;">
+            <section class="hero-section d-flex align-items-center" 
+                    style="background-image: url('{{ active_banners.first.image.url }}'); 
+                           background-size: cover; 
+                           background-position: center; 
+                           background-repeat: no-repeat;
+                           min-height: 600px; 
+                           color: white;
+                           position: relative;">
+                
+                {% if active_banners.first.title %}
+                    <div class="container">
+                        <div class="banner-title-overlay">
+                            <h1 class="display-4 fw-bold mb-3">{{ active_banners.first.title }}</h1>
+                            <button class="btn btn-light btn-lg px-5 py-3 fw-bold">
+                                Shop Now <i class="fas fa-arrow-right ms-2"></i>
+                            </button>
+                        </div>
+                    </div>
+                {% endif %}
+            </section>
+        </a>
+    {% endif %}
+{% else %}
+    <!-- Fallback to static banner if no active banners -->
+    <a href="{% url 'list_products' %}" style="text-decoration: none; color: inherit;">
+        <section class="hero-section d-flex align-items-center" 
+                style="background-image: url('{% static 'images/banner2.avif' %}'); 
+                       background-size: cover; 
+                       background-position: center; 
+                       background-repeat: no-repeat;
+                       min-height: 600px; 
+                       color: white;">
+        </section>
+    </a>
+{% endif %}
+
+<!-- Featured Products Banner -->
+<div class="container-fluid" style="background: var(--primary-teal); color: white; padding: 1rem 0;">
+    <div class="container text-center">
+        <h4 style="margin: 0;">OUR BEST SELLING IMPACT WHEY PROTEIN FOR FREE</h4>
+        <p style="margin: 0; font-size: 0.9rem;">TRY FOR FREE OR GET 67% OFF YOUR FIRST ORDER</p>
     </div>
+</div>
+
+<!-- Enhanced Styles for Banner -->
+<style>
+    /* Hero Section Enhancements */
+    .hero-section {
+        overflow: hidden;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .hero-section:hover {
+        transform: scale(1.02);
+    }
+
+    /* Banner Title Overlay */
+    .banner-title-overlay {
+        text-align: center;
+        animation: fadeInUp 1s ease;
+        text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.7);
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Carousel Controls Enhancement */
+    .carousel-control-prev,
+    .carousel-control-next {
+        width: 5%;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    #heroBannerCarousel:hover .carousel-control-prev,
+    #heroBannerCarousel:hover .carousel-control-next {
+        opacity: 1;
+    }
+
+    .carousel-control-prev-icon,
+    .carousel-control-next-icon {
+        width: 50px;
+        height: 50px;
+        background-color: rgba(0, 57, 66, 0.8);
+        border-radius: 50%;
+        padding: 10px;
+    }
+
+    /* Carousel Indicators */
+    .carousel-indicators {
+        bottom: 30px;
+    }
+
+    .carousel-indicators [data-bs-target] {
+        width: 15px;
+        height: 15px;
+        border-radius: 50%;
+        background-color: rgba(255, 255, 255, 0.5);
+        border: 2px solid rgba(255, 255, 255, 0.8);
+        transition: all 0.3s ease;
+    }
+
+    .carousel-indicators .active {
+        background-color: var(--primary-teal);
+        width: 40px;
+        border-radius: 10px;
+    }
+
+    /* Shop Now Button Enhancement */
+    .btn-light {
+        transition: all 0.3s ease;
+        border: 3px solid white;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .btn-light:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+        background: var(--primary-teal);
+        color: white;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .hero-section {
+            min-height: 400px !important;
+        }
+
+        .banner-title-overlay h1 {
+            font-size: 2rem;
+        }
+
+        .carousel-control-prev-icon,
+        .carousel-control-next-icon {
+            width: 35px;
+            height: 35px;
+        }
+    }
+</style>
+
+<!-- Optional: Auto-play enhancement with pause on hover -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const carousel = document.getElementById('heroBannerCarousel');
+        if (carousel) {
+            // Pause on hover
+            carousel.addEventListener('mouseenter', function() {
+                bootstrap.Carousel.getInstance(carousel).pause();
+            });
+            
+            // Resume on mouse leave
+            carousel.addEventListener('mouseleave', function() {
+                bootstrap.Carousel.getInstance(carousel).cycle();
+            });
+        }
+    });
+</script>

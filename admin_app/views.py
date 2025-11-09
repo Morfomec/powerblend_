@@ -12,7 +12,7 @@ from django.utils import timezone
 from django.db.models import Sum, Count, F
 from datetime import date, timedelta
 from orders.models import Order
-from .models import Coupon
+from .models import Coupon, Banner
 from django.core.paginator import Paginator
 
 from accounts.models import CustomUser
@@ -28,9 +28,10 @@ from django.utils.dateparse import parse_date
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, PageBreak
-from .forms import CouponForm
+from .forms import CouponForm, BannerForm
 from django.db.models.functions import TruncMonth, TruncDate
 import json
+from django.shortcuts import render
 
 
 User = get_user_model ()
@@ -616,3 +617,128 @@ def delete_coupon(request, coupon_id):
     coupon.delete()
     messages.success(request, f"Coupon '{coupon.code}' deleted successfully.")
     return redirect('coupon_list')
+
+
+@staff_member_required
+def admin_banner_list(request):
+    """
+    Display list of all banners for admin
+    """
+    banner = Banner.objects.all().order_by('-created_at')
+    
+    context = {
+        'banner': banner,
+    }
+    return render(request, 'banner_list.html', context)
+
+
+@staff_member_required
+def admin_banner_add(request):
+    """
+    Add new banner - handles both modal and standalone page
+    """
+    if request.method == 'POST':
+        form = BannerForm(request.POST, request.FILES)  # Fixed typo: request.FIELS -> request.FILES
+        
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Banner successfully added!", extra_tags='success')
+            return redirect('admin_banner_list')
+        else:
+            messages.error(request, "Please correct the errors below.", extra_tags='danger')
+    else:
+        form = BannerForm()
+    
+    # For modal: redirect back to list with form errors
+    # For standalone: render add page
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        # AJAX request from modal
+        return redirect('admin_banner_list')
+    
+    context = {
+        'form': form,
+    }
+    return render(request, 'banner_list.html', context)
+
+
+@staff_member_required
+def admin_banner_edit(request, banner_id):
+    """
+    Edit existing banner
+    """
+    banner = get_object_or_404(Banner, id=banner_id)
+    
+    if request.method == 'POST':
+        form = BannerForm(request.POST, request.FILES, instance=banner)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Banner updated successfully!', extra_tags='success')
+            return redirect('admin_banner_list')
+        else:
+            messages.error(request, "Please correct the errors below.", extra_tags='danger')
+    else:
+        form = BannerForm(instance=banner)
+
+    context = {
+        'form': form,
+        'banner': banner,
+    }
+    return render(request, 'banner_list.html', context)
+
+
+@staff_member_required
+def admin_banner_delete(request, banner_id):
+    """
+    Delete banner
+    """
+    banner = get_object_or_404(Banner, id=banner_id)
+    
+    if request.method == 'POST':
+        banner_title = banner.title or 'Banner'
+        banner.delete()
+        messages.success(request, f'"{banner_title}" deleted successfully!', extra_tags='success')
+    
+    return redirect('admin_banner_list')
+
+
+
+
+
+# from django.views.defaults import (
+#     bad_request as default_bad_request,
+#     permission_denied as default_permission_denied,
+#     page_not_found as default_page_not_found,
+#     server_error as default_server_error,
+# )
+
+
+# def error_view(request, error_code):
+#     """
+#     Generic error view that renders the universal error page
+#     with the appropriate error code
+#     """
+#     context = {
+#         'error_code': error_code,
+#     }
+#     return render(request, 'error.html', context, status=error_code)
+
+
+def handler400(request, exception=None):
+    """Handle 400 Bad Request errors"""
+    context = {'error_code': 400}
+    return render(request, 'error.html', context, status=400)
+
+def handler403(request, exception=None):
+    """Handle 403 Forbidden errors"""
+    context = {'error_code': 403}
+    return render(request, 'error.html', context, status=403)
+
+def handler404(request, exception=None):
+    """Handle 404 Not Found errors"""
+    context = {'error_code': 404}
+    return render(request, 'error.html', context, status=404)
+
+def handler500(request):
+    """Handle 500 Internal Server Error"""
+    context = {'error_code': 500}
+    return render(request, 'error.html', context, status=500)

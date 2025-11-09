@@ -1,0 +1,482 @@
+{% extends 'admin_base.html' %}
+{% load static %}
+
+{% block title %}Banner - Admin{% endblock %}
+
+{% block extra_css %}
+
+    <style>
+        :root {
+            --primary-teal: rgb(0 57 66 / 1);
+            --light-teal: #4a9b96;
+            --orange: #ff6b35;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .banner-header {
+            background: linear-gradient(135deg, var(--primary-teal), rgba(0, 57, 66, 0.8));
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 25px rgba(0, 57, 66, 0.3);
+        }
+
+        .banner-header h2 {
+            margin: 0;
+            font-weight: 700;
+            font-size: 28px;
+        }
+
+        .add-banner-btn {
+            background: white;
+            color: var(--primary-teal);
+            border: none;
+            padding: 12px 30px;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3);
+        }
+
+        .add-banner-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(255, 255, 255, 0.5);
+        }
+
+        .banner-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            margin-bottom: 25px;
+        }
+
+        .banner-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 57, 66, 0.15);
+        }
+
+        .banner-image-container {
+            position: relative;
+            height: 200px;
+            overflow: hidden;
+            background: #f8f9fa;
+        }
+
+        .banner-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .banner-card:hover .banner-image {
+            transform: scale(1.05);
+        }
+
+        .banner-status {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .status-active {
+            background: rgba(40, 167, 69, 0.9);
+            color: white;
+        }
+
+        .status-inactive {
+            background: rgba(220, 53, 69, 0.9);
+            color: white;
+        }
+
+        .banner-content {
+            padding: 20px;
+        }
+
+        .banner-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary-teal);
+            margin-bottom: 10px;
+        }
+
+        .banner-date {
+            font-size: 13px;
+            color: #6c757d;
+            margin-bottom: 15px;
+        }
+
+        .banner-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-edit {
+            flex: 1;
+            background: linear-gradient(135deg, var(--primary-teal), rgba(0, 57, 66, 0.8));
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-edit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 57, 66, 0.3);
+            color: white;
+        }
+
+        .btn-delete {
+            flex: 1;
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-delete:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(220, 53, 69, 0.3);
+            color: white;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .empty-state i {
+            font-size: 80px;
+            color: #dee2e6;
+            margin-bottom: 20px;
+        }
+
+        .empty-state h3 {
+            color: var(--primary-teal);
+            margin-bottom: 15px;
+        }
+
+        .modal-content {
+            border-radius: 15px;
+            border: none;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, var(--primary-teal), rgba(0, 57, 66, 0.8));
+            color: white;
+            border: none;
+            padding: 25px;
+        }
+
+        .modal-title {
+            font-weight: 700;
+            font-size: 24px;
+        }
+
+        .btn-close {
+            filter: brightness(0) invert(1);
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--primary-teal);
+            margin-bottom: 8px;
+        }
+
+        .form-control, .form-select {
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-teal);
+            box-shadow: 0 0 0 4px rgba(0, 57, 66, 0.1);
+        }
+
+        .image-preview {
+            margin-top: 15px;
+            border-radius: 10px;
+            overflow: hidden;
+            max-height: 300px;
+        }
+
+        .image-preview img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, var(--primary-teal), rgba(0, 57, 66, 0.8));
+            color: white;
+            border: none;
+            padding: 14px 40px;
+            border-radius: 10px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            width: 100%;
+            font-size: 16px;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 57, 66, 0.3);
+        }
+
+        .form-check-input:checked {
+            background-color: var(--primary-teal);
+            border-color: var(--primary-teal);
+        }
+
+        .form-check-label {
+            font-weight: 600;
+            color: #495057;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="container-fluid py-4">
+        <!-- Header -->
+        <div class="banner-header d-flex justify-content-between align-items-center">
+            <div>
+                <h2><i class="fas fa-images me-2"></i>Banner Management</h2>
+                <p class="mb-0 mt-2 opacity-75">Manage your website banners</p>
+            </div>
+            <button class="add-banner-btn" data-bs-toggle="modal" data-bs-target="#bannerModal" onclick="openAddModal()">
+                <i class="fas fa-plus me-2"></i>Add New Banner
+            </button>
+        </div>
+
+        <!-- Messages -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>{{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- DEBUG INFO -->
+        <div class="alert alert-info">
+            <strong>Debug:</strong> Total banners: {{ banner.count }}
+        </div>
+
+        <!-- Banners Grid -->
+        {% if banner %}
+            <div class="row">
+                {% for b in banner %}
+                    <div class="col-lg-4 col-md-6">
+                        <div class="banner-card">
+                            <div class="banner-image-container">
+                                <img src="{{ b.image.url }}" alt="{{ b.title }}" class="banner-image">
+                                <span class="banner-status {% if b.is_active %}status-active{% else %}status-inactive{% endif %}">
+                                    {% if b.is_active %}
+                                        <i class="fas fa-check-circle me-1"></i>Active
+                                    {% else %}
+                                        <i class="fas fa-times-circle me-1"></i>Inactive
+                                    {% endif %}
+                                </span>
+                            </div>
+                            <div class="banner-content">
+                                <h5 class="banner-title">{{ b.title|default:"Untitled Banner" }}</h5>
+                                <p class="banner-date">
+                                    <i class="far fa-calendar me-1"></i>
+                                    Created: {{ b.created_at|date:"M d, Y" }}
+                                </p>
+                                <div class="banner-actions">
+                                    <button class="btn btn-edit" onclick="openEditModal({{ b.id }}, '{{ b.title|escapejs }}', {{ b.is_active|yesno:'true,false' }}, '{{ b.image.url }}')" data-bs-toggle="modal" data-bs-target="#bannerModal">
+                                        <i class="fas fa-edit me-1"></i>Edit
+                                    </button>
+                                    <button class="btn btn-delete" onclick="confirmDelete({{ b.id }}, '{{ b.title|escapejs }}')">
+                                        <i class="fas fa-trash me-1"></i>Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <i class="fas fa-image"></i>
+                <h3>No Banners Yet</h3>
+                <p class="text-muted">Start by adding your first banner</p>
+                <button class="btn btn-lg add-banner-btn mt-3" data-bs-toggle="modal" data-bs-target="#bannerModal" onclick="openAddModal()">
+                    <i class="fas fa-plus me-2"></i>Add Banner
+                </button>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Banner Modal (Add/Edit) -->
+    <div class="modal fade" id="bannerModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle">
+                        <i class="fas fa-plus-circle me-2"></i>Add New Banner
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="bannerForm" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="mb-4">
+                            <label for="title" class="form-label">
+                                <i class="fas fa-heading me-1"></i>Banner Title
+                            </label>
+                            <input type="text" class="form-control" id="title" name="title" placeholder="Enter banner title">
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="image" class="form-label">
+                                <i class="fas fa-image me-1"></i>Banner Image
+                            </label>
+                            <input type="file" class="form-control" id="image" name="image" accept="image/*" onchange="previewImage(event)">
+                            <div id="imagePreview" class="image-preview" style="display:none;">
+                                <img id="previewImg" src="" alt="Preview">
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="is_active" name="is_active" checked>
+                                <label class="form-check-label" for="is_active">
+                                    <i class="fas fa-toggle-on me-1"></i>Active Status
+                                </label>
+                            </div>
+                            <small class="text-muted">Toggle to activate or deactivate this banner</small>
+                        </div>
+
+                        <button type="submit" class="btn-submit">
+                            <i class="fas fa-save me-2"></i>Save Banner
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Confirm Delete
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center py-4">
+                    <i class="fas fa-trash-alt text-danger" style="font-size: 60px; margin-bottom: 20px;"></i>
+                    <h5>Are you sure?</h5>
+                    <p class="text-muted mb-0">Do you want to delete "<strong id="deleteBannerTitle"></strong>"?</p>
+                    <p class="text-danger small">This action cannot be undone.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form id="deleteForm" method="POST" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash me-1"></i>Delete
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block extra_js %}
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        console.log("Script loaded!");
+        
+        let isEditMode = false;
+
+        function openAddModal() {
+            isEditMode = false;
+            document.getElementById('modalTitle').innerHTML = '<i class="fas fa-plus-circle me-2"></i>Add New Banner';
+            document.getElementById('bannerForm').action = "{% url 'admin_banner_add' %}";
+            document.getElementById('bannerForm').reset();
+            document.getElementById('imagePreview').style.display = 'none';
+            document.getElementById('is_active').checked = true;
+        }
+
+        function openEditModal(id, title, isActive, imageUrl) {
+            isEditMode = true;
+            document.getElementById('modalTitle').innerHTML = '<i class="fas fa-edit me-2"></i>Edit Banner';
+            const editUrl = "{% url 'admin_banner_edit' 0 %}".replace('0', id);
+            document.getElementById('bannerForm').action = editUrl;
+            document.getElementById('title').value = title;
+            document.getElementById('is_active').checked = isActive;
+            
+            if (imageUrl) {
+                document.getElementById('imagePreview').style.display = 'block';
+                document.getElementById('previewImg').src = imageUrl;
+            }
+        }
+
+        function previewImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('imagePreview').style.display = 'block';
+                    document.getElementById('previewImg').src = e.target.result;
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function confirmDelete(id, title) {
+            document.getElementById('deleteBannerTitle').textContent = title || 'this banner';
+            const deleteUrl = "{% url 'admin_banner_delete' 0 %}".replace('0', id);
+            document.getElementById('deleteForm').action = deleteUrl;
+            new bootstrap.Modal(document.getElementById('deleteModal')).show();
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                }, 5000);
+            });
+        });
+    </script>
+{% endblock %}

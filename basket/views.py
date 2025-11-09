@@ -18,11 +18,16 @@ from offers.utils import get_best_offer_for_product, get_discount_info_for_varia
 
 class BasketAddView(View):
     def post(self, request, *args, **kwargs):
+        print("🔍 Headers:", request.headers)
+        print("🔍 Is AJAX detected:", request.headers.get('x-requested-with'))
         form = BasketAddForm(request.POST)
+        is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest'
 
         if not request.user.is_authenticated:
+            if is_ajax:
+                return JsonResponse({"success":False, "login_required":True})
             messages.warning(request, "Please log in to add items to your basket.")
-            return redirect("account_login")  # or your login URL name
+            return redirect("account_login") 
 
         if form.is_valid():
             variant_id = form.cleaned_data["variant_id"]
@@ -33,6 +38,9 @@ class BasketAddView(View):
 
             # Prevent unlisted or blocked products
             if not product.is_listed or not product.category.is_active:
+                if is_ajax:
+                    return JsonResponse({"success":False, "error": "This product cannot be added to the basket."})
+                
                 messages.error(request, "This product cannot be added to the basket.")
                 return redirect("detail_product",id=product.id)
 
@@ -49,6 +57,9 @@ class BasketAddView(View):
             if not created:
                 new_quantity = item.quantity + quantity
                 if new_quantity > variant.stock:
+
+                    if is_ajax:
+                        return JsonResponse({"success":False, "error": f"Only {variant.stock} items available in stock."})
                     messages.error(request, f"Only {variant.stock} items available in stock.")
                     return redirect("detail_product", id=product.id)
 
@@ -59,10 +70,28 @@ class BasketAddView(View):
                 item.quantity = new_quantity
                 item.save()
 
+            if is_ajax:
+                return JsonResponse({
+                    "success": True,
+                    "product": product.name,
+                    "variant": str(variant),
+                    "quantity": quantity,
+                    "subtotal": basket.total_price,  # adjust to your model
+                    "basket_count": basket.items.count(),
+                    "image": (
+    (variant.product.images.filter(is_primary=True).first() or variant.product.images.first()).image.url
+    if variant.product.images.exists()
+    else ""
+),
+
+                })
+
             messages.success(request, f"{product.name} ({variant}) added to your basket!")
             return redirect("basket_view")  # Redirect to basket page
 
         # Invalid form case
+        if is_ajax:
+            return JsonResponse({"success": False, "error": "Invalid data."}, status=400)
         messages.error(request, "Invalid data. Please try again.")
         return HttpResponseBadRequest("Form validation failed.")
 

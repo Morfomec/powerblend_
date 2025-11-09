@@ -987,19 +987,8 @@
 {% endblock extra_css %}
 
 {% block body %}
+{% load static %}
 
-    <!-- Breadcrumb
-    <div class="breadcrumb-section">
-        <div class="container">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
-                    <li class="breadcrumb-item"><a href="{% url 'list_products' %}">Shop</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">{{ product.name }}</li>
-                </ol>
-            </nav>
-        </div>
-    </div> -->
 
 
 
@@ -1108,60 +1097,10 @@
                     {% else %}
                         <div class="discount-badge">Exclusive Offers awaits</div>
                     {% endif %}
-                    
-                    <!-- Flavor Selector -->
-                    <!-- <div class="flavor-selector">
-                        <div class="section-label">Flavour:</div>
-                        <div class="selector-buttons">
-                            {% for flavor_name, data in available_flavors.items %}
-                                {% if selected_variant_info.flavor.flavor == flavor_name %}
-                                    <button class="selector-btn active" disabled>{{ flavor_name }}</button>
-                                {% else %}
-                                    <a href="?weight={{ selected_variant_info.weight.weight }}&flavor={{ flavor_name|urlencode }}"
-                                    class="selector-btn {% if not data.available %}disabled{% endif %}"
-                                    {% if not data.available %}onclick="return false;"{% endif %}>
-                                        {{ flavor_name }}
-                                    </a>
-                                {% endif %}
-                            {% endfor %}
-                        </div>
-                    </div> -->
-                    
-                    <!-- Size Selector -->
-                    <!-- <div class="amount-selector">
-                        <div class="section-label">Size:</div>
-                        <div class="selector-buttons">
-                            {% for weight, data in available_weights.items %}
-                                {% if selected_variant_info.weight == weight %}
-                                    <button class="selector-btn active" disabled>
-                                        {{ weight|upper }}
-                                    </button>
-                                {% else %}
-                                    <a href="?weight={{ weight }}&flavor={{ selected_variant_info.flavor }}" 
-                                    class="selector-btn {% if not data.available %}disabled{% endif %}"
-                                    {% if not data.available %}onclick="return false;"{% endif %}>
-                                        {{ weight|upper }}
-                                    </a>
-                                {% endif %}
-                            {% empty %}
-                                <p class="text-muted">No sizes available</p>
-                            {% endfor %}
-                        </div>
-                    </div>
-                     -->
+
                     <div class="promo-banner">
                         <strong>PROTEIN SALE</strong> | GET EXTRA 15% OFF ON CREATINE | Use code: <strong>CREATINE15</strong>
                     </div>
-                    
-                    <!-- <div class="quantity-section">
-                        <div class="section-label">Quantity:</div>
-                        <div class="qty-controls">
-                            <button type="button" class="qty-btn">−</button>
-                            <input type="number" value="1" max="{{ product.stock }}" class="qty-input">
-                            <button type="button" class="qty-btn">+</button>
-                        </div>
-                    </div> -->
-
 
                     <!-- Flavor Selector (Buttons) -->
                     <div class="flavor-selector mb-3">
@@ -1194,24 +1133,21 @@
 
 
                     <!-- Add to Basket Form -->
-                    
                     <div class="row">
                         <div class="col-10">
                             {% if user.is_authenticated %}
-                                {% if selected_variant.stock > 0 %}
-                                    <form id="add-to-basket-form" method="POST" action="{% url 'basket_add' %}">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="variant_id" value="{{ selected_variant.id }}">
-                                        <input type="hidden" name="quantity" value="1">
-                                        <button type="submit" class="add-to-basket">
+                                <form id="add-to-basket-form" method="POST" action="{% url 'basket_add' %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="variant_id" value="{{ selected_variant.id }}">
+                                    <input type="hidden" name="quantity" value="1">
+                                    <button type="submit" class="add-to-basket" {% if selected_variant.stock == 0 %}disabled style="background-color: #ccc; cursor: not-allowed;"{% endif %}>
+                                        {% if selected_variant.stock > 0 %}
                                             <i class="fas fa-shopping-basket me-2"></i>ADD TO BASKET
-                                        </button>
-                                    </form>
-                                {% else %}
-                                    <button type="button" class="add-to-basket" disabled style="background-color: #ccc; cursor: not-allowed;">
-                                        <i class="fas fa-times me-2"></i>OUT OF STOCK
+                                        {% else %}
+                                            <i class="fas fa-times me-2"></i>OUT OF STOCK
+                                        {% endif %}
                                     </button>
-                                {% endif %}
+                                </form>
                             {% else %}
                                 <button type="button" class="add-to-basket" onclick="openAuthModal()">
                                     <i class="fas fa-shopping-basket me-2"></i>ADD TO BASKET
@@ -1220,7 +1156,7 @@
                         </div>
                         <div class="col-2">
                             {% if user.is_authenticated %}
-                                <form method="post" action="{% url 'wishlist_add' selected_variant.id %}">
+                                <form method="post" action="{% url 'wishlist_add' selected_variant.id %}" id="wishlist-form">
                                     {% csrf_token %}
                                     <button type="submit" class="wishlist-btn w-100">
                                         {% if selected_variant.id in wishlist_variant_ids %}
@@ -1237,7 +1173,7 @@
                             {% endif %}
                         </div>
                     </div>
-                    
+                                        
                     <div class="stock-info">
                         <i class="fas fa-check me-2"></i>
                         {% if selected_variant.stock > 0 %}
@@ -1317,156 +1253,43 @@
         
         <!-- Promotion Section -->
         <div class="promo-section">
-            <div class="promo-title">OUR BEST SELLING</div>
-            <div class="promo-subtitle">PROTEIN</div>
-            <p>Discover our most popular protein supplements trusted by millions worldwide</p>
+            <a href="{% url 'list_products' %}" style="text-decoration: none;">
+                <div class="promo-title">OUR BEST SELLING</div>
+                <div class="promo-subtitle">PRODUCTS</div>
+                <p style="color: #070707;">Discover our most popular protein supplements trusted by millions worldwide</p>
+            </a>
         </div>
 
-        <!-- Product Details Tabs -->
-        <div class="product-details">
-            <div class="details-tabs">
-                <button class="tab-btn active" data-tab="overview">Overview</button>
-                <button class="tab-btn" data-tab="nutrition">Nutritional Information</button>
-                <button class="tab-btn" data-tab="ingredients">Ingredients</button>
-                <button class="tab-btn" data-tab="directions">Directions</button>
-                <button class="tab-btn" data-tab="allergens">Allergens</button>
-            </div>
-            
-            <div class="tab-content" id="overview">
-                <h3>Product Overview</h3>
-                <p>Our Complete Creatine Monohydrate is one of the most researched sports supplements available. Creatine monohydrate has been shown to increase physical performance in successive bursts of short-term, high intensity exercise.</p>
-                
-                <h4>Key Benefits:</h4>
-                <ul>
-                    <li>Increases physical performance in successive bursts of short-term, high intensity exercise</li>
-                    <li>Helps increase power output during training</li>
-                    <li>Supports muscle growth and strength gains</li>
-                    <li>Enhances recovery between sets</li>
-                </ul>
-                
-                <h4>When to Take:</h4>
-                <p>Mix 1 scoop (5g) with 250ml of water or juice and consume 30-60 minutes before training. On non-training days, consume anytime throughout the day.</p>
-            </div>
-        </div>
-
-        <!-- Nutritional Information -->
-        <div class="nutritional-info">
-            <div class="nutrition-table">
-                <h5>Per Serving (5g)</h5>
-                <div class="nutrition-row">
-                    <span>Energy</span>
-                    <span>0 kcal</span>
-                </div>
-                <div class="nutrition-row">
-                    <span>Protein</span>
-                    <span>0g</span>
-                </div>
-                <div class="nutrition-row">
-                    <span>Carbohydrates</span>
-                    <span>0g</span>
-                </div>
-                <div class="nutrition-row">
-                    <span>Fat</span>
-                    <span>0g</span>
-                </div>
-                <div class="nutrition-row">
-                    <span><strong>Creatine Monohydrate</strong></span>
-                    <span><strong>5g</strong></span>
-                </div>
-            </div>
-            
-            <div class="nutrition-table">
-                <h5>Per 100g</h5>
-                <div class="nutrition-row">
-                    <span>Energy</span>
-                    <span>0 kcal</span>
-                </div>
-                <div class="nutrition-row">
-                    <span>Protein</span>
-                    <span>0g</span>
-                </div>
-                <div class="nutrition-row">
-                    <span>Carbohydrates</span>
-                    <span>0g</span>
-                </div>
-                <div class="nutrition-row">
-                    <span>Fat</span>
-                    <span>0g</span>
-                </div>
-                <div class="nutrition-row">
-                    <span><strong>Creatine Monohydrate</strong></span>
-                    <span><strong>100g</strong></span>
-                </div>
-            </div>
-        </div>
+        
 
         <!-- Related Products -->
         <div class="related-products">
-            <h2 class="section-title">Related Products</h2>
+            <h2 class="section-title">TOP SELLERS</h2>
             <div class="product-grid">
-                <div class="product-card">
-                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE1MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZmY2YjM1Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCI+SW1wYWN0IFdoZXk8L3RleHQ+PC9zdmc+" alt="Impact Whey Protein" class="product-card-image">
-                    <h3 class="product-card-title">Impact Whey Protein</h3>
-                    <div class="product-card-price">₹1,999</div>
-                    <button class="card-btn">Quick Buy</button>
-                </div>
-                
-                <div class="product-card">
-                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE1MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMDA5NDJmIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCI+QkNBQSAyOjE6MTwvdGV4dD48L3N2Zz4=" alt="BCAA 2:1:1" class="product-card-image">
-                    <h3 class="product-card-title">BCAA 2:1:1</h3>
-                    <div class="product-card-price">₹1,499</div>
-                    <button class="card-btn">Quick Buy</button>
-                </div>
-                
-                <div class="product-card">
-                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE1MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjNjY2Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCI+VGhlIFdoZXk8L3RleHQ+PC9zdmc+" alt="The Whey" class="product-card-image">
-                    <h3 class="product-card-title">The Whey</h3>
-                    <div class="product-card-price">₹3,999</div>
-                    <button class="card-btn">Quick Buy</button>
-                </div>
-                
-                <div class="product-card">
-                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE1MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZmZkNzAwIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiMzMzMiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJjZW50cmFsIj5HbHV0YW1pbmU8L3RleHQ+PC9zdmc+" alt="L-Glutamine" class="product-card-image">
-                    <h3 class="product-card-title">L-Glutamine</h3>
-                    <div class="product-card-price">₹1,799</div>
-                    <button class="card-btn">Quick Buy</button>
-                </div>
+                {% for product in best_selling_products %}
+                    <div class="product-card">
+                        <a href="{{ product.get_absolute_url }}" class="promo-image-link">
+                            {% with product.images.first as primary_image %}
+                                {% if primary_image %}
+                                    <img src="{{ primary_image.image.url }}" alt="{{ product.name }}" class="promo-image">
+                                {% else %}
+                                    <img src="{% static 'img/default-product.jpg' %}" alt="{{ product.name }}" class="promo-image">
+                                {% endif %}
+                            {% endwith %}
+                        </a>
+
+                        <div class="product-card-title">{{ product.name }}</div>
+                        <br>
+                        <a href="{{ product.get_absolute_url }}" class="card-btn" style="text-decoration:none;">Buy Now</a>
+                    </div>
+                {% empty %}
+                    <p>No featured products found.</p>
+                {% endfor %}
+
             </div>
         </div>
 
-        <!-- Personalized Section -->
-        <div class="personalized-section">
-            <h2 class="personalized-title">MADE for YOU</h2>
-            <div class="personalized-grid">
-                <div class="personalized-item">
-                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJyZ2JhKDI1NSwgMjU1LCAyNTUsIDAuMikiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSIxMiIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJjZW50cmFsIj5Qcm9kdWN0IDE8L3RleHQ+PC9zdmc+" alt="Product 1" style="width: 80px; height: 80px; margin-bottom: 10px;">
-                    <h4>Impact Whey Protein</h4>
-                    <p>₹1,999</p>
-                    <button class="card-btn" style="background: rgba(255,255,255,0.2); border: 1px solid white;">Quick Buy</button>
-                </div>
-                
-                <div class="personalized-item">
-                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJyZ2JhKDI1NSwgMjU1LCAyNTUsIDAuMikiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSIxMiIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJjZW50cmFsIj5Qcm9kdWN0IDI8L3RleHQ+PC9zdmc+" alt="Product 2" style="width: 80px; height: 80px; margin-bottom: 10px;">
-                    <h4>Clear Whey Isolate</h4>
-                    <p>₹2,499</p>
-                    <button class="card-btn" style="background: rgba(255,255,255,0.2); border: 1px solid white;">Quick Buy</button>
-                </div>
-                
-                <div class="personalized-item">
-                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJyZ2JhKDI1NSwgMjU1LCAyNTUsIDAuMikiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSIxMiIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJjZW50cmFsIj5Qcm9kdWN0IDM8L3RleHQ+PC9zdmc+" alt="Product 3" style="width: 80px; height: 80px; margin-bottom: 10px;">
-                    <h4>Vegan Protein Blend</h4>
-                    <p>₹2,199</p>
-                    <button class="card-btn" style="background: rgba(255,255,255,0.2); border: 1px solid white;">Quick Buy</button>
-                </div>
-                
-                <div class="personalized-item">
-                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJyZ2JhKDI1NSwgMjU1LCAyNTUsIDAuMikiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSIxMiIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJjZW50cmFsIj5Qcm9kdWN0IDQ8L3RleHQ+PC9zdmc+" alt="Product 4" style="width: 80px; height: 80px; margin-bottom: 10px;">
-                    <h4>Total War Pre-Workout</h4>
-                    <p>₹2,999</p>
-                    <button class="card-btn" style="background: rgba(255,255,255,0.2); border: 1px solid white;">Quick Buy</button>
-                </div>
-            </div>
-        </div>
+ 
 
         <!-- Reviews Section -->
         <div class="reviews-section">
@@ -1533,46 +1356,6 @@
                 <button class="view-all-btn">View All Reviews</button>
             </div>
         </div>
-
-        <!-- Additional Information Tabs -->
-        <div class="product-details">
-            <div class="details-tabs">
-                <button class="tab-btn active" data-tab="faq">FAQ</button>
-                <button class="tab-btn" data-tab="delivery">Delivery Info</button>
-                <button class="tab-btn" data-tab="returns">Returns</button>
-                <button class="tab-btn" data-tab="about">About MyProtein</button>
-            </div>
-            
-            <div class="tab-content" id="faq">
-                <h3>Frequently Asked Questions</h3>
-                
-                <div class="faq-item mb-4">
-                    <h5>When should I take creatine?</h5>
-                    <p>For best results, take 5g of creatine monohydrate daily. You can take it pre-workout, post-workout, or anytime during the day. Consistency is more important than timing.</p>
-                </div>
-                
-                <div class="faq-item mb-4">
-                    <h5>Do I need to do a loading phase?</h5>
-                    <p>A loading phase isn't necessary. You can start with 5g daily and see results within 2-4 weeks. If you want faster results, you can take 20g daily for the first week, then reduce to 5g daily.</p>
-                </div>
-                
-                <div class="faq-item mb-4">
-                    <h5>Is this product vegetarian/vegan?</h5>
-                    <p>Yes, our Complete Creatine Monohydrate is suitable for both vegetarians and vegans. It's made from synthetically produced creatine monohydrate.</p>
-                </div>
-                
-                <div class="faq-item mb-4">
-                    <h5>Can I mix this with protein shakes?</h5>
-                    <p>Absolutely! Creatine mixes well with protein shakes, pre-workouts, or any other beverages. The unflavoured version won't affect the taste of your other supplements.</p>
-                </div>
-                
-                <div class="faq-item mb-4">
-                    <h5>What's the difference between this and other creatine forms?</h5>
-                    <p>Creatine monohydrate is the most researched and proven form of creatine. It's been shown to be safe and effective in hundreds of studies. Other forms may claim advantages, but monohydrate remains the gold standard.</p>
-                </div>
-            </div>
-
-        </div>
         {% if request.session.show_login_modal %}
         <script>
         document.addEventListener("DOMContentLoaded", function() {
@@ -1586,290 +1369,9 @@
     </div>
 
 
-    {% endblock body %}
+{% endblock body %}
 {% block extra_js %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-<!-- <script>
-
-
-
-
-
-
-
-
-
-document.addEventListener("DOMContentLoaded", function () {
-
-    /* -------------------- Thumbnails -------------------- */
-    const mainImage = document.getElementById("main-product-image");
-    const thumbnails = document.querySelectorAll(".product-thumbnails .thumbnail");
-
-    if (mainImage && thumbnails.length > 0) {
-        thumbnails.forEach(thumbnail => {
-            thumbnail.addEventListener("click", function () {
-                mainImage.src = this.src;
-                thumbnails.forEach(t => t.classList.remove("active"));
-                this.classList.add("active");
-            });
-        });
-    }
-
-    // /* -------------------- Image Modal -------------------- */
-    // const modal = document.getElementById("imageModal");
-    // const modalImg = document.getElementById("enlarged-image");
-    // const closeBtn = document.querySelector(".close");
-
-    // if (mainImage && modal && modalImg) {
-    //     mainImage.onclick = function () {
-    //         modal.style.display = "block";
-    //         modalImg.src = this.src;
-    //     };
-    // }
-    // if (closeBtn) {
-    //     closeBtn.onclick = function () {
-    //         modal.style.display = "none";
-    //     };
-    // }
-
-
-/* -------------------- Add to Basket AJAX (Improved) -------------------- */
-const basketForms = document.querySelectorAll(".add-to-basket-form");
-
-basketForms.forEach(form => {
-    form.addEventListener("submit", async function (event) {
-        event.preventDefault();
-        const csrfToken = form.querySelector("[name=csrfmiddlewaretoken]").value;
-
-        try {
-            const response = await fetch(form.action, {
-                method: "POST",
-                body: new FormData(form),
-                headers: { "X-CSRFToken": csrfToken },
-            });
-
-            let data;
-            try {
-                data = await response.json();
-            } catch {
-                const text = await response.text();
-                console.error("Non-JSON response:", text);
-                return;
-            }
-
-            if (response.ok && data.success) {
-                document.getElementById("basket-product-name").textContent = `${data.product} - ${data.variant}`;
-                document.getElementById("basket-quantity").textContent = data.quantity;
-                document.getElementById("basket-subtotal").textContent = data.subtotal;
-                document.getElementById("basket-count").textContent = data.basket_count;
-                document.getElementById("basket-product-image").src = data.image || "";
-
-                const modal = new bootstrap.Modal(document.getElementById("basketModal"));
-                modal.show();
-            } else {
-                console.warn("Server Error:", data);
-            }
-        } catch (error) {
-            console.error("Fetch Error:", error);
-        }
-    });
-});
-/* -------------------- Auth Modal Functions -------------------- */
-function openAuthModal() {
-    document.getElementById('authModal').classList.add('active');
-    document.body.style.overflow = 'hidden';
-}
-
-function closeAuthModal() {
-    document.getElementById('authModal').classList.remove('active');
-    document.body.style.overflow = 'auto';
-}
-
-document.getElementById('authModal')?.addEventListener('click', function (e) {
-    if (e.target === this) closeAuthModal();
-});
-</script>
-
-<!-- <script>
-document.addEventListener("DOMContentLoaded", () => {
-    document.querySelectorAll(".wishlist-btn").forEach(btn => {
-        btn.addEventListener("click", async (e) => {
-            e.preventDefault();
-
-            const variantId = btn.getAttribute("data-variant-id");
-            const csrftoken = document.querySelector("[name=csrfmiddlewaretoken]").value;
-
-            const response = await fetch(`/wishlist/toggle/${variantId}/`, {
-                method: "POST",
-                headers: {
-                    "X-CSRFToken": csrftoken,
-                    "X-Requested-With": "XMLHttpRequest",
-                },
-            });
-
-            const data = await response.json();
-
-            if (data.status === "success") {
-                const icon = btn.querySelector("i");
-                if (data.action === "added") {
-                    icon.classList.remove("far");
-                    icon.classList.add("fas");
-                    icon.style.color = "#dc3545";
-                } else if (data.action === "removed") {
-                    icon.classList.remove("fas");
-                    icon.classList.add("far");
-                    icon.style.color = "";
-                }
-            }
-        });
-    });
-});
-</script> -->
-<!-- 
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-  const container = document.querySelector('.product-image-container');
-  const img = container.querySelector('.zoom-image');
-  const lens = container.querySelector('.zoom-lens');
-
-  function moveLens(e) {
-    const rect = container.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
-    lens.style.display = 'block';
-    lens.style.left = `${x - lens.offsetWidth / 2}px`;
-    lens.style.top = `${y - lens.offsetHeight / 2}px`;
-    lens.style.backgroundImage = `url(${img.src})`;
-
-    const fx = (x / rect.width) * 100;
-    const fy = (y / rect.height) * 100;
-    lens.style.backgroundPosition = `${fx}% ${fy}%`;
-  }
-
-  img.addEventListener('mousemove', moveLens);
-  img.addEventListener('mouseenter', () => lens.style.display = 'block');
-  img.addEventListener('mouseleave', () => lens.style.display = 'none');
-
-  // ✅ Re-enable thumbnail switching
-  document.querySelectorAll('.thumbnail').forEach(thumbnail => {
-    thumbnail.addEventListener('click', e => {
-      img.src = e.target.src;
-    });
-  });
-});
-</script> -->
-<!-- <script>
-    
-document.addEventListener("DOMContentLoaded", function() {
-    // Prepare variant data from Django template
-    const variantsData = [
-        {% for variant in variants %}
-        {
-            id: {{ variant.id }},
-            flavor: "{{ variant.flavor.flavor|escapejs }}",
-            weight: "{{ variant.weight.weight|escapejs }}",
-            stock: {{ variant.stock }},
-            price: {{ variant.offer_price }},
-            available: {{ variant.stock|yesno:"true,false" }}
-        },
-        {% endfor %}
-    ];
-
-    const flavorButtons = document.querySelectorAll('.selector-btn[data-flavor]');
-    const sizeDropdown = document.getElementById('sizeDropdown');
-    const selectedFlavorInput = document.getElementById('selectedFlavorInput');
-    const selectedWeightInput = document.getElementById('selectedWeightInput');
-    const variantForm = document.getElementById('variantSelectionForm');
-
-    let currentFlavor = "{{ selected_variant_info.flavor.flavor|escapejs }}";
-    let currentWeight = "{{ selected_variant_info.weight.weight|escapejs }}";
-
-    // Initialize: populate sizes based on current flavor
-    updateSizeDropdown(currentFlavor);
-
-    // Flavor button click handler
-    flavorButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            if (this.classList.contains('disabled')) return;
-            
-            // Remove active class from all buttons
-            flavorButtons.forEach(btn => btn.classList.remove('active'));
-            
-            // Add active class to clicked button
-            this.classList.add('active');
-            
-            // Get selected flavor
-            currentFlavor = this.getAttribute('data-flavor');
-            
-            // Update size dropdown
-            updateSizeDropdown(currentFlavor);
-        });
-    });
-
-    // Size dropdown change handler
-    sizeDropdown.addEventListener('change', function() {
-        currentWeight = this.value;
-        
-        if (currentFlavor && currentWeight) {
-            // Update hidden inputs and submit
-            selectedFlavorInput.value = currentFlavor;
-            selectedWeightInput.value = currentWeight;
-            variantForm.submit();
-        }
-    });
-
-    // Function to update size dropdown based on selected flavor
-    function updateSizeDropdown(flavor) {
-        // Clear existing options
-        sizeDropdown.innerHTML = '<option value="">Select a size</option>';
-        
-        // Get unique weights for the selected flavor
-        const availableSizes = new Map();
-        
-        variantsData.forEach(variant => {
-            if (variant.flavor === flavor) {
-                if (!availableSizes.has(variant.weight)) {
-                    availableSizes.set(variant.weight, {
-                        weight: variant.weight,
-                        available: variant.available,
-                        stock: variant.stock
-                    });
-                }
-            }
-        });
-        
-        // Populate dropdown with available sizes
-        availableSizes.forEach((data, weight) => {
-            const option = document.createElement('option');
-            option.value = weight;
-            option.textContent = weight.toUpperCase();
-            
-            if (!data.available) {
-                option.disabled = true;
-                option.textContent += ' (Out of Stock)';
-            }
-            
-            // Pre-select current weight if it matches
-            if (weight === currentWeight) {
-                option.selected = true;
-            }
-            
-            sizeDropdown.appendChild(option);
-        });
-        
-        // If no sizes available, show message
-        if (availableSizes.size === 0) {
-            const option = document.createElement('option');
-            option.value = "";
-            option.textContent = "No sizes available";
-            option.disabled = true;
-            sizeDropdown.appendChild(option);
-        }
-    }
-});
-</script>  -->
-
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -1907,9 +1409,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let currentFlavor = "{{ selected_variant_info.flavor.flavor|escapejs }}";
     let currentWeight = "{{ selected_variant_info.weight.weight|escapejs }}";
+    let currentVariantId = "{{ selected_variant.id }}";
     let isInitialLoad = true;
 
-    console.log("🎯 Initial - Flavor:", currentFlavor, "Weight:", currentWeight);
+    console.log("🎯 Initial - Flavor:", currentFlavor, "Weight:", currentWeight, "Variant ID:", currentVariantId);
 
     // Initialize dropdown
     if (currentFlavor && sizeDropdown) {
@@ -1932,10 +1435,14 @@ document.addEventListener("DOMContentLoaded", function () {
             
             currentFlavor = this.getAttribute('data-flavor');
             currentWeight = ""; // ⭐ RESET WEIGHT
+            currentVariantId = null; // ⭐ RESET VARIANT ID
             isInitialLoad = false;
             
             console.log("🔄 Updating dropdown for:", currentFlavor);
             updateSizeDropdown(currentFlavor);
+            
+            // ⭐ Update basket form to reflect no variant selected
+            updateBasketForm(null);
         });
     });
 
@@ -1946,12 +1453,67 @@ document.addEventListener("DOMContentLoaded", function () {
             currentWeight = this.value;
             
             if (currentFlavor && currentWeight) {
-                console.log("✅ Submitting:", currentFlavor, currentWeight);
-                selectedFlavorInput.value = currentFlavor;
-                selectedWeightInput.value = currentWeight;
-                variantForm.submit();
+                console.log("✅ Both selected:", currentFlavor, currentWeight);
+                
+                // ⭐ Find the selected variant
+                const selectedVariant = variantsData.find(v => 
+                    v.flavor === currentFlavor && v.weight === currentWeight
+                );
+                
+                if (selectedVariant) {
+                    currentVariantId = selectedVariant.id;
+                    console.log("✅ Variant ID:", currentVariantId);
+                    
+                    // ⭐ Update basket form immediately
+                    updateBasketForm(selectedVariant);
+                    
+                    // Update wishlist form action URL
+                    const wishlistForm = document.getElementById("wishlist-form");
+                    if (wishlistForm) {
+                        const newAction = wishlistForm.action.replace(/\/\d+\/$/, `/${selectedVariant.id}/`);
+                        wishlistForm.action = newAction;
+                        console.log("🔄 Updated wishlist form action to:", newAction);
+                    }
+                    
+                    // Submit the variant form to update the page
+                    selectedFlavorInput.value = currentFlavor;
+                    selectedWeightInput.value = currentWeight;
+                    variantForm.submit();
+                }
             }
         });
+    }
+
+    // ⭐ NEW FUNCTION: Update basket form with variant details
+    function updateBasketForm(variant) {
+        const basketForm = document.getElementById("add-to-basket-form");
+        if (!basketForm) return;
+        
+        const variantIdInput = basketForm.querySelector('input[name="variant_id"]');
+        const submitButton = basketForm.querySelector('button[type="submit"]');
+        
+        if (variant && variant.available) {
+            // Valid variant selected
+            variantIdInput.value = variant.id;
+            submitButton.disabled = false;
+            submitButton.style.backgroundColor = '';
+            submitButton.style.cursor = '';
+            submitButton.innerHTML = '<i class="fas fa-shopping-basket me-2"></i>ADD TO BASKET';
+        } else if (variant && !variant.available) {
+            // Out of stock variant
+            variantIdInput.value = variant.id;
+            submitButton.disabled = true;
+            submitButton.style.backgroundColor = '#ccc';
+            submitButton.style.cursor = 'not-allowed';
+            submitButton.innerHTML = '<i class="fas fa-times me-2"></i>OUT OF STOCK';
+        } else {
+            // No variant selected
+            variantIdInput.value = '';
+            submitButton.disabled = false; // Keep enabled to show validation message
+            submitButton.style.backgroundColor = '';
+            submitButton.style.cursor = '';
+            submitButton.innerHTML = '<i class="fas fa-shopping-basket me-2"></i>ADD TO BASKET';
+        }
     }
 
     // Update size dropdown function
@@ -2010,6 +1572,49 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    /* ==================== TOAST NOTIFICATION ==================== */
+    function showToast(message, type = 'error') {
+        const toast = document.createElement('div');
+        toast.className = `toast-notification ${type}`;
+        toast.textContent = message;
+        toast.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: ${type === 'error' ? '#dc3545' : '#28a745'};
+            color: white;
+            padding: 15px 20px;
+            border-radius: 5px;
+            z-index: 9999;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            animation: slideIn 0.3s ease;
+        `;
+        
+        // Add animation styles
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(400px); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(400px); opacity: 0; }
+            }
+        `;
+        if (!document.querySelector('style[data-toast-styles]')) {
+            style.setAttribute('data-toast-styles', 'true');
+            document.head.appendChild(style);
+        }
+        
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.style.animation = 'slideOut 0.3s ease';
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+
     /* ==================== THUMBNAILS ==================== */
     const mainImage = document.getElementById("main-product-image");
     const thumbnails = document.querySelectorAll(".product-thumbnails .thumbnail");
@@ -2030,16 +1635,67 @@ document.addEventListener("DOMContentLoaded", function () {
     if (basketForm) {
         basketForm.addEventListener("submit", async function (event) {
             event.preventDefault();
+            
+            // ⭐ VALIDATION: Check if variant is selected
+            const variantIdInput = this.querySelector("[name=variant_id]");
+            const variantId = variantIdInput ? variantIdInput.value : null;
+            
+            if (!variantId || variantId === "" || variantId === "null" || variantId === "undefined") {
+                // Show error notification
+                showToast("⚠️ Please select both flavor and size before adding to basket!", "error");
+                
+                // Highlight the variant selection area
+                const flavorSelector = document.querySelector(".flavor-selector");
+                const sizeSelector = document.querySelector(".amount-selector");
+                
+                if (!currentFlavor && flavorSelector) {
+                    flavorSelector.style.border = "2px solid #dc3545";
+                    flavorSelector.style.borderRadius = "8px";
+                    flavorSelector.style.padding = "10px";
+                    setTimeout(() => {
+                        flavorSelector.style.border = "";
+                        flavorSelector.style.padding = "";
+                    }, 2000);
+                }
+                
+                if (!currentWeight && sizeSelector) {
+                    sizeSelector.style.border = "2px solid #dc3545";
+                    sizeSelector.style.borderRadius = "8px";
+                    sizeSelector.style.padding = "10px";
+                    setTimeout(() => {
+                        sizeSelector.style.border = "";
+                        sizeSelector.style.padding = "";
+                    }, 2000);
+                }
+                
+                // Scroll to variant selection
+                if (flavorSelector) {
+                    flavorSelector.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                
+                return; // ⭐ Stop form submission
+            }
+            
             const csrfToken = this.querySelector("[name=csrfmiddlewaretoken]").value;
 
             try {
                 const response = await fetch(this.action, {
                     method: "POST",
                     body: new FormData(this),
-                    headers: { "X-CSRFToken": csrfToken },
+                    headers: {
+                        "X-CSRFToken": csrfToken,
+                        "X-Requested-With": "XMLHttpRequest"
+                    },
+                    credentials: "same-origin"
                 });
 
                 const data = await response.json();
+
+                // Handle login required
+                if (data.login_required) {
+                    openAuthModal();
+                    return;
+                }
 
                 if (response.ok && data.success) {
                     document.getElementById("basket-product-name").textContent = `${data.product} - ${data.variant}`;
@@ -2050,22 +1706,33 @@ document.addEventListener("DOMContentLoaded", function () {
 
                     const modal = new bootstrap.Modal(document.getElementById("basketModal"));
                     modal.show();
+                    
+                    showToast("✅ Item added to basket!", "success");
+                } else if (data.error) {
+                    showToast(data.error, "error");
                 }
             } catch (error) {
                 console.error("Basket error:", error);
+                showToast("❌ An error occurred. Please try again.", "error");
             }
         });
     }
 
     /* ==================== AUTH MODAL ==================== */
     window.openAuthModal = function() {
-        document.getElementById('authModal').classList.add('active');
-        document.body.style.overflow = 'hidden';
+        const authModal = document.getElementById('authModal');
+        if (authModal) {
+            authModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
     }
 
     window.closeAuthModal = function() {
-        document.getElementById('authModal').classList.remove('active');
-        document.body.style.overflow = 'auto';
+        const authModal = document.getElementById('authModal');
+        if (authModal) {
+            authModal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
     }
 
     document.getElementById('authModal')?.addEventListener('click', function (e) {

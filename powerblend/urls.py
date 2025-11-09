@@ -21,6 +21,7 @@ from django.urls import path, include
 
 from django.conf import settings
 from django.conf.urls.static import static
+from admin_app import views
 
 
 urlpatterns = [
@@ -39,8 +40,19 @@ urlpatterns = [
     path("offers/", include("offers.urls")),
     path("wallet/", include("wallet.urls")),
 
+    # # Test error pages (remove in production)
+    path('test-400/', lambda r: views.handler400(r)),
+    path('test-403/', lambda r: views.handler403(r)),
+    path('test-404/', lambda r: views.handler404(r)),
+    path('test-500/', lambda r: views.handler500(r)),
+
+
 ]
 
+handler400 = 'admin_app.views.handler400'  
+handler403 = 'admin_app.views.handler403'
+handler404 = 'admin_app.views.handler404'
+handler500 = 'admin_app.views.handler500'
 
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, documents_root=settings.STATIC_ROOT)

@@ -10,7 +10,7 @@ from orders.utils import decrement_stock
 from products.models import ProductVariant
 from django.core.exceptions import ValidationError
 from wallet.models import Wallet
-from admin_app.models import Coupon
+from admin_app.models import Coupon, UserCoupon
 from django.utils import timezone
 from admin_app.forms import ApplyCouponForm
 from django.conf import settings
@@ -135,6 +135,11 @@ def checkout_view(request):
             code = coupon_form.cleaned_data['code'].strip().upper()
             try:
                 coupon = Coupon.objects.get(code__iexact=code, is_active=True)
+
+                if UserCoupon.objects.filter(user=request.user, coupon=coupon).exists():
+                    messages.error(request, "You have already used this coupon.", extra_tags="coupn_used")
+                    return redirect('checkout')
+
                 if coupon.is_valid() and subtotal >= coupon.minimum_amount:
                     request.session['applied_coupon'] = coupon.code
                     discount_amount = coupon.discount_amount
@@ -272,7 +277,11 @@ def checkout_view(request):
                 #     coupon=applied_coupon,
                 # )
 
-
+                if applied_coupon:
+                    UserCoupon.objects.get_or_create(user=request.user, coupon=applied_coupon)
+                    # clearing coupon from session once used
+                    request.session.pop("applied_coupon", None)
+                    request.session.modified = True
 
                 # create order items and decrement stock (lock rows)
                 for item in basket_items:
@@ -334,6 +343,12 @@ def checkout_view(request):
                     status='confirmed',
                     payment_status='paid',
                 )
+
+                if applied_coupon:
+                    UserCoupon.objects.get_or_create(user=request.user, coupon=applied_coupon)
+                    # now clearing coupon from session once used 
+                    request.session.pop('applied_coupon', None)
+                    request.session.modified=True
 
                 print(f"✅ Order created with ID: {order.id}")
 
@@ -433,180 +448,6 @@ def checkout_view(request):
     # fallback
     messages.error(request, "Invalid payment method selected.")
     return redirect('checkout')
-
-
-
-# @csrf_exempt
-# def paymenthandler(request):
-#     if request.method == "POST":
-#         try:
-#             payment_id = request.POST.get('razorpay_payment_id')
-#             razorpay_order_id = request.POST.get('razorpay_order_id')
-#             signature = request.POST.get('razorpay_signature')
-
-#             params_dict = {
-#                 'razorpay_order_id': razorpay_order_id,
-#                 'razorpay_payment_id': payment_id,
-#                 'razorpay_signature': signature
-#             }
-
-#             # Verify signature
-#             try:
-#                 razorpay_client.utility.verify_payment_signature(params_dict)
-#             except:
-#                 return render(request, 'paymentfail.html')
-
-#             # Update order
-#             order = Order.objects.filter(razorpay_order_id=razorpay_order_id).first()
-#             if not order:
-#                 return render(request, 'paymentfail.html')
-
-#             order.payment_status = 'paid'
-#             order.razorpay_payment_id = payment_id
-#             order.save()
-
-#             return redirect('order_success', order_id=order.id)
-
-#         except Exception as e:
-#             print("Payment handler error:", e)
-#             return HttpResponseBadRequest("Invalid request")
-#     return HttpResponseBadRequest("Invalid method")
-
-
-# @csrf_exempt
-# def paymenthandler(request):
-#     if request.method == "POST":
-#         try:
-#             payment_id = request.POST.get('razorpay_payment_id')
-#             razorpay_order_id = request.POST.get('razorpay_order_id')
-#             signature = request.POST.get('razorpay_signature')
-
-#             params_dict = {
-#                 'razorpay_order_id': razorpay_order_id,
-#                 'razorpay_payment_id': payment_id,
-#                 'razorpay_signature': signature
-#             }
-
-#             # Verify signature - will raise if invalid
-#             try:
-#                 razorpay_client.utility.verify_payment_signature(params_dict)
-#             except razorpay.errors.SignatureVerificationError:
-#                 # signature failed - payment likely tampered or failed
-#                 order = Order.objects.filter(razorpay_order_id=razorpay_order_id).first()
-#                 if order:
-#                     order.payment_status = 'failed'
-#                     order.save(update_fields=['payment_status'])
-#                 return render(request, 'paymentfail.html')
-
-#             # find the order
-#             order = Order.objects.filter(razorpay_order_id=razorpay_order_id).first()
-#             if not order:
-#                 return render(request, 'paymentfail.html')
-
-#             # At this point payment is verified and captured
-#             with transaction.atomic():
-#                 order.payment_status = 'paid'
-#                 order.status = 'confirmed'
-#                 # amount_paid is what user actually paid (after discounts)
-#                 order.amount_paid = order.total
-#                 order.razorpay_payment_id = payment_id
-#                 order.save(update_fields=['payment_status', 'status', 'amount_paid', 'razorpay_payment_id'])
-
-#                 # mark items confirmed
-#                 order.items.update(status='confirmed')
-
-#                 # clear user's basket
-#                 try:
-#                     basket = request.user.basket
-#                     basket.items.all().delete()
-#                     basket.is_active = False
-#                     basket.save()
-#                 except Exception:
-#                     # If basket model differs, ignore failure to avoid blocking success
-#                     pass
-
-#             return redirect('order_success', order_id=order.id)
-
-#         except Exception as e:
-#             print("Payment handler error:", e)
-#             return HttpResponseBadRequest("Invalid request")
-#     return HttpResponseBadRequest("Invalid method")
-
-
-# @csrf_exempt
-# def paymenthandler(request):
-#     """
-#     Handles Razorpay POST callback after payment.
-#     This view should ONLY finalize the order after payment verification.
-#     """
-#     if request.method != "POST":
-#         return HttpResponseBadRequest("Invalid method")
-
-#     try:
-#         payment_id = request.POST.get('razorpay_payment_id')
-#         razorpay_order_id = request.POST.get('razorpay_order_id')
-#         signature = request.POST.get('razorpay_signature')
-
-#         # Basic validation
-#         if not (payment_id and razorpay_order_id and signature):
-#             return HttpResponseBadRequest("Missing payment details")
-
-#         params_dict = {
-#             'razorpay_order_id': razorpay_order_id,
-#             'razorpay_payment_id': payment_id,
-#             'razorpay_signature': signature
-#         }
-
-#         # ✅ Step 1: Verify payment signature
-#         try:
-#             razorpay_client.utility.verify_payment_signature(params_dict)
-#         except razorpay.errors.SignatureVerificationError:
-#             # Signature failed → mark as failed
-#             order = Order.objects.filter(razorpay_order_id=razorpay_order_id).first()
-#             if order and order.payment_status != 'paid':   # Prevent override
-#                 order.payment_status = 'failed'
-#                 order.status = 'cancelled'
-#                 order.save(update_fields=['payment_status', 'status'])
-#             return render(request, 'paymentfail.html')
-            
-
-#         # ✅ Step 2: Fetch order
-#         order = Order.objects.filter(razorpay_order_id=razorpay_order_id).first()
-#         if not order:
-#             return render(request, 'paymentfail.html')
-
-#         print("POST DATA:", request.POST)
-
-
-#         # ✅ Prevent processing same order twice
-#         if order.payment_status == 'paid':
-#             return redirect('order_success', order_id=order.id)
-
-#         # ✅ Step 3: Confirm payment and finalize order
-#         with transaction.atomic():
-#             order.payment_status = 'paid'
-#             order.status = 'confirmed'
-#             order.amount_paid = order.total
-#             order.razorpay_payment_id = payment_id
-#             order.save()
-
-#             # Mark items as confirmed
-#             order.items.update(status='confirmed')
-
-#             # ✅ Clear basket only AFTER order success
-#             try:
-#                 basket = request.user.basket
-#                 basket.items.all().delete()
-#                 basket.is_active = False
-#                 basket.save()
-#             except Exception:
-#                 pass  # do not block success if basket cleanup fails
-
-#         return redirect('order_success', order_id=order.id)
-
-#     except Exception as e:
-#         print("Payment handler error:", e)
-#         return HttpResponseBadRequest("Server error")
 
 
 
@@ -731,6 +572,14 @@ def paymenthandler(request):
             # Clear Razorpay snapshot from session
             request.session.pop('razorpay_checkout', None)
             request.session.modified = True
+
+            if applied_coupon_if_any:
+                UserCoupon.objects.get_or_create(user=request.user, coupon=applied_coupon_if_any)
+
+                # clearing coupn from session
+                request.session.pop('applied_coupon_if_any', None)
+                request.session.modified=True
+
 
         # --- Step 5: Redirect to Success ---
         messages.success(request, "Payment successful! Order placed successfully.")

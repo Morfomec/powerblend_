@@ -7,7 +7,7 @@ from django.views.decorators.cache import cache_control, never_cache
 from products.models import Product, ProductVariant
 from category.models import Category
 from wishlist.models import Wishlist, WishlistItem
-from django.db.models import Q, Sum, Min, Max, Value
+from django.db.models import Q, Sum, Min, Max, Value, F, Case, When, DecimalField, OuterRef, Subquery
 from offers.models import Offer
 from offers.utils import get_best_offer_for_product, get_discount_info_for_variant
 from collections import OrderedDict
@@ -15,6 +15,8 @@ from django.http import JsonResponse
 from decimal import Decimal, InvalidOperation
 from django.db.models.functions import Coalesce
 from django.templatetags.static import static
+from django.utils import timezone
+from admin_app.models import Banner
 # Create your views here.
 
 
@@ -78,6 +80,8 @@ def home_view(request):
         relative_path = promo_images.get(cat_name, "images/default-category.jpg")
         product.category_image = static(relative_path)
 
+    active_banners = Banner.objects.filter(is_active= True).order_by('-created_at')
+
     context = {
         'products': products,
         'wishlist_variant_ids': list(wishlist_variant_ids),
@@ -86,81 +90,99 @@ def home_view(request):
         'category_pills' : category_pills,
         'best_selling_products' : best_selling_products,
         'promo_images' : promo_images,
+        'active_banners' : active_banners,
         #  'product_link': ['Whey', 'Isolate', 'Vitamins', 'Creatine'],
     }
     return render(request, "home.html", context)
-
-
 
 def list_products(request):
     """
     return products list page
     """
-
-
+    
     products = Product.objects.filter(is_listed=True).prefetch_related("variants")
 
     # search
     search_query = request.GET.get("search")
     
     if search_query:
-        products = products.filter (
+        products = products.filter(
             Q(name__icontains=search_query) | Q(description__icontains=search_query)
         )
 
     # filter by category
-
     category_id = request.GET.get("category")
 
     if category_id:
-        products=products.filter(category_id=category_id)
+        products = products.filter(category_id=category_id)
 
+    # Get current time for checking active offers
+    now = timezone.now()
 
-    #filter by price
+    # Subquery to get the best product offer discount
+    product_offer_discount = Offer.objects.filter(
+        products=OuterRef('pk'),
+        offer_type='product',
+        active=True,
+        start_date__lte=now,
+        end_date__gte=now
+    ).order_by('-discount_percent').values('discount_percent')[:1]
+    
+    # Subquery to get the best category offer discount
+    category_offer_discount = Offer.objects.filter(
+        categories=OuterRef('category'),
+        offer_type='category',
+        active=True,
+        start_date__lte=now,
+        end_date__gte=now
+    ).order_by('-discount_percent').values('discount_percent')[:1]
+    
+    # Annotate products with min/max prices and discounted prices
+    products = products.annotate(
+        min_variant_price=Min("variants__price"),
+        max_variant_price=Max("variants__price"),
+        product_discount=Subquery(product_offer_discount),
+        category_discount=Subquery(category_offer_discount),
+        # Calculate the best discount (product offer takes priority over category offer)
+        best_discount=Case(
+            When(product_discount__isnull=False, then=F('product_discount')),
+            When(category_discount__isnull=False, then=F('category_discount')),
+            default=Value(0),
+            output_field=DecimalField()
+        ),
+        # Calculate minimum price after discount
+        min_discounted_price=F('min_variant_price') * (100 - F('best_discount')) / 100
+    )
 
+    # filter by price (using discounted price)
     min_price = request.GET.get("min_price")
     max_price = request.GET.get("max_price")
     
     try:
-        price_filter = Q()
         if min_price:
             min_price_decimal = Decimal(min_price)
             if min_price_decimal < 0:
-                messages.warning(request, "Minimum price cannot be negative.")
+                messages.warning(request, "Minimum price cannot be negative.", extra_tags='mini_price_not_negative' )
             else:
-                # products = products.filter(variants__price__gte=min_price_decimal)
-                price_filter &= Q(variants__price__gte=min_price_decimal)
+                products = products.filter(min_discounted_price__gte=min_price_decimal)
+                
         if max_price:
             max_price_decimal = Decimal(max_price)   
             if max_price_decimal < 0:
-                messages.warning(request, "Maximum price cannot be negative.")
+                messages.warning(request, "Maximum price cannot be negative.", extra_tags='maxi_price_not_negative')
             else:
-                # products = products.filter(variants__price__lte=max_price_decimal)
-                price_filter &= Q(variants__price__lte=max_price_decimal)
-            # products = products.filter(variants__price__lte=max_price)
+                products = products.filter(min_discounted_price__lte=max_price_decimal)
 
-        if price_filter:
-            products = products.filter(price_filter).distinct()
+    except (InvalidOperation, ValueError):
+        messages.warning(request, "Price filter must contain valid positive numbers only.", extra_tags='positive_numbers_only')
 
-    except InvalidOperation:
-        messages.warning(request, "Price filter must contain positive numbers only.")
-
-    
-
-
-    #sorting
-
+    # sorting
     sort_option = request.GET.get("sort")
 
-    products = products.annotate(
-    min_price=Min("variants__price"),
-    max_price=Max("variants__price")
-    )
-
     if sort_option == "price_low":
-        products = products.order_by("min_price")
+        products = products.order_by("min_discounted_price")
     elif sort_option == "price_high":
-        products = products.order_by("-min_price")
+        products = products.order_by("-min_discounted_price")
     elif sort_option == "az":
         products = products.order_by("name")
     elif sort_option == "za":
@@ -170,16 +192,11 @@ def list_products(request):
     elif sort_option == "featured":
         products = products.filter(is_featured=True)
 
-
     wishlist_variant_ids = []
     if request.user.is_authenticated:
         wishlist = getattr(request.user, 'wishlist', None)
         if wishlist:
             wishlist_variant_ids = list(wishlist.items.values_list('variant_id', flat=True))
-
-    # for product in products:
-    #     product.best_offer = get_best_offer_for_product(product)
-
 
     for product in products:
         product.best_offer = get_best_offer_for_product(product)
@@ -189,20 +206,12 @@ def list_products(request):
             cheapest_variant = available_variants.order_by('price').first()
             discount_info = get_discount_info_for_variant(cheapest_variant)
             product.display_variant = discount_info
-        
-            # get_discount_info_for_variant(cheapest_variant)
-            # product.display_variant = cheapest_variant
         else:
             product.display_variant = None
-        # for variant in product.variants.all():
-        #     variant.discount_info = get_discount_info_for_variant(variant)
 
     categories = Category.objects.all()
 
-
-
     context = {
-
         'products': products,
         'wishlist_variant_ids': wishlist_variant_ids,
         'categories': categories,
@@ -213,6 +222,184 @@ def list_products(request):
         'sort_option': sort_option,
     }
     return render(request, "product_listing.html", context)
+
+# def list_products(request):
+#     """
+#     return products list page
+#     """
+    
+#     products = Product.objects.filter(is_listed=True).prefetch_related("variants")
+
+#     # search
+#     search_query = request.GET.get("search")
+    
+#     if search_query:
+#         products = products.filter (
+#             Q(name__icontains=search_query) | Q(description__icontains=search_query)
+#         )
+
+#     # filter by category
+
+#     category_id = request.GET.get("category")
+
+#     if category_id:
+#         products=products.filter(category_id=category_id)
+
+
+#     #filter by price
+
+#     min_price = request.GET.get("min_price")
+#     max_price = request.GET.get("max_price")
+    
+#     try:
+#         price_filter = Q()
+#         if min_price:
+#             min_price_decimal = Decimal(min_price)
+#             if min_price_decimal < 0:
+#                 messages.warning(request, "Minimum price cannot be negative.")
+#             else:
+#                 # products = products.filter(variants__price__gte=min_price_decimal)
+#                 price_filter &= Q(variants__price__gte=min_price_decimal)
+#         if max_price:
+#             max_price_decimal = Decimal(max_price)   
+#             if max_price_decimal < 0:
+#                 messages.warning(request, "Maximum price cannot be negative.")
+#             else:
+#                 # products = products.filter(variants__price__lte=max_price_decimal)
+#                 price_filter &= Q(variants__price__lte=max_price_decimal)
+#             # products = products.filter(variants__price__lte=max_price)
+
+#         if price_filter:
+#             products = products.filter(price_filter).distinct()
+
+#     except InvalidOperation:
+#         messages.warning(request, "Price filter must contain positive numbers only.")
+
+#     now = timezone.now()
+
+    
+#     # Subquery to get the best product offer discount
+#     product_offer_discount = Offer.objects.filter(
+#         products=OuterRef('pk'),
+#         offer_type='product',
+#         active=True,
+#         start_date__lte=now,
+#         end_date__gte=now
+#     ).order_by('-discount_percent').values('discount_percent')[:1]
+    
+#     # Subquery to get the best category offer discount
+#     category_offer_discount = Offer.objects.filter(
+#         categories=OuterRef('category'),
+#         offer_type='category',
+#         active=True,
+#         start_date__lte=now,
+#         end_date__gte=now
+#     ).order_by('-discount_percent').values('discount_percent')[:1]
+    
+#     # Annotate products with min/max prices and discounted prices
+#     products = products.annotate(
+#         min_variant_price=Min("variants__price"),
+#         max_variant_price=Max("variants__price"),
+#         product_discount=Subquery(product_offer_discount),
+#         category_discount=Subquery(category_offer_discount),
+#         # Calculate the best discount (product offer takes priority over category offer)
+#         best_discount=Case(
+#             When(product_discount__isnull=False, then=F('product_discount')),
+#             When(category_discount__isnull=False, then=F('category_discount')),
+#             default=Value(0),
+#             output_field=DecimalField()
+#         ),
+#         # Calculate minimum price after discount
+#         min_discounted_price=F('min_variant_price') * (100 - F('best_discount')) / 100
+#     )
+
+#     min_price = request.GET.get("min_price")
+#     max_price = request.GET.get("max_price")
+
+#     try:
+#         if min_price:
+#             min_price_decimal = Decimal(min_price)
+#             if min_price_decimal < 0:
+#                 messages.warning(request, "Minimum price cannot be negative.")
+#             else:
+#                 products = products.filter(min_discounted_price__gte=min_price_decimal)
+        
+#         if max_price:
+#             max_price_decimal = Decimal(max_price)
+#             if max_price_decimal < 0:
+#                 messages.warning(request, "Maximim price cannot be negative.")
+#             else:
+#                 products = products.filter(min_discounted_price__lte=max_price_decimal)
+
+#     except (InvalidOperation, ValueError):
+#         messages.warning(request, "Price filter must contain valid positive number only.")
+
+
+#     #sorting
+
+#     sort_option = request.GET.get("sort")
+
+#     # products = products.annotate(
+#     # min_price=Min("variants__price"),
+#     # max_price=Max("variants__price")
+#     # )
+
+#     if sort_option == "price_low":
+#         products = products.order_by("min_discounted_price")
+#     elif sort_option == "price_high":
+#         products = products.order_by("-min_discounted_price")
+#     elif sort_option == "az":
+#         products = products.order_by("name")
+#     elif sort_option == "za":
+#         products = products.order_by("-name")
+#     elif sort_option == "new":
+#         products = products.order_by("-created_at")
+#     elif sort_option == "featured":
+#         products = products.filter(is_featured=True)
+
+
+#     wishlist_variant_ids = []
+#     if request.user.is_authenticated:
+#         wishlist = getattr(request.user, 'wishlist', None)
+#         if wishlist:
+#             wishlist_variant_ids = list(wishlist.items.values_list('variant_id', flat=True))
+
+#     # for product in products:
+#     #     product.best_offer = get_best_offer_for_product(product)
+
+
+#     for product in products:
+#         product.best_offer = get_best_offer_for_product(product)
+
+#         available_variants = product.variants.filter(stock__gt=0)
+#         if available_variants.exists():
+#             cheapest_variant = available_variants.order_by('price').first()
+#             discount_info = get_discount_info_for_variant(cheapest_variant)
+#             product.display_variant = discount_info
+        
+#             # get_discount_info_for_variant(cheapest_variant)
+#             # product.display_variant = cheapest_variant
+#         else:
+#             product.display_variant = None
+#         # for variant in product.variants.all():
+#         #     variant.discount_info = get_discount_info_for_variant(variant)
+
+#     categories = Category.objects.all()
+
+
+
+#     context = {
+
+#         'products': products,
+#         'wishlist_variant_ids': wishlist_variant_ids,
+#         'categories': categories,
+#         'search_query': search_query,
+#         'selected_category': category_id,
+#         'min_price': min_price,
+#         'max_price': max_price,
+#         'sort_option': sort_option,
+#     }
+#     return render(request, "product_listing.html", context)
 
 
 
@@ -499,11 +686,20 @@ def detail_product(request, id):
         if wishlist:
             wishlist_variant_ids = list(wishlist.items.values_list('variant_id', flat=True))
 
+    best_selling_products=(
+        Product.objects.filter(is_listed=True, variants__stock__gt=0)
+        .annotate(total_sold=Coalesce(Sum("variants__orderitems__quantity"), Value(0)))
+        .filter(total_sold__gt=0)
+        .order_by('-total_sold')
+        .prefetch_related('images', 'variants')[:4]
+    )
+
     context = {
         "product": single_product,
         "variants": variants,
         "selected_variant": selected_variant,
         "selected_variant_info": selected_variant_info,
+        'best_selling_products' : best_selling_products,
         "unique_flavors": unique_flavors,
         "unique_weights": unique_weights,
         "available_flavors": available_flavors if available_flavors else unique_flavors,

@@ -17,5 +17,10 @@ urlpatterns = [
     path('coupons/', views.coupon_list, name='coupon_list'),
     path('coupons/create/', views.add_coupon, name='add_coupon'),
     path('coupons/delete/<int:coupon_id>/', views.delete_coupon, name='delete_coupon'),
+
+    path('banner/', views.admin_banner_list, name='admin_banner_list'),
+    path('banner/add/', views.admin_banner_add, name='admin_banner_add'),
+    path('banner/edit/<int:banner_id>/', views.admin_banner_edit, name='admin_banner_edit'),
+    path('banner/delete/<int:banner_id>/', views.admin_banner_delete, name='admin_banner_delete'),
 ]
 

@@ -1,5 +1,5 @@
 from django import forms
-from .models import Coupon
+from .models import Coupon, Banner
 from django.utils import timezone
 
 
@@ -34,3 +34,9 @@ class CouponForm(forms.ModelForm):
             raise forms.ValidationError("Minimum amount cannot be negative.")
 
         return cleaned_data
+
+
+class BannerForm(forms.ModelForm):
+    class Meta:
+        model = Banner
+        fields = ['title', 'is_active', 'image']

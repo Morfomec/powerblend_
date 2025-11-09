@@ -277,6 +277,21 @@
         transform: scale(1.05);
     }
 
+        .no-products-container {
+        animation: fadeIn 0.5s ease-in;
+    }
+    
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
     /* Product Info */
     .product-info {
         padding: 1.5rem;
@@ -284,6 +299,7 @@
         display: flex;
         flex-direction: column;
     }
+
 
     .product-title {
         color: var(--primary-solid);
@@ -526,6 +542,181 @@
 </style>
 
     <style>
+
+
+    /* Base Alert Styles message tags*/
+    .custom-alert {
+        color: white;
+        padding: 0.75rem 1.25rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        animation: slideDown 0.4s ease-out;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .custom-alert::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        animation: shimmer 3s infinite;
+    }
+
+    .custom-alert i {
+        font-size: 1.1rem;
+        animation: pulse 1.5s ease-in-out infinite;
+        flex-shrink: 0;
+    }
+
+    /* Error/Danger Alert */
+    .alert-error {
+        background: linear-gradient(135deg, #dc3545, #c82333);
+        box-shadow: 0 4px 20px rgba(220, 53, 69, 0.3);
+    }
+
+    /* Success Alert */
+    .alert-success {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        box-shadow: 0 4px 20px rgba(40, 167, 69, 0.3);
+    }
+
+    /* Warning Alert */
+    .alert-warning {
+        background: linear-gradient(135deg, #ffc107, #ff9800);
+        box-shadow: 0 4px 20px rgba(255, 193, 7, 0.3);
+    }
+
+    /* Info Alert */
+    .alert-info {
+        background: linear-gradient(135deg, #17a2b8, #138496);
+        box-shadow: 0 4px 20px rgba(23, 162, 184, 0.3);
+    }
+
+    /* Animations */
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes pulse {
+        0%, 100% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.15);
+        }
+    }
+
+    @keyframes shimmer {
+        0% {
+            left: -100%;
+        }
+        100% {
+            left: 100%;
+        }
+    }
+
+    /* Solid Background Variants */
+    .custom-alert.solid.alert-error {
+        background: #dc3545;
+        border: 2px solid #bd2130;
+    }
+
+    .custom-alert.solid.alert-success {
+        background: #28a745;
+        border: 2px solid #1e7e34;
+    }
+
+    .custom-alert.solid.alert-warning {
+        background: #ffc107;
+        border: 2px solid #e0a800;
+    }
+
+    .custom-alert.solid.alert-info {
+        background: #17a2b8;
+        border: 2px solid #117a8b;
+    }
+
+    /* Light Background Variants with Dark Text */
+    .custom-alert.light {
+        border-left-width: 3px;
+    }
+
+    .custom-alert.light.alert-error {
+        background: linear-gradient(135deg, rgba(220, 53, 69, 0.1), rgba(220, 53, 69, 0.05));
+        color: #dc3545;
+        border: 2px solid #dc3545;
+        border-left-width: 3px;
+    }
+
+    .custom-alert.light.alert-error i {
+        color: #dc3545;
+    }
+
+    .custom-alert.light.alert-success {
+        background: linear-gradient(135deg, rgba(40, 167, 69, 0.1), rgba(40, 167, 69, 0.05));
+        color: #28a745;
+        border: 2px solid #28a745;
+        border-left-width: 3px;
+    }
+
+    .custom-alert.light.alert-success i {
+        color: #28a745;
+    }
+
+    .custom-alert.light.alert-warning {
+        background: linear-gradient(135deg, rgba(255, 193, 7, 0.1), rgba(255, 193, 7, 0.05));
+        color: #856404;
+        border: 2px solid #ffc107;
+        border-left-width: 3px;
+    }
+
+    .custom-alert.light.alert-warning i {
+        color: #856404;
+    }
+
+    .custom-alert.light.alert-info {
+        background: linear-gradient(135deg, rgba(23, 162, 184, 0.1), rgba(23, 162, 184, 0.05));
+        color: #17a2b8;
+        border: 2px solid #17a2b8;
+        border-left-width: 3px;
+    }
+
+    .custom-alert.light.alert-info i {
+        color: #17a2b8;
+    }
+
+    /* Responsive */
+    @media (max-width: 576px) {
+        .custom-alert {
+            padding: 1rem;
+            font-size: 0.9rem;
+            gap: 0.5rem;
+        }
+        
+        .custom-alert i {
+            font-size: 1.1rem;
+        }
+    }
+
+
     /* Modern Breadcrumb Section */
     .modern-breadcrumb-section {
         background: rgba(248, 249, 250, 0.4);
@@ -662,13 +853,29 @@
 {% block body %}
 
 <div class="container">
-    <!-- Breadcrumb -->
-    <!-- <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
-            <li class="breadcrumb-item active">Shop</li>
-        </ol>
-    </nav> -->
+
+
+    {% if messages %}
+        {% for message in messages %}
+            {% if 'mini_price_not_negative' in message.tags or 'maxi_price_not_negative' in message.tags or 'positive_numbers_only' in message.tags %}
+                <div class="custom-alert 
+                    {% if 'error' in message.tags or 'danger' in message.tags or 'checkout-wallet_insufficient' in message.tags %}alert-error
+                    {% elif 'success' in message.tags or 'otp-success' in message.tags %}alert-success
+                    {% elif 'warning' in message.tags %}alert-warning
+                    {% elif 'info' in message.tags %}alert-info
+                    {% else %}alert-error{% endif %} 
+                    text-uppercase text-center mb-5" id="alert-{{ forloop.counter }}">
+                    <i class="fas 
+                        {% if 'error' in message.tags or 'danger' in message.tags or 'checkout-wallet_insufficient' in message.tags %}fa-exclamation-circle
+                        {% elif 'success' in message.tags or 'otp-success' in message.tags %}fa-check-circle
+                        {% elif 'warning' in message.tags %}fa-exclamation-triangle
+                        {% elif 'info' in message.tags %}fa-info-circle
+                        {% else %}fa-exclamation-circle{% endif %}"></i>
+                    <span>{{ message }}</span>
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
 
 
 
@@ -773,6 +980,7 @@
         </div>
     </form>
 
+    {% if products %}
     <!-- Impact Whey Promo -->
     <div class="impact-promo">
         <h3>OUR BEST SELLING IMPACT WHEY PROTEIN FOR <span style="color: #ff6b35;">FREE</span></h3>
@@ -797,6 +1005,7 @@
     <!-- Products Section -->
     <!-- <h2 class="mb-4" style="color: var(--primary-solid); font-weight: 600;">Our Products</h2> -->
 
+    
         <!-- Page Title & Promo -->
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h1 class="page-title">Powerblend Best Sellers</h1>
@@ -805,137 +1014,153 @@
             <i class="fas fa-chevron-right ms-3"></i>
         </div>
     </div>
-    
-    <div class="row product-grid">
-        {% for product in products %}
-        <div class="col-lg-3 col-md-6">
-            <div class="product-card">
-                
-                {% with variant=product.variants.first %}
-                    {% if variant %}
-                        {% if user.is_authenticated %}
-                            <form action="{% url 'wishlist_add' variant.id %}" method="post" style="display:inline;">
-                                {% csrf_token %}
-                                <button type="submit" class="wishlist-toggle" data-variant-id="{{ variant.id }}">
-                                    <i class="fa-heart heart-icon {% if variant.id in wishlist_variant_ids %}fas{% else %}far{% endif %}"></i>
-                                </button>
-                            </form>
+    {% endif %}
+   
+    <!-- Products Section -->
+    {% if products %}
+        <div class="row product-grid">
+            {% for product in products %}
+            <div class="col-lg-3 col-md-6">
+                <div class="product-card">
+                    
+                    {% with variant=product.variants.first %}
+                        {% if variant %}
+                            {% if user.is_authenticated %}
+                                <form action="{% url 'wishlist_add' variant.id %}" method="post" style="display:inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="wishlist-toggle" data-variant-id="{{ variant.id }}">
+                                        <i class="fa-heart heart-icon {% if variant.id in wishlist_variant_ids %}fas{% else %}far{% endif %}"></i>
+                                    </button>
+                                </form>
+                            {% else %}
+                                <a href="{% url 'login' %}" class="wishlist-toggle" title="Log in to add to wishlist">
+                                    <i class="far fa-heart heart-icon"></i>
+                                </a>
+                            {% endif %}
                         {% else %}
-                            <a href="{% url 'login' %}" class="wishlist-toggle" title="Log in to add to wishlist">
+                            <span class="wishlist-toggle" style="pointer-events: none; opacity: 0.4;">
                                 <i class="far fa-heart heart-icon"></i>
-                            </a>
+                            </span>
                         {% endif %}
-                    {% else %}
-                        <span class="wishlist-toggle" style="pointer-events: none; opacity: 0.4;">
-                            <i class="far fa-heart heart-icon"></i>
-                        </span>
-                    {% endif %}
-                {% endwith %}
+                    {% endwith %}
 
-
-                <!-- Product Image -->
-                <div class="product-image-container">   
-                    {% if product.images.all %}
-                        <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" class="img-fluid">
-                    {% else %}
-                        <img src="https://via.placeholder.com/400x400/f8f9fa/6c757d?text=No+Image+Available" alt="No image available" class="img-fluid">
-                    {% endif %}
-                </div>
-
-                <!-- Product Info -->
-                <div class="product-info">
-                    <h5 class="product-title">{{ product.name }}</h5>
-
-                    <div class="rating">
-                        <span>★★★★★</span> <span>(30,468 reviews)</span>
+                    <!-- Product Image -->
+                    <div class="product-image-container">   
+                        {% if product.images.all %}
+                            <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" class="img-fluid">
+                        {% else %}
+                            <img src="https://via.placeholder.com/400x400/f8f9fa/6c757d?text=No+Image+Available" alt="No image available" class="img-fluid">
+                        {% endif %}
                     </div>
 
+                    <!-- Product Info -->
+                    <div class="product-info">
+                        <h5 class="product-title">{{ product.name }}</h5>
 
-                    <!-- {% if product.display_variant %}
-                        <div class="price-section">
-                            <span class="current-price">₹{{ product.display_variant.price|floatformat:2 }}</span>
-
-                            {% if product.display_variant.original_price > product.display_variant.price %}
-                                <span class="original-price">Was ₹{{ product.display_variant.original_price|floatformat:2 }}</span>
-                                <span class="save-price">Save ₹{{ product.display_variant.save_price|floatformat:2 }}</span>
-                            {% endif %}
+                        <div class="rating">
+                            <span>★★★★★</span> <span>(30,468 reviews)</span>
                         </div>
-                    {% else %}
-                        <div class="price-section">
-                            <span class="current-price text-muted">No variants available</span>
-                        </div>
-                    {% endif %} -->
 
-
-                    <!-- {% if product.display_variant %}
-                        {% with product.display_variant.discount_info as info %}
+                        {% if product.display_variant %}
                             <div class="price-section">
-                                <span class="current-price">₹{{ info.price|floatformat:2 }}</span>
+                                {% if product.best_offer %}
+                                    <span class="current-price">₹{{ product.display_variant.price|floatformat:2 }}</span>
 
-                                {% if info.original_price > info.price %}
-                                    <span class="original-price ">Was ₹{{ info.original_price|floatformat:2 }}</span>
-                                    <span class="save-price ">Save ₹{{ info.save_price|floatformat:2 }}</span>
-                                    
+                                    {% if product.display_variant.original_price > product.display_variant.price %}
+                                        <span class="original-price">Was ₹{{ product.display_variant.original_price|floatformat:2 }}</span>
+                                        <span class="save-price">Save ₹{{ product.display_variant.save_price|floatformat:2 }}</span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="current-price">₹{{ product.display_variant.price|floatformat:2 }}</span>
                                 {% endif %}
-                            </div>
-                        {% endwith %}
-                    {% else %}
-                        <div class="price-section">
-                            <span class="current-price text-muted">No variants available</span>
-                        </div>
-                    {% endif %} -->
-                
-
-                    {% if product.display_variant %}
-                        <div class="price-section">
-                            {% if product.best_offer %}
-                                <span class="current-price">₹{{ product.display_variant.price|floatformat:2 }}</span>
-
-                                {% if product.display_variant.original_price > product.display_variant.price %}
-                                    <span class="original-price">Was ₹{{ product.display_variant.original_price|floatformat:2 }}</span>
-                                    <span class="save-price">Save ₹{{ product.display_variant.save_price|floatformat:2 }}</span>
-                                {% endif %}
-                            {% else %}
-                                <span class="current-price">₹{{ product.display_variant.price|floatformat:2 }}</span>
-                            {% endif %}
-                        </div>
-                    {% else %}
-                        <div class="price-section">
-                            <span class="current-price text-muted">No variants available</span>
-                        </div>
-                    {% endif %}
-
-
-                    <div class="product-actions">
-                        {% if product.best_offer %}
-                            <div class="discount-badge">
-                                {{ product.best_offer.name|upper }} - {{ product.best_offer.discount_percent }}% OFF
                             </div>
                         {% else %}
-                            <div class="discount-badge">Exclusive Offers awaits</div>
+                            <div class="price-section">
+                                <span class="current-price text-muted">No variants available</span>
+                            </div>
                         {% endif %}
 
-                        <a href="{% url 'detail_product' product.id %}" class="quick-buy-btn">
-                            <i class="fas fa-shopping-cart me-1"></i> QUICK BUY
-                        </a>
+                        <div class="product-actions">
+                            {% if product.best_offer %}
+                                <div class="discount-badge">
+                                    {{ product.best_offer.name|upper }} - {{ product.best_offer.discount_percent }}% OFF
+                                </div>
+                            {% else %}
+                                <div class="discount-badge">Exclusive Offers awaits</div>
+                            {% endif %}
+
+                            <a href="{% url 'detail_product' product.id %}" class="quick-buy-btn">
+                                <i class="fas fa-shopping-cart me-1"></i> QUICK BUY
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
+            {% endfor %}
         </div>
-        {% endfor %}
-    </div>
+    {% else %}
+    
 
+    <!-- No Products Message -->
+    <div class="container text-center my-5 py-5">
+        <div class="no-products-container" style="max-width: 600px; margin: 0 auto; padding: 3rem 2rem; background: var(--light-bg); border-radius: 12px; border: 2px dashed var(--primary-color);">
+            <i class="fas fa-box-open mb-4" style="font-size: 4rem; color: var(--primary-color); opacity: 0.6;"></i>
+            <h4 style="color: var(--primary-solid); font-weight: 600; margin-bottom: 1rem;">No Products Found</h4>
+            <p class="mb-3" style="color: #6c757d;">Sorry, we couldn't find any products matching your search criteria.</p>
+            
+            {% if request.GET.search or request.GET.category or request.GET.min_price or request.GET.max_price %}
+                <hr style="border-color: var(--primary-color); opacity: 0.3; margin: 1.5rem 0;">
+                <p class="mb-3">
+                    <strong style="color: var(--primary-solid);">Current filters:</strong><br>
+                    <span style="display: inline-block; margin-top: 0.5rem;">
+                        {% if request.GET.search %}
+                            <span class="badge me-1 mb-1" style="background-color: var(--primary-solid); color: white; padding: 0.5rem 0.75rem; font-size: 0.85rem;">
+                                <i class="fas fa-search me-1"></i> "{{ request.GET.search }}"
+                            </span>
+                        {% endif %}
+                        {% if request.GET.category %}
+                            <span class="badge me-1 mb-1" style="background-color: var(--primary-solid); color: white; padding: 0.5rem 0.75rem; font-size: 0.85rem;">
+                                <i class="fas fa-tag me-1"></i> Category filter active
+                            </span>
+                        {% endif %}
+                        {% if request.GET.min_price %}
+                            <span class="badge me-1 mb-1" style="background-color: var(--primary-solid); color: white; padding: 0.5rem 0.75rem; font-size: 0.85rem;">
+                                <i class="fas fa-arrow-up me-1"></i> Min: ₹{{ request.GET.min_price }}
+                            </span>
+                        {% endif %}
+                        {% if request.GET.max_price %}
+                            <span class="badge me-1 mb-1" style="background-color: var(--primary-solid); color: white; padding: 0.5rem 0.75rem; font-size: 0.85rem;">
+                                <i class="fas fa-arrow-down me-1"></i> Max: ₹{{ request.GET.max_price }}
+                            </span>
+                        {% endif %}
+                    </span>
+                </p>
+                <div class="mt-4">
+                    <a href="{% url 'list_products' %}" class="btn" style="background-color: var(--primary-solid); color: white; padding: 0.75rem 2rem; border-radius: 8px; font-weight: 500; text-decoration: none; transition: all 0.3s ease;" onmouseover="this.style.backgroundColor='var(--primary-color)'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(0,57,66,0.3)';" onmouseout="this.style.backgroundColor='var(--primary-solid)'; this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                        <i class="fas fa-redo me-2"></i> Clear All Filters
+                    </a>
+                </div>
+            {% else %}
+                <p class="mb-0" style="color: var(--primary-solid); font-size: 1.1rem;">There are currently no products available in our store.</p>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+
+    {% if products %}
     <!-- View All Button -->
     <button class="view-all-btn">
         <i class="fas fa-th-large me-2"></i>VIEW ALL PRODUCTS
     </button>
+    {% endif %}
     
 </div>
 
 {% endblock body %}
 
 {% block extra_js %}
-<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
@@ -991,5 +1216,21 @@
             observer.observe(card);
         });
     });
-</script> -->
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const alerts = document.querySelectorAll('[id^="alert-"]');
+    alerts.forEach(function(alert) {
+        // Auto-dismiss after 5 seconds
+        setTimeout(function() {
+            alert.style.transition = 'opacity 0.5s ease-out, transform 0.5s ease-out';
+            alert.style.opacity = '0';
+            alert.style.transform = 'translateY(-20px)';
+            setTimeout(function() {
+                alert.remove();
+            }, 500);
+        }, 5000);
+    });
+});
+</script>
 {% endblock extra_js %}
