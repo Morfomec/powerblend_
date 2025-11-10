@@ -595,24 +595,7 @@
             });
             
             console.log('Address Data:', addressData);
-            
-            // Here you would typically send the data to your Django backend
-            // Example:
-            // fetch('/address/create/', {
-            //     method: 'POST',
-            //     headers: {
-            //         'X-CSRFToken': getCookie('csrftoken'),
-            //         'Content-Type': 'application/json'
-            //     },
-            //     body: JSON.stringify(addressData)
-            // })
-            // .then(response => response.json())
-            // .then(data => {
-            //     if (data.success) {
-            //         closeAddressModal();
-            //         // Refresh address list or update UI
-            //     }
-            // });
+
             
             // For demo purposes, just close the modal
             alert('Address submitted! Check console for data.');

@@ -224,9 +224,7 @@
         width: 100%;
     }
 }
-</style>
 
-<style>
 
 
 .btn-add-address {
@@ -504,9 +502,7 @@
                     {% endif %}
 
                     <!-- Add New Address Button -->
-                     <!-- <a href="{% url 'address_create' %}?next={{ request.path }}" class="btn-add-address">
-                        <i class="fas fa-plus me-2"></i> ADD NEW ADDRESS
-                     </a> -->
+
                      <button type="button" class="btn-add-address" data-bs-toggle="modal" data-bs-target="#addAddressModal">
                         <i class="fas fa-plus me-2"></i> ADD NEW ADDRESS
                     </button>
@@ -575,11 +571,13 @@
                                             <i class="fas fa-clock me-1"></i>Valid till: {{ coupon.valid_to|date:"d M, Y" }}
                                         </div>
                                     </div>
-                                    <!-- <div class="coupon-right">
+
+                                    <div class="coupon-right">
                                         <button class="btn-apply-this-coupon" onclick="applyThisCoupon('{{ coupon.code }}')">
                                             APPLY
                                         </button>
-                                    </div> -->
+                                    </div>
+
                                     <div class="coupon-right">
                                         <button type="button" class="btn-apply-this-coupon" onclick="copyCoupon('{{ coupon.code }}')">
                                             COPY
@@ -966,9 +964,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }, 3000);
     });
 });
-</script>
 
-<script>
 document.addEventListener('DOMContentLoaded', function() {
     // Check if there are form errors
     const addressForm = document.querySelector('#addAddressModal form');
@@ -980,11 +976,7 @@ document.addEventListener('DOMContentLoaded', function() {
         modal.show();
     }
 });
-</script>
 
-
-
-<script>
 document.addEventListener('DOMContentLoaded', function() {
     // Check if there are form errors and reopen modal
     {% if address_form.errors %}

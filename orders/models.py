@@ -3,7 +3,8 @@ from django.conf import settings
 from django.utils import timezone
 
 from products.models import ProductVariant
-import random, string
+import random
+import string
 # Create your models here.
 
 
@@ -12,12 +13,18 @@ def generate_order_id():
     helper function to create human readable order IDs Example: ORD-20250928-AB12
     """
     date = timezone.now().strftime("%Y%m%d")
-    suffix = ''.join(random.choices(string.ascii_uppercase + string.digits, k=4))
+    suffix = ''.join(
+        random.choices(
+            string.ascii_uppercase +
+            string.digits,
+            k=4))
     return f"ORD-{date}-{suffix}"
 
 # order model
+
+
 class Order(models.Model):
-    ORDER_STATUS_CHOICES= [
+    ORDER_STATUS_CHOICES = [
         ('pending', 'Pending'),
         ('confirmed', 'Confirmed'),
         ('shipped', 'Shipped'),
@@ -48,13 +55,28 @@ class Order(models.Model):
         ('failed', 'Failed'),
     ]
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="orders")
-    order_id = models.CharField(max_length=32, unique=True, default=generate_order_id, editable=False)
-    payment_method = models.CharField(max_length=20, choices=PAYMENT_CHOICES, blank=True, null=True)
-    status = models.CharField(max_length=20, choices=ORDER_STATUS_CHOICES, default='pending')
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="orders")
+    order_id = models.CharField(
+        max_length=32,
+        unique=True,
+        default=generate_order_id,
+        editable=False)
+    payment_method = models.CharField(
+        max_length=20,
+        choices=PAYMENT_CHOICES,
+        blank=True,
+        null=True)
+    status = models.CharField(
+        max_length=20,
+        choices=ORDER_STATUS_CHOICES,
+        default='pending')
 
     total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    original_total = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    original_total = models.DecimalField(
+        max_digits=10, decimal_places=2, null=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -65,22 +87,34 @@ class Order(models.Model):
     is_returned = models.BooleanField(default=False)
     return_reason = models.TextField(blank=True, null=True)
     return_at = models.DateTimeField(blank=True, null=True)
-    return_status = models.CharField(max_length=50, choices=RETURN_CHOICES, default='pending')
+    return_status = models.CharField(
+        max_length=50,
+        choices=RETURN_CHOICES,
+        default='pending')
 
-    payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='pending')
+    payment_status = models.CharField(
+        max_length=20,
+        choices=PAYMENT_STATUS_CHOICES,
+        default='pending')
     razorpay_order_id = models.CharField(max_length=255, blank=True, null=True)
-    razorpay_payment_id = models.CharField(max_length=255, blank=True, null=True)
+    razorpay_payment_id = models.CharField(
+        max_length=255, blank=True, null=True)
 
-    discount_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    coupon_discount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    discount_amount = models.DecimalField(
+        max_digits=10, decimal_places=2, default=0)
+    coupon_discount = models.DecimalField(
+        max_digits=10, decimal_places=2, default=0)
     coupon_code = models.CharField(max_length=50, blank=True, null=True)
-    coupon_min_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    coupon_min_amount = models.DecimalField(
+        max_digits=10, decimal_places=2, default=0)
 
-
-
-    amount_paid = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    refunded_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-
+    amount_paid = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True)
+    refunded_amount = models.DecimalField(
+        max_digits=10, decimal_places=2, default=0)
 
     def save(self, *args, **kwargs):
         """
@@ -92,20 +126,16 @@ class Order(models.Model):
 
     @property
     def final_amount(self):
-        return self.total - self.discount_amount 
-
+        return self.total - self.discount_amount
 
     def __str__(self):
         return f"{self.order_id} ({self.user})"
 
-
-    #to re calculate total from OrderItems
+    # to re calculate total from OrderItems
 
     def recalc_total(self):
-        total = sum([
-            item.item_total for item in self.items.filter(is_cancelled=False, is_returned=False)
-            # for item in self.items.filter(status__in=['pending', 'confirmed', 'shipped', 'delivered'])
-        ])
+        total = sum([item.item_total for item in self.items.filter(
+            is_cancelled=False, is_returned=False)])
 
         self.total = total
         self.save(update_fields=['total'])
@@ -123,7 +153,6 @@ class Order(models.Model):
 
         self.update_status()
 
-
     def update_status(self):
 
         items = self.items.all()
@@ -139,8 +168,8 @@ class Order(models.Model):
         self.save(update_fields=['status'])
 
     def update_return_status(self):
-        
-        status =self.items.values_list('return_status', flat=True)
+
+        status = self.items.values_list('return_status', flat=True)
         if all(s == 'return_approved' for s in status):
             self.return_status = 'return_approved'
             self.is_returned = True
@@ -154,7 +183,6 @@ class Order(models.Model):
         else:
             self.return_status = 'returned'
         self.save()
-
 
     def update_order_status(self):
         """
@@ -205,22 +233,26 @@ class OrderItem(models.Model):
         ('return_rejected', 'Return Rejected'),
     ]
 
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
-    variant = models.ForeignKey(ProductVariant, on_delete=models.CASCADE, related_name='orderitems')
+    order = models.ForeignKey(
+        Order,
+        on_delete=models.CASCADE,
+        related_name='items')
+    variant = models.ForeignKey(
+        ProductVariant,
+        on_delete=models.CASCADE,
+        related_name='orderitems')
     quantity = models.PositiveIntegerField()
     price = models.DecimalField(max_digits=20, decimal_places=2)
 
-    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='pending')
-    
-    #cancellation fields
+    status = models.CharField(
+        max_length=50,
+        choices=STATUS_CHOICES,
+        default='pending')
+
+    # cancellation fields
     is_cancelled = models.BooleanField(default=False)
     cancelled_reason = models.TextField(blank=True, null=True)
     cancelled_at = models.DateTimeField(blank=True, null=True)
-
-    # paid_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    # discount_share = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    # refunded_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-
 
     # returns fields
     is_returned = models.BooleanField(default=False)
@@ -228,7 +260,10 @@ class OrderItem(models.Model):
 
     return_reason = models.TextField(blank=True, null=True)
     return_at = models.DateTimeField(blank=True, null=True)
-    return_status = models.CharField(max_length=20, choices=RETURN_CHOICES, default='pending')
+    return_status = models.CharField(
+        max_length=20,
+        choices=RETURN_CHOICES,
+        default='pending')
 
     @property
     def item_total(self):
@@ -237,22 +272,9 @@ class OrderItem(models.Model):
     def __str__(self):
         return f"{self.variant} x {self.quantity} ({self.order.order_id})"
 
-
     @property
     def variant_total(self):
         """
         Returns the total price for the variant
         """
         return self.price * self.quantity
-
-
-
-
-
-    # @property
-    # def original_subtotal(self):
-    #     """
-    #     original price subtotal before discount
-    #     """
-    #     if hasttr(self.variant, "discount_info") and self.variant.discount_info:
-    #         return self.variant.discount_info.original_price * self.quantity

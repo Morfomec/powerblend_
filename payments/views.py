@@ -92,8 +92,6 @@ def checkout_view(request):
         default_address =addresses.first()
     elif not default_address:
         default_address = None
-        # messages.error(request, "Please choose a default address before checkout.")
-        # return redirect('checkout')
 
 
 
@@ -236,9 +234,9 @@ def checkout_view(request):
 
         # elif payment_method == 'cod':
 
-        #     # basket.items.all().delete()
-        #     # basket.is_active = False
-        #     # basket.save()
+        #     basket.items.all().delete()
+        #     basket.is_active = False
+        #     basket.save()
 
         #     return redirect('order_success', order_id=order.id)
 
@@ -299,10 +297,10 @@ def checkout_view(request):
                     )
                     decrement_stock(item.variant, item.quantity)
 
-                # clear basket after successful order creation
-                # basket.items.all().delete()
-                # basket.is_active = False
-                # basket.save()
+                clear basket after successful order creation
+                basket.items.all().delete()
+                basket.is_active = False
+                basket.save()
 
             return redirect('order_success', order_id=order.id)
 
@@ -372,10 +370,10 @@ def checkout_view(request):
                 # mark order items confirmed
                 order.items.update(status='confirmed')
 
-                # clear basket
-                # basket.items.all().delete()
-                # basket.is_active = False
-                # basket.save()
+                clear basket
+                basket.items.all().delete()
+                basket.is_active = False
+                basket.save()
 
             return redirect('order_success', order_id=order.id)
 

@@ -15,7 +15,7 @@ urlpatterns = [
     path('admin/orders/', views.admin_order_list, name='admin_order_list'),
     path('admin/orders/<int:id>/', views.admin_order_detail, name='admin_order_detail'),
     path('admin/orders/<int:id>/update-status/', views.admin_update_order_status, name='admin_update_order_status'),
-    # path('admin/return-process/<int:item_id>/', views.admin_return_process, name='admin_return_process'),
+
     path('admin/orders-item/<int:item_id>/update/', views.admin_update_item_status, name='admin_update_item_status'),
 
     path('invoice/<int:order_id>/download/', views.download_invoice, name='download_invoice')
