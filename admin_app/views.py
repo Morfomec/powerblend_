@@ -38,10 +38,7 @@ User = get_user_model ()
 
 # Create your views here.
 
-# def admin_login(request):
-#     # if request.user.is_authenticated:
-#     #     # if request.user.is_staff or request.user.is_superuser:
-#     #     return redirect('admin/dashboard')
+
 
 def admin_login(request):
     if request.method == 'POST':
@@ -61,60 +58,6 @@ def admin_login(request):
             messages.error(request, 'Invalid credentials.')
 
     return render(request, 'admin_login.html')
-
-# @staff_member_required
-# def admin_dashboard(request):
-
-#     total_users = CustomUser.objects.count()
-#     total_orders = Order.objects.count()
-#     total_products = Product.objects.count()
-#     total_categories = Category.objects.count()
-
-#     top_products = Product.objects.annotate(
-#         total_quantity_sold=Sum('variants__orderitems__quantity'),
-#         total_revenue=Sum(F('variants__orderitems__quantity') * F('variants__orderitems__price')),
-#         order_count=Count('variants__orderitems')
-#     ).order_by('-total_quantity_sold')[:5]
-
-
-#     top_categories = Category.objects.annotate(
-#         total_quantity_sold=Sum('products__variants__orderitems__quantity'),
-#         total_revenue=Sum(F('products__variants__orderitems__quantity') * F('products__variants__orderitems__price')),
-#         order_count=Count('products__variants__orderitems')
-#     ).order_by('-total_quantity_sold')[:5]
-
-
-#     monthly_data = (
-#         Order.objects
-#         .annotate(month=TruncMonth('created_at'))
-#         .values('month')
-#         .annotate(total_sales=Sum('total'))
-#         .order_by('month')
-#     )
-
-
-#     chart_labels = [data['month'].strftime('%b %Y') for data in monthly_data if data['month']]
-#     chart_total_sales = [float(data['total_sales']) if data['total_sales'] else 0 for data in monthly_data]
-#     chart_total_users = [CustomUser.objects.filter(date_joined__month=data['month'].month).count() for data in monthly_data if data['month']]
-    
-
-#     context = {
-#         'total_users' : total_users,
-#         'total_orders' : total_orders,
-#         'total_products' : total_products,
-#         'total_categories' : total_categories,
-#         'users' : request.user,
-#         'active_page':'dashboard',
-#         'top_products' : top_products,
-#         'top_categories' : top_categories,
-#         'chart_labels' : chart_labels,
-#         'chart_total_sales' : chart_total_sales,
-#         'chart_total_users' : chart_total_users,
-#     }
-
-    
-
-#     return render(request, 'dashboard.html', context)
 
 @staff_member_required
 def admin_dashboard(request):
@@ -269,7 +212,7 @@ def admin_user(request):
 
     # to check if clear button clicked or not
     if 'clear' in request.GET:
-        return redirect("admin_user") # Redirect back to the same view without any search parameters
+        return redirect("admin_user") 
 
 
     #query to exclude staffs and superusers
@@ -383,7 +326,7 @@ def sales_report(request):
     end_date = request.GET.get('end_date')
 
     today = date.today()
-    orders = Order.objects.filter()  # start with delivered orders
+    orders = Order.objects.filter() 
 
     if filter_type == 'daily':
         orders = orders.filter(created_at__date=today)
@@ -405,7 +348,7 @@ def sales_report(request):
     orders = orders.order_by('-created_at')
 
 
-    print("Total delivered orders:", orders.count())
+  
     paginator = Paginator(orders, 10)
     page_number = request.GET.get('page')
     orders = paginator.get_page(page_number)
@@ -483,7 +426,7 @@ def download_pdf(request):
             ]))
             elements.append(table)
             elements.append(PageBreak())
-            data = [["S.No", "Order ID", "Customer", "Total", "Discount", "Date"]]  # reset header for new page
+            data = [["S.No", "Order ID", "Customer", "Total", "Discount", "Date"]] 
 
     # Add totals row
     data.append([
@@ -509,25 +452,6 @@ def download_pdf(request):
 
     doc.build(elements)
     return response
-
-# @staff_member_required
-# def download_excel(request):
-#     filter_type = request.GET.get('filter')
-#     wb = Workbook()
-#     ws = wb.active
-#     ws.title = "Sales Report"
-
-#     ws.append(['Order No', 'Date', 'Total', 'Discount', 'Coupon'])
-#     # Example: replace with actual filtered orders
-#     for order in Order.objects.all():
-#         ws.append([order.order_id, order.created_at.strftime("%Y-%m-%d"),
-#         order.user.full_name, order.total, order.discount_amount, order.coupon_discount])
-
-#     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-#     response['Content-Disposition'] = f'attachment; filename="sales_report_{filter_type}.xlsx"'
-#     wb.save(response)
-#     return response
-
 
 
 @staff_member_required
@@ -638,7 +562,7 @@ def admin_banner_add(request):
     Add new banner - handles both modal and standalone page
     """
     if request.method == 'POST':
-        form = BannerForm(request.POST, request.FILES)  # Fixed typo: request.FIELS -> request.FILES
+        form = BannerForm(request.POST, request.FILES) 
         
         if form.is_valid():
             form.save()
@@ -701,26 +625,6 @@ def admin_banner_delete(request, banner_id):
     return redirect('admin_banner_list')
 
 
-
-
-
-# from django.views.defaults import (
-#     bad_request as default_bad_request,
-#     permission_denied as default_permission_denied,
-#     page_not_found as default_page_not_found,
-#     server_error as default_server_error,
-# )
-
-
-# def error_view(request, error_code):
-#     """
-#     Generic error view that renders the universal error page
-#     with the appropriate error code
-#     """
-#     context = {
-#         'error_code': error_code,
-#     }
-#     return render(request, 'error.html', context, status=error_code)
 
 
 def handler400(request, exception=None):
