@@ -297,7 +297,7 @@ def checkout_view(request):
                     )
                     decrement_stock(item.variant, item.quantity)
 
-                clear basket after successful order creation
+                # clear basket after successful order creation
                 basket.items.all().delete()
                 basket.is_active = False
                 basket.save()
@@ -370,7 +370,7 @@ def checkout_view(request):
                 # mark order items confirmed
                 order.items.update(status='confirmed')
 
-                clear basket
+                # clear basket
                 basket.items.all().delete()
                 basket.is_active = False
                 basket.save()

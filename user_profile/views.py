@@ -11,6 +11,7 @@ from .forms import AddressForm
 from django.urls import reverse
 from django.db.models import Sum
 from .forms import EditProfileForm, EmailChangeForm
+
 from accounts.models import UserReferral
 from allauth.socialaccount.models import SocialAccount
 
@@ -79,8 +80,7 @@ def edit_profile(request):
             form.save()
             messages.success(request, "Profile updated successfully!")
             return redirect("user_dashboard")
-        else:
-            
+        
     
     else:
         form = EditProfileForm(instance=request.user)
