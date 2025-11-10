@@ -337,118 +337,116 @@
                 gap: 15px;
             }
         }
-    </style>
 
-    <style>
-.address-alert {
-    background: linear-gradient(135deg, rgba(255, 193, 7, 0.1), rgba(255, 193, 7, 0.05));
-    border: 2px solid #ffc107;
-    border-left: 4px solid #ffc107;
-    border-radius: 12px;
-    padding: 1rem 1.25rem;
-    margin-bottom: 1rem;
-}
+            .address-alert {
+                background: linear-gradient(135deg, rgba(255, 193, 7, 0.1), rgba(255, 193, 7, 0.05));
+                border: 2px solid #ffc107;
+                border-left: 4px solid #ffc107;
+                border-radius: 12px;
+                padding: 1rem 1.25rem;
+                margin-bottom: 1rem;
+            }
 
-.alert-content {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    color: #856404;
-}
+            .alert-content {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                color: #856404;
+            }
 
-.alert-content i {
-    font-size: 1.3rem;
-    flex-shrink: 0;
-}
+            .alert-content i {
+                font-size: 1.3rem;
+                flex-shrink: 0;
+            }
 
-.alert-content span {
-    font-weight: 500;
-    line-height: 1.5;
-}
+            .alert-content span {
+                font-weight: 500;
+                line-height: 1.5;
+            }
 
-.add-address-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    background: linear-gradient(135deg, var(--primary-solid, rgb(0, 57, 66)), rgba(0, 57, 66, 0.8));
-    color: white;
-    padding: 1rem 2rem;
-    border-radius: 12px;
-    font-weight: 600;
-    font-size: 1rem;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    border: none;
-    cursor: pointer;
-    width: 100%;
-    margin-bottom: 0.75rem;
-    box-shadow: 0 4px 15px rgba(0, 57, 66, 0.2);
-}
+            .add-address-btn {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.5rem;
+                background: linear-gradient(135deg, var(--primary-solid, rgb(0, 57, 66)), rgba(0, 57, 66, 0.8));
+                color: white;
+                padding: 1rem 2rem;
+                border-radius: 12px;
+                font-weight: 600;
+                font-size: 1rem;
+                text-decoration: none;
+                transition: all 0.3s ease;
+                border: none;
+                cursor: pointer;
+                width: 100%;
+                margin-bottom: 0.75rem;
+                box-shadow: 0 4px 15px rgba(0, 57, 66, 0.2);
+            }
 
-.add-address-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 57, 66, 0.3);
-    text-decoration: none;
-    color: white;
-}
+            .add-address-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(0, 57, 66, 0.3);
+                text-decoration: none;
+                color: white;
+            }
 
-.add-address-btn i {
-    font-size: 1.1rem;
-}
+            .add-address-btn i {
+                font-size: 1.1rem;
+            }
 
-.checkout-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    background: linear-gradient(135deg, rgb(0 57 66 / 1));
-    color: white;
-    padding: 1rem 2rem;
-    border-radius: 12px;
-    font-weight: 700;
-    font-size: 1.1rem;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    border: none;
-    cursor: pointer;
-    width: 100%;
-    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
-}
+            .checkout-btn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.5rem;
+                background: linear-gradient(135deg, rgb(0 57 66 / 1));
+                color: white;
+                padding: 1rem 2rem;
+                border-radius: 12px;
+                font-weight: 700;
+                font-size: 1.1rem;
+                text-decoration: none;
+                transition: all 0.3s ease;
+                border: none;
+                cursor: pointer;
+                width: 100%;
+                box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+            }
 
-.checkout-btn:hover:not(.disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
-    text-decoration: none;
-    color: white;
-}
+            .checkout-btn:hover:not(.disabled) {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
+                text-decoration: none;
+                color: white;
+            }
 
-.checkout-btn.disabled {
-    background: #6c757d;
-    cursor: not-allowed;
-    opacity: 0.6;
-    box-shadow: none;
-}
+            .checkout-btn.disabled {
+                background: #6c757d;
+                cursor: not-allowed;
+                opacity: 0.6;
+                box-shadow: none;
+            }
 
-.checkout-btn.disabled:hover {
-    transform: none;
-    box-shadow: none;
-}
+            .checkout-btn.disabled:hover {
+                transform: none;
+                box-shadow: none;
+            }
 
-/* Responsive */
-@media (max-width: 576px) {
-    .add-address-btn,
-    .checkout-btn {
-        padding: 0.9rem 1.5rem;
-        font-size: 1rem;
-    }
-    
-    .alert-content {
-        flex-direction: column;
-        text-align: center;
-        gap: 0.5rem;
-    }
-}
+            /* Responsive */
+            @media (max-width: 576px) {
+                .add-address-btn,
+                .checkout-btn {
+                    padding: 0.9rem 1.5rem;
+                    font-size: 1rem;
+                }
+                
+                .alert-content {
+                    flex-direction: column;
+                    text-align: center;
+                    gap: 0.5rem;
+                }
+            }
 </style>
 
 {% endblock extra_css %}
@@ -489,27 +487,6 @@
                             {% if item.variant.flavor %}Flavor: {{ item.variant.flavor }}{% endif %}|
                             {% if item.variant.weight %}Size: {{ item.variant.weight }}{% endif %}
                          </div>
-      
-                        
-                        <!-- <div class="quantity-section">
-                            <span class="quantity-label">Quantity:</span> -->
-
-                            <!-- Decrease -->
-                            <!-- <form method="get" action="{% url 'basket_update_item' item.id %}#basket" style="display:inline;">
-                                {% csrf_token %}
-                                <input type="hidden" name="action" value="decrease">
-                                <button type="submit" class="quantity-btn" {% if item.quantity <= 1 or item.variant.stock == 0 %}disabled{% endif %}>-</button>
-                            </form>
-
-                            <input type="number" value="{{ item.quantity }}" class="quantity-input"> -->
-
-                            <!-- Increase -->
-                            <!-- <form method="get" action="{% url 'basket_update_item' item.id %}#basket" style="display:inline;">
-                                {% csrf_token %}
-                                <input type="hidden" name="action" value="increase">
-                                <button type="submit" class="quantity-btn" {% if item.quantity >= item.variant.stock %}disabled{% endif %}>+</button>
-                            </form>
-                        </div> -->
 
                         <div class="quantity-section" data-item-id="{{ item.id }}">
                             <span class="quantity-label">Quantity:</span>
@@ -596,18 +573,10 @@
                     <span>Free</span>
                 </div>
                 
-                <!-- <div class="summary-row">
-                    <span>Estimate for</span>
-                    <span></span>
-                </div> -->
-                
                 <div class="summary-row total">
                     <span>Total</span>
                     <span class="price-red" id="basket-total-final">₹{{ basket.total_price }}</span>
                 </div>
-                <!-- <a href="{% url 'checkout' %}">
-                    <button class="checkout-btn">🔒 CHECK OUT</button>
-                </a> -->
 
                 {% if default_address %}
                     <a href="{% url 'checkout' %}" class="checkout-btn">

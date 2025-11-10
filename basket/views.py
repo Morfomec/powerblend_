@@ -17,9 +17,11 @@ from offers.utils import get_best_offer_for_product, get_discount_info_for_varia
 # Create your views here.
 
 class BasketAddView(View):
+    """
+    adding items to the basket
+    """
     def post(self, request, *args, **kwargs):
-        print("🔍 Headers:", request.headers)
-        print("🔍 Is AJAX detected:", request.headers.get('x-requested-with'))
+
         form = BasketAddForm(request.POST)
         is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest'
 
@@ -63,10 +65,6 @@ class BasketAddView(View):
                     messages.error(request, f"Only {variant.stock} items available in stock.")
                     return redirect("detail_product", id=product.id)
 
-                # if new_quantity > variant.max_quantity_per_order:
-                #     messages.error(request, f"Maximum {variant.max_quantity_per_order} allowed per order.")
-                #     return redirect("detail_product", id=product.id)
-
                 item.quantity = new_quantity
                 item.save()
 
@@ -76,18 +74,18 @@ class BasketAddView(View):
                     "product": product.name,
                     "variant": str(variant),
                     "quantity": quantity,
-                    "subtotal": basket.total_price,  # adjust to your model
+                    "subtotal": basket.total_price, 
                     "basket_count": basket.items.count(),
                     "image": (
-    (variant.product.images.filter(is_primary=True).first() or variant.product.images.first()).image.url
-    if variant.product.images.exists()
-    else ""
-),
+                        (variant.product.images.filter(is_primary=True).first() or variant.product.images.first()).image.url
+                        if variant.product.images.exists()
+                        else ""
+                    ),
 
                 })
 
             messages.success(request, f"{product.name} ({variant}) added to your basket!")
-            return redirect("basket_view")  # Redirect to basket page
+            return redirect("basket_view") 
 
         # Invalid form case
         if is_ajax:
@@ -95,109 +93,11 @@ class BasketAddView(View):
         messages.error(request, "Invalid data. Please try again.")
         return HttpResponseBadRequest("Form validation failed.")
 
-# # adding items to basket
-# class BasketAddView(View):
-#     def post(self, request, *args, **kwargs):
-#         form = BasketAddForm(request.POST)
-
-#         print("-" * 50)
-#         print("Received POST Data:", request.POST) # Is variant_id here?
-#         print("User Authenticated:", request.user.is_authenticated)
-        
-
-#         if not request.user.is_authenticated:
-#             return JsonResponse({"success": False, "error": "login_required"}, status=403)
-
-#         if form.is_valid():
-#             variant_id = form.cleaned_data['variant_id']
-#             quantity = form.cleaned_data['quantity']
-
-#             variant = get_object_or_404(ProductVariant, id=variant_id)
-#             product = variant.product
-
-
-#             # to prevent blocked/unlisted products
-#             if not product.is_listed or not product.category.is_active:
-#                 return JsonResponse({
-#                     "success":False,
-#                     "error": "This product cannot be added to the cart."
-#                 }, status=403)
-
-#             #remove from whishlist if exists and mark from_wishlist
-
-#             wishlist_item = WishlistItem.objects.filter(wishlist__user=request.user, variant=variant).first()
-#             if wishlist_item:
-#                 wishlist_item.delete()
-#                 from_wishlist = True
-#             else:
-#                 from_wishlist = False
-
-#             # Get or create basket
-#             basket, _ = Basket.objects.get_or_create(user=request.user)
-
-#             # Add or update item
-#             item, created = BasketItem.objects.get_or_create(
-#                 basket=basket,
-#                 variant=variant,
-#                 defaults={"quantity": quantity, "from_wishlist": from_wishlist},
-#             )
-
-#             if not created:
-
-#                 # to limit the maximum quantity to add
-#                 new_quantity = item.quantity + quantity
-#                 if  new_quantity > variant.stock:
-#                     return JsonResponse({
-#                         "success" : False,
-#                         "error" :f"Only {variant.stock} items available in stock."
-#                     }, status=400)
-#                 if new_quantity > variant.max_quantity_per_order:
-#                     return JsonResponse({
-#                         "success": False,
-#                         "error" : f"Maximum {variant.max_quantity_per_order} allowed per order."
-#                     }, status=400)
-#                 item.quantity += quantity
-#                 item.save()
-
-#             discount_info = get_discount_info_for_variant(variant)
-
-#             # Remove from wishlist if exists
-#             WishlistItem.objects.filter(wishlist__user=request.user, variant=variant).delete()
-
-#             image = variant.product.images.first()
-#             image_url = image.image.url if image else ""
-
-#             default_address = Address.objects.filter(user=request.user, is_default=True).first()
-
-#             return JsonResponse({
-#                 "success": True,
-#                 "product": variant.product.name,
-#                 "variant": str(variant),
-#                 "quantity": item.quantity,
-#                 "basket_count": basket.total_items,  # total items in basket
-#                 "subtotal": str(basket.total_price),     # total price
-#                 "image": image_url,
-#                 "default_address": default_address,
-
-#                 'price' : str(discount_info['price']),
-#                 'original_price' :str(discount_info['original_price']),
-#                 'save_price' : str(discount_info['save_price']),
-#                 'discount_percent' : str(discount_info['discount_percent']),
-#                 'offer_name' : str(discount_info['offer_name']),
-#             })
-#         else:
-#             print("!!! FORM VALIDATION FAILED !!!")
-#             print("Form Errors (as_json):", form.errors.as_json())
-#             print("Form Errors:", form.errors)
-#             print("Form Cleaned Data (if any):", getattr(form, "cleaned_data", {}))
-#             return HttpResponseBadRequest(
-#                 f"Form Validation Failed. Errors: {form.errors.as_text()}",
-#                 content_type="text/plain"
-#             )
-
-#removing item from basket
 
 class BasketRemoveView(LoginRequiredMixin, View):
+    """
+    remove items from the basket
+    """
 
     def post(self, request, variant_id, *args, **kwargs):
         basket = get_object_or_404(Basket, user=request.user)
@@ -221,6 +121,9 @@ class BasketRemoveView(LoginRequiredMixin, View):
 
 #Basket datails view all items
 class BasketDetailView(LoginRequiredMixin, View):
+    """
+    list items in the basket
+    """
 
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated:
@@ -292,9 +195,9 @@ class BasketUpdateView(LoginRequiredMixin, View):
 @login_required
 @require_POST
 def basket_update_item(request, item_id):
-
-
-    
+    """
+    to update the items in the basket
+    """
 
     try:
         data = json.loads(request.body)
@@ -333,8 +236,8 @@ def basket_update_item(request, item_id):
             "new_quantity": item.quantity,
             "item_id": item.id,
             "basket_total": float(basket_total),
-            "item_total": float(discounted_subtotal),   # discounted total for this item
-            "per_piece_price": float(discounted_price), # constant per-piece price
+            "item_total": float(discounted_subtotal),  
+            "per_piece_price": float(discounted_price), 
             "original_subtotal": float(original_subtotal),
             "save_subtotal": float(save_subtotal),
             "discount_percent": discount_percent,
