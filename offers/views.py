@@ -11,6 +11,7 @@ from django.db.models import Q
 
 # Create your views here.
 
+
 @staff_member_required
 def admin_offer_list(request):
     """
@@ -22,13 +23,12 @@ def admin_offer_list(request):
 
     q = request.GET.get('q', '').strip()
     offer_type = request.GET.get('offer_type', '').strip()
-    status =  request.GET.get('status', '').strip()
+    status = request.GET.get('status', '').strip()
 
     # to search by offer name
     if q:
         offers = offers.filter(name__icontains=q)
 
-    
     # filter by offer type
     if offer_type:
         offers = offers.filter(offer_type=offer_type)
@@ -40,13 +40,14 @@ def admin_offer_list(request):
         offers = offers.filter(Q(active=False) | Q(end_date__lt=today))
 
     context = {
-        'q' : q,
-        'status' : status,
-        'offer_type' : offer_type,
-        'offers' : offers,
-        'today' : today,
+        'q': q,
+        'status': status,
+        'offer_type': offer_type,
+        'offers': offers,
+        'today': today,
     }
     return render(request, 'offer_list.html', context)
+
 
 @staff_member_required
 def admin_add_offer(request):
@@ -64,12 +65,15 @@ def admin_add_offer(request):
             name = form.cleaned_data['name'].strip().lower()
             offer_type = form.cleaned_data['offer_type']
 
-            if Offer.objects.filter(name__iexact=name, offer_type=offer_type).exists():
-                messages.error(request, f"An offer name {name} already exists for this offer type.")
+            if Offer.objects.filter(
+                    name__iexact=name,
+                    offer_type=offer_type).exists():
+                messages.error(
+                    request, f"An offer name {name} already exists for this offer type.")
                 return redirect('admin_add_offer')
             else:
                 offer = form.save(commit=False)
-                offer.name=name
+                offer.name = name
                 offer.save()
 
                 if offer_type == 'product':
@@ -85,9 +89,9 @@ def admin_add_offer(request):
         form = OfferForm()
 
     context = {
-        'form':form,
-        'categories' : categories,
-        'products' : products,
+        'form': form,
+        'categories': categories,
+        'products': products,
     }
     return render(request, 'add_edit_offer.html', context)
 
@@ -108,10 +112,13 @@ def admin_edit_offer(request, offer_id):
             name = form.cleaned_data['name'].strip().lower()
             offer_type = form.cleaned_data['offer_type']
 
+            if Offer.objects.filter(
+                    name__iexact=name,
+                    offer_type=offer_type).exclude(
+                    id=offer_id).exists():
+                messages.error(
+                    request, f"An offer name {name} already exists for this offer type.")
 
-            if Offer.objects.filter(name__iexact=name, offer_type=offer_type).exclude(id=offer_id).exists():
-                messages.error(request, f"An offer name {name} already exists for this offer type.")
-                
             else:
                 offer = form.save(commit=False)
                 offer.name = name
@@ -131,16 +138,18 @@ def admin_edit_offer(request, offer_id):
     else:
         form = OfferForm(instance=offer)
 
-    selected_catefory_ids = offer.categories.values_list('id', flat=True) if offer else []
-    selected_product_ids = offer.products.values_list('id', flat=True) if offer else []
+    selected_catefory_ids = offer.categories.values_list(
+        'id', flat=True) if offer else []
+    selected_product_ids = offer.products.values_list(
+        'id', flat=True) if offer else []
     context = {
-        'form' : form,
-        'edit' : True,
+        'form': form,
+        'edit': True,
         'offer': offer,
-        'categories' : categories,
-        'products' : products,
-        'selected_category_ids' : selected_catefory_ids,
-        'selected_product_ids' : selected_product_ids,
+        'categories': categories,
+        'products': products,
+        'selected_category_ids': selected_catefory_ids,
+        'selected_product_ids': selected_product_ids,
     }
     return render(request, 'add_edit_offer.html', context)
 
@@ -156,6 +165,3 @@ def admin_delete_offer(request, offer_id):
 
     messages.success(request, "Offer deleted successfully.")
     return redirect('admin_offer_list')
-
-
-

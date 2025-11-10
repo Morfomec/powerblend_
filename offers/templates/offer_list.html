@@ -465,11 +465,11 @@
 var dynamicModal = document.getElementById('dynamicConfirmModal');
 
 dynamicModal.addEventListener('show.bs.modal', function (event) {
-    var button = event.relatedTarget; // button that triggered the modal
-    var type = button.getAttribute('data-type'); // 'product' or 'user'
+    var button = event.relatedTarget; 
+    var type = button.getAttribute('data-type');
     var id = button.getAttribute('data-id');
     var name = button.getAttribute('data-name');
-    var action = button.getAttribute('data-action'); // optional for users
+    var action = button.getAttribute('data-action');
 
     // Modal elements
     var title = document.getElementById('dynamicModalTitle');
@@ -481,10 +481,10 @@ dynamicModal.addEventListener('show.bs.modal', function (event) {
 
     if (type === 'product') {
         message.textContent = 'Are you sure you want to delete "' + name + '"?';
-        form.action = '/products/' + id + '/delete/'; // matches your URLconf
+        form.action = '/products/' + id + '/delete/';
     } else if (type === 'user') {
         message.textContent = 'Are you sure you want to change status of "' + name + '"?';
-        form.action = '/users/' + id + '/toggle-status/'; // matches your user view
+        form.action = '/users/' + id + '/toggle-status/';
     }
 });
 </script>
