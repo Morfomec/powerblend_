@@ -28,81 +28,6 @@ def generate_otp():
     return str(random.randint(100000, 999999))
 
 
-
-# def register_view(request):
-#     """
-#     Handle user registration with optional referrer code.
-#     New users trigger wallet reward for referrer if code is valid.
-#     """
-#     if request.method == "POST":
-#         form = RegistrationForm(request.POST)
-
-#         if form.is_valid():
-
-#             ref_code = form.cleaned_data.get('referrer_code', '').strip().upper()
-            
-#             referrer_ref = None
-
-#             if ref_code:
-#                 try:
-#                     referrer_ref = UserReferral.objects.get(referral_code=ref_code)
-#                 except UserReferral.DoesNotExist:
-#                     messages.error(request, "Invalid referral code. Please try again.")
-#                     return render(request, "registration.html", {"form" : form})
-
-
-#             # Step 1: Create and save new user (inactive until verified)
-#             user = form.save(commit=False)
-#             user.is_active = False
-#             user.is_verified = False
-#             user.save()
-
-#             # Step 2: Create referral record for new user
-#             referral_obj, _ = UserReferral.objects.get_or_create(user=user)
-
-#             # Step 3: Link new user to the referrer (if valid)
-#             if referrer_ref:
-#                 referral_obj.referred_by = referrer_ref
-#                 referral_obj.save()  
-
-#                 messages.success(
-#                     request,
-#                     f"Referral applied! {referrer_ref.user.full_name} will earn ₹500 after your registration."
-#                 )
-
-#             # Step 4: Generate OTP for email verification
-#             otp = generate_otp()
-#             user.email_otp = otp
-#             user.otp_created_at = timezone.now()
-#             user.save()
-
-#             # Step 5: Send OTP email
-#             send_mail(
-#                 subject="Email Verification OTP",
-#                 message=f"Hi {user.full_name},\n\nYour OTP is: {otp}",
-#                 from_email="muhammedshifil@gmail.com",
-#                 recipient_list=[user.email],
-#             )
-
-#             # Step 6: Store user_id in session for OTP verification
-#             request.session["user_id"] = user.id
-
-#             messages.success(
-#                 request,
-#                 "Registration successful! An OTP has been sent to your email. Verify your account within 5 minutes."
-#             )
-#             return redirect("verify_otp")
-
-#         else:
-#             messages.error(request, "Please correct the errors below.")
-#             return render(request, "registration.html", {"form": form})
-
-#     else:
-#         form = RegistrationForm()
-
-#     return render(request, "registration.html", {"form": form})
-
-
 def register_view(request):
     """
     Handle user registration with optional referrer code.
@@ -189,11 +114,6 @@ def login_view(request):
     return render(request, "login.html")
 
 
-# @never_cache
-# @login_required(login_url='login')
-# def home_view(request):
-#     return render(request, "home.html")
-
 
 def logout_view(request):
     logout(request)
@@ -213,65 +133,6 @@ class CustomPasswordChangeView(PasswordChangeView):
     def form_valid(self, form):
         messages.success(self.request, "Your password was successfully updated!")
         return super().form_valid(form)
-
-
-# @never_cache
-# def verify_otp_view(request):
-#     user_id = request.session.get("user_id")
-#     if not user_id:
-#         messages.error(request, "Session expired. Please register again.")
-#         return redirect("register")
-
-#     try:
-#         user = CustomUser.objects.get(id=user_id)
-#     except CustomUser.DoesNotExist:
-#         messages.error(request, "User not found. Please register first.")
-#         return redirect("register")
-
-#     if request.method == "POST":
-#         otp_input = request.POST.get("otp")
-
-#         # to check otp is expired or not
-#         if not user.otp_created_at or (
-#             user.otp_created_at + timedelta(minutes=5) < timezone.now()
-#         ):
-#             messages.error(request, "OTP has expired. Please request a new one.")
-#             return redirect("verify_otp")
-
-#         if otp_input == user.email_otp:
-#             user.is_active = True
-#             user.is_verified = True
-#             user.email_otp = ""
-#             user.otp_created_at = None
-#             user.save()
-
-
-#             try:
-#                 referral = UserReferral.objects.get(user=user)
-#                 if referral.referred_by:
-#                     referrer_user = referral.referred_by.user
-#                     wallet, _ = Wallet.objects.get_or_create(user=referrer_user)
-#                     wallet.credit(Decimal('500.00'))
-#                     referral.reward_given = True
-#                     referral.save()
-#                     messages.success(request, f"₹500 credited to {referrer_user.full_name}'s wallet for referring you!")
-#             except UserReferral.DoesNotExist:
-#                 pass        
-
-#             del request.session["user_id"]
-
-#             messages.success(
-#                 request, "Email verified successfully! You can now log in."
-#             )
-#             return redirect("login")
-#         else:
-#             messages.error(
-#                 request, "Invalid OTP. Please check your email and try again."
-#             )
-#             return redirect("verify_otp")
-
-#     return render(request, "verify_otp.html")
-
 
 
 @never_cache

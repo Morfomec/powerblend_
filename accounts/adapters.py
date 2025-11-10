@@ -59,49 +59,6 @@ class CustomSocialAccountAdapter(DefaultSocialAccountAdapter):
             return False
         return True
 
-    # def pre_social_login(self, request, sociallogin):
-    #     """
-    #     Check for duplicate or unregistered accounts and show proper messages
-    #     """
-    #     email = sociallogin.account.extra_data.get('email')
-    #     User = get_user_model()
-    #     user_exists = User.objects.filter(email=email).exists()
-
-    #     # Determine the view type
-    #     view_name = request.resolver_match.view_name if request.resolver_match else ''
-
-    #     # Trying to register an existing account
-    #     if view_name == 'register' and user_exists:
-    #         messages.error(request, "This account is already registered. Please login instead.")
-    #         return redirect('register')
-
-    #     # Trying to login with an unregistered account
-    #     elif view_name == 'login' and not user_exists:
-    #         messages.error(request, "This account is not registered. Please sign up first.")
-    #         return redirect('login')
-
-    # def pre_social_login(self, request, sociallogin):
-    #     """Prevent auto-signup and handle login/register cases"""
-    #     email = sociallogin.account.extra_data.get('email')
-    #     User = get_user_model()
-
-    #     if not email:
-    #         messages.error(request, "Google did not return an email.")
-    #         raise ImmediateHttpResponse(redirect("login"))
-
-    #     user_exists = User.objects.filter(email=email).exists()
-
-    #     # If the user already exists → connect and log in
-    #     if user_exists:
-    #         existing_user = User.objects.get(email=email)
-    #         sociallogin.connect(request, existing_user)
-    #         return  
-
-    #     # If the user does not exist → redirect to register
-    #     messages.error(request, "This Google account is not registered. Please sign up first.")
-    #     raise ImmediateHttpResponse(redirect("register"))
-
-
 
 def pre_social_login(self, request, sociallogin):
 
