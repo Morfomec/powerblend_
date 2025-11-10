@@ -658,7 +658,7 @@
                     <div class="transaction-amount {% if transaction.transaction_type == 'credit' %}credit{% else %}debit{% endif %}">
                         {% if transaction.transaction_type == 'credit' %}+{% else %}-{% endif %}₹{{ transaction.amount }}
                     </div>
-                    <!-- <span class="transaction-status {{ transaction.status }}">{{ transaction.status }}</span> -->
+                   
                 </div>
             </div>
             {% endfor %}
