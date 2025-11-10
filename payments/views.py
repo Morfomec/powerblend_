@@ -207,7 +207,7 @@ def checkout_view(request):
 
     # ensure payment_method posted
     if not (request.method == 'POST' and 'payment_method' in request.POST):
-        print(f"✅ Payment method POST received: {request.POST.get('payment_method')}")
+        
 
         messages.error(request, "No payment method selected.")
         return redirect('checkout')
@@ -312,7 +312,7 @@ def checkout_view(request):
     if payment_method == 'wallet':
         try:
             with transaction.atomic():
-                print("💳 Wallet payment initiated...")
+                
                 # Debit wallet first (this is your wallet.debit method)
                 wallet.debit(total)  # assuming this saves and raises on failure
 
@@ -348,7 +348,7 @@ def checkout_view(request):
                     request.session.pop('applied_coupon', None)
                     request.session.modified=True
 
-                print(f"✅ Order created with ID: {order.id}")
+                
 
                 # create items and decrement stock with select_for_update
                 for item in basket_items:
@@ -378,7 +378,7 @@ def checkout_view(request):
             return redirect('order_success', order_id=order.id)
 
         except Exception as e:
-            print("❌ Wallet payment failed:", str(e))
+            
             messages.error(request, f"Wallet payment failed: {str(e)}")
             return redirect('checkout')
 
@@ -584,6 +584,6 @@ def paymenthandler(request):
         return redirect('order_success', order_id=order.id)
 
     except Exception as e:
-        print("Payment handler error:", e)
+        
         messages.error(request, "Something went wrong while processing your payment.")
         return render(request, 'order_failure.html')

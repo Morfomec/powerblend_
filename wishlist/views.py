@@ -24,7 +24,7 @@ class WishlistAddView(LoginRequiredMixin, View):
             wishlist=wishlist, variant=variant)
 
         discount_info = get_discount_info_for_variant(variant)
-        print("Dicount info:", discount_info)
+       
 
         if created:
             messages.success(

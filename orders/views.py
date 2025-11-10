@@ -184,19 +184,11 @@ def cancel_order(request, order_id):
         messages.error(request, "This oder can't be cancelled at this stage.")
         return redirect('order_details', order_id=order.id)
 
-    # print("Order status:", order.status)
-
-    print("Order:", order.id)
-    print("Order status:", order.status)
-    print("Payment method:", order.payment_method)
-    print(
-        "Refund condition met?",
-        order.payment_method.lower() in [
-            'razorpay',
-            'wallet'])
+  
+  
 
     if request.method == 'POST':
-        print("POST data:", request.POST)
+        
         form = CancelOrderForm(request.POST)
         if form.is_valid():
             reason = form.cleaned_data.get('reason')

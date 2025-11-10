@@ -41,10 +41,10 @@ urlpatterns = [
     path("wallet/", include("wallet.urls")),
 
     # # Test error pages (remove in production)
-    path('test-400/', lambda r: views.handler400(r)),
-    path('test-403/', lambda r: views.handler403(r)),
-    path('test-404/', lambda r: views.handler404(r)),
-    path('test-500/', lambda r: views.handler500(r)),
+    # path('test-400/', lambda r: views.handler400(r)),
+    # path('test-403/', lambda r: views.handler403(r)),
+    # path('test-404/', lambda r: views.handler404(r)),
+    # path('test-500/', lambda r: views.handler500(r)),
 
 
 ]

@@ -92,28 +92,6 @@ class ProductVariant(models.Model):
     is_listed = models.BooleanField(default=True)
     max_quantity_per_order = models.PositiveIntegerField(default=10)
     
-
-    # def clean(self):
-    # # Skip validation if using F() expressions (database will handle it)
-    #     if isinstance(self.stock, F):
-    #         return
-
-    #     # Only check when actual integer value is known
-    #     if self.stock is not None and self.stock < 0:
-    #         raise ValidationError({"stock": "Stock cannot be negative"})
-
-    # def save(self, *args, **kwargs):
-    #     self.full_clean()  # calls clean()
-    #     super().save(*args, **kwargs)
-    
-    # @property
-    # def original_price(self):
-    #     return self.price + 950
-
-    # @property
-    # def save_price(self):
-    #     return self.original_price - self.price
-
     from offers.models import Offer
 
 
@@ -121,12 +99,6 @@ class ProductVariant(models.Model):
     def active_offer(self):
         return get_discount_info_for_variant(self)
 
-    # @property
-    # def discounted_price(self):
-    #     if self.active_offer:
-    #         return self.active_offer.discount_amount(self.price)
-    #     return self.price
-    
 
     @property
     def discounted_price(self):
@@ -150,18 +122,7 @@ class ProductVariant(models.Model):
             return offer['discount_percent']
         return 0
 
-    # @property
-    # def savings(self):
-    #     if self.active_offer:
-    #         return self.active_offer.savings(self.price)
-    #     return 0
 
-    
-    # @property
-    # def discount_percentage(self):
-    #     if self.original_price > 0:
-    #         return round(((self.original_price - self.price)/ self.original_price) * 100, 2)
-    #     return 0
 
     def __str__(self):
         details = []

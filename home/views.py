@@ -401,7 +401,7 @@ def detail_product(request, id):
         # 'weight': selected_variant.weight,
         # 'flavor': selected_variant.flavor,
     }
-    print("Selected variant info:", selected_variant_info)
+
     return render(request, "product_detail.html", context)
 
 

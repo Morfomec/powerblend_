@@ -146,7 +146,6 @@ def add_product(request):
         
         except Exception as e:
             messages.error(request, f"An error occurred: {e}")
-            print("Error while saving product:", e)
             categories = Category.objects.all()
             context = {
                 'form': {
@@ -176,31 +175,6 @@ def add_product(request):
 
 
 
-# def add_product(request):
-
-#     current_page = request.GET.get('page', '1')
-
-#     if request.method == 'POST':
-#         form = ProductForm(request.POST, request.FILES)
-#         if form.is_valid():
-#             product = form.save(commit=False)
-#             product.save()
-#             for img in request.FILES.getlist('images'):
-#                 ProductImage.objects.create(product=product, image=img)
-
-#             messages.success(request, f"Product '{product.name}' added successfully!")
-
-#             return redirect(f"{reverse('admin_products')}?page={current_page}")
-#         else: 
-#             messages.error(request, "Please fix the errors below.")
-#     else:
-#         form = ProductForm()
-    
-#     context = {
-#         'form':form,
-#         'current_page' : current_page,
-#     }
-#     return render(request, 'add_product.html', context)
 
 def add_variants(request, product_id):
     """
@@ -327,53 +301,7 @@ def edit_variant(request, variant_id):
 
 
 
-# def edit_variant(request, variant_id):
-#     """
-#     Handle get and post reequest for editing an existing product variant.
-#     """
 
-#     variant = get_object_or_404(ProductVariant,id=variant_id)
-#     product = variant.product
-
-#     current_page = request.GET.get('page', '1')
-
-#     if request.method == 'POST':
-#         form = ProductVariantForm(request.POST, instance=variant)
-#         if form.is_valid():
-                        
-#             flavor = form.cleaned_data['flavor']
-#             weight = form.cleaned_data['weight']
-
-#             if(flavor != variant.flavor) or (weight != variant.weight):
-#                 exisiting_variant = ProductVariant.objects.filter(product=product, flavor=flavor, weight=weight).exclude(id=variant.id)
-            
-#                 if exisiting_variant.exists():
-#                     messages.error(request, "This variant already exists!")
-#                     return render(request, 'add_variants.html', {
-#                             'product': product,
-#                             'variant': variant,
-#                             'form': form,
-#                             'mode': "edit",
-#                         })
-            
-#             updated_variant = form.save(commit=False)
-#             updated_variant.product= product
-#             updated_variant.save()
-#             messages.success(request, f"Variant updated successfully for {product.name}")
-#             # return redirect("add_variants", product_id=product.id)
-#             return redirect(f"{reverse('add_variants', args=[product.id])}?page={current_page}")
-       
-#     else:
-#         form = ProductVariantForm(instance=variant)
-
-#     context = {
-#         'product' : product,
-#         'variant' : variant,
-#         'form' : form,
-#         'mode' : "edit",
-#         'active_page' : 'edit_variant',
-#     }
-#     return render(request, 'add_variants.html', context)
 
 def edit_product(request, product_id):
     """
@@ -390,7 +318,7 @@ def edit_product(request, product_id):
         uploaded_images = request.FILES.getlist('images')
 
         if form.is_valid():
-            product = form.save() #it updates the products
+            product = form.save()
 
             # to handle image uploads (keeps old one and add new)
             if uploaded_images:
@@ -497,8 +425,6 @@ def toggle_variant_listing(request, variant_id):
     variant.is_listed = not variant.is_listed
     variant.save()
 
-    # return HttpResponse(f"Success! New status: {variant.is_listed}", status=200)
-
     status = "listed" if variant.is_listed else "unlisted"
     messages.success(request, f"Variant '{variant.flavor}'-'{variant.weight}' is now {status}.")
     return redirect('add_variants', product_id=variant.product.id)
@@ -537,30 +463,6 @@ def delete_product_image(request, image_id):
         return redirect(reverse('edit_product', kwargs={'product_id': product.id}))
     return redirect(reverse('edit_product', kwargs={'product_id': product.id}))
 
-
-
-
-# def delete_product(request, product_id):
-#     """
-#     Handle deleting an exisiting product
-#     """
-
-#     product = get_object_or_404(Product, id=product_id)
-#     current_page = request.GET.get('page', '1')
-
-#     if request.method == 'POST':
-
-#         product_name = product.name
-#         product.delete()
-#         messages.success(request, f"Product '{product_name}' and its variants has been deleted successfully.")
-
-#         return redirect(f"{reverse('admin_products')}?page={current_page}")
-#     context = {
-#         "product" : product,
-#         # "product_name" : product_name,
-#     }
-#     # return render(request, "confirm_delete.html", context)
-#     return confirm_delete_product(request, model=Product, object_id=product_id, object_name="product", redirect_url_name="admin_products")
 
 def delete_product(request, product_id):
     return confirm_delete(
@@ -601,36 +503,3 @@ def confirm_delete(request, model, object_id, object_name, redirect_url_name, re
 
 
 
-
-# def delete_variant(request, variant_id):
-#     """
-#     Handle deleting an exisiting variant
-#     """
-
-#     variant = get_object_or_404(ProductVariant, id=variant_id)
-#     product_id = variant.product.id
-    
-#     if request.method == 'POST':
-#         variant_name = str(variant)
-#         print("before")
-#         variant.delete()
-#         print("after delete")
-#         messages.success(request, f"Variant '{variant_name}' has deleted successfully.")
-#         return redirect('add_variants', product_id=product_id)
-    
-#     return render(request, 'confirm_delete.html', {'variant':variant})
-
-
-
-# def delete_product(request, product_id):
-#     product = get_object_or_404(Product, id=product_id)
-#     current_page = request.GET.get('page', '1')
-
-#     if request.method == 'POST':
-#         product_name = product.name
-#         product.delete()
-#         messages.success(request, f"Product '{product_name}' was deleted successfully.")
-#         return redirect(f"{reverse('admin_products')}?page={current_page}")
-
-#     messages.error(request, "Invalid request for product deletion.")
-#     return redirect('edit_product', product_id=product_id)

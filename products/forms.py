@@ -9,15 +9,7 @@ class ProductForm(forms.ModelForm):
     
 
 
-# class ProductImageForm(forms.ModelForm):
-#     class Meta:
-#         model = ProductImage
-#         fields = ["image", "caption", "is_primary"]
-#         widgets = {
-#             "image": forms.ClearableFileInput(attrs={"class": "form-control"}),
-#             "caption": forms.TextInput(attrs={"class": "form-control", "placeholder": "Image caption"}),
-#             "is_primary": forms.CheckboxInput(attrs={"class": "form-check-input"}),
-#         }
+
 
 class ProductVariantForm(forms.ModelForm):
     flavor = forms.ModelChoiceField(

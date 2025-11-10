@@ -29,23 +29,18 @@ def get_best_offer_for_product(product):
     all_offers = list(product_offers) + list(category_offers)
 
     if not all_offers:
-        print(f"No offers found for product {product.name}")
+        
         return None
 
     # Ensure discount_percent is valid
     valid_offers = [o for o in all_offers if o.discount_percent is not None]
 
     if not valid_offers:
-        print(f"No valid discount_percent for product {product.name}")
+       
         return None
 
     best_offer = max(valid_offers, key=lambda o: o.discount_percent)
-    print(
-        f"Best offer for {
-            product.name}: {
-            best_offer.name} ({
-                best_offer.discount_percent}%)"
-    )
+  
     return best_offer
 
 

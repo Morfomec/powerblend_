@@ -98,5 +98,5 @@ class UserReferral(models.Model):
         if not self.referral_code:
             self.referral_code = generate_referral_code()
             
-            print(f"Generated referral code for {self.user.email}: {self.referral_code}")  # 👈 add this line
+            
         super().save(*args, **kwargs)
