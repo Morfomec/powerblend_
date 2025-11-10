@@ -222,7 +222,7 @@ def edit_category(request, category_id):
         "is_active":{"value":category.is_active},
         "image":{"value":None},
       },
-      "category":category, #this is what pre-fills the form fields
+      "category":category,
       "parent_categories": parent_categories,
       "mode":"edit",
       "active_page": "edit_category"
@@ -243,28 +243,6 @@ def toggle_category_listing(request, category_id):
   return redirect('admin_category')
 
 
-# def delete_category(request, category_id):
-#   """
-#   Handle deleting an exisiting category
-#   """
-
-#   category = get_object_or_404(Category, id=category_id)
-#   current_page = request.GET.get('page', '1')
-
-#   if request.method == 'POST':
-
-#     category_name = category.name
-#     category.delete()
-#     messages.success(request, f"Category '{category_name}' has deleted successfully.")
-    
-#     return redirect(f"{reverse('admin_category')}?page={current_page}")
-
-#   context = {
-#       "category": category,
-#       "category_name": category.name,
-#   }
-#   return render(request, "confirm_delete.html", context)
-
 
 def delete_category(request, category_id):
     """
@@ -280,9 +258,9 @@ def delete_category(request, category_id):
         return redirect(f"{reverse('admin_category')}?page={current_page}")
 
     context = {
-        "object_name": "category",  # for {{ object_name }}
-        "object_display": category.name,  # for {{ object_display }}
-        "confirm_url": reverse("delete_category", args=[category.id]),  # for the <form action="">
-        "cancel_url": f"{reverse('admin_category')}?page={current_page}",  # for the cancel button
+        "object_name": "category",
+        "object_display": category.name,  
+        "confirm_url": reverse("delete_category", args=[category.id]),  
+        "cancel_url": f"{reverse('admin_category')}?page={current_page}",  
     }
     return render(request, "confirm_delete.html", context)
