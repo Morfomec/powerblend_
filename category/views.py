@@ -72,9 +72,12 @@ def add_category(request):
     is_active = request.POST.get('is_active') in ["on" , "true", "1", True]
 
 
-    if not name and not slug:
-      slug = slugify(name)
-      messages.error(request, "Category name and slug are required fields.")
+    if not name:
+      message.error(request, "Category name is required.")
+      return redirect('add_category')
+
+    if not slug:
+      slug=slugify(name)
 
       #repopulating the form with existing data to avoid losing it
 
@@ -121,7 +124,7 @@ def add_category(request):
       #creating and saving name and slug
       new_category = Category(
         name=name,
-        # slug=slug,
+        slug=slug,
         description=description,
         parent=parent,
         image=image,
