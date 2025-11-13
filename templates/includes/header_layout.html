@@ -306,9 +306,9 @@
                         <i class="far fa-heart me-2"></i>Wishlist
                     </a></li>
                     <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="{% url 'admin_login' %}">
+                    <!-- <li><a class="dropdown-item" href="{% url 'admin_login' %}">
                         <i class="fas fa-cog me-2"></i>Admin
-                    </a></li>
+                    </a></li> -->
                     <li><a class="dropdown-item text-danger" href="{% url 'logout' %}">
                         <i class="fas fa-sign-out-alt me-2"></i>Logout
                     </a></li>
@@ -325,7 +325,7 @@
             <div class="auth-buttons d-flex align-items-center">
                 <a href="{% url 'login' %}" class="auth-btn auth-btn-login">Login</a>
                 <a href="{% url 'register' %}" class="auth-btn auth-btn-register">Register</a>
-                <a href="{% url 'admin_login' %}" class="auth-btn auth-btn-admin">Admin</a>
+                <!-- <a href="{% url 'admin_login' %}" class="auth-btn auth-btn-admin">Admin</a> -->
             </div>
         {% endif %}
 
