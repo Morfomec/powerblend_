@@ -896,10 +896,11 @@
     </div>
 
 
-
-    <div class="promo-banner">
-        <strong>Up to 40% OFF Everything + Extra 10% OFF above ₹7,000 | Extra 15% OFF above ₹10,000 | Discount Auto - Applies at checkout</strong>
-    </div>
+    {% if coupon_data %}
+        <div class="promo-banner">
+            <strong>POWERBLEND SALE | Extra ₹{{ coupon_data.discount_amount }} OFF above ₹{{ coupon_data.minimum_amount }} | Code : {{ coupon_data.code }} | Discount - Applies at checkout</strong>
+        </div>
+    {% endif %}
 
     <!-- Filters Form -->
     <form method="get" id="filterForm">
@@ -958,9 +959,14 @@
     {% if products %}
     <!-- Impact Whey Promo -->
     <div class="impact-promo">
-        <h3>OUR BEST SELLING IMPACT WHEY PROTEIN FOR <span style="color: #ff6b35;">FREE</span></h3>
-        <p>TRY FOR <span style="color: #ff6b35;">₹500</span> & GET A <span style="color: #ff6b35;">₹500</span> VOUCHER</p>
-        <button class="btn btn-primary">TRY NOW</button>
+        <h3>CHECK OUT OUR NEW <span style="color: #ff6b35;">COOKIES & CREAM</span> WHEY PROTEIN</h3>
+        <p><span style="color: #ff6b35;">20G</span> OF<span style="color: #ff6b35;"> PROTEIN</span> PER SCOOP</p>
+        
+        {% if new_product_id %}
+            <a href="{% url 'detail_product' new_product_id %}">
+                <button class="btn btn-primary">TRY NOW</button>
+            </a>
+        {% endif %}
         <div class="position-absolute top-0 end-0 p-3">
             <i class="fas fa-heart text-white me-2"></i>
             <i class="fas fa-share text-white"></i>

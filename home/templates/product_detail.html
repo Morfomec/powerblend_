@@ -1046,14 +1046,14 @@
 
                 <!-- Product Details -->
                 <div class="col-lg-6 col-md-12">
-                    <div class="rating-stars">
+                    <!-- <div class="rating-stars">
                         <i class="fas fa-star"></i>
                         <i class="fas fa-star"></i>
                         <i class="fas fa-star"></i>
                         <i class="fas fa-star"></i>
                         <i class="fas fa-star-half-alt"></i>
                         <span class="rating-count">4,267</span>
-                    </div>
+                    </div> -->
                     
 
                     <h1 class="product-title">{{ product.name }}</h1>
@@ -1086,7 +1086,11 @@
                     {% endif %}
 
                     <div class="promo-banner">
-                        <strong>PROTEIN SALE</strong> | GET EXTRA 15% OFF ON CREATINE | Use code: <strong>CREATINE15</strong>
+                        {% if coupon_data %}
+                            <strong>POWERBLEND COUPON</strong> | GET EXTRA ₹{{ coupon_data.discount_amount }} OFF (Min: ₹{{ coupon_data.minimum_amount }}) | Use Code: <strong>{{ coupon_data.code }}</strong>
+                        {% else %}
+                            <strong>POWERBLEND SALE</strong> | GET EXTRA OFF SOON ..
+                        {% endif %}
                     </div>
 
                     <!-- Flavor Selector (Buttons) -->

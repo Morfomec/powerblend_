@@ -547,6 +547,7 @@ def admin_order_detail(request, id):
 
     context = {
         'order': order,
+        'form' : form,
         'order_items': order_items,
         'actual_amount': actual_amount,
         'total_amount': total_amount,

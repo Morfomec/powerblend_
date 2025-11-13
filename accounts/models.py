@@ -2,7 +2,23 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.utils.crypto import get_random_string
+from django.core.exceptions import ValidationError
+import re
+
 # Create your models here.
+
+
+def validate_full_name(value):
+    """
+    to allow only letters, spaces , hyphens
+    """
+
+    if not re.match(r'^[A-Za-z\s-]+$', value):
+        raise ValidationError("Full name may contain only letters, spaces, and hyphens.")
+    
+    # Block repeated special characters (---, ///, ===, ..., etc.)
+    if re.search(r'([-]{2,}|/{2,}|={2,}|\.{2,})', value):
+        raise ValidationError("Full name cannot contain repeated special characters.")
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, full_name, password=None, **kwargs):
@@ -31,7 +47,10 @@ class CustomUserManager(BaseUserManager):
         return self.create_user(email=email, full_name=full_name, password=password, **kwargs)
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
-    full_name = models.CharField(max_length=255)
+    full_name = models.CharField(
+        max_length=255,
+        validators=[validate_full_name]
+    )
     email = models.EmailField(unique=True)
 
     profile_image = models.ImageField(upload_to='user_profile_images/', blank=True, null=True)

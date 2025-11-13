@@ -372,7 +372,7 @@
     }
 
     .logo::before {
-        content: "M";
+        /* content: "P"; */
         background: var(--primary-solid);
         color: white;
         width: 30px;

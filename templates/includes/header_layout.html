@@ -13,7 +13,7 @@
     .navbar-brand .logo {
         color: var(--primary-teal);
         font-weight: bold;
-        font-size: 24px;
+        font-size: 30px;
         margin-left: 150px;
         letter-spacing: 1px;
     }
@@ -316,8 +316,9 @@
             </div>
             
             <!-- Wishlist Icon -->
-            <a href="{% url 'wishlist_view' %}" class="icon-btn">
+            <a href="{% url 'wishlist_view' %}" class="icon-btn cart-btn">
                 <i class="far fa-heart"></i>
+                <span class="cart-badge">{{ wishlist_count }}</span>
             </a>
 
         {% else %}
@@ -332,7 +333,7 @@
         <!-- Cart Icon -->
         <a href="{% url 'basket_view' %}" class="icon-btn cart-btn">
             <i class="fas fa-shopping-basket"></i>
-            <span class="cart-badge">0</span>
+            <span class="cart-badge">{{ basket_count }}</span>
         </a>
     </div>
     

@@ -16,7 +16,8 @@ from decimal import Decimal, InvalidOperation
 from django.db.models.functions import Coalesce
 from django.templatetags.static import static
 from django.utils import timezone
-from admin_app.models import Banner
+from admin_app.models import Banner, Coupon
+from django.utils import timezone
 # Create your views here.
 
 
@@ -80,6 +81,9 @@ def home_view(request):
         
     }
 
+
+    
+
     for product in best_selling_products:
         cat_name = product.category.name.upper()
         relative_path = promo_images.get(
@@ -98,6 +102,7 @@ def home_view(request):
         'best_selling_products': best_selling_products,
         'promo_images': promo_images,
         'active_banners': active_banners,
+        # 'coupon_data': coupon_data,
     }
     return render(request, "home.html", context)
 
@@ -229,6 +234,33 @@ def list_products(request):
         else:
             product.display_variant = None
 
+    today = timezone.now().date() 
+    active_coupon = Coupon.objects.filter(
+        is_active=True,
+        valid_from__lte=today,
+        valid_to__gte=today,
+    ).order_by('-discount_amount').first()
+
+    coupon_data=None
+
+    if active_coupon:
+        coupon_data = {
+            'code' : active_coupon.code,
+            'minimum_amount' : active_coupon.minimum_amount,
+            'discount_amount' : active_coupon.discount_amount,
+
+        }
+
+    new_variant = ProductVariant.objects.filter(
+        product__name__icontains='whey protein',
+        flavor__flavor__icontains="cookies & cream",
+        is_listed = True,
+        product__is_listed = True,
+        stock__gt=0,
+    ).select_related('product').first()
+    
+    new_product_id = new_variant.product.id if new_variant else None
+
     categories = Category.objects.all()
 
     context = {
@@ -240,6 +272,8 @@ def list_products(request):
         'min_price': min_price,
         'max_price': max_price,
         'sort_option': sort_option,
+        'coupon_data': coupon_data,
+        'new_product_id': new_product_id,
     }
     return render(request, "product_listing.html", context)
 
@@ -279,6 +313,23 @@ def detail_product(request, id):
 
         unique_weights = {}
         unique_flavors = {}
+
+        today = timezone.now().date() 
+        active_coupon = Coupon.objects.filter(
+            is_active=True,
+            valid_from__lte=today,
+            valid_to__gte=today,
+        ).order_by('-discount_amount').first()
+
+        coupon_data=None
+
+        if active_coupon:
+            coupon_data = {
+                'code' : active_coupon.code,
+                'minimum_amount' : active_coupon.minimum_amount,
+                'discount_amount' : active_coupon.discount_amount,
+
+            }
 
         for variant in variants:
             if variant.weight and variant.weight not in unique_weights:
@@ -404,6 +455,7 @@ def detail_product(request, id):
         "available_weights": available_weights if available_weights else unique_weights,
         "best_offer": best_offer,
         "wishlist_variant_ids": wishlist_variant_ids,
+        'coupon_data': coupon_data,
         # 'weight': selected_variant.weight,
         # 'flavor': selected_variant.flavor,
     }

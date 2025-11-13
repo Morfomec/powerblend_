@@ -559,13 +559,13 @@ def paymenthandler(request):
             order.items.update(status='confirmed')
 
             # Clear basket
-            # try:
-            #     # basket = request.user.basket
-            #     # basket.items.all().delete()
-            #     # basket.is_active = False
-            #     # basket.save()
-            # except Exception:
-            #     pass  # don't break success if basket cleanup fails
+            try:
+                basket = request.user.basket
+                basket.items.all().delete()
+                basket.is_active = False
+                basket.save()
+            except Exception:
+                pass  # don't break success if basket cleanup fails
 
             # Clear Razorpay snapshot from session
             request.session.pop('razorpay_checkout', None)
