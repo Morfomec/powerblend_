@@ -20,16 +20,25 @@ from admin_app.models import Banner
 # Create your views here.
 
 
+
 def home_view(request):
     """
     To view the products in the home page
     """
 
-    products = Product.objects.filter(
-        is_listed=True).prefetch_related("variants")
-    # variant = ProductVariant.objects.all()
-
     category_selected = request.GET.get('category')
+
+    # If category is selected, show filtered products (not random)
+    if category_selected:
+        products = Product.objects.filter(
+            is_listed=True,
+            category__name__iexact=category_selected
+        ).prefetch_related("variants")
+    else:
+        # Only show 4 random products when no category is selected
+        products = Product.objects.filter(
+            is_listed=True
+        ).prefetch_related("variants").order_by('?')[:4]
 
     best_selling_products = (
         Product.objects.filter(
@@ -42,9 +51,6 @@ def home_view(request):
                         'images',
                         'variants')[
                             :4])
-
-    if category_selected:
-        products = products.filter(category__name__iexact=category_selected)
 
     for product in products:
         product.best_offer = get_best_offer_for_product(product)
@@ -64,13 +70,14 @@ def home_view(request):
 
     categories = Category.objects.all()
 
-    category_pills = ['WHEY', 'ISOLATE', 'VITAMINS', 'CREATINE']
+    category_pills = ['WHEY PROTEIN', 'ISOLATE', 'VITAMINS', 'CREATINE']
 
     promo_images = {
         "WHEY": "images/promo/whey-promo.avif",
         "ISOLATE": "images/promo/isolate-promo.avif",
         "VITAMINS": "images/promo/vitamins-promo.avif",
         "CREATINE": "images/promo/creatine-promo.avif",
+        
     }
 
     for product in best_selling_products:
@@ -91,7 +98,6 @@ def home_view(request):
         'best_selling_products': best_selling_products,
         'promo_images': promo_images,
         'active_banners': active_banners,
-        #  'product_link': ['Whey', 'Isolate', 'Vitamins', 'Creatine'],
     }
     return render(request, "home.html", context)
 

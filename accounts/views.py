@@ -166,12 +166,12 @@ def verify_otp_view(request):
                     wallet.credit(Decimal('500.00'))
                     referral.reward_given = True
                     referral.save()
-                    messages.success(request,f"₹500 credited to {referral.referred_by.user.full_name}'s wallet for referring you!")
+                    messages.success(request,f"₹500 credited to {referral.referred_by.user.full_name}'s wallet for referring you!", extra_tags='referral_credit')
             except UserReferral.DoesNotExist:
                 pass
 
             del request.session["user_id"]
-            messages.success(request, "Email verified successfully! You can now log in.")
+            messages.success(request, "Email verified successfully! You can now log in.", extra_tags='email_verified')
             return redirect("login")
         else:
             messages.error(request, "Invalid OTP. Please try again.")

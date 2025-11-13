@@ -386,7 +386,7 @@
 
         <!-- Image Section -->
         <div class="image-section">
-            <img src="{% static 'user/images/MpAccountsImage.png' %}" alt="Powerblend Product">
+            <img src="{% static 'images/login_page_side_image.png' %}" alt="Powerblend Product">
         </div>
     </div>
 
@@ -402,7 +402,7 @@
         toastr.options = {
             "closeButton": true,
             "progressBar": true,
-            "positionClass": "toast-bottom-right",
+            "positionClass": "toast-top-left",
             "timeOut": "3000"
         };
 
@@ -435,38 +435,3 @@
     </script>  
 </body>
 </html>
-    <script>
-        toastr.options = {
-            "closeButton": true,
-            "progressBar": true,
-            "positionClass": "toast-bottom-right",
-            "timeOut": "3000"
-        };
-
-    {% if messages %}
-
-       {% for message in messages %}
-            toastr["{{ message.tags|default:'info' }}"]("{{ message|escapejs }}");
-        {% endfor %}
-    
-    {% endif %}
-
-    {% block scripts %}{% endblock %}
-    
-    let countdown = 300;
-    function startCountdown() {
-        const timerEl = document.getElementById("timer");
-        const interval = setInterval(() => {
-            let minutes = Math.floor(countdown / 60);
-            let seconds = countdown % 60;
-            timerEl.innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-            countdown--;
-            if (countdown < 0) {
-                clearInterval(interval);
-                timerEl.innerText = "00:00";
-                toastr.error("Your OTP has expired. Please request a new one.");
-            }
-        }, 1000);
-    }
-    window.onload = startCountdown;
-    </script>  

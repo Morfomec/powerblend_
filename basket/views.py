@@ -127,7 +127,8 @@ class BasketDetailView(LoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated:
-            basket= get_object_or_404(Basket, user=request.user)
+            # basket= get_object_or_404(Basket, user=request.user)
+            basket, created = Basket.objects.get_or_create(user=request.user)
             items = basket.items.select_related('variant', 'variant__product').all()
 
             for item in items:
