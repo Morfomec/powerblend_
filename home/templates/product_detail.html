@@ -125,9 +125,12 @@
         }
 
         .rating-stars {
-            color: var(--primary-teal);
-            font-size: 16px;
+            color: #ffc107;
+            font-size: 24px;
             margin-bottom: 10px;
+            display: flex;
+            justify-content: flex-start;
+            gap: 5px;
         }
 
         .rating-count {
@@ -977,6 +980,7 @@
 {% load static %}
 
 
+{% load review_filters %}
 
 
     <!-- Modern Breadcrumb Section -->
@@ -1046,15 +1050,21 @@
 
                 <!-- Product Details -->
                 <div class="col-lg-6 col-md-12">
-                    <!-- <div class="rating-stars">
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star-half-alt"></i>
-                        <span class="rating-count">4,267</span>
-                    </div> -->
-                    
+                    <div class="rating-stars" style="display:flex; align-items:center; justify-content:flex-start; gap:6px;">
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= avg_rating %}
+                                <i class="fas fa-star"></i>
+                            {% elif forloop.counter <= avg_rating|add:"0.5" %}
+                                <i class="fas fa-star-half-alt"></i>
+                            {% else %}
+                                <i class="far fa-star"></i>
+                            {% endif %}
+                        {% endfor %}
+
+                        <span class="rating-count" style="margin-left:5px; font-weight:600;">
+                            {{ total_reviews|default:0 }}
+                        </span>
+                    </div>
 
                     <h1 class="product-title">{{ product.name }}</h1>
                     <p class="product-subtitle">{{ product.description }}</p>
@@ -1265,70 +1275,67 @@
  
 
         <!-- Reviews Section -->
-        <div class="reviews-section">
-            <h2 class="section-title" style="color: var(--primary-teal);">Customer Reviews</h2>
-            
+        {% include 'includes/review_section.html' %}
+
+        <!-- <div class="reviews-section">
+            <h2 class="section-title">Customer Reviews</h2>
+
             <div class="review-summary">
-                <div class="review-score">4.5</div>
+                <div class="review-score">{{ avg_rating|floatformat:1 }}</div>
+
                 <div class="rating-stars mb-2">
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star-half-alt"></i>
+                    {% for i in "12345" %}
+                        {% if forloop.counter <= avg_rating %}
+                            <i class="fas fa-star"></i>
+                        {% elif forloop.counter <= avg_rating|add:"0.5" %}
+                            <i class="fas fa-star-half-alt"></i>
+                        {% else %}
+                            <i class="far fa-star"></i>
+                        {% endif %}
+                    {% endfor %}
                 </div>
-                <p>Based on 4,267 reviews</p>
+
+                <p>Based on {{ total_reviews }} reviews</p>
             </div>
-            
-            <div class="review-item">
-                <div class="reviewer-name">Rajesh K.</div>
-                <div class="review-date">Verified Purchase • 2 weeks ago</div>
-                <div class="rating-stars mb-2">
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
+
+            <hr>
+
+            {% for r in reviews %}
+                <div class="review-item">
+                    <div class="reviewer-name">{{ r.user.full_name }}</div>
+                    <div class="review-date">{{ r.created_at|timesince }} ago</div>
+
+                    <div class="rating-stars mb-2">
+                        {% for star in "12345" %}
+                            {% if forloop.counter <= r.rating %}
+                                <i class="fas fa-star"></i>
+                            {% else %}
+                                <i class="far fa-star"></i>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+
+                    <div class="review-text">
+                        "{{ r.comment }}"
+                    </div>
                 </div>
-                <div class="review-text">
-                    "Excellent quality creatine! I've been using this for 2 months now and have noticed significant improvements in my strength and endurance. Mixes well with water and has no taste. Highly recommended for anyone serious about their fitness goals."
-                </div>
-            </div>
-            
-            <div class="review-item">
-                <div class="reviewer-name">Priya S.</div>
-                <div class="review-date">Verified Purchase • 1 month ago</div>
-                <div class="rating-stars mb-2">
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                </div>
-                <div class="review-text">
-                    "Great value for money! The unflavoured version is perfect as it doesn't interfere with my protein shake taste. Fast delivery and excellent packaging. Will definitely order again."
-                </div>
-            </div>
-            
-            <div class="review-item">
-                <div class="reviewer-name">Arjun M.</div>
-                <div class="review-date">Verified Purchase • 3 weeks ago</div>
-                <div class="rating-stars mb-2">
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="far fa-star"></i>
-                </div>
-                <div class="review-text">
-                    "Good product overall. I've noticed improvements in my gym performance. Only minor complaint is that it takes a bit more stirring to dissolve completely, but that's not a big issue. Would recommend."
-                </div>
-            </div>
-            
-            <div class="text-center mt-4">
-                <button class="view-all-btn">View All Reviews</button>
-            </div>
-        </div>
+            {% empty %}
+                <p>No reviews yet — be the first!</p>
+            {% endfor %}
+
+            {% if purchased %}
+            <form method="POST" action="{% url 'submit_review' selected_variant.id %}">
+                {% csrf_token %}
+                {{ review_form.as_p }}
+                <button type="submit" class="view-all-btn">Submit</button>
+            </form>
+            {% else %}
+                <p class="text-muted">Only verified buyers can review.</p>
+            {% endif %}
+        </div> -->
+
+
+  
         {% if request.session.show_login_modal %}
         <script>
         document.addEventListener("DOMContentLoaded", function() {

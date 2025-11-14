@@ -17,7 +17,12 @@ from django.db.models.functions import Coalesce
 from django.templatetags.static import static
 from django.utils import timezone
 from admin_app.models import Banner, Coupon
-from django.utils import timezone
+from reviews.models import Review
+from reviews.forms import ReviewForm
+from orders.models import OrderItem
+from django.db.models import Avg
+
+# from django.utils import timezone
 # Create your views here.
 
 
@@ -443,6 +448,29 @@ def detail_product(request, id):
                         'variants')[
                             :4])
 
+    # review logic
+
+    selected_variant_reviews = Review.objects.filter(
+        product=single_product
+    ).select_related('user').order_by('-created_at')
+
+    avg_rating = selected_variant_reviews.aggregate(
+        Avg('rating')
+    )['rating__avg'] or 0
+
+    total_reviews = selected_variant_reviews.count()
+
+
+    purchased = False
+    if request.user.is_authenticated:
+        purchased = OrderItem.objects.filter(
+            order__user = request.user,
+            variant = selected_variant,
+            status = 'delivered',
+            is_cancelled = False,
+            is_returned = False,
+        ).exists()
+
     context = {
         "product": single_product,
         "variants": variants,
@@ -456,6 +484,11 @@ def detail_product(request, id):
         "best_offer": best_offer,
         "wishlist_variant_ids": wishlist_variant_ids,
         'coupon_data': coupon_data,
+        'reviews': selected_variant_reviews,
+        'avg_rating': avg_rating,
+        'total_reviews': total_reviews,
+        'purchased': purchased,
+        'review_form': ReviewForm()
         # 'weight': selected_variant.weight,
         # 'flavor': selected_variant.flavor,
     }

@@ -39,6 +39,7 @@ urlpatterns = [
     path("orders/", include("orders.urls")),
     path("offers/", include("offers.urls")),
     path("wallet/", include("wallet.urls")),
+    path("reviews/", include("reviews.urls")),
 
     # # Test error pages (remove in production)
     # path('test-400/', lambda r: views.handler400(r)),

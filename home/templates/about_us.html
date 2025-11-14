@@ -18,15 +18,15 @@
         }
 
         :root {
-            --primary-teal: rgb(0 57 66 / 1);
+            --primary-teal: #003942;
             --light-teal: #4a9b96;
+            --accent-gold: #ffc107;
             --dark-gray: #333;
             --off-white: #f8f9fa;
             --white: #ffffff;
             --text-dark: #2c3e50;
             --text-gray: #6c757d;
             --border-light: #e9ecef;
-            --accent-gold: #d4af37;
         }
 
         body {
@@ -225,7 +225,7 @@
 
         .story-highlight {
             background: var(--off-white);
-            border-left: 4px solid var(--primary-teal);
+            border-left: 4px solid var(--accent-gold);
             padding: 2rem;
             margin: 2rem 0;
         }
@@ -266,9 +266,170 @@
             color: var(--primary-teal);
         }
 
+        /* Founder Section */
+        .founder {
+            background: var(--off-white);
+            position: relative;
+        }
+
+        .founder::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent-gold), transparent);
+        }
+
+        .founder-content {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 5rem;
+            align-items: center;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .founder-image-wrapper {
+            position: relative;
+        }
+
+        .founder-image {
+            width: 100%;
+            aspect-ratio: 3/4;
+            border: 4px solid var(--primary-teal);
+            box-shadow: 0 20px 60px rgba(0, 57, 66, 0.2);
+            position: relative;
+            overflow: hidden;
+            background: var(--off-white);
+        }
+
+        .founder-image::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(0, 57, 66, 0.1), transparent 60%);
+            z-index: 1;
+        }
+
+        .founder-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .founder-image-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: var(--primary-teal);
+        }
+
+        .founder-accent {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border: 3px solid var(--accent-gold);
+            z-index: 2;
+        }
+
+        .founder-accent.top-left {
+            top: -15px;
+            left: -15px;
+            border-right: none;
+            border-bottom: none;
+        }
+
+        .founder-accent.bottom-right {
+            bottom: -15px;
+            right: -15px;
+            border-left: none;
+            border-top: none;
+        }
+
+        .founder-info {
+            padding: 2rem 0;
+        }
+
+        .founder-badge {
+            display: inline-block;
+            background: var(--accent-gold);
+            color: var(--primary-teal);
+            padding: 0.5rem 1.5rem;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 1.5rem;
+        }
+
+        .founder-name {
+            font-size: 3rem;
+            font-weight: 900;
+            color: var(--primary-teal);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: -1px;
+        }
+
+        .founder-title {
+            font-size: 1.3rem;
+            color: var(--accent-gold);
+            font-weight: 600;
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .founder-bio {
+            font-size: 1.1rem;
+            color: var(--text-gray);
+            line-height: 1.9;
+            margin-bottom: 1.5rem;
+        }
+
+        .founder-quote {
+            background: var(--white);
+            border-left: 4px solid var(--accent-gold);
+            padding: 2rem;
+            margin: 2rem 0;
+            position: relative;
+        }
+
+        .founder-quote::before {
+            content: '"';
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            font-size: 4rem;
+            color: var(--accent-gold);
+            opacity: 0.3;
+            font-family: Georgia, serif;
+        }
+
+        .founder-quote p {
+            color: var(--primary-teal);
+            font-size: 1.2rem;
+            font-weight: 600;
+            font-style: italic;
+            margin: 0;
+        }
+
+        .founder-signature {
+            font-family: 'Brush Script MT', cursive;
+            font-size: 2rem;
+            color: var(--primary-teal);
+            margin-top: 1rem;
+        }
+
         /* Mission Vision */
         .mission-vision {
-            background: var(--off-white);
+            background: var(--white);
         }
 
         .mv-grid {
@@ -279,11 +440,26 @@
         }
 
         .mv-card {
-            background: var(--white);
+            background: var(--off-white);
             padding: 3rem;
             border-top: 4px solid var(--primary-teal);
             box-shadow: 0 4px 20px rgba(0, 57, 66, 0.08);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mv-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 150px;
+            height: 150px;
+            background: var(--accent-gold);
+            opacity: 0.05;
+            border-radius: 50%;
+            transform: translate(50%, -50%);
         }
 
         .mv-card:hover {
@@ -300,7 +476,7 @@
         }
 
         .mv-card h3 i {
-            color: var(--light-teal);
+            color: var(--accent-gold);
             margin-right: 1rem;
         }
 
@@ -312,7 +488,7 @@
 
         /* Values Section */
         .values {
-            background: var(--white);
+            background: var(--off-white);
         }
 
         .values-grid {
@@ -323,7 +499,7 @@
         }
 
         .value-card {
-            background: var(--off-white);
+            background: var(--white);
             padding: 3rem 2rem;
             text-align: center;
             border: 2px solid var(--border-light);
@@ -339,7 +515,7 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(0, 57, 66, 0.05), transparent);
+            background: linear-gradient(90deg, transparent, rgba(255, 193, 7, 0.1), transparent);
             transition: left 0.5s ease;
         }
 
@@ -348,10 +524,9 @@
         }
 
         .value-card:hover {
-            border-color: var(--primary-teal);
+            border-color: var(--accent-gold);
             transform: scale(1.05);
             box-shadow: 0 10px 30px rgba(0, 57, 66, 0.15);
-            background: var(--white);
         }
 
         .value-icon {
@@ -363,8 +538,8 @@
         }
 
         .value-card:hover .value-icon {
-            transform: scale(1.2);
-            color: var(--light-teal);
+            transform: scale(1.2) rotate(5deg);
+            color: var(--accent-gold);
         }
 
         .value-card h3 {
@@ -382,7 +557,7 @@
 
         /* Promise Section */
         .promise {
-            background: var(--off-white);
+            background: var(--white);
             position: relative;
         }
 
@@ -393,7 +568,7 @@
             left: 0;
             right: 0;
             height: 2px;
-            background: linear-gradient(90deg, transparent, var(--primary-teal), transparent);
+            background: linear-gradient(90deg, transparent, var(--accent-gold), transparent);
         }
 
         .promise-content {
@@ -403,7 +578,7 @@
         }
 
         .promise-box {
-            background: var(--white);
+            background: var(--off-white);
             padding: 4rem 3rem;
             border: 3px solid var(--primary-teal);
             position: relative;
@@ -417,7 +592,7 @@
             position: absolute;
             width: 20px;
             height: 20px;
-            border: 3px solid var(--light-teal);
+            border: 3px solid var(--accent-gold);
         }
 
         .promise-box::before {
@@ -513,6 +688,7 @@
             position: relative;
             overflow: hidden;
             border-radius: 4px;
+            display: inline-block;
         }
 
         .btn-primary {
@@ -563,6 +739,18 @@
         }
 
         /* Responsive */
+        @media (max-width: 968px) {
+            .founder-content {
+                grid-template-columns: 1fr;
+                gap: 3rem;
+            }
+
+            .founder-image-wrapper {
+                max-width: 400px;
+                margin: 0 auto;
+            }
+        }
+
         @media (max-width: 768px) {
             .story-content,
             .mv-grid {
@@ -594,6 +782,14 @@
                 width: 100%;
                 max-width: 300px;
             }
+
+            .founder-name {
+                font-size: 2rem;
+            }
+
+            .founder-title {
+                font-size: 1.1rem;
+            }
         }
 
         @keyframes fadeIn {
@@ -604,6 +800,23 @@
 {% endblock extra_css %}
 
 {% block body %}
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-badge">Est. 2025</div>
+            <h1>
+                Building <span class="highlight">Champions</span><br>
+                One Scoop at a Time
+            </h1>
+            <p class="hero-subtitle">
+                Science-backed supplements for athletes who refuse to settle for anything less than excellence.
+            </p>
+        </div>
+        <div class="scroll-indicator">
+            <i class="fas fa-chevron-down"></i>
+        </div>
+    </section>
 
     <!-- Story Section -->
     <section class="story">
@@ -629,8 +842,53 @@
                 </div>
                 <div class="story-image">
                     <div class="story-image-placeholder">
-                        <i class="fas fa-dumbbell"></i>
+                        <img src="{% static 'images/about_us_photo.avif' %}" alt="Founder" >
+                        <!-- <i class="fas fa-dumbbell"></i> -->
                     </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Founder Section -->
+    <section class="founder">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-tag">Leadership</div>
+                <h2 class="section-title">Meet The Founder</h2>
+            </div>
+            <div class="founder-content">
+                <div class="founder-image-wrapper">
+                    <div class="founder-accent top-left"></div>
+                    <div class="founder-accent bottom-right"></div>
+                    <div class="founder-image">
+                        <!-- Replace with your actual image -->
+                        <img src="{% static 'images/MST_photo.jpeg' %}" alt="Founder" >
+                        <div class="founder-image-placeholder">
+                            <i class="fas fa-user-tie"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="founder-info">
+                    <div class="founder-badge">Founder & CEO</div>
+                    <h3 class="founder-name">MUHAMMED SHIFIL</h3>
+                    <p class="founder-title">Visionary | Athlete | Innovator</p>
+                    
+                    <p class="founder-bio">
+                        With over a decade of experience in sports nutrition and competitive athletics, I founded POWERBLEND with a singular vision: to create supplements that don't compromise on quality or transparency.
+                    </p>
+                    
+                    <p class="founder-bio">
+                        My journey started in the gym, frustrated with products that promised the world but delivered mediocrity. That frustration turned into determination, and determination into POWERBLEND—a brand that puts science, purity, and performance first.
+                    </p>
+                    
+                    <div class="founder-quote">
+                        <p>
+                            "We're not just building a supplement company. We're creating a community of athletes who refuse to settle. Every product we make is a promise—a promise that your trust will never be taken for granted."
+                        </p>
+                    </div>
+                    
+                    <div class="founder-signature">MUHAMMED SHIFIL</div>
                 </div>
             </div>
         </div>
@@ -727,11 +985,58 @@
         </div>
     </section>
 
-
+    <!-- CTA Section -->
+    <section class="cta">
+        <div class="cta-content">
+            <h2>Ready To Transform?</h2>
+            <p>Join thousands of athletes who trust POWERBLEND to fuel their journey to greatness.</p>
+            <div class="cta-buttons">
+                <a href="{% url 'list_products' %}" class="btn btn-primary">
+                    <span>Shop Now</span>
+                </a>
+                <a href="{% url 'contact_us' %}" class="btn btn-secondary">
+                    <span>Contact Us</span>
+                </a>
+            </div>
+        </div>
+    </section>
 
 {% endblock body %}
 
 {% block extra_js %}
+<script>
+// Smooth scroll for scroll indicator
+document.querySelector('.scroll-indicator')?.addEventListener('click', function() {
+    document.querySelector('.story')?.scrollIntoView({ 
+        behavior: 'smooth' 
+    });
+});
 
+// Animate elements on scroll
+const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+};
 
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
+        }
+    });
+}, observerOptions);
+
+// Observe all sections
+document.querySelectorAll('section').forEach(section => {
+    section.style.opacity = '0';
+    section.style.transform = 'translateY(30px)';
+    section.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+    observer.observe(section);
+});
+
+// Hero section should be visible immediately
+document.querySelector('.hero').style.opacity = '1';
+document.querySelector('.hero').style.transform = 'translateY(0)';
+</script>
 {% endblock extra_js %}
