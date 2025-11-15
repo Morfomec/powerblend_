@@ -793,21 +793,25 @@ body {
                             <tr >
                                 <td data-label="Product ID">{{ item.variant.id }}</td>
                                 <td data-label="Product Title">
-                                    <a href="{% url 'detail_product' item.variant.product.id %}" class="product-title">
-                                        {{ item.variant.product.name }}
-                                    </a>
+                                    {% if item.variant and item.variant.product %}
+                                        <a href="{% url 'detail_product' item.variant.product.id %}" class="product-title">
+                                            {{ item.product_name }}
+                                        </a>
+                                    {% else %}
+                                        <span class="product-title">{{ item.product_name}}</span>
+                                    {% endif %}
                                 </td>
                                 <td data-label="Image">
                                     <div class="product-image">
                                         {% if item.variant.product.images.first %}
-                                            <img src="{{ item.variant.product.images.first.image.url }}" alt="{{ item.variant.product.name }}">
+                                            <img src="{{ item.variant.product.images.first.image.url }}" alt="{{ item.product_name }}">
                                         {% else %}
                                             <i class="fas fa-image" style="color: #ccc; font-size: 1.5rem;"></i>
                                         {% endif %}
                                     </div>
                                 </td>
                                 <td data-label="Quantity">{{ item.quantity }}</td>
-                                <td data-label="Price">₹{{ item.price }}</td>
+                                <td data-label="Price">₹{{ item.price_at_purchase }}</td>
                                 <td data-label="Action">
                                     {% if item.return_status  and item.return_status != 'pending' %}
                                         <span class="status-badge return-status-{{ item.return_status|lower }}">

@@ -117,7 +117,7 @@ def order_details(request, order_id):
     estimated_delivery = order.created_at + timedelta(days=7)
 
     for item in order_items:
-        item.single_price = item.price / item.quantity
+        item.single_price = item.price_at_purchase / item.quantity
     # only allow owner or stff to view
 
     if order.user != request.user and not request.user.is_staff:
@@ -126,10 +126,10 @@ def order_details(request, order_id):
     active_items = order.items.filter(is_cancelled=False, is_returned=False)
 
     for item in order_items:
-        item.subtotal = item.price
-        item.single_price = item.price / item.quantity
+        item.subtotal = item.price_at_purchase
+        item.single_price = item.price_at_purchase / item.quantity
 
-    subtotal = sum(item.price for item in active_items)
+    subtotal = sum(item.price_at_purchase for item in active_items)
 
     taxes = subtotal * Decimal('0')
 
@@ -270,6 +270,7 @@ def cancel_order(request, order_id):
 
                 # --- STEP 4: Update order status ---
                 order.recalc_total()
+                order.force_discount_reset_if_empty()
                 order.status = "cancelled"
                 order.is_returned = False
                 order.save(update_fields=["status", "total", "is_returned"])
@@ -385,6 +386,7 @@ def cancel_item(request, order_id):
                 # Recalculate order total and update order status
                 order.recalc_total()
                 order.update_status()
+                order.force_discount_reset_if_empty()
 
                 # If coupon is revoked, remove it from the order
                 if discount_revoked:
@@ -527,8 +529,8 @@ def admin_order_detail(request, id):
 
     # to get subtotal for each items (if there are 2 * product)
     for item in order_items:
-        item.subtotal = item.price
-        item.single_price = item.price / item.quantity
+        item.subtotal = item.price_at_purchase
+        item.single_price = item.price_at_purchase / item.quantity
 
     actual_amount = sum(item.subtotal for item in order_items)
 
@@ -638,7 +640,7 @@ def admin_update_order_status(request, id):
                         'returned_at'])
 
             total_refund = sum(
-                item.price *
+                item.price_at_purchase *
                 item.quantity for item in order.items.filter(
                     is_cancelled=False,
                     is_returned=True))
@@ -674,6 +676,7 @@ def admin_update_order_status(request, id):
                 for item in order.items.filter(
                         is_cancelled=False, is_returned=False):
                     item.status = 'delivered'
+                    order.force_discount_reset_if_empty()
                     item.save(update_fields=['status'])
             messages.success(
                 request, f"Order {
@@ -847,24 +850,23 @@ def admin_update_item_status(request, item_id):
 @login_required
 def download_invoice(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
-
-    # Show ALL items in table (including cancelled/returned)
     order_items = order.items.all()
-
-    # Only count non-cancelled for totals
     active_items = order.items.filter(is_cancelled=False, is_returned=False)
 
-    # Add unit_price and subtotal fields
     for item in order_items:
-        item.unit_price = item.price / item.quantity
-        item.subtotal = item.price
+        item.subtotal = item.price_at_purchase  # ok to set a temporary attr
+        # don't set item.unit_price (property)
 
-    # Totals
-    subtotal = sum(item.price for item in active_items)
-    discount = (order.discount_amount or Decimal('0')) + \
-        (order.coupon_discount or Decimal('0'))
+    subtotal = sum(item.price_at_purchase for item in active_items)
+    discount = order.discount_amount or Decimal('0')
     shipping = Decimal('0')
+
+    if subtotal == 0:
+        discount = Decimal('0')
+
     total = subtotal + shipping - discount
+    if total < 0:
+        total = Decimal('0')
 
     context = {
         "order": order,
@@ -873,18 +875,12 @@ def download_invoice(request, order_id):
         "discount": discount,
         "shipping": shipping,
         "total": total,
-        'company_name': 'POWERBLEND',
-        'company_address': 'Ottapalam, Palakkad. Kerala - 679102',
-        'company_phone': '+91 9061752197',
-        'company_email': 'support@powerblend.com',
-        'company_website': 'www.powerblend.com',
+        # company metadata...
     }
 
     html_string = render_to_string("invoice.html", context)
     html = HTML(string=html_string, base_url=request.build_absolute_uri())
     pdf = html.write_pdf()
-
     response = HttpResponse(pdf, content_type="application/pdf")
-    response["Content-Disposition"] = f'attachment; filename="POWERBLEND_Invoice_{
-        order.order_id}.pdf"'
+    response["Content-Disposition"] = f'attachment; filename="POWERBLEND_Invoice_{order.order_id}.pdf"'
     return response

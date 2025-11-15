@@ -1,7 +1,7 @@
 {% extends 'admin_base.html' %}
 {% load static %}
 
-{% block title %}Add Coupon - Admin{% endblock %}
+{% block title %}Edit Coupon - Admin{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -16,7 +16,7 @@
     }
 
     .admin-container {
-        max-width: 1200px;
+        max-width: 1450px;
         margin: 0 auto;
         padding: 20px;
     }
@@ -156,7 +156,6 @@
         border-left: none;
     }
 
-    /* Date picker input styling */
     input[type="date"] {
         position: relative;
         cursor: pointer;
@@ -254,21 +253,21 @@
         color: white;
     }
 
-    .info-box {
-        background-color: rgba(23, 162, 184, 0.1);
-        border-left: 4px solid var(--info-color);
+    .warning-box {
+        background-color: rgba(255, 193, 7, 0.1);
+        border-left: 4px solid var(--warning-color);
         padding: 1rem 1.25rem;
         border-radius: 8px;
         margin-bottom: 1.5rem;
     }
 
-    .info-box i {
-        color: var(--info-color);
+    .warning-box i {
+        color: var(--warning-color);
         margin-right: 0.5rem;
     }
 
-    .info-box-text {
-        color: #0c5460;
+    .warning-box-text {
+        color: #856404;
         margin: 0;
         font-size: 0.9rem;
     }
@@ -303,8 +302,8 @@
     <div class="page-header">
         <div class="d-flex justify-content-between align-items-center flex-wrap">
             <div>
-                <h1 class="page-title">Add New Coupon</h1>
-                <p class="page-subtitle">Create a new discount coupon for your customers</p>
+                <h1 class="page-title">Edit Coupon</h1>
+                <p class="page-subtitle">Update coupon details and settings</p>
             </div>
             <a href="{% url 'coupon_list' %}" class="btn btn-secondary mt-3 mt-md-0">
                 <i class="fas fa-list"></i> View All Coupons
@@ -316,23 +315,16 @@
         <!-- Coupon Form -->
         <div class="col-12">
             <div class="content-card">
-                <div class="info-box">
-                    <i class="fas fa-info-circle"></i>
-                    <p class="info-box-text">
-                        <strong>Note:</strong> Create promotional coupons to offer discounts to your customers. 
-                        Set minimum purchase amounts, validity periods, and discount values.
+                <div class="warning-box">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p class="warning-box-text">
+                        <strong>Warning:</strong> Changes to this coupon will affect all future uses. 
+                        If the coupon is currently active, consider the impact on existing promotions.
                     </p>
                 </div>
 
-                <form method="POST" action="{% url 'add_coupon' %}">
+                <form method="POST" action="{% url 'edit_coupon' coupon.id %}">
                     {% csrf_token %}
-                    
-                    {% if form.errors %}
-                    <div class="alert alert-danger" style="margin-bottom:20px;">
-                        <strong>Please fix the errors below:</strong>
-                        {{ form.non_field_errors }}
-                    </div>
-                    {% endif %}
 
                     <!-- Basic Information -->
                     <div class="form-section">
@@ -428,7 +420,7 @@
                         <div class="form-check">
                             {{ form.is_active }}
                             <label for="{{ form.is_active.id_for_label }}" class="form-check-label">
-                                Active (Customers can use this coupon immediately)
+                                Active (Customers can use this coupon)
                             </label>
                         </div>
                         {{ form.is_active.errors }}
@@ -440,7 +432,7 @@
                             <i class="fas fa-times"></i> Cancel
                         </a>
                         <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-check"></i> Create Coupon
+                            <i class="fas fa-save"></i> Update Coupon
                         </button>
                     </div>
                 </form>
@@ -461,13 +453,12 @@
             }
         });
 
-        // Set minimum date for date inputs (today)
+        // Set up date inputs
         const today = new Date().toISOString().split('T')[0];
-        const validFromInput = document.getElementById('{{ form.valid_from.auto_id }}');
-        const validToInput = document.getElementById('{{ form.valid_to.auto_id }}');
+        const validFromInput = document.getElementById('{{ form.valid_from.id_for_label }}');
+        const validToInput = document.getElementById('{{ form.valid_to.id_for_label }}');
         
         if (validFromInput) {
-            validFromInput.setAttribute('min', today);
             validFromInput.setAttribute('type', 'date');
             
             // Update valid_to minimum when valid_from changes
@@ -479,8 +470,11 @@
         }
         
         if (validToInput) {
-            validToInput.setAttribute('min', today);
             validToInput.setAttribute('type', 'date');
+            // Set min date based on valid_from if it exists
+            if (validFromInput && validFromInput.value) {
+                validToInput.setAttribute('min', validFromInput.value);
+            }
         }
     });
 </script>

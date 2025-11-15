@@ -468,6 +468,7 @@
                         <button type="button" class="btn btn-secondary" onclick="resetVariantForm()">
                             <i class="fas fa-undo me-1"></i> Reset Form
                         </button>
+
                     </div>
                 </form>
             </div>
@@ -538,7 +539,7 @@
 
                                     <!-- List & Unlist toggle -->
 
-                                        <form action="{% url 'toggle_variant_listing' variant.id %}" 
+                                        <!-- <form action="{% url 'toggle_variant_listing' variant.id %}" 
                                             method="POST" 
                                             style="display:inline;">
                                             {% csrf_token %}
@@ -549,7 +550,7 @@
                                                     <i class="fas fa-check me-1"></i>List
                                                 {% endif %}
                                             </button>
-                                        </form>
+                                        </form> -->
 
                                         <!-- Edit -->
                                         <a href="{% url 'edit_variant' variant.id %}?page={{ page_obj.number }}" 

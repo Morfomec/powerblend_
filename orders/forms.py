@@ -27,6 +27,17 @@ class AdminOrderStatusForm(forms.Form):
     status = forms.ChoiceField(choices=Order.ORDER_STATUS_CHOICES)
     reason = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows':3}))
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        disallowed = ['return_requested', 'partially_cancelled', 'out_for_delivery']
+
+        self.fields['status'].choices = [
+            (value,label)
+            for value, label in Order.ORDER_STATUS_CHOICES
+            if value not in disallowed
+        ]
+
 
     def clean(self):
         cleaned = super().clean()

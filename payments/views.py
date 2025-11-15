@@ -18,7 +18,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponseBadRequest
 from user_profile.forms import AddressForm
 import razorpay
-
+from offers.utils import get_discount_info_for_variant
 
 
 # authorize razorpay client with API Keys.
@@ -290,10 +290,23 @@ def checkout_view(request):
                         transaction.set_rollback(True)
                         return redirect('basket_view')
 
+                    # order.items.create(
+                    #     variant=item.variant,
+                    #     quantity=item.quantity,
+                    #     price=item.subtotal
+                    # )
+
+                    discount_info = get_discount_info_for_variant(item.variant)
+                    final_price =  discount_info['price']
                     order.items.create(
-                        variant=item.variant,
+                        variant=item.variant,  
                         quantity=item.quantity,
-                        price=item.subtotal
+
+                        # Snapshot fields
+                        product_name=item.variant.product.name,
+                        flavor_name=item.variant.flavor.flavor if item.variant.flavor else None,
+                        weight_label=item.variant.weight.weight if item.variant.weight else None,
+                        price_at_purchase=final_price * item.quantity,
                     )
                     decrement_stock(item.variant, item.quantity)
 
@@ -359,13 +372,31 @@ def checkout_view(request):
                         transaction.set_rollback(True)
                         # optionally refund wallet here (if debit succeeded) - your wallet.debit should be atomic / reversible
                         return redirect('basket_view')
+                    
+                    
+
+                    # order.items.create(
+                    #     variant=item.variant,
+                    #     quantity=item.quantity,
+                    #     price=item.subtotal
+                    # )
+                    discount_info = get_discount_info_for_variant(item.variant)
+                    final_price = discount_info["price"]
 
                     order.items.create(
                         variant=item.variant,
                         quantity=item.quantity,
-                        price=item.subtotal
+
+                        product_name=item.variant.product.name,
+                        flavor_name=item.variant.flavor.flavor if item.variant.flavor else None,
+                        weight_label=item.variant.weight.weight if item.variant.weight else None,
+
+                        price_at_purchase=final_price * item.quantity,
                     )
-                    decrement_stock(variant, item.quantity)
+                # After creating all order items
+                order.subtotal = sum(i.price_at_purchase for i in order.items.all())
+                order.total = order.subtotal - order.discount_amount
+                order.save()
 
                 # mark order items confirmed
                 order.items.update(status='confirmed')
@@ -397,12 +428,18 @@ def checkout_view(request):
 
             # Save minimal checkout snapshot in session so paymenthandler can reconstruct
             # converting Decimals to strings for JSON-serializable session
+            
+
             items_snapshot = []
             for item in basket_items:
+
+                discount_info = get_discount_info_for_variant(item.variant)
+                final_price = discount_info["price"]
+
                 items_snapshot.append({
                     'variant_id': item.variant.id,
                     'quantity': item.quantity,
-                    'price': str(item.subtotal),
+                    'price': str(final_price * item.quantity),
                 })
 
             request.session['razorpay_checkout'] = {
@@ -547,12 +584,35 @@ def paymenthandler(request):
                 qty = int(item['quantity'])
                 price = Decimal(item['price'])
 
+                # order.items.create(
+                #     variant=variant,
+                #     quantity=qty,
+                #     price=price
+                # )
+                # order.items.create(
+                #     variant=item.variant, 
+                #     quantity=item.quantity,
+
+                #     # Snapshot fields
+                #     product_name=item.variant.product.name,
+                #     flavor_name=item.variant.flavor.flavor if item.variant.flavor else None,
+                #     weight_label=item.variant.weight.weight if item.variant.weight else None,
+                #     price_at_purchase=item.variant.price,
+                # )
+                discount_info = get_discount_info_for_variant(variant)
+                unit_price = Decimal(discount_info["price"])
+                price_total = unit_price * qty
+
                 order.items.create(
                     variant=variant,
                     quantity=qty,
-                    price=price
+                    product_name=variant.product.name,
+                    flavor_name=variant.flavor.flavor if variant.flavor else None,
+                    weight_label=variant.weight.weight if variant.weight else None,
+                    price_at_purchase=price_total,
                 )
 
+                
                 decrement_stock(variant, qty)
 
             # Mark items confirmed
@@ -575,7 +635,7 @@ def paymenthandler(request):
                 UserCoupon.objects.get_or_create(user=request.user, coupon=applied_coupon_if_any)
 
                 # clearing coupn from session
-                request.session.pop('applied_coupon_if_any', None)
+                request.session.pop('applied_coupon', None)
                 request.session.modified=True
 
 

@@ -12,7 +12,7 @@ class Offer(models.Model):
     OFFER_CHOICES = (
         ('category', 'Category Offer'),
         ('product', 'Product Offer'),
-        ('referral', 'Referral Offer'),
+        # ('referral', 'Referral Offer'),
     )
 
     name = models.CharField(max_length=255)

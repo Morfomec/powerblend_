@@ -1,7 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
-
+from decimal import Decimal
 from products.models import ProductVariant
 import random
 import string
@@ -210,6 +210,21 @@ class Order(models.Model):
 
         self.save(update_fields=['status'])
 
+    def force_discount_reset_if_empty(self):
+        active_items = self.items.filter(is_cancelled=False, is_returned=False)
+
+        if not active_items.exists():
+            # No items remaining → remove discount + prevent negative totals
+            self.discount_amount = Decimal('0')
+            self.coupon_discount = Decimal('0')
+            self.coupon_code = None
+            self.coupon_min_amount = Decimal('0')
+            self.total = Decimal('0')
+            self.save(update_fields=[
+                'discount_amount', 'coupon_discount',
+                'coupon_code', 'coupon_min_amount', 'total'
+            ])
+
 
 # OrderItems Model , links each order to a ProductVariant
 class OrderItem(models.Model):
@@ -239,10 +254,21 @@ class OrderItem(models.Model):
         related_name='items')
     variant = models.ForeignKey(
         ProductVariant,
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
         related_name='orderitems')
+
+    # snapshot fields to remain things even if the product price or anything get deleted
+    product_name = models.CharField(max_length=255)
+    flavor_name = models.CharField(max_length=255, null=True, blank=True)
+    weight_label = models.CharField(max_length=255, null=True, blank=True)
+
+    # product_image = models.ImageField(upload_to='order_items/', null=True, blank=True)
+
     quantity = models.PositiveIntegerField()
-    price = models.DecimalField(max_digits=20, decimal_places=2)
+    price_at_purchase = models.DecimalField(max_digits=20, decimal_places=2)
+    # price = models.DecimalField(max_digits=20, decimal_places=2)
 
     status = models.CharField(
         max_length=50,
@@ -267,14 +293,26 @@ class OrderItem(models.Model):
 
     @property
     def item_total(self):
-        return self.price * self.quantity
+        return self.price_at_purchase
 
     def __str__(self):
         return f"{self.variant} x {self.quantity} ({self.order.order_id})"
 
     @property
     def variant_total(self):
+        return self.price_at_purchase
+
+    @property
+    def unit_price(self):
+        return self.price_at_purchase / self.quantity
+
+    @property
+    def price(self):
         """
-        Returns the total price for the variant
+        Safety trap: prevents accidental use of old field 'price'.
         """
-        return self.price * self.quantity
+        raise AttributeError(
+            "OrderItem.price no longer exists. Use `price_at_purchase` instead."
+        )
+
+    

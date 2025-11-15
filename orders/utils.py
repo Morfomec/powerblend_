@@ -5,6 +5,8 @@ from decimal import Decimal, ROUND_DOWN, ROUND_HALF_UP
 
 
 def increment_stock(variant, qty):
+    if variant is None:
+        return 
     variant.stock = F('stock') + qty
     variant.save(update_fields=['stock'])
     variant.refresh_from_db()
@@ -12,6 +14,8 @@ def increment_stock(variant, qty):
 
 # decrement stock when placing an order
 def decrement_stock(variant, qty):
+    if variant is None:
+        return 
     variant.stock = F('stock') - qty
     variant.save(update_fields=['stock'])
 
@@ -26,7 +30,7 @@ def calculate_strict_voucher_refund(order, affected_items):
     """
 
     order_total = Decimal(order.original_total or order.total or 0)
-    affected_total = sum(item.price for item in affected_items)
+    affected_total = sum(item.price_at_purchase for item in affected_items)
     remaining_total = order_total - affected_total
     coupon_discount = Decimal(order.coupon_discount or 0)
     coupon_min_amount = Decimal(order.coupon_min_amount or 0)

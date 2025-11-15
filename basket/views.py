@@ -41,7 +41,7 @@ class BasketAddView(View):
             # Prevent unlisted or blocked products
             if not product.is_listed or not product.category.is_active:
                 if is_ajax:
-                    return JsonResponse({"success":False, "error": "This product cannot be added to the basket."})
+                    return JsonResponse({"success":False, "error": "This product cannot be added to the basket , it is not active."})
                 
                 messages.error(request, "This product cannot be added to the basket.")
                 return redirect("detail_product",id=product.id)

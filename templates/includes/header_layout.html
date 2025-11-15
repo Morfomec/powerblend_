@@ -342,6 +342,13 @@
         }
     }
 
+    @media (max-width: 768px) {
+        .search-container {
+            display: none !important;
+        }
+    }
+
+
     @media (max-width: 576px) {
         .navbar .container-fluid {
             padding: 0 0.5rem;
@@ -394,6 +401,40 @@
             font-size: 10px;
         }
     }
+
+    /* Mobile Search Slide Down */
+    .mobile-search-box {
+        position: fixed;
+        top: -70px;
+        left: 0;
+        width: 100%;
+        background: #f8f9fa;
+        padding: 10px 15px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        z-index: 2000;
+        transition: top 0.3s ease;
+    }
+
+    .mobile-search-box.active {
+        top: 0;
+    }
+
+    .mobile-search-input {
+        flex: 1;
+        border: 2px solid #016663;
+        border-radius: 20px;
+        padding-left: 15px;
+    }
+
+    .close-mobile-search {
+        background: transparent;
+        border: none;
+        font-size: 20px;
+        color: #016663;
+    }
 </style>
 
 <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
@@ -421,16 +462,17 @@
             <!-- User Account Dropdown -->
             <div class="dropdown user-dropdown">
                 <button class="user-account-btn dropdown-toggle d-flex align-items-center"
-                   type="button"
-                   id="userMenu"
-                   data-bs-toggle="dropdown"
-                   aria-expanded="false">
+                type="button"
+                id="userMenu"
+                data-bs-toggle="dropdown"
+                aria-expanded="false">
+
                     <div class="user-avatar">
                         <i class="fas fa-user"></i>
                     </div>
                     <span class="user-name d-none d-lg-inline">{{ user.full_name|default:'My Account' }}</span>
                 </button>
-                
+
                 <ul class="dropdown-menu dropdown-menu-end modern-dropdown" aria-labelledby="userMenu">
                     <li><a class="dropdown-item" href="{% url 'user_profile_view' %}">
                         <i class="fas fa-user-circle me-2"></i>My Account
@@ -444,7 +486,7 @@
                     </a></li>
                 </ul>
             </div>
-            
+
             <!-- Wishlist Icon -->
             <a href="{% url 'wishlist_view' %}" class="icon-btn cart-btn">
                 <i class="far fa-heart"></i>
@@ -459,15 +501,28 @@
             </div>
         {% endif %}
 
+        <!-- Mobile Search Icon (correct position) -->
+        <button class="icon-btn mobile-search-btn d-lg-none" id="mobileSearchBtn">
+            <i class="fas fa-search"></i>
+        </button>
+
         <!-- Cart Icon -->
         <a href="{% url 'basket_view' %}" class="icon-btn cart-btn">
             <i class="fas fa-shopping-basket"></i>
             <span class="cart-badge">{{ basket_count }}</span>
         </a>
     </div>
-    
+        
   </div>
 </nav>
+<!-- Mobile Search Slide Box
+<div id="mobileSearchBox" class="mobile-search-box">
+    <input type="text" class="form-control mobile-search-input" 
+           placeholder="Search products..." id="mobileSearchInput">
+    <button class="close-mobile-search" id="closeMobileSearch">
+        <i class="fas fa-times"></i>
+    </button>
+</div> -->
 
 <!-- Promotional Banner -->
 <div class="container-fluid promo-bar">
@@ -549,5 +604,22 @@ document.addEventListener('DOMContentLoaded', function() {
             suggestionsBox.style.display = 'none';
         }
     });
+});
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+
+    // Open mobile search
+    document.getElementById("mobileSearchBtn").addEventListener("click", function() {
+        document.getElementById("mobileSearchBox").classList.add("active");
+        document.getElementById("mobileSearchInput").focus();
+    });
+
+    // Close mobile search
+    document.getElementById("closeMobileSearch").addEventListener("click", function() {
+        document.getElementById("mobileSearchBox").classList.remove("active");
+    });
+
 });
 </script>

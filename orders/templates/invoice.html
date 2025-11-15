@@ -630,11 +630,11 @@
                         {% for item in order_items %}
                         <tr class="{% if item.status == 'returned' or item.status == 'RETURNED' %}item-returned{% elif item.status == 'cancelled' or item.status == 'CANCELLED' %}item-cancelled{% endif %}">
                             <td>
-                                <div class="product-name">{{ item.variant.product.name }}</div>
-                                {% if item.variant.flavor or item.variant.weight %}
+                                <div class="product-name">{{ item.product_name }}</div>
+                                {% if item.flavor_name or item.weight_label %}
                                     <div class="product-variant">
-                                        {% if item.variant.flavor %}{{ item.variant.flavor }}{% endif %}
-                                        {% if item.variant.weight %} | {{ item.variant.weight }}{% endif %}
+                                        {% if item.flavor_name %}{{ item.flavor_name }}{% endif %}
+                                        {% if item.weight_label %} | {{ item.weight_label }}{% endif %}
                                     </div>
                                 {% endif %}
                             </td>

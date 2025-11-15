@@ -62,29 +62,32 @@ def admin_add_offer(request):
         form = OfferForm(request.POST)
 
         if form.is_valid():
-            name = form.cleaned_data['name'].strip().lower()
-            offer_type = form.cleaned_data['offer_type']
+            offer = form.save(commit=False)
+            offer.name = offer.name.strip().lower()
+            offer.save()
 
-            if Offer.objects.filter(
-                    name__iexact=name,
-                    offer_type=offer_type).exists():
-                messages.error(
-                    request, f"An offer name {name} already exists for this offer type.")
-                return redirect('admin_add_offer')
-            else:
-                offer = form.save(commit=False)
-                offer.name = name
-                offer.save()
 
-                if offer_type == 'product':
-                    selected_products = request.POST.getlist('products')
-                    offer.products.set(selected_products)
-                elif offer_type == 'category':
-                    selected_categories = request.POST.getlist('categories')
-                    offer.categories.set(selected_categories)
+            # name = form.cleaned_data['name'].strip().lower()
+            # offer_type = form.cleaned_data['offer_type']
 
-                messages.success(request, 'Offer added successfully.')
-                return redirect('admin_offer_list')
+            # if Offer.objects.filter(
+            #         name__iexact=name,
+            #         offer_type=offer_type).exists():
+            #     messages.error(
+            #         request, f"An offer name {name} already exists for this offer type.")
+            #     return redirect('admin_add_offer')
+            # else:
+            #     offer = form.save(commit=False)
+            #     offer.name = name
+            #     offer.save()
+
+            if offer.offer_type == 'product':
+                offer.products.set(request.POST.getlist('products'))
+            elif offer.offer_type == 'category':
+                offer.categories.set(request.POST.getlist('categories'))
+
+            messages.success(request, 'Offer added successfully.')
+            return redirect('admin_offer_list')
     else:
         form = OfferForm()
 
@@ -108,49 +111,67 @@ def admin_edit_offer(request, offer_id):
 
     if request.method == 'POST':
         form = OfferForm(request.POST, instance=offer)
+
         if form.is_valid():
-            name = form.cleaned_data['name'].strip().lower()
-            offer_type = form.cleaned_data['offer_type']
+            offer = form.save(commit=False)
+            offer.name = offer.name.strip().lower()
+            offer.save()
 
-            if Offer.objects.filter(
-                    name__iexact=name,
-                    offer_type=offer_type).exclude(
-                    id=offer_id).exists():
-                messages.error(
-                    request, f"An offer name {name} already exists for this offer type.")
+            # if Offer.objects.filter(
+            #         name__iexact=name,
+            #         offer_type=offer_type).exclude(
+            #         id=offer_id).exists():
+            #     messages.error(
+            #         request, f"An offer name {name} already exists for this offer type.")
 
-            else:
-                offer = form.save(commit=False)
-                offer.name = name
-                offer.save()
+            # else:
+            #     offer = form.save(commit=False)
+            #     offer.name = name
+            #     offer.save()
 
-                if offer_type == 'product':
-                    selected_products = request.POST.getlist('products')
-                    offer.products.set(selected_products)
-                    offer.categories.clear()
-                elif offer_type == 'category':
-                    selected_categories = request.POST.getlist('categories')
-                    offer.categories.set(selected_categories)
-                    offer.products.clear()
+            if offer.offer_type == 'product':
+                offer.products.set(request.POST.getlist('products'))
+                offer.categories.clear()
+            elif offer.offer_type == 'category':
+                offer.categories.set(request.POST.getlist('categories'))
+                offer.products.clear()
 
-                messages.success(request, 'Offer updated successfully.')
-                return redirect('admin_offer_list')
+                # if offer_type == 'product':
+                #     selected_products = request.POST.getlist('products')
+                #     offer.products.set(selected_products)
+                #     offer.categories.clear()
+                # elif offer_type == 'category':
+                #     selected_categories = request.POST.getlist('categories')
+                #     offer.categories.set(selected_categories)
+                #     offer.products.clear()
+
+            messages.success(request, 'Offer updated successfully.')
+            return redirect('admin_offer_list')
     else:
         form = OfferForm(instance=offer)
-
-    selected_catefory_ids = offer.categories.values_list(
-        'id', flat=True) if offer else []
-    selected_product_ids = offer.products.values_list(
-        'id', flat=True) if offer else []
     context = {
         'form': form,
-        'edit': True,
         'offer': offer,
+        'edit': True,
         'categories': categories,
         'products': products,
-        'selected_category_ids': selected_catefory_ids,
-        'selected_product_ids': selected_product_ids,
+        'selected_category_ids': offer.categories.values_list('id', flat=True),
+        'selected_product_ids': offer.products.values_list('id', flat=True),
     }
+
+    # selected_catefory_ids = offer.categories.values_list(
+    #     'id', flat=True) if offer else []
+    # selected_product_ids = offer.products.values_list(
+    #     'id', flat=True) if offer else []
+    # context = {
+    #     'form': form,
+    #     'edit': True,
+    #     'offer': offer,
+    #     'categories': categories,
+    #     'products': products,
+    #     'selected_category_ids': selected_catefory_ids,
+    #     'selected_product_ids': selected_product_ids,
+    # }
     return render(request, 'add_edit_offer.html', context)
 
 

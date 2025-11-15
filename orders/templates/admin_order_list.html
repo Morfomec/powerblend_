@@ -330,7 +330,7 @@
                     <th>Order ID</th>
                     <th>User</th>
                     <th>Items</th>
-                    <th>Total</th>
+                    <!-- <th>Total</th> -->
                     <th>Payment</th>
                     <th>Status</th>
                     <th>Created</th>
@@ -347,7 +347,7 @@
                         <medium style="color: #6c757d;">{{ order.user.email }}</medium>
                     </td>
                     <td>{{ order.items.count }}</td>
-                    <td><strong>₹{{ order.total|floatformat:2 }}</strong></td>
+                    <!-- <td><strong>₹{{ order.total|floatformat:2 }}</strong></td> -->
                     <td><strong>{{ order.payment_method|upper }}</strong></td>
 
                     <td>

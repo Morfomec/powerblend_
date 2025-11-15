@@ -75,7 +75,7 @@ def admin_dashboard(request):
     products_page = request.GET.get('products_page', 1)
     top_products_queryset = Product.objects.annotate(
         total_quantity_sold=Sum('variants__orderitems__quantity'),
-        total_revenue=Sum(F('variants__orderitems__quantity') * F('variants__orderitems__price')),
+        total_revenue=Sum(F('variants__orderitems__quantity') * F('variants__orderitems__price_at_purchase')),
         order_count=Count('variants__orderitems__id', distinct=True)
     ).filter(
         total_quantity_sold__isnull=False
@@ -90,7 +90,7 @@ def admin_dashboard(request):
     categories_page = request.GET.get('categories_page', 1)
     top_categories_queryset = Category.objects.annotate(
         total_quantity_sold=Sum('products__variants__orderitems__quantity'),
-        total_revenue=Sum(F('products__variants__orderitems__quantity') * F('products__variants__orderitems__price')),
+        total_revenue=Sum(F('products__variants__orderitems__quantity') * F('products__variants__orderitems__price_at_purchase')),
         order_count=Count('products__variants__orderitems__id', distinct=True)
     ).filter(
         total_quantity_sold__isnull=False
@@ -326,18 +326,50 @@ def sales_report(request):
     end_date = request.GET.get('end_date')
 
     today = date.today()
-    orders = Order.objects.filter() 
+    validation_failed=False
 
-    if filter_type == 'daily':
-        orders = orders.filter(created_at__date=today)
-    elif filter_type == 'weekly':
-        week_ago = today - timedelta(days=7)
-        orders = orders.filter(created_at__date__range=[week_ago, today])
-    elif filter_type == 'monthly':
-        month_ago = today.replace(day=1)
-        orders = orders.filter(created_at__date__gte=month_ago)
-    elif filter_type == 'custom' and start_date and end_date:
-        orders = orders.filter(created_at__date__range=[start_date, end_date])
+    if filter_type == 'custom':
+        if not start_date:
+            messages.error(request, "Please select a start date.")
+            validation_failed = True
+
+        if not end_date:
+            messages.error(request, "please select an end date.")
+            validation_failed = True
+
+        if start_date and end_date:
+            s = date.fromisoformat(start_date)
+            e = date.fromisoformat(end_date)
+
+            if s > today:
+                messages.error(request, "Start date cannot be in the future.")
+                validation_failed = True
+
+            if e > today:
+                messages.error(request, "End date cannot be in the futture.")
+                validation_failed = True
+
+            if e < s:
+                messages.error(request, "End date cannot be earlier than start date.")
+                validation_failed = True
+
+    # orders = Order.objects.filter() 
+
+    if validation_failed:
+        orders = Order.objects.none()
+    else:
+        orders = Order.objects.all()
+
+        if filter_type == 'daily':
+            orders = orders.filter(created_at__date=today)
+        elif filter_type == 'weekly':
+            week_ago = today - timedelta(days=7)
+            orders = orders.filter(created_at__date__range=[week_ago, today])
+        elif filter_type == 'monthly':
+            month_ago = today.replace(day=1)
+            orders = orders.filter(created_at__date__gte=month_ago)
+        elif filter_type == 'custom' and start_date and end_date:
+            orders = orders.filter(created_at__date__range=[start_date, end_date])
 
     total_sales = orders.aggregate(total_amount=Sum('total'))['total_amount'] or 0
     total_discount = orders.aggregate(total_amount=Sum('discount_amount'))['total_amount'] or 0
@@ -360,6 +392,9 @@ def sales_report(request):
         'total_coupon': total_coupon,
         'total_orders': total_orders,
         'filter_type': filter_type,
+        'filter': filter_type,
+        'start_date': start_date,
+        'end_date': end_date,
     }
     return render(request, 'sales_report.html', context)
 
@@ -542,6 +577,26 @@ def delete_coupon(request, coupon_id):
     messages.success(request, f"Coupon '{coupon.code}' deleted successfully.")
     return redirect('coupon_list')
 
+@staff_member_required
+def edit_coupon(request, coupon_id):
+    coupon = get_object_or_404(Coupon, id=coupon_id)
+    
+    if request.method == 'POST':
+        form = CouponForm(request.POST, instance=coupon)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f"Coupon '{coupon.code}' updated successfully!")
+            return redirect('coupon_list')
+        else:
+            messages.error(request, "Please correct the errors below.")
+    else:
+        form = CouponForm(instance=coupon)
+
+    context = {
+        'form' : form,
+        'coupon' : coupon,
+    }
+    return render(request, 'edit_coupon.html', context)
 
 @staff_member_required
 def admin_banner_list(request):

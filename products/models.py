@@ -6,7 +6,7 @@ from django.utils import timezone
 from django.core.exceptions import ValidationError
 from django.db.models import F, Value
 from django.urls import reverse
-
+from django.core.exceptions import ValidationError
 from offers.utils import get_discount_info_for_variant
 # Create your models here.
 
@@ -27,26 +27,51 @@ class Product(models.Model):
     class Meta:
         db_table = 'products'
 
+    # ----------------------------
+    #   VALIDATION
+    # ----------------------------
+    def clean(self):
+        # Normalize the name (remove extra spaces)
+        normalized = " ".join(self.name.strip().split())
+
+        # Check for product vs category name conflict
+        if Category.objects.filter(name__iexact=normalized).exists():
+            raise ValidationError({
+                "name": "Product name cannot be the same as an existing category name."
+            })
+
+        # Check for duplicate product names (case-insensitive)
+        if Product.objects.filter(name__iexact=normalized).exclude(id=self.id).exists():
+            raise ValidationError({
+                "name": "A product with this name already exists."
+            })
+
+        # Assign normalized name back for database consistency
+        self.name = normalized
+
+    # ----------------------------
+    #   SAVE OVERRIDE
+    # ----------------------------
     def save(self, *args, **kwargs):
+        # Always validate model before saving
+        self.full_clean()
+
+        # Generate unique slug only if missing
         if not self.slug:
             base_slug = slugify(self.name)
             slug = base_slug
             counter = 1
 
-            #to ensure slug is unique
-            while Product.objects.filter(slug=slug).exists():
+            while Product.objects.filter(slug=slug).exclude(id=self.id).exists():
                 slug = f"{base_slug}-{counter}"
                 counter += 1
+
             self.slug = slug
+
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
-        """
-        Returns the URL to the product detail page for this product
-        """
-
-        return reverse('detail_product', kwargs={'id' : self.pk})
-        
+        return reverse('detail_product', kwargs={'id': self.pk})
 
 
 
@@ -132,7 +157,21 @@ class ProductVariant(models.Model):
             details.append(self.weight)
         return f"{self.product.name} - {'/'.join(str(d) for d in details)}"
 
+
+    @property
+    def price_for_order(self):
+        """
+        Safety trap: prevents old usage of variant.price for discounted orders.
+        Use get_discount_info_for_variant(self)['price'] instead.
+        """
+        raise AttributeError(
+            "Do NOT use variant.price directly. Use get_discount_info_for_variant(variant)['price']."
+        )
+
+
     class Meta:
         db_table = "product_variants"
         unique_together = ('product', 'flavor', 'weight')
         constraints = [ models.CheckConstraint(check=models.Q(stock__gte=0), name='stock_non_negative')]
+
+    

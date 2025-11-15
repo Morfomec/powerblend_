@@ -27,12 +27,8 @@ class EmailChangeForm(forms.Form):
 
 
 class AddressForm(forms.ModelForm):
-    mobile = PhoneNumberField(region="IN",
-        # widget=PhoneNumberPrefixWidget(region="IN")
-    )
-    second_mobile = PhoneNumberField(region="IN", required=False,
-        # widget=PhoneNumberPrefixWidget(region="IN")
-    )
+    mobile = PhoneNumberField(region="IN")
+    second_mobile = PhoneNumberField(region="IN", required=False)
 
     class Meta:
         model = Address
@@ -44,31 +40,63 @@ class AddressForm(forms.ModelForm):
         if not name:
             raise forms.ValidationError("Full name cannot be blank.")
 
-        if not re.match(r"^[A-Za-z][A-Za-z\s\.\-']+$", name):
+        if re.search(r"[^\w\s\.\-']", name):
+            raise forms.ValidationError("Full name contains invalid characters.")
+
+        if re.fullmatch(r"[.\-\/\\]+", name):
             raise forms.ValidationError("Full name should contain letters.")
+
+        if len(re.findall(r"[A-Za-z]", name)) < 2:
+            raise forms.ValidationError("Full name must contain alphabetic characters.")
 
         return re.sub(r"\s+", " ", name)
 
-    
+    def clean_address(self):
+        addr = (self.cleaned_data.get("address") or "").strip()
+
+        if len(addr) < 10:
+            raise forms.ValidationError("Provide a more detailed address.")
+
+        if re.fullmatch(r"[^\w\s]+", addr):
+            raise forms.ValidationError("Address cannot contain only special characters.")
+
+        if re.search(r"[^\w\s]{4,}", addr):
+            raise forms.ValidationError("Address contains too many special characters.")
+
+        if not re.match(r"^[A-Za-z0-9\s,.\-/#]+$", addr):
+            raise forms.ValidationError("Address contains invalid characters.")
+
+        return addr
+
+    def clean_city(self):
+        city = (self.cleaned_data.get("city") or "").strip()
+
+        if not re.match(r"^[A-Za-z\s\-]+$", city):
+            raise forms.ValidationError("City must contain only letters.")
+
+        return city
+
+    def clean_state(self):
+        state = (self.cleaned_data.get("state") or "").strip()
+
+        if not re.match(r"^[A-Za-z\s\-]+$", state):
+            raise forms.ValidationError("State must contain only letters.")
+
+        return state
+
     def clean_postal_code(self):
-        postal = (self.cleaned_data.get("postal_code")or "").strip()
+        postal = (self.cleaned_data.get("postal_code") or "").strip()
 
         if not postal.isdigit() or len(postal) != 6:
             raise forms.ValidationError("Postal code must be exactly 6 digits.")
+
+        if postal.startswith("0"):
+            raise forms.ValidationError("Postal code cannot start with 0.")
+
         if postal in INVALID_PINCODES:
-            raise forms.ValidationError("Invalid postal code pattern (e.g., 000000, 111111, etc.)")
+            raise forms.ValidationError("Invalid postal code pattern (111111, 000000, etc.).")
 
         return postal
-
-    def clean_address(self):
-        addr = (self.cleaned_data.get("address") or"").strip()
-
-        if len(addr) < 10:
-            raise forms.ValidationError("Address is too short. Please provide more details.")
-        
-        return addr
-
-    #cross-field calidations
 
     def clean(self):
         cleaned = super().clean()
@@ -76,9 +104,13 @@ class AddressForm(forms.ModelForm):
         second_mobile = cleaned.get("second_mobile")
 
         if second_mobile and mobile and mobile == second_mobile:
-            raise forms.ValidationError("Primary and secondary mobile numbers cannot be the same.")
+            raise forms.ValidationError("Primary and secondary mobile cannot be the same.")
 
-            return cleaned
+        # Block invalid characters in phone numbers
+        if mobile and not str(mobile).replace("+", "").isdigit():
+            raise forms.ValidationError("Invalid characters in mobile number.")
+
+        return cleaned
 
 
 class verifyOTPForm(forms.ModelForm):

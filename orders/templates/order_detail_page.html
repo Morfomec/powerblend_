@@ -770,17 +770,17 @@ textarea::placeholder {
                     <div class="product-image">
                         {% with images=item.variant.product.images.all %}
                             {% if images %}
-                                <img src="{{ images.first.image.url }}" alt="{{ item.variant.product.name }}" width="120">
+                                <img src="{{ images.first.image.url }}" alt="{{ item.product_name }}" width="120">
                             {% else %}
                                 <img src="{% static 'images/no-image.png' %}" alt="No image available" width="120">
                             {% endif %}
                         {% endwith %}
                     </div>
                     <div class="product-info">
-                        <div class="product-name">{{ item.variant.product.name }}</div>
+                        <div class="product-name">{{ item.product_name }}</div>
                         <div class="product-qty">Qty: {{ item.quantity }}</div>
                     </div>
-                    <div class="product-price">₹{{ item.price }}</div>
+                    <div class="product-price">₹{{ item.price_at_purchase }}</div>
                 </div> 
             </div>
             {% endfor %} 
@@ -817,14 +817,14 @@ textarea::placeholder {
                     <div class="product-image">
                         {% with images=item.variant.product.images.all %}
                             {% if images %}
-                                <img src="{{ images.first.image.url }}" alt="{{ item.variant.product.name }}" width="120">
+                                <img src="{{ images.first.image.url }}" alt="{{ item.product_name }}" width="120">
                             {% else %}
                                 <img src="{% static 'images/no-image.png' %}" alt="No image available" width="120">
                             {% endif %}
                         {% endwith %}
                     </div>
                     <div class="product-info">
-                        <div class="product-name">{{ item.variant.product.name }}</div>
+                        <div class="product-name">{{ item.product_name }}</div>
                         <div class="product-qty">Qty: {{ item.single_price }}</div>
                     </div>
                     <div class="product-price">₹{{ item.subtotal }}</div>
@@ -891,7 +891,7 @@ textarea::placeholder {
                     <div class="product-image">
                         {% with images=item.variant.product.images.all %}
                             {% if images %}
-                                <img src="{{ images.first.image.url }}" alt="{{ item.variant.product.name }}" width="120">
+                                <img src="{{ images.first.image.url }}" alt="{{ item.product_name }}" width="120">
                             {% else %}
                                 <img src="{% static 'images/no-image.png' %}" alt="No image available" width="120">
                             {% endif %}
@@ -899,7 +899,7 @@ textarea::placeholder {
                     </div>
                     
                 <div class="product-info">
-                <div class="product-name">{{ item.variant.product.name }}</div>
+                <div class="product-name">{{ item.product_name }}</div>
                 <div class="product-qty">Qty: {{ item.quantity }}</div>
                 <div class="product-price">₹{{ item.single_price }}</div>
                 
@@ -929,7 +929,7 @@ textarea::placeholder {
                     <!-- Actions area - shows total and appropriate button/badge -->
 
                     <div class="product-actions">
-                        <div class="product-total">₹{{ item.price }}</div>
+                        <div class="product-total">₹{{ item.price_at_purchase }}</div>
                         {% if item.status == 'delivered' %}
                             {% if item.return_status == 'pending' %}
                                 <button class="return-item-btn"

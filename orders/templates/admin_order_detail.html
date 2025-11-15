@@ -815,17 +815,17 @@
                     <td>
                         <div class="product-image">
                             {% if item.variant.product.images.first %}
-                                <img src="{{ item.variant.product.images.first.image.url }}" alt="{{ item.variant.product.name }}">
+                                <img src="{{ item.variant.product.images.first.image.url }}" alt="{{ item.product_name }}">
                             {% else %}
                                 <i class="fas fa-image" style="color: #ccc;"></i>
                             {% endif %}
                         </div>
                     </td>
-                    <td><strong>{{ item.variant.product.name }}</strong></td>
+                    <td><strong>{{ item.product_name }}</strong></td>
                     <td>{{ item.variant|default:"Standard" }}</td>
                     <td>{{ item.quantity }}</td>
                     <td>₹{{ item.single_price|floatformat:2 }}</td>
-                    <td><strong>₹{{ item.price|floatformat:2 }}</strong></td>
+                    <td><strong>₹{{ item.price_at_purchase|floatformat:2 }}</strong></td>
                     <td>
                         <div class="item-status-update">
                             <!-- Current Status Badge -->
@@ -873,9 +873,9 @@
                                     <select name="status" class="item-status-select" required>
                                         <option value="">Change status...</option>
                                         {% for value, label in item.STATUS_CHOICES %}
-                                            
-                                                <option value="{{ value }}" {% if value == item.status %}selected{% endif %}>{{ label }}</option>
-                                            
+                                                {% if  value not in 'return_requested,partially_cancelled,out_for_delivery'%}
+                                                    <option value="{{ value }}" {% if value == item.status %}selected{% endif %}>{{ label }}</option>
+                                                {% endif %}
                                         {% endfor %}
                                     </select>
                                 </div>
@@ -927,7 +927,7 @@
                         <div class="return-item {% if item.return_status == 'return_approved' %}approved{% elif item.return_status == 'return_rejected' %}rejected{% endif %}">
                             <div class="return-header">
                                 <div class="return-product-info">
-                                    <div class="return-product-name">{{ item.variant.product.name }}</div>
+                                    <div class="return-product-name">{{ item.product_name }}</div>
                                     <div class="return-product-qty">Quantity: {{ item.quantity }}</div>
                                 </div>
 

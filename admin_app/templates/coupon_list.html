@@ -179,6 +179,34 @@
         font-weight: 500;
     }
 
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+
+    .btn-edit {
+        background-color: var(--info-color);
+        color: white;
+        border: none;
+        padding: 0.4rem 0.8rem;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .btn-edit:hover {
+        background-color: #138496;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(23, 162, 184, 0.3);
+        color: white;
+    }
+
     .btn-delete {
         background-color: var(--danger-color);
         color: white;
@@ -267,6 +295,16 @@
         table {
             font-size: 0.85rem;
         }
+
+        .action-buttons {
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .btn-edit, .btn-delete {
+            width: 100%;
+            justify-content: center;
+        }
     }
 
     @media (max-width: 576px) {
@@ -333,11 +371,19 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <a href="{% url 'delete_coupon' coupon.id %}" 
-                                       class="btn-delete"
-                                       onclick="return confirm('Are you sure you want to delete the coupon \'{{ coupon.code }}\'?');">
-                                        <i class="fas fa-trash-alt"></i> Delete
-                                    </a>
+                                    <div class="action-buttons">
+                                        <a href="{% url 'edit_coupon' coupon.id %}" 
+                                           class="btn-edit"
+                                           title="Edit Coupon">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </a>
+                                        <a href="{% url 'delete_coupon' coupon.id %}" 
+                                           class="btn-delete"
+                                           title="Delete Coupon"
+                                           onclick="return confirm('Are you sure you want to delete the coupon \'{{ coupon.code }}\'?');">
+                                            <i class="fas fa-trash-alt"></i> Delete
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                         {% endfor %}

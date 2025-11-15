@@ -442,16 +442,6 @@
                                     Clear
                                 </button>
                             </div>
-
-                            <div class="filter-options ms-auto">
-                                <select class="form-select" name="filter" style="width: auto;">
-                                    <option value="" {% if request.GET.filter == "" %}selected{% endif %}>All Products</option>
-                                    <option value="listed" {% if request.GET.filter == "listed" %}selected{% endif %}>Listed</option>
-                                    <option value="unlisted" {% if request.GET.filter == "unlisted" %}selected{% endif %}>Unlisted</option>
-                                    <option value="out-of-stock" {% if request.GET.filter == "out-of-stock" %}selected{% endif %}>Out of Stock</option>
-                                    <option value="low-stock" {% if request.GET.filter == "low-stock" %}selected{% endif %}>Low Stock</option>
-                                </select>
-                            </div>
                         </form>
                     </div>
 
