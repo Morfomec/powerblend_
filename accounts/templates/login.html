@@ -14,7 +14,7 @@
 
 {% if messages %}
     {% for message in messages %}
-        {% if 'invalid_credentials' in message.tags or 'logged_successfully' in message.tags or 'email_verified' in message.tags or 'referral_credit' in message.tags %}
+        {% if 'invalid_credentials' in message.tags or 'logged_successfully' in message.tags or 'email_verified' in message.tags  %}
             <div class="custom-alert 
                 {% if 'error' in message.tags or 'danger' in message.tags or 'checkout-wallet_insufficient' in message.tags %}alert-error
                 {% elif 'success' in message.tags or 'otp-success' in message.tags %}alert-success
@@ -46,7 +46,7 @@
             Email Address
             <span class="required-text">(required)</span>
         </label>
-        <input type="email" class="form-control" name="email"  required>
+        <input type="email" class="form-control" name="email"  value="{{ email|default:'' }}" required>
     </div>
 
 

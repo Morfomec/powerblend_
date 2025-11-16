@@ -300,6 +300,13 @@
             margin-bottom: 1rem;
         }
 
+        .existing-images img {
+            transition: transform 0.2s ease;
+        }
+        .existing-images img:hover {
+            transform: scale(1.05);
+        }
+
         @media (max-width: 768px) {
             .images-grid {
                 grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
@@ -329,32 +336,71 @@
                 </a>
             </div>
             <div class="card-body">
-                <form method="POST" enctype="multipart/form-data" id="productForm" action="{% url 'add_product' %}">
+                <form method="POST"
+                    enctype="multipart/form-data"
+                    id="productForm"
+                    action="{% if mode == 'edit' %}
+                                {% url 'edit_product' product.id %}
+                            {% else %}
+                                {% url 'add_product' %}
+                            {% endif %}">
                     {% csrf_token %}
-                    
+                    <input type="hidden" name="mode" id="mode" value="{{ mode }}">
+
                     <!-- Basic Information -->
                     <div class="form-row">
                         <div class="form-col-2">
                             <div class="form-group">
                                 <label for="name" class="form-label">Product Name <span class="required">*</span></label>
-                                <input type="text" class="form-control" id="name" name="name" 
+                                <!-- <input type="text" class="form-control" id="name" name="name" 
                                        value="{{ form.name.value|default:'' }}" required maxlength="500"
                                        placeholder="Enter product name">
                                 <div class="form-text">This will be the display name for your product</div>
                                 {% if form.name.errors %}
                                     <div class="text-danger mt-1">{{ form.name.errors.0 }}</div>
+                                {% endif %} -->
+
+
+                                <input type="text" class="form-control" id="name" name="name" 
+                                    value="{{ form.name.value|default:'' }}" required maxlength="500"
+                                    placeholder="Enter product name">
+                                {% if form.name.errors %}
+                                    <div class="text-danger mt-1">{{ form.name.errors.0 }}</div>
                                 {% endif %}
+
                             </div>
                         </div>
                         <div class="form-col">
                             <div class="form-group">
-                                <label for="category" class="form-label">Category <span class="required">*</span></label>
+                                <label for="Category" class="form-label">Category <span class="required">*</span></label>
+                                <!-- <select class="form-select" id="category" name="category" required>
+                                    <option value="">Select Category</option>
+                                    {% for category in categories %}
+                                        <option value="{{ category.id }}" 
+                                                {% if product.category and product.category.id == category.id %}
+                                                selected
+                                                {% endif %}>
+                                            {{ category.name }}
+                                        </option>
+                                    {% endfor %}
+                                </select> -->
+
+                                <!-- Category field - CORRECTED -->
                                 <select class="form-select" id="category" name="category" required>
                                     <option value="">Select Category</option>
                                     {% for category in categories %}
-                                        <option value="{{ category.id }}">{{ category.name }}</option>
+                                        <option value="{{ category.id }}" 
+                                                {% if form.category.value == category.id|stringformat:"s" or product.category.id == category.id %}
+                                                selected
+                                                {% endif %}>
+                                            {{ category.name }}
+                                        </option>
                                     {% endfor %}
                                 </select>
+                                {% if form.category.errors %}
+                                    <div class="text-danger mt-1">{{ form.category.errors.0 }}</div>
+                                {% endif %}
+
                                 <div class="form-text">Choose the category this product belongs to</div>
                                 {% if form.category.errors %}
                                     <div class="text-danger mt-1">{{ form.category.errors.0 }}</div>
@@ -366,8 +412,14 @@
                     <!-- Description -->
                     <div class="form-group">
                         <label for="description" class="form-label">Description <span class="required">*</span></label>
-                        <textarea class="form-control" id="description" name="description" rows="5" required placeholder="Enter detailed product description...">{{ form.description.value|default:'' }}</textarea>
+                        <!-- <textarea class="form-control" id="description" name="description" rows="5" required placeholder="Enter detailed product description...">{{ form.description.value|default:'' }}</textarea>
                         <div class="form-text">Provide a comprehensive description of the product</div>
+                        {% if form.description.errors %}
+                            <div class="text-danger mt-1">{{ form.description.errors.0 }}</div>
+                        {% endif %} -->
+
+                        <!-- Description field -->
+                        <textarea class="form-control" id="description" name="description" rows="5" required placeholder="Enter detailed product description...">{{ form.description.value|default:'' }}</textarea>
                         {% if form.description.errors %}
                             <div class="text-danger mt-1">{{ form.description.errors.0 }}</div>
                         {% endif %}
@@ -375,6 +427,31 @@
 
                     <!-- Product Images -->
                     <div class="form-group">
+                        <!-- <label class="form-label">Product Images <span class="required">*</span></label> -->
+
+                        {% if mode == 'edit' and product.images.all %}
+                            <div class="existing-images mb-3">
+                                <label class="form-label">Existing Images</label>
+                                <div class="d-flex flex-wrap gap-3">
+                                    {% for image in product.images.all %}
+                                        <div class="position-relative">
+                                            <img src="{{ image.image.url }}" alt="{{ product.name }}" 
+                                                style="width:120px; height:120px; object-fit:cover; border-radius:8px; border:1px solid #ddd;">
+                                            <form method="POST" action="{% url 'delete_product_image' image.id %}" 
+                                                style="position:absolute; top:5px; right:5px;">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm btn-danger" title="Delete Image"
+                                                        style="border-radius:50%; padding:4px 6px;">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                                <hr>
+                            </div>
+                        {% endif %}
+                                                
                         <div class="required-note">
                             <i class="fas fa-info-circle me-1"></i>
                             <strong>Important:</strong> Please upload at least 3 product images. Click on any image to crop/resize it.
@@ -397,7 +474,12 @@
                     <!-- Status -->
                     <div class="form-group">
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="is_listed" name="is_listed" checked>
+                            <!-- <input class="form-check-input" type="checkbox" id="is_listed" name="is_listed" 
+                                   {% if form.is_listed.value == None or form.is_listed.value %}checked{% endif %}> -->
+
+
+                            <input class="form-check-input" type="checkbox" id="is_listed" name="is_listed" 
+                                {% if form.is_listed.value %}checked{% endif %}>
                             <label class="form-check-label" for="is_listed">
                                 List Product (Active)
                             </label>
@@ -405,12 +487,17 @@
                         <div class="form-text">Unlisted products won't be displayed on the website</div>
                     </div>
 
+
                     <!-- Form Actions -->
                     <div class="btn-group-actions">
-                        <button type="submit" class="btn btn-primary" id="submitBtn" disabled>
-                            <i class="fas fa-save me-1"></i> Save Product
+                        <button type="submit" class="btn btn-primary" id="submitBtn">
+                            <i class="fas fa-save me-1"></i> Update Product
                         </button>
-                        <a href="{% url 'admin_products' %}" class="btn btn-secondary">
+                        <!-- <button type="button" class="btn btn-secondary" onclick="resetFormData()">
+                            <i class="fas fa-undo me-1"></i> Reset Form
+                            
+                        </button> -->
+                        <a href="{% url 'admin_products' %}" class="btn btn-secondary btn-sm">
                             Cancel
                         </a>
                     </div>
@@ -440,12 +527,15 @@
 
 {% block extra_js %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+
+
     <script>
 let imageFiles = [];
 let primaryIndex = 0;
 let cropper = null;
 let currentEditIndex = -1;
 
+// DOM elements
 const uploadArea = document.getElementById('uploadArea');
 const imageInput = document.getElementById('imageInput');
 const imagesGrid = document.getElementById('imagesGrid');
@@ -456,10 +546,14 @@ const cropImage = document.getElementById('cropImage');
 const cropSave = document.getElementById('cropSave');
 const cropCancel = document.getElementById('cropCancel');
 
-// Upload area click handler
+const isEditMode = document.getElementById("mode").value === "edit";
+
+
+// ---------------------------
+// IMAGE UPLOAD & PREVIEW
+// ---------------------------
 uploadArea.onclick = () => imageInput.click();
 
-// File input change handler
 imageInput.onchange = (e) => {
     Array.from(e.target.files).forEach(file => {
         if (file.type.startsWith('image/')) {
@@ -473,14 +567,14 @@ imageInput.onchange = (e) => {
     imageInput.value = '';
 };
 
-// Update UI with current images
 function updateUI() {
     imagesGrid.innerHTML = '';
+
     imageFiles.forEach((imgData, i) => {
         const card = document.createElement('div');
         card.className = `image-card${i === primaryIndex ? ' primary' : ''}`;
         card.innerHTML = `
-            <img src="${imgData.preview}" alt="Product ${i + 1}">
+            <img src="${imgData.preview}">
             ${i === primaryIndex ? '<div class="primary-badge">Primary</div>' : ''}
             <div class="overlay">
                 <button type="button" class="btn-icon edit" onclick="editImage(${i})">
@@ -497,96 +591,127 @@ function updateUI() {
         imagesGrid.appendChild(card);
     });
 
-    imageCount.textContent = imageFiles.length;
-
-    if (imageFiles.length >= 3) {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '<i class="fas fa-save me-1"></i> Save Product';
-    } else {
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = `<i class="fas fa-save me-1"></i> Save Product (Need ${3 - imageFiles.length} more images)`;
-    }
+    updateImageCount();
 }
 
-// Edit/Crop image
-function editImage(index) {
-    currentEditIndex = index;
-    cropImage.src = imageFiles[index].preview;
-    cropModal.classList.add('active');
+// ---------------------------
+// IMAGE COUNT & BUTTON STATE
+// ---------------------------
+function updateImageCount() {
+    const existing = document.querySelectorAll(".existing-images img").length || 0;
+    const added = imageFiles.length;
+    const total = existing + added;
+
+    imageCount.textContent = total;
+
+    // Add mode ⇒ require minimum 3 images
+    // Edit mode ⇒ always allow update
+    submitBtn.disabled = (!isEditMode && total < 3);
+}
+
+// ---------------------------
+// CROP IMAGE
+// ---------------------------
+function editImage(i) {
+    currentEditIndex = i;
+    cropImage.src = imageFiles[i].preview;
+    cropModal.classList.add("active");
 
     setTimeout(() => {
         if (cropper) cropper.destroy();
-        cropper = new Cropper(cropImage, {
-            aspectRatio: NaN,
-            viewMode: 1,
-            autoCropArea: 1
-        });
+        cropper = new Cropper(cropImage, { viewMode: 1, autoCropArea: 1 });
     }, 100);
 }
 
-// Set primary image
-function setPrimary(index) {
-    primaryIndex = index;
-    updateUI();
-}
-
-// Delete image
-function deleteImage(index) {
-    URL.revokeObjectURL(imageFiles[index].preview);
-    imageFiles.splice(index, 1);
-    if (primaryIndex >= index && primaryIndex > 0) primaryIndex--;
-    updateUI();
-}
-
-// Crop save handler
-cropSave.onclick = () => {
-    if (cropper) {
-        cropper.getCroppedCanvas().toBlob((blob) => {
-            const fileName = imageFiles[currentEditIndex].file.name;
-            const newFile = new File([blob], fileName, { type: 'image/jpeg' });
-
-            URL.revokeObjectURL(imageFiles[currentEditIndex].preview);
-            imageFiles[currentEditIndex] = {
-                file: newFile,
-                preview: URL.createObjectURL(newFile)
-            };
-
-            cropper.destroy();
-            cropper = null;
-            cropModal.classList.remove('active');
-            updateUI();
-        });
-    }
-};
-
-// Crop cancel handler
 cropCancel.onclick = () => {
     if (cropper) cropper.destroy();
     cropper = null;
     cropModal.classList.remove('active');
 };
 
-// Form submit handler
-document.getElementById('productForm').onsubmit = function(e) {
-    if (imageFiles.length < 3) {
+cropSave.onclick = () => {
+    cropper.getCroppedCanvas().toBlob((blob) => {
+        const filename = imageFiles[currentEditIndex].file.name;
+        const newFile = new File([blob], filename, { type: "image/jpeg" });
+
+        URL.revokeObjectURL(imageFiles[currentEditIndex].preview);
+
+        imageFiles[currentEditIndex] = {
+            file: newFile,
+            preview: URL.createObjectURL(newFile),
+        };
+
+        cropper.destroy();
+        cropper = null;
+        cropModal.classList.remove("active");
+        updateUI();
+    });
+};
+
+// ---------------------------
+// SET PRIMARY IMAGE
+// ---------------------------
+function setPrimary(i) {
+    primaryIndex = i;
+    updateUI();
+}
+
+// ---------------------------
+// DELETE NEW IMAGE
+// ---------------------------
+function deleteImage(i) {
+    URL.revokeObjectURL(imageFiles[i].preview);
+    imageFiles.splice(i, 1);
+
+    if (primaryIndex >= i && primaryIndex > 0) primaryIndex--;
+
+    updateUI();
+}
+
+// ---------------------------
+// FORM SUBMIT (NORMAL POST)
+// ---------------------------
+document.getElementById("productForm").addEventListener("submit", function (e) {
+    const existing = document.querySelectorAll(".existing-images img").length || 0;
+    const added = imageFiles.length;
+    const total = existing + added;
+
+    // Allow edit mode even if no images added
+    if (!isEditMode && total < 3) {
         e.preventDefault();
-        alert('Please upload at least 3 images');
-        return false;
+        alert("Please upload at least 3 images.");
+        return;
     }
 
-    // Reorder images: primary first
-    const dataTransfer = new DataTransfer();
-    const reorderedImages = [...imageFiles];
-    const primaryImg = reorderedImages.splice(primaryIndex, 1)[0];
-    reorderedImages.unshift(primaryImg);
+    // Reorder new images so primary goes first
+    if (added > 0) {
+        const dt = new DataTransfer();
+        let reordered = [...imageFiles];
 
-    // Add files to DataTransfer
-    reorderedImages.forEach(imgData => {
-        dataTransfer.items.add(imgData.file);
-    });
+        const primary = reordered.splice(primaryIndex, 1)[0];
+        reordered.unshift(primary);
 
-    // Update file input
-    imageInput.files = dataTransfer.files;
-};
-    </script>
+        reordered.forEach(img => dt.items.add(img.file));
+
+        imageInput.files = dt.files;
+    }
+});
+
+// ---------------------------
+// INITIAL CHECK FOR EDIT MODE
+// ---------------------------
+window.addEventListener("load", () => {
+    updateImageCount();
+});
+
+submitBtn.addEventListener("click", () => {
+    console.log("Submit button CLICKED");
+});
+
+document.getElementById("productForm").addEventListener("submit", () => {
+    console.log("FORM SUBMIT EVENT TRIGGERED");
+});
+
+</script>
+
 {% endblock extra_js %}

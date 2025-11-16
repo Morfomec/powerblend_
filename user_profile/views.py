@@ -36,7 +36,7 @@ def user_dashboard(request):
 
     referral, created = UserReferral.objects.get_or_create(user=user)
 
-    if created and not referral.referral_code:
+    if created and not referral.referrer_code:
         referral.save()
     
     referral.refresh_from_db() 
@@ -51,7 +51,7 @@ def user_dashboard(request):
     context = {
         'user': user,
         'addresses' : addresses,
-        'referral_code': referral.referral_code,
+        'referrer_code': referral.referrer_code,
         'referred_users' : referred_users,
         'recent_orders' : recent_orders,
         'total_orders' : total_orders,

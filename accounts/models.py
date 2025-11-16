@@ -51,7 +51,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         max_length=255,
         validators=[validate_full_name]
     )
-    email = models.EmailField(unique=True)
+    email = models.EmailField()
 
     profile_image = models.ImageField(upload_to='user_profile_images/', blank=True, null=True)
     mobile = models.CharField(max_length=15, blank=True, null=True)
@@ -99,23 +99,31 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     class Meta:
         db_table = 'registered_users'
 
+        constraints = [
+            models.UniqueConstraint(
+                fields=['email'],
+                condition=models.Q(is_verified=True),
+                name='unique_verified_user_email'
+            )
+        ]
 
-def generate_referral_code(length=8):
+
+def generate_referrer_code(length=8):
     return get_random_string(length).upper()
 
 
 class UserReferral(models.Model):
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='referral')
-    referral_code = models.CharField(max_length=20, unique=True, blank=True, null=True)
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='referrer')
+    referrer_code = models.CharField(max_length=20, unique=True, blank=True, null=True)
     referred_by = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='referred_users')
     reward_given = models.BooleanField(default=False)
     def __str__(self):
-        return f"{self.user.full_name or self.user.email} - {self.referral_code}"
+        return f"{self.user.full_name or self.user.email} - {self.referrer_code}"
 
 
     def save(self, *args, **kwargs):
-        if not self.referral_code:
-            self.referral_code = generate_referral_code()
+        if not self.referrer_code:
+            self.referrer_code = generate_referrer_code()
             
             
         super().save(*args, **kwargs)

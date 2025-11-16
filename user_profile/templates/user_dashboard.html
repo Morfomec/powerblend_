@@ -583,7 +583,7 @@
         <!-- Profile Header -->
         <div class="profile-header-card">
             <div class="profile-header-content">
-                <!-- <p>DEBUG REFERRAL CODE: {{ referral_code }}</p> -->
+                <!-- <p>DEBUG REFERRAL CODE: {{ referrer_code }}</p> -->
 
                 
                 <div class="profile-avatar">
@@ -609,7 +609,7 @@
                                 type="text" 
                                 class="referral-code-input" 
                                 id="referralCodeHeader" 
-                                value="{{ referral_code }}" 
+                                value="{{ referrer_code }}" 
                                 readonly
                             >
                             <button 
@@ -724,7 +724,7 @@
                         Saved Addresses
                     </h3>
                     
-                    <div class="address-grid">
+                    <!-- <div class="address-grid">
                         <div class="address-mini-card default">
                             <div class="address-type-mini">
                                 <i class="fas fa-home"></i>
@@ -757,7 +757,7 @@
                                 Kerala 695527
                             </div>
                         </div>
-                    </div>
+                    </div> -->
 
                     <div class="text-center mt-3">
                         <a href="{% url 'address_list'%}" class="btn-outline-primary-custom">

@@ -1,11 +1,11 @@
 from .models import Coupon
-from accounts.models import generate_referral_code
+from accounts.models import generate_referrer_code
 from decimal import Decimal 
 from django.utils import timezone
 
 
 def reward_referrer(referrer_user):
-    code = generate_referral_code(prefix='REF')
+    code = generate_referrer_code(prefix='REF')
     while Coupon.objects.filter(code=code).exists():
         code = generate_coupon_code(prefix='REF')
 

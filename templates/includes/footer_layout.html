@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -65,7 +64,7 @@
         .footer-heading {
             font-size: 0.9rem;
             font-weight: 700;
-            color: white);
+            color: white;
             margin-bottom: 1.5rem;
             letter-spacing: 1px;
             text-transform: uppercase;
@@ -127,6 +126,7 @@
             display: flex;
             gap: 1rem;
             margin-bottom: 1rem;
+            flex-wrap: wrap;
         }
 
         .social-icon {
@@ -156,7 +156,8 @@
             border-radius: 15px;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            margin-top: 2rem;
+            margin-top: 0;
+            height: 100%;
         }
 
         .newsletter-box h5 {
@@ -175,10 +176,12 @@
         .newsletter-form {
             display: flex;
             gap: 0.5rem;
+            flex-wrap: wrap;
         }
 
         .newsletter-input {
             flex: 1;
+            min-width: 200px;
             padding: 0.75rem 1rem;
             border: none;
             border-radius: 25px;
@@ -202,6 +205,7 @@
             cursor: pointer;
             transition: all 0.3s ease;
             white-space: nowrap;
+            flex-shrink: 0;
         }
 
         .newsletter-btn:hover {
@@ -248,7 +252,7 @@
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 1rem;
+            gap: 1.5rem;
         }
 
         .copyright {
@@ -261,6 +265,7 @@
             display: flex;
             gap: 1rem;
             align-items: center;
+            flex-wrap: wrap;
         }
 
         .payment-icon {
@@ -288,30 +293,187 @@
             color: white;
         }
 
+        /* Tablet Responsive */
+        @media (max-width: 992px) {
+            .footer-brand h3 {
+                font-size: 1.75rem;
+            }
+
+            .trust-icon {
+                font-size: 2rem;
+            }
+
+            .newsletter-box {
+                margin-top: 1rem;
+            }
+        }
+
+        /* Mobile Responsive */
         @media (max-width: 768px) {
             .footer-top {
-                padding: 3rem 0 2rem;
+                padding: 2.5rem 0 2rem;
+            }
+
+            .footer-brand {
+                text-align: center;
+                margin-bottom: 2rem;
+            }
+
+            .footer-brand h3 {
+                font-size: 1.5rem;
+            }
+
+            .footer-brand p {
+                max-width: 100%;
+            }
+
+            .footer-heading {
+                text-align: center;
+                font-size: 0.85rem;
+            }
+
+            .footer-heading::after {
+                left: 50%;
+                transform: translateX(-50%);
+            }
+
+            .footer-links {
+                text-align: center;
+            }
+
+            .footer-links li {
+                margin-bottom: 0.6rem;
+            }
+
+            .footer-links a {
+                justify-content: center;
+                font-size: 0.9rem;
+            }
+
+            .social-section {
+                text-align: center;
+                margin-top: 2rem;
+            }
+
+            .social-icons {
+                justify-content: center;
+            }
+
+            .social-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+
+            .newsletter-box {
+                margin-top: 2rem;
+                padding: 1.5rem;
+                text-align: center;
             }
 
             .newsletter-form {
                 flex-direction: column;
             }
 
+            .newsletter-input {
+                width: 100%;
+                min-width: 100%;
+            }
+
             .newsletter-btn {
                 width: 100%;
+                padding: 0.75rem 1rem;
+            }
+
+            .footer-middle {
+                padding: 1.5rem 0;
+            }
+
+            .trust-item {
+                padding: 1rem 0.5rem;
+                margin-bottom: 1rem;
+            }
+
+            .trust-icon {
+                font-size: 2rem;
+            }
+
+            .trust-item h6 {
+                font-size: 0.85rem;
+            }
+
+            .trust-item p {
+                font-size: 0.8rem;
+            }
+
+            .footer-bottom {
+                padding: 1.5rem 0;
             }
 
             .footer-bottom-content {
                 flex-direction: column;
                 text-align: center;
+                gap: 1rem;
+            }
+
+            .copyright {
+                font-size: 0.85rem;
+                order: 3;
             }
 
             .payment-methods {
                 justify-content: center;
+                order: 1;
+                gap: 0.75rem;
+            }
+
+            .payment-icon {
+                padding: 0.4rem 0.8rem;
+                font-size: 1.25rem;
             }
 
             .footer-policies {
                 justify-content: center;
+                order: 2;
+                gap: 1rem;
+            }
+
+            .footer-policies a {
+                font-size: 0.8rem;
+            }
+        }
+
+        /* Small Mobile */
+        @media (max-width: 480px) {
+            .footer-brand h3 {
+                font-size: 1.3rem;
+                letter-spacing: 1px;
+            }
+
+            .footer-brand p {
+                font-size: 0.85rem;
+            }
+
+            .social-icon {
+                width: 38px;
+                height: 38px;
+            }
+
+            .newsletter-box h5 {
+                font-size: 1rem;
+            }
+
+            .newsletter-box p {
+                font-size: 0.85rem;
+            }
+
+            .payment-icon {
+                padding: 0.3rem 0.6rem;
+                font-size: 1.1rem;
+            }
+
+            .trust-icon {
+                font-size: 1.75rem;
             }
         }
     </style>
@@ -386,19 +548,10 @@
                         <li><a href="#">Creatine</a></li>
                         <li><a href="#">Weight Loss</a></li>
                     </ul>
-                    <!-- <ul class="footer-links">
-                    {% for product in product_link %}
-                       <li><a href="?category={{ product }}" class="{% if request.GET.category == product %}active{% endif %}" >
-                            {{ product }}
-                        </a></li>
-                    {% endfor %}
-                    </ul>
-                    <ul> -->
-              
                 </div>
 
                  <!-- Newsletter -->
-                <div class="col-lg-2 col-md-6 mb-4">
+                <div class="col-lg-2 col-md-12 mb-4">
                     <div class="newsletter-box">
                         <h5>Newsletter</h5>
                         <p>Get exclusive offers and updates!</p>
@@ -418,7 +571,7 @@
     <div class="footer-middle">
         <div class="container">
             <div class="row">
-                <div class="col-lg-3 col-md-6">
+                <div class="col-lg-3 col-md-6 col-sm-6">
                     <div class="trust-item">
                         <div class="trust-icon">
                             <i class="fas fa-shipping-fast"></i>
@@ -427,7 +580,7 @@
                         <p>On orders over $50</p>
                     </div>
                 </div>
-                <div class="col-lg-3 col-md-6">
+                <div class="col-lg-3 col-md-6 col-sm-6">
                     <div class="trust-item">
                         <div class="trust-icon">
                             <i class="fas fa-shield-alt"></i>
@@ -436,7 +589,7 @@
                         <p>100% secure transactions</p>
                     </div>
                 </div>
-                <div class="col-lg-3 col-md-6">
+                <div class="col-lg-3 col-md-6 col-sm-6">
                     <div class="trust-item">
                         <div class="trust-icon">
                             <i class="fas fa-undo"></i>
@@ -445,7 +598,7 @@
                         <p>30-day return policy</p>
                     </div>
                 </div>
-                <div class="col-lg-3 col-md-6">
+                <div class="col-lg-3 col-md-6 col-sm-6">
                     <div class="trust-item">
                         <div class="trust-icon">
                             <i class="fas fa-headset"></i>

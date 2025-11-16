@@ -104,7 +104,68 @@
             color: #333;
         }
         
-        /* Image Upload Styles */
+        /* Existing Images */
+        .existing-images-section {
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .existing-images-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .existing-image-card {
+            position: relative;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #fff;
+            aspect-ratio: 1;
+        }
+        
+        .existing-image-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.2s;
+        }
+        
+        .existing-image-card:hover img {
+            transform: scale(1.05);
+        }
+        
+        .existing-image-card .delete-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.2s;
+            z-index: 10;
+        }
+        
+        .existing-image-card:hover .delete-btn {
+            opacity: 1;
+        }
+        
+        .existing-image-card .delete-btn:hover {
+            background: #c82333;
+        }
+        
+        /* New Image Upload Styles */
         .image-upload-section {
             border: 2px dashed #ddd;
             border-radius: 8px;
@@ -291,17 +352,17 @@
             margin-top: 1rem;
         }
         
-        .required-note {
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
-            color: #856404;
+        .info-note {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
             padding: 0.75rem;
             border-radius: 6px;
             margin-bottom: 1rem;
         }
 
         @media (max-width: 768px) {
-            .images-grid {
+            .images-grid, .existing-images-grid {
                 grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
             }
             .form-row {
@@ -317,19 +378,19 @@
         <!-- Page Header -->
         <div class="page-header">
             <h1 class="page-title">Product Management</h1>
-            <p class="page-subtitle">Add new product to your inventory</p>
+            <p class="page-subtitle">Edit product information</p>
         </div>
 
-        <!-- Add Product Form -->
+        <!-- Edit Product Form -->
         <div class="content-card">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <span>Add New Product</span>
+                <span>Edit Product: {{ product.name }}</span>
                 <a href="{% url 'admin_products' %}" class="btn btn-secondary">
                     <i class="fas fa-arrow-left me-1"></i> Back to Products
                 </a>
             </div>
             <div class="card-body">
-                <form method="POST" enctype="multipart/form-data" id="productForm" action="{% url 'add_product' %}">
+                <form method="POST" enctype="multipart/form-data" id="productForm" action="{% url 'edit_product' product.id %}">
                     {% csrf_token %}
                     
                     <!-- Basic Information -->
@@ -338,7 +399,7 @@
                             <div class="form-group">
                                 <label for="name" class="form-label">Product Name <span class="required">*</span></label>
                                 <input type="text" class="form-control" id="name" name="name" 
-                                       value="{{ form.name.value|default:'' }}" required maxlength="500"
+                                       value="{{ form.name.value|default:product.name }}" required maxlength="500"
                                        placeholder="Enter product name">
                                 <div class="form-text">This will be the display name for your product</div>
                                 {% if form.name.errors %}
@@ -352,7 +413,9 @@
                                 <select class="form-select" id="category" name="category" required>
                                     <option value="">Select Category</option>
                                     {% for category in categories %}
-                                        <option value="{{ category.id }}">{{ category.name }}</option>
+                                        <option value="{{ category.id }}" {% if product.category.id == category.id %}selected{% endif %}>
+                                            {{ category.name }}
+                                        </option>
                                     {% endfor %}
                                 </select>
                                 <div class="form-text">Choose the category this product belongs to</div>
@@ -366,29 +429,54 @@
                     <!-- Description -->
                     <div class="form-group">
                         <label for="description" class="form-label">Description <span class="required">*</span></label>
-                        <textarea class="form-control" id="description" name="description" rows="5" required placeholder="Enter detailed product description...">{{ form.description.value|default:'' }}</textarea>
+                        <textarea class="form-control" id="description" name="description" rows="5" required placeholder="Enter detailed product description...">{{ form.description.value|default:product.description }}</textarea>
                         <div class="form-text">Provide a comprehensive description of the product</div>
                         {% if form.description.errors %}
                             <div class="text-danger mt-1">{{ form.description.errors.0 }}</div>
                         {% endif %}
                     </div>
 
-                    <!-- Product Images -->
-                    <div class="form-group">
-                        <div class="required-note">
+                    <!-- Existing Product Images -->
+                    {% if product.images.all %}
+                    <div class="existing-images-section">
+                        <label class="form-label">Current Product Images</label>
+                        <div class="info-note">
                             <i class="fas fa-info-circle me-1"></i>
-                            <strong>Important:</strong> Please upload at least 3 product images. Click on any image to crop/resize it.
+                            Click the trash icon to remove an image. You can add new images below.
+                        </div>
+                        <div class="existing-images-grid" id="existingImagesGrid">
+                            {% for image in product.images.all %}
+                                <div class="existing-image-card" data-image-id="{{ image.id }}">
+                                    <img src="{{ image.image.url }}" alt="{{ product.name }}">
+                                    <button type="button" class="delete-btn" onclick="deleteExistingImage({{ image.id }}, this)">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <div class="form-text mt-2">
+                            Current images: <span id="existingCount">{{ product.images.count }}</span>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Add New Images -->
+                    <div class="form-group">
+                        <label class="form-label">Add New Images (Optional)</label>
+                        <div class="info-note">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Upload additional images if needed. You can crop and set primary image for new uploads.
                         </div>
 
                         <div class="image-upload-section" id="uploadArea">
                             <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
-                            <p class="text-muted mb-2">Click to select images</p>
+                            <p class="text-muted mb-2">Click to select new images</p>
                             <p class="text-muted small">Supported formats: JPG, PNG, GIF</p>
                             <input type="file" id="imageInput" name="images" accept="image/*" multiple style="display: none;">
                         </div>
                         
                         <div class="image-counter">
-                            <span id="imageCount">0</span> images selected (minimum 3 required)
+                            <span id="newImageCount">0</span> new images selected
                         </div>
                         
                         <div class="images-grid" id="imagesGrid"></div>
@@ -397,7 +485,8 @@
                     <!-- Status -->
                     <div class="form-group">
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="is_listed" name="is_listed" checked>
+                            <input class="form-check-input" type="checkbox" id="is_listed" name="is_listed" 
+                                   {% if product.is_listed %}checked{% endif %}>
                             <label class="form-check-label" for="is_listed">
                                 List Product (Active)
                             </label>
@@ -407,8 +496,8 @@
 
                     <!-- Form Actions -->
                     <div class="btn-group-actions">
-                        <button type="submit" class="btn btn-primary" id="submitBtn" disabled>
-                            <i class="fas fa-save me-1"></i> Save Product
+                        <button type="submit" class="btn btn-primary" id="submitBtn">
+                            <i class="fas fa-save me-1"></i> Update Product
                         </button>
                         <a href="{% url 'admin_products' %}" class="btn btn-secondary">
                             Cancel
@@ -449,7 +538,7 @@ let currentEditIndex = -1;
 const uploadArea = document.getElementById('uploadArea');
 const imageInput = document.getElementById('imageInput');
 const imagesGrid = document.getElementById('imagesGrid');
-const imageCount = document.getElementById('imageCount');
+const newImageCount = document.getElementById('newImageCount');
 const submitBtn = document.getElementById('submitBtn');
 const cropModal = document.getElementById('cropModal');
 const cropImage = document.getElementById('cropImage');
@@ -480,7 +569,7 @@ function updateUI() {
         const card = document.createElement('div');
         card.className = `image-card${i === primaryIndex ? ' primary' : ''}`;
         card.innerHTML = `
-            <img src="${imgData.preview}" alt="Product ${i + 1}">
+            <img src="${imgData.preview}" alt="New Product ${i + 1}">
             ${i === primaryIndex ? '<div class="primary-badge">Primary</div>' : ''}
             <div class="overlay">
                 <button type="button" class="btn-icon edit" onclick="editImage(${i})">
@@ -497,15 +586,7 @@ function updateUI() {
         imagesGrid.appendChild(card);
     });
 
-    imageCount.textContent = imageFiles.length;
-
-    if (imageFiles.length >= 3) {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '<i class="fas fa-save me-1"></i> Save Product';
-    } else {
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = `<i class="fas fa-save me-1"></i> Save Product (Need ${3 - imageFiles.length} more images)`;
-    }
+    newImageCount.textContent = imageFiles.length;
 }
 
 // Edit/Crop image
@@ -530,12 +611,51 @@ function setPrimary(index) {
     updateUI();
 }
 
-// Delete image
+// Delete new image
 function deleteImage(index) {
     URL.revokeObjectURL(imageFiles[index].preview);
     imageFiles.splice(index, 1);
     if (primaryIndex >= index && primaryIndex > 0) primaryIndex--;
     updateUI();
+}
+
+// Delete existing image
+function deleteExistingImage(imageId, btnElement) {
+    if (!confirm('Are you sure you want to delete this image?')) {
+        return;
+    }
+
+    const card = btnElement.closest('.existing-image-card');
+    
+    fetch(`/products/${imageId}/delete-image/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            card.remove();
+            // Update count
+            const existingCount = document.getElementById('existingCount');
+            const currentCount = parseInt(existingCount.textContent);
+            existingCount.textContent = currentCount - 1;
+            
+            // Check if no existing images left
+            const grid = document.getElementById('existingImagesGrid');
+            if (grid.children.length === 0) {
+                document.querySelector('.existing-images-section').remove();
+            }
+        } else {
+            alert('Failed to delete image: ' + (data.message || 'Unknown error'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to delete image. Please try again.');
+    });
 }
 
 // Crop save handler
@@ -568,25 +688,22 @@ cropCancel.onclick = () => {
 
 // Form submit handler
 document.getElementById('productForm').onsubmit = function(e) {
-    if (imageFiles.length < 3) {
-        e.preventDefault();
-        alert('Please upload at least 3 images');
-        return false;
+    // In edit mode, we allow submission even without new images
+    if (imageFiles.length > 0) {
+        // Reorder images: primary first
+        const dataTransfer = new DataTransfer();
+        const reorderedImages = [...imageFiles];
+        const primaryImg = reorderedImages.splice(primaryIndex, 1)[0];
+        reorderedImages.unshift(primaryImg);
+
+        // Add files to DataTransfer
+        reorderedImages.forEach(imgData => {
+            dataTransfer.items.add(imgData.file);
+        });
+
+        // Update file input
+        imageInput.files = dataTransfer.files;
     }
-
-    // Reorder images: primary first
-    const dataTransfer = new DataTransfer();
-    const reorderedImages = [...imageFiles];
-    const primaryImg = reorderedImages.splice(primaryIndex, 1)[0];
-    reorderedImages.unshift(primaryImg);
-
-    // Add files to DataTransfer
-    reorderedImages.forEach(imgData => {
-        dataTransfer.items.add(imgData.file);
-    });
-
-    // Update file input
-    imageInput.files = dataTransfer.files;
 };
     </script>
 {% endblock extra_js %}

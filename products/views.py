@@ -61,118 +61,118 @@ def admin_products(request):
     return render(request, 'product_management.html', context)
 
 
-def add_product(request):
-    """
-    To handle both GET and POST requests for adding a new product
-    """
+# def add_product(request):
+#     """
+#     To handle both GET and POST requests for adding a new product
+#     """
     
-    current_page = request.GET.get('page', '1')
+#     current_page = request.GET.get('page', '1')
 
 
-    if request.method == 'POST':
-        name = request.POST.get('name')
-        description = request.POST.get('description')
-        category = request.POST.get('category')
-        price = request.POST.get('price')
-        stock = request.POST.get('stock')
-        is_listed = request.POST.get('is_listed') in ["on" , "true", "1", True]
+#     if request.method == 'POST':
+#         name = request.POST.get('name')
+#         description = request.POST.get('description')
+#         category = request.POST.get('category')
+#         price = request.POST.get('price')
+#         stock = request.POST.get('stock')
+#         is_listed = request.POST.get('is_listed') in ["on" , "true", "1", True]
 
-        uploaded_images = request.FILES.getlist('images')
+#         uploaded_images = request.FILES.getlist('images')
         
-        if not name or not description or not category:
-            messages.error(request, "Field inputs are missing!!")
+#         if not name or not description or not category:
+#             messages.error(request, "Field inputs are missing!!")
 
-            categories = Category.objects.all()
+#             categories = Category.objects.all()
 
-            #repopulate the form with existing data to avoid losing it
+#             #repopulate the form with existing data to avoid losing it
 
-            context = {
-                'form':{
-                    'name':{'value':name},
-                    'description':{'value':description},
-                    'category':{'value':category},
-                    # 'price':{'value':price},
-                    # 'stock':{'value':stock},
-                    'is_listed':{'value':is_listed},
-                },
-                'categories': categories,
-                "mode":"add",
-                "active_page":"add_product",
-            }
-            return render(request, 'add_product.html', context)
+#             context = {
+#                 'form':{
+#                     'name':{'value':name},
+#                     'description':{'value':description},
+#                     'category':{'value':category},
+#                     # 'price':{'value':price},
+#                     # 'stock':{'value':stock},
+#                     'is_listed':{'value':is_listed},
+#                 },
+#                 'categories': categories,
+#                 "mode":"add",
+#                 "active_page":"add_product",
+#             }
+#             return render(request, 'add_product.html', context)
 
-        #have check for minimum number of images
-        if not uploaded_images or len(uploaded_images) < 3:
-            messages.error(request, "Please upload at least 3 product images.")
+#         #have check for minimum number of images
+#         if not uploaded_images or len(uploaded_images) < 3:
+#             messages.error(request, "Please upload at least 3 product images.")
 
-            #repopulate the form again
+#             #repopulate the form again
 
-            categories = Category.objects.all()
-            context = {
-                'form':{
-                    'name':{'value':name},
-                    'description':{'value':description},
-                    'category':{'value':category},
-                    # 'price':{'value':price},
-                    # 'stock':{'value':stock},
-                    'is_listed':{'value':is_listed},
-                },
-                'categories': categories,
-                "mode":"add",
-                "active_page":"add_product",
-            }
-            return render(request, 'add_product.html', context)
+#             categories = Category.objects.all()
+#             context = {
+#                 'form':{
+#                     'name':{'value':name},
+#                     'description':{'value':description},
+#                     'category':{'value':category},
+#                     # 'price':{'value':price},
+#                     # 'stock':{'value':stock},
+#                     'is_listed':{'value':is_listed},
+#                 },
+#                 'categories': categories,
+#                 "mode":"add",
+#                 "active_page":"add_product",
+#             }
+#             return render(request, 'add_product.html', context)
             
-        try:
-            #save products now
-            category = get_object_or_404(Category, id=category)
-            product = Product.objects.create(
-                name = name,
-                description=description,
-                category=category,
-                # price=price,
-                # stock=stock if stock else 0,
-                is_listed=is_listed,
-            )
-            # return render(request, 'add_product.html', context)
+#         try:
+#             #save products now
+#             category = get_object_or_404(Category, id=category)
+#             product = Product.objects.create(
+#                 name = name,
+#                 description=description,
+#                 category=category,
+#                 # price=price,
+#                 # stock=stock if stock else 0,
+#                 is_listed=is_listed,
+#             )
+#             # return render(request, 'add_product.html', context)
 
 
-            #to handle multiple images
-            # if request.FILES.getlist('images'):
-            for img in request.FILES.getlist('images'):
-                ProductImage.objects.create(product=product, image=img)
+#             #to handle multiple images
+#             # if request.FILES.getlist('images'):
+#             for img in request.FILES.getlist('images'):
+#                 ProductImage.objects.create(product=product, image=img)
 
-            messages.success(request, f"Product '{name}' added successfully!")
-            return redirect(f"{reverse('admin_products')}?page={current_page}")
+#             messages.success(request, f"Product '{name}' added successfully!")
+#             return redirect(f"{reverse('admin_products')}?page={current_page}")
         
-        except Exception as e:
-            messages.error(request, f"An error occurred: {e}")
-            categories = Category.objects.all()
-            context = {
-                'form': {
-                    'name': {'value': name},
-                    'description': {'value': description},
-                    'category': {'value': category},
-                    'is_listed': {'value': is_listed},
-                },
-                'categories': categories,
-                "mode": "add",
-                "active_page": "add_product",
-            }
+#         except Exception as e:
+#             messages.error(request, f"An error occurred: {e}")
+#             categories = Category.objects.all()
+#             context = {
+#                 'form': {
+#                     'name': {'value': name},
+#                     'description': {'value': description},
+#                     'category': {'value': category},
+#                     'is_listed': {'value': is_listed},
+#                 },
+#                 'categories': categories,
+#                 "mode": "add",
+#                 "active_page": "add_product",
+#             }
             
-            return render(request, 'add_product.html', context)
+#             return render(request, 'add_product.html', context)
 
-    else:
-        categories = Category.objects.all()
-        context = {
-            "form" : {},
-            "categories":categories,
-            "mode":"add",
-            "active_page":"add_product",
-        }
+#     else:
+#         categories = Category.objects.all()
+#         context = {
+#             "form" : {},
+#             "categories":categories,
+#             "mode":"add",
+#             "active_page":"add_product",
+#         }
 
         
-        return render(request, 'add_product.html', context)
+#         return render(request, 'add_product.html', context)
 
 
 
@@ -304,14 +304,186 @@ def edit_variant(request, variant_id):
 
 
 
+# def edit_product(request, product_id):
+#     """
+#     Handle both GET and POST requests for editing an existing products.
+#     """
+
+#     product = get_object_or_404(Product, id=product_id)
+
+#     #capture the page number
+#     current_page = request.GET.get('page', '1')
+
+#     if request.method == 'POST':
+#         form = ProductForm(request.POST, instance=product)
+#         uploaded_images = request.FILES.getlist('images')
+
+#         if form.is_valid():
+#             product = form.save()
+
+#             # to handle image uploads (keeps old one and add new)
+#             if uploaded_images:
+#                 for img in uploaded_images:
+#                     exisiting_image = product.images.filter(image__icontains=img.name).exists()
+#                     if not exisiting_image:
+#                         ProductImage.objects.create(product=product, image=img)
+
+#             messages.success(request, f"Product '{product.name}' updated successfully!")
+#             return redirect(f"{reverse('admin_products')}?page={current_page}")
+#         else:
+#             messages.error(request, "Please fix the error.")
+
+#     else:
+#         form = ProductForm(instance=product)
+    
+#     categories = Category.objects.all()
+
+#     context = {
+#         "form": form,
+#         "product": product,
+#         "categories": categories,
+#         "mode": "edit",
+#         "active_page": "edit_product",
+#     }
+#     return render(request, 'add_product.html', context)
+
+
+# def edit_product(request, product_id):
+#     """
+#     Handle both GET and POST requests for editing an existing product.
+#     """
+#     product = get_object_or_404(Product, id=product_id)
+#     current_page = request.GET.get('page', '1')
+
+#     if request.method == 'POST':
+#         print("EDIT PRODUCT POST RECEIVED")
+#         print("FILES RECEIVED:", request.FILES)
+#         print("POST RECEIVED:", request.POST)
+#         form = ProductForm(request.POST, instance=product)
+#         uploaded_images = request.FILES.getlist('images')
+
+#         if form.is_valid():
+#             product = form.save()
+
+#             # Handle new image uploads
+#             if uploaded_images:
+#                 for img in uploaded_images:
+#                     ProductImage.objects.create(product=product, image=img)
+
+#             messages.success(request, f"Product '{product.name}' updated successfully!")
+#             return redirect(f"{reverse('admin_products')}?page={current_page}")
+#         else:
+#             # Form validation failed
+#             messages.error(request, "Please fix the errors below.")
+#             categories = Category.objects.all()
+#             context = {
+#                 "form": form,  # Pass the form with errors
+#                 "product": product,
+#                 "categories": categories,
+#                 "mode": "edit",
+#                 "active_page": "edit_product",
+#             }
+#             return render(request, 'add_product.html', context)
+
+#     else:
+#         # GET request
+#         form = ProductForm(instance=product)
+#         categories = Category.objects.all()
+#         context = {
+#             "form": form,
+#             "product": product,
+#             "categories": categories,
+#             "mode": "edit",
+#             "active_page": "edit_product",
+#         }
+#         return render(request, 'add_product.html', context)
+
+
+
+def add_product(request):
+    """
+    Handle both GET and POST requests for adding a new product
+    """
+    current_page = request.GET.get('page', '1')
+    
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        description = request.POST.get('description')
+        category = request.POST.get('category')
+        is_listed = request.POST.get('is_listed') in ["on", "true", "1", True]
+        uploaded_images = request.FILES.getlist('images')
+        
+        if not name or not description or not category:
+            messages.error(request, "Field inputs are missing!")
+            categories = Category.objects.all()
+            context = {
+                'form': {
+                    'name': {'value': name},
+                    'description': {'value': description},
+                    'category': {'value': category},
+                    'is_listed': {'value': is_listed},
+                },
+                'categories': categories,
+            }
+            return render(request, 'add_product.html', context)
+        
+        if not uploaded_images or len(uploaded_images) < 3:
+            messages.error(request, "Please upload at least 3 product images.")
+            categories = Category.objects.all()
+            context = {
+                'form': {
+                    'name': {'value': name},
+                    'description': {'value': description},
+                    'category': {'value': category},
+                    'is_listed': {'value': is_listed},
+                },
+                'categories': categories,
+            }
+            return render(request, 'add_product.html', context)
+            
+        try:
+            category = get_object_or_404(Category, id=category)
+            product = Product.objects.create(
+                name=name,
+                description=description,
+                category=category,
+                is_listed=is_listed,
+            )
+            
+            for img in uploaded_images:
+                ProductImage.objects.create(product=product, image=img)
+            
+            messages.success(request, f"Product '{name}' added successfully!")
+            return redirect(f"{reverse('admin_products')}?page={current_page}")
+        
+        except Exception as e:
+            messages.error(request, f"An error occurred: {e}")
+            categories = Category.objects.all()
+            context = {
+                'form': {
+                    'name': {'value': name},
+                    'description': {'value': description},
+                    'category': {'value': category},
+                    'is_listed': {'value': is_listed},
+                },
+                'categories': categories,
+            }
+            return render(request, 'add_product.html', context)
+    
+    else:
+        categories = Category.objects.all()
+        context = {
+            "form": {},
+            "categories": categories,
+        }
+        return render(request, 'add_product.html', context)
+
+
 def edit_product(request, product_id):
     """
-    Handle both GET and POST requests for editing an existing products.
+    Handle both GET and POST requests for editing an existing product.
     """
-
     product = get_object_or_404(Product, id=product_id)
-
-    #capture the page number
     current_page = request.GET.get('page', '1')
 
     if request.method == 'POST':
@@ -321,32 +493,46 @@ def edit_product(request, product_id):
         if form.is_valid():
             product = form.save()
 
-            # to handle image uploads (keeps old one and add new)
+            # Handle new image uploads
             if uploaded_images:
                 for img in uploaded_images:
-                    exisiting_image = product.images.filter(image__icontains=img.name).exists()
-                    if not exisiting_image:
-                        ProductImage.objects.create(product=product, image=img)
+                    ProductImage.objects.create(product=product, image=img)
 
             messages.success(request, f"Product '{product.name}' updated successfully!")
             return redirect(f"{reverse('admin_products')}?page={current_page}")
         else:
-            messages.error(request, "Please fix the error.")
+            messages.error(request, "Please fix the errors below.")
+            categories = Category.objects.all()
+            context = {
+                "form": form,
+                "product": product,
+                "categories": categories,
+            }
+            return render(request, 'edit_product.html', context)
 
     else:
         form = ProductForm(instance=product)
-    
-    categories = Category.objects.all()
+        categories = Category.objects.all()
+        context = {
+            "form": form,
+            "product": product,
+            "categories": categories,
+        }
+        return render(request, 'edit_product.html', context)
 
-    context = {
-        "form": form,
-        "product": product,
-        "categories": categories,
-        "mode": "edit",
-        "active_page": "edit_product",
-    }
-    return render(request, 'add_product.html', context)
 
+from django.http import JsonResponse
+
+def delete_product_image(request, image_id):
+    """Delete a product image via AJAX"""
+    if request.method == 'POST':
+        try:
+            image = get_object_or_404(ProductImage, id=image_id)
+            image.delete()
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)})
+    return JsonResponse({'success': False, 'message': 'Invalid request method'})
 
 
 def manage_attributes(request, product_id):

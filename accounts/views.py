@@ -38,15 +38,44 @@ def register_view(request):
         form = RegistrationForm(request.POST)
 
         if form.is_valid():
+
+            if hasattr(form, "_unverified_user"):
+                user = form._unverified_user
+
+                # Generate and send new OTP
+                otp = generate_otp()
+                user.email_otp = otp
+                user.otp_created_at = timezone.now()
+                user.save()
+
+                send_mail(
+                    subject="Your new verification OTP",
+                    message=f"Hi {user.full_name},\n\nYour new OTP is: {otp}",
+                    from_email="muhammedshifil@gmail.com",
+                    recipient_list=[user.email],
+                )
+
+                # Set session for OTP verification
+                request.session["user_id"] = user.id
+
+                messages.info(
+                    request,
+                    "This email is already registered but not verified. "
+                    "A new OTP has been sent. Please verify to continue."
+                )
+
+                return redirect("verify_otp")
+
+                
             ref_code = form.cleaned_data.get('referrer_code', '').strip().upper()
             referrer_ref = None
 
-            # Optional referral
+            # Optional referrer
             if ref_code:
                 try:
-                    referrer_ref = UserReferral.objects.get(referral_code=ref_code)
+                    referrer_ref = UserReferral.objects.get(referrer_code=ref_code)
                 except UserReferral.DoesNotExist:
-                    messages.warning(request, "Invalid referral code. Registration will continue without it.")
+                    messages.warning(request, "Invalid referrer code. Registration will continue without it.")
 
             # Create user (inactive)
             user = form.save(commit=False)
@@ -54,17 +83,17 @@ def register_view(request):
             user.is_verified = False
             user.save()
 
-            # Create referral record for new user
-            referral_obj, _ = UserReferral.objects.get_or_create(user=user)
+            # Create referrer record for new user
+            referrer_obj, _ = UserReferral.objects.get_or_create(user=user)
 
             # Link to referrer if valid
             if referrer_ref:
-                referral_obj.referred_by = referrer_ref
-                referral_obj.reward_given = False
-                referral_obj.save()
+                referrer_obj.referred_by = referrer_ref
+                referrer_obj.reward_given = False
+                referrer_obj.save()
                 messages.success(
                     request,
-                    f"Referral applied! {referrer_ref.user.full_name} will earn ₹500 after your registration."
+                    f"referrer applied! {referrer_ref.user.full_name} will earn ₹500 after your registration."
                 )
 
             # Generate OTP
@@ -111,7 +140,7 @@ def login_view(request):
             return redirect("home")
         else:
             messages.error(request, "Invalid credentials!!", extra_tags='invalid_credentials')
-            return redirect("login")
+            return render(request, "login.html", {'email': email})
     return render(request, "login.html")
 
 
@@ -159,15 +188,26 @@ def verify_otp_view(request):
             user.otp_created_at = None
             user.save()
 
-            # Credit wallet if valid referral exists and reward not yet given
+            # Credit wallet if valid referrer exists and reward not yet given
             try:
-                referral = UserReferral.objects.get(user=user)
-                if referral.referred_by and not referral.reward_given:
-                    wallet, _ = Wallet.objects.get_or_create(user=referral.referred_by.user)
-                    wallet.credit(Decimal('500.00'))
-                    referral.reward_given = True
-                    referral.save()
-                    messages.success(request,f"₹500 credited to {referral.referred_by.user.full_name}'s wallet for referring you!", extra_tags='referral_credit')
+                referrer = UserReferral.objects.get(user=user)
+                if referrer.referred_by and not referrer.reward_given:
+                    wallet, _ = Wallet.objects.get_or_create(user=referrer.referred_by.user)
+                    wallet.credit(
+                        Decimal('500.00'),
+                        description=(
+                            f"Referral reward: You earned ₹500 for referring {user.full_name} "
+                            f"(Referrer Code: {referrer.referred_by.referrer_code})"
+                        )
+                    )
+
+                    referrer.reward_given = True
+                    referrer.save()
+                    messages.success(
+                        request,
+                        f"Referral reward credited! {referrer.referred_by.user.full_name} has earned ₹500 for referring you.",
+                        extra_tags='referrer_credit'
+                    )
             except UserReferral.DoesNotExist:
                 pass
 

@@ -15,14 +15,23 @@ class Wallet(models.Model):
     def __str__(self):
         return f"{self.user.full_name}'s Wallet: ₹{self.balance}"
 
-    def credit(self, amount: Decimal, description="Amount added to wallet", order=None):
+    def credit(self, amount: Decimal, description=None, order=None):
         """
         add money to wallet and record transcation
         """
         if amount <= 0:
             raise ValueError("Credit amount must be positive.")
+        
+        final_description = description or "Amount added to wallet"
+
         with transaction.atomic():
-            WalletTransaction.objects.create(wallet=self, amount=amount, transaction_type='credit', description=description, order=order)
+            WalletTransaction.objects.create(
+                wallet=self, 
+                amount=amount, 
+                transaction_type='credit', 
+                description=final_description ,
+                order=order
+            )
             self.balance += amount
             self.save(update_fields=['balance'])
 
